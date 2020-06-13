@@ -25,13 +25,10 @@ export default Vue.extend({
     msg: String
   },
 
-  // TODO : ça fait plein d'erreurs dans les logs du serveur web. Je regarderais ça demain.
-  // Mais sinon, ça marche quand même.
-
   data: function () {
     return {
       message: 'Vue + Canvas API',
-      vueCanvas: CanvasRenderingContext2D,
+      vueCanvas: null as CanvasRenderingContext2D | null,
       rectWidth: 200
     }
   },
@@ -39,17 +36,22 @@ export default Vue.extend({
   mounted () {
     const c = document.getElementById('c') as HTMLCanvasElement
     const ctx = c.getContext('2d')
-    this.vueCanvas = ctx
+    this.vueCanvas = ctx as CanvasRenderingContext2D
   },
 
   methods: {
     drawRect () {
-      // clear canvas
-      this.vueCanvas.clearRect(0, 0, 400, 200)
-      // draw rect
-      this.vueCanvas.beginPath()
-      this.vueCanvas.rect(20, 20, this.rectWidth, 100)
-      this.vueCanvas.stroke()
+      // TODO : ça va être super relou si faut checker le not null pour chaque objet.
+      // Surtout si c'est des objets qu'on est sûr qu'ils sont pas null,
+      // puisque initialisés comme il faut dès l'exécution de "mounted"
+      if (this.vueCanvas != null) {
+        // clear canvas
+        this.vueCanvas.clearRect(0, 0, 400, 200)
+        // draw rect
+        this.vueCanvas.beginPath()
+        this.vueCanvas.rect(20, 20, this.rectWidth, 100)
+        this.vueCanvas.stroke()
+      }
     },
     addWidth () {
       this.rectWidth += 10
