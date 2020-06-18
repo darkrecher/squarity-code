@@ -1,7 +1,11 @@
 class BoardModel {
   private a: number
+  readonly w: number
+  readonly h: number
 
-  constructor () {
+  constructor (width = 12, height = 10) {
+    this.w = width
+    this.h = height
     this.a = 7
   }
 

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App. Yipiii !"/>
+    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
+    <HelloWorld msg="Squarity"/>
     <GameBoard msg="Ici il y a mon board"/>
   </div>
 </template>
@@ -10,12 +10,6 @@
 import Vue from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 import GameBoard from './components/GameBoard.vue'
-import BoardModel from './classes/BoardModel'
-
-const bm = new BoardModel()
-const x = bm.getTheA() + bm.testVetur()
-// console.log(bm.getTheA())
-console.log(x)
 
 export default Vue.extend({
   name: 'App',
@@ -33,6 +27,6 @@ export default Vue.extend({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 5px;
 }
 </style>

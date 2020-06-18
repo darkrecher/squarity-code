@@ -1,12 +1,10 @@
 <template>
   <div class="hello">
+    <!--
+      For a guide and recipes on how to configure / customize this project, check out the vue-cli documentation
+      https://cli.vuejs.org
+    -->
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the haaaaaaa
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Fin du premier component</h3>
   </div>
 </template>
 
@@ -23,8 +21,8 @@ export default Vue.extend({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+h1 {
+  margin: 10px 0 0;
 }
 ul {
   list-style-type: none;
