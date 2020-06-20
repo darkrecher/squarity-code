@@ -3,6 +3,8 @@
     <p>{{ msg }}</p>
     <p>{{ message}}</p>
 
+    <img alt="Vue logo" src="../assets/logo.png">
+
     <canvas id="c"></canvas>
 
     <div>
@@ -25,6 +27,8 @@ export default Vue.extend({
   name: 'GameBoard',
   props: {
     msg: String
+    // const image = new Image(60, 45); // Using optional size for image
+    // image.onload = drawImageActualSize; // Draw when image has loaded
   },
 
   data: function () {
@@ -34,11 +38,16 @@ export default Vue.extend({
       boardModel: new BoardModel(),
       rectWidth: 200,
       tileWidth: 20,
-      tileHeight: 20
+      tileHeight: 20,
+      oneImage: new Image(30, 30)
     }
   },
 
   mounted () {
+    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+    // TODO : c'est quoi cette daube ?
+    // this.oneImage.onload = drawImageActualSize
+
     const c = document.getElementById('c') as HTMLCanvasElement
     const ctx = c.getContext('2d')
     this.vueCanvas = ctx as CanvasRenderingContext2D
@@ -68,13 +77,29 @@ export default Vue.extend({
 
         for (let y = 0; y < this.boardModel.h; y++) {
           for (let x = 0; x < this.boardModel.w; x++) {
-            this.vueCanvas.fillStyle = '#' + String((x + 1) * (y + 1) * 9)
+            // this.vueCanvas.fillStyle = '#' + String((x + 1) * (y + 1) * 9)
+            if (this.boardModel.getTile(x, y)) {
+              this.vueCanvas.fillStyle = '#00A000'
+            } else {
+              this.vueCanvas.fillStyle = '#B00000'
+            }
             this.vueCanvas.fillRect(canvasX, canvasY, this.tileWidth, this.tileHeight)
             canvasX += this.tileWidth
           }
           canvasX = 0
           canvasY += this.tileHeight
         }
+
+        this.oneImage.onload = () => {
+          console.log('bordel onload')
+          // TODO : putaiiiiin. Faut rechecker ça.
+          if (this.vueCanvas != null) {
+            this.vueCanvas.drawImage(this.oneImage, 0, 0, 50, 50)
+            console.log('bordel onload 2')
+          }
+        }
+        // TODO : on est bien d'accord que c'est un chemin à la con et faut pas laisser ça en dur.
+        this.oneImage.src = '/img/logo.82b9c7a5.png'
       }
     },
 
