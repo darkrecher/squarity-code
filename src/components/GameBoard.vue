@@ -17,14 +17,20 @@
 
 <script lang="ts">
 
+// import { Component, Prop, Vue } from 'vue-property-decorator';
+
 import Vue from 'vue'
 import BoardModel from '../classes/BoardModel'
 
 // Inspiration globale :
 // https://codepen.io/integrateus/pen/dyyVbJZ
 
-export default Vue.extend({
-  name: 'GameBoard',
+// export default Vue.extend({
+//  name: 'GameBoard',
+
+// @Component
+// export default class GameBoard extends Vue {
+export const GameBoard = Vue.extend({
   props: {
     msg: String
     // const image = new Image(60, 45); // Using optional size for image
@@ -100,6 +106,7 @@ export default Vue.extend({
         }
         // TODO : on est bien d'accord que c'est un chemin à la con et faut pas laisser ça en dur.
         this.oneImage.src = '/img/logo.82b9c7a5.png'
+        console.log('paf ' + require('../assets/logo.png'))
       }
     },
 
@@ -117,6 +124,9 @@ export default Vue.extend({
   }
 
 })
+
+// export GameBoard
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

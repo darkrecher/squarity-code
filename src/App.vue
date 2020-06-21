@@ -9,7 +9,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import GameBoard from './components/GameBoard.vue'
+import { GameBoard } from './components/GameBoard.vue'
 
 export default Vue.extend({
   name: 'App',
