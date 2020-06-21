@@ -1,23 +1,19 @@
 <template>
   <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-    <HelloWorld msg="Squarity"/>
-    <GameBoard msg="Ici il y a mon board"/>
+    <img alt="Vue logo" src="./assets/logo.png">
+    <HelloWorld msg="Welcome to Your Vue.js App"/>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 import HelloWorld from './components/HelloWorld.vue'
-import { GameBoard } from './components/GameBoard.vue'
 
-export default Vue.extend({
+export default {
   name: 'App',
   components: {
-    HelloWorld,
-    GameBoard
+    HelloWorld
   }
-})
+}
 </script>
 
 <style>
@@ -27,6 +23,6 @@ export default Vue.extend({
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 5px;
+  margin-top: 60px;
 }
 </style>
