@@ -17,6 +17,18 @@
 
 import BoardModel from '../classes/BoardModel'
 
+// https://stackoverflow.com/questions/46399223/async-await-in-image-loading
+// https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
+// TODO : dans une lib de code générique ?
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    let img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
 export default {
   name: 'GameBoard',
 
@@ -30,9 +42,9 @@ export default {
       ctxCanvas: null,
       boardModel: new BoardModel(),
       rectWidth: 200,
-      tileWidth: 20,
-      tileHeight: 20,
-      oneImage: new Image(30, 30)
+      tileWidth: 40,
+      tileHeight: 40,
+      oneImage: null
     }
   },
 
@@ -51,7 +63,7 @@ export default {
 
   methods: {
 
-    drawRect () {
+    async drawRect () {
 
       // clear canvas
       this.ctxCanvas.fillStyle = '#000000'
@@ -59,26 +71,24 @@ export default {
       let canvasX = 0
       let canvasY = 0
 
+      this.oneImage = await loadImage(require('../assets/logo.png'))
+
       for (let y = 0; y < this.boardModel.h; y++) {
         for (let x = 0; x < this.boardModel.w; x++) {
           if (this.boardModel.getTile(x, y)) {
-            this.ctxCanvas.fillStyle = '#00A000'
+            this.ctxCanvas.fillStyle = '#007000'
           } else {
             this.ctxCanvas.fillStyle = '#B00000'
           }
           this.ctxCanvas.fillRect(canvasX, canvasY, this.tileWidth, this.tileHeight)
+          if (this.boardModel.getTile(x, y)) {
+            this.ctxCanvas.drawImage(this.oneImage, canvasX, canvasY, this.tileWidth, this.tileHeight)
+          }
           canvasX += this.tileWidth
         }
         canvasX = 0
         canvasY += this.tileHeight
       }
-
-      // TODO : asynchronisme à la con qu'il va falloir gérer mieux que ça.
-      this.oneImage.onload = () => {
-        console.log('bordel onload zz')
-        this.ctxCanvas.drawImage(this.oneImage, 0, 0, 50, 50)
-      }
-      this.oneImage.src = require('../assets/logo.png')
 
     },
 

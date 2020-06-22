@@ -1,6 +1,6 @@
 class BoardModel {
 
-  constructor (width = 12, height = 10) {
+  constructor (width = 12, height = 8) {
     this.w = width
     this.h = height
 
