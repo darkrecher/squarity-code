@@ -19,12 +19,23 @@ export default {
 </script>
 
 <style>
+
+body {
+  background-color: #101010;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #C0C0C0;
   margin-top: 10px;
+  background-color: #101010;
 }
+
+a {
+  color: #A0A0D0;
+}
+
 </style>
