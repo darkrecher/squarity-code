@@ -8,9 +8,12 @@
 export default {
   name: 'HelloWorld',
   props: {
-    msg: String
-  }
-}
+    msg: {
+      default: 'Hello',
+      type: String,
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

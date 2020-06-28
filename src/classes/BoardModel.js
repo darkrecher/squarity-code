@@ -1,11 +1,9 @@
 class BoardModel {
+  constructor(width = 20, height = 14) {
+    this.w = width;
+    this.h = height;
 
-  constructor (width = 20, height = 14) {
-
-    this.w = width
-    this.h = height
-
-    let strTiles = [
+    const strTiles = [
       '     701     70001  ',
       '     682-----68882  ',
       '     543     54443  ',
@@ -20,19 +18,17 @@ class BoardModel {
       ' 54888888843    53  ',
       ' yy5444443yy    yy  ',
       '   yyyyyyy          ',
-    ]
+    ];
 
-    this.tiles = []
-    for (let y = 0; y < this.h; y++) {
-      this.tiles[y] = strTiles[y].split('')
+    this.tiles = [];
+    for (let y = 0; y < this.h; y += 1) {
+      this.tiles[y] = strTiles[y].split('');
     }
-
   }
 
-  getTile (x, y) {
-    return this.tiles[y][x]
+  getTile(x, y) {
+    return this.tiles[y][x];
   }
-
 }
 
-export default BoardModel
+export default BoardModel;
