@@ -1,7 +1,18 @@
 class BoardModel {
+  static moveFromDir = {
+    U: [0, -1],
+    R: [1, 0],
+    D: [0, 1],
+    L: [-1, 0],
+  };
+
   constructor(width = 20, height = 14) {
     this.w = width;
     this.h = height;
+
+    // TODO : Le Linter ne gueule pas alors que j'ai mis du snake case ? WTF ?
+    this.magician_x = 4;
+    this.magician_y = 3;
 
     const strTiles = [
       '     701     70001  ',
@@ -27,7 +38,22 @@ class BoardModel {
   }
 
   getTile(x, y) {
+    if ((x === this.magician_x) && (y === this.magician_y)) {
+      return 'M';
+    }
     return this.tiles[y][x];
+  }
+
+  sendGameAction(actionType) {
+    // TODO : un enum avec actionType, mais je sais pas comment on fait ça en JS.
+    console.log(actionType);
+    console.log(BoardModel.moveFromDir);
+    if (actionType in BoardModel.moveFromDir) {
+      const moveCoord = BoardModel.moveFromDir[actionType];
+      console.log(moveCoord);
+      this.magician_x += moveCoord[0];
+      this.magician_y += moveCoord[1];
+    }
   }
 }
 

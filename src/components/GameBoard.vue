@@ -4,14 +4,11 @@
 
     <canvas id="c" />
     <div>
-      <button @click="drawRect">
-        Add Rect
+      <button @click="goLeft">
+        &lt;-
       </button>
-      <button @click="subWidth">
-        -
-      </button>
-      <button @click="addWidth">
-        +
+      <button @click="goRight">
+        -&gt;
       </button>
     </div>
 
@@ -78,29 +75,49 @@ export default {
         y: [32, 143],
         s: [216, 64],
         D: [156, 212],
+        // TODO : la taille du sprite est plus grande que 16x16, et faudrait le décaler.
+        // Pour l'instant on laisse comme ça, même si c'est moche.
+        M: [197, 161],
       },
     };
   },
 
   mounted() {
-    const nodeCanvas = document.getElementById('c');
-    this.ctxCanvas = nodeCanvas.getContext('2d');
+    const canvasFinal = document.getElementById('c');
+    this.ctxCanvasFinal = canvasFinal.getContext('2d');
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
     // https://www.w3schools.com/tags/att_canvas_width.asp
     // TODO : il faudra quand même l'adapter à la taille de la fenêtre,
     //        et aux proportions du BoardModel aussi.
-    nodeCanvas.width = 600;
-    nodeCanvas.height = 448;
+    canvasFinal.width = 600;
+    canvasFinal.height = 448;
+    this.canvasBuffer = document.createElement('canvas');
+    this.ctxCanvasBuffer = this.canvasBuffer.getContext('2d');
+    this.canvasBuffer.width = 600;
+    this.canvasBuffer.height = 448;
     this.drawRect();
+  },
+
+  // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
+  // C'est relou ces récupération d'appui de touches.
+  // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
+  created() {
+    window.addEventListener('keydown', this.onKeyDown);
+  },
+  destroyed() {
+    window.removeEventListener('keydown', this.onKeyDown);
   },
 
   methods: {
 
     async drawRect() {
+      // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
       // clear canvas
-      this.ctxCanvas.fillStyle = '#000000';
-      this.ctxCanvas.fillRect(0, 0, 640, 448);
+      this.ctxCanvasBuffer.fillStyle = '#000000';
+      // J'ai tenté clearRect. Mais ça ne marche pas bien.
+      // Mon bonhomme reste dessiné sur les cases noires. Osef.
+      this.ctxCanvasBuffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
 
@@ -112,7 +129,7 @@ export default {
           if (tileData !== ' ') {
             const coordImg = this.coordImgFromData[tileData];
             // console.log("coordImg", coordImg)
-            this.ctxCanvas.drawImage(
+            this.ctxCanvasBuffer.drawImage(
               this.tileAtlas,
               coordImg[0], coordImg[1], 16, 16,
               canvasX, canvasY, this.tileWidth, this.tileHeight,
@@ -123,15 +140,45 @@ export default {
         canvasX = 0;
         canvasY += this.tileHeight;
       }
+      this.ctxCanvasFinal.drawImage(this.canvasBuffer, 0, 0);
     },
 
-    addWidth() {
-      this.rectWidth += 10;
+    onKeyDown(e) {
+      // TODO : Je vais laisser ce log trainer un moment.
+      // Pour être sûr que l'event listener se désactive quand le GameBoard n'est plus là.
+      console.log('onKeyDown', e.key);
+
+      const GameActionFromDir = {
+        ArrowUp: 'U',
+        ArrowRight: 'R',
+        ArrowDown: 'D',
+        ArrowLeft: 'L',
+      };
+
+      if (e.key in GameActionFromDir) {
+        const gameAction = GameActionFromDir[e.key];
+        this.boardModel.sendGameAction(gameAction);
+        this.drawRect();
+      }
+    },
+
+    goUp() {
+      this.boardModel.sendGameAction('U');
       this.drawRect();
     },
 
-    subWidth() {
-      this.rectWidth -= 10;
+    goRight() {
+      this.boardModel.sendGameAction('R');
+      this.drawRect();
+    },
+
+    goDown() {
+      this.boardModel.sendGameAction('D');
+      this.drawRect();
+    },
+
+    goLeft() {
+      this.boardModel.sendGameAction('L');
       this.drawRect();
     },
 
