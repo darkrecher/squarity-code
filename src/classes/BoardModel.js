@@ -46,13 +46,20 @@ class BoardModel {
 
   sendGameAction(actionType) {
     // TODO : un enum avec actionType, mais je sais pas comment on fait ça en JS.
-    console.log(actionType);
-    console.log(BoardModel.moveFromDir);
     if (actionType in BoardModel.moveFromDir) {
       const moveCoord = BoardModel.moveFromDir[actionType];
       console.log(moveCoord);
-      this.magician_x += moveCoord[0];
-      this.magician_y += moveCoord[1];
+      const MagicianNewCoordX = this.magician_x + moveCoord[0];
+      const MagicianNewCoordY = this.magician_y + moveCoord[1];
+      // Le in-bounds sera de toute façon géré par le code spécifique du jeu.
+      // Donc on laisse ce code moche ici, puisqu'il partira.
+      if (
+        (MagicianNewCoordX >= 0) && (MagicianNewCoordX < this.w)
+        && (MagicianNewCoordY >= 0) && (MagicianNewCoordY < this.h)
+      ) {
+        this.magician_x = MagicianNewCoordX;
+        this.magician_y = MagicianNewCoordY;
+      }
     }
   }
 }

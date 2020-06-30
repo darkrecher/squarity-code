@@ -3,12 +3,22 @@
     <p>{{ msg }} - {{ message }}</p>
 
     <canvas id="c" />
+
+    <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+    <div>
+      <button @click="goUp">
+        &#x21e7;
+      </button>
+    </div>
     <div>
       <button @click="goLeft">
-        &lt;-
+        &#x21e6;
+      </button>
+      <button @click="goDown">
+        &#x21e9;
       </button>
       <button @click="goRight">
-        -&gt;
+        &#x21e8;
       </button>
     </div>
 
@@ -90,11 +100,11 @@ export default {
     // https://www.w3schools.com/tags/att_canvas_width.asp
     // TODO : il faudra quand même l'adapter à la taille de la fenêtre,
     //        et aux proportions du BoardModel aussi.
-    canvasFinal.width = 600;
+    canvasFinal.width = 640;
     canvasFinal.height = 448;
     this.canvasBuffer = document.createElement('canvas');
     this.ctxCanvasBuffer = this.canvasBuffer.getContext('2d');
-    this.canvasBuffer.width = 600;
+    this.canvasBuffer.width = 640;
     this.canvasBuffer.height = 448;
     this.drawRect();
   },
@@ -189,6 +199,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+  button {
+    width: 2em;
+    height: 2em;
+    background-color: #707070;
+    font-size: 2em;
+    font-weight: bold;
+  }
 
   #c {
     width: 600px;
