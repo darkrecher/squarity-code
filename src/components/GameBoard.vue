@@ -60,14 +60,13 @@ export default {
 
   data() {
     return {
+      // J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
+      // Du coup, ça sert à quoi ce truc ?
       message: 'Vue + Canvas API',
-      ctxCanvas: null,
-      boardModel: new BoardModel(),
-      rectWidth: 200,
-      tileWidth: 32,
-      tileHeight: 32,
-      tileAtlas: null,
-      coordImgFromData: {
+      board_model: new BoardModel(),
+      tile_width: 32,
+      tile_height: 32,
+      coord_img_from_data: {
         0: [48, 32],
         1: [96, 32],
         2: [96, 48],
@@ -94,7 +93,7 @@ export default {
 
   mounted() {
     const canvasFinal = document.getElementById('c');
-    this.ctxCanvasFinal = canvasFinal.getContext('2d');
+    this.ctx_canvas_final = canvasFinal.getContext('2d');
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
     // https://www.w3schools.com/tags/att_canvas_width.asp
@@ -102,61 +101,61 @@ export default {
     //        et aux proportions du BoardModel aussi.
     canvasFinal.width = 640;
     canvasFinal.height = 448;
-    this.canvasBuffer = document.createElement('canvas');
-    this.ctxCanvasBuffer = this.canvasBuffer.getContext('2d');
-    this.canvasBuffer.width = 640;
-    this.canvasBuffer.height = 448;
-    this.drawRect();
+    this.canvas_buffer = document.createElement('canvas');
+    this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
+    this.canvas_buffer.width = 640;
+    this.canvas_buffer.height = 448;
+    this.draw_rect();
   },
 
   // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
   // C'est relou ces récupération d'appui de touches.
   // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
   created() {
-    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keydown', this.on_key_down);
   },
   destroyed() {
-    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keydown', this.on_key_down);
   },
 
   methods: {
 
-    async drawRect() {
+    async draw_rect() {
       // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
       // clear canvas
-      this.ctxCanvasBuffer.fillStyle = '#000000';
+      this.ctx_canvas_buffer.fillStyle = '#000000';
       // J'ai tenté clearRect. Mais ça ne marche pas bien.
       // Mon bonhomme reste dessiné sur les cases noires. Osef.
-      this.ctxCanvasBuffer.fillRect(0, 0, 640, 448);
+      this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
 
-      this.tileAtlas = await loadImage(urlTilesetAtlas);
+      this.tile_atlas = await loadImage(urlTilesetAtlas);
 
-      for (let y = 0; y < this.boardModel.h; y += 1) {
-        for (let x = 0; x < this.boardModel.w; x += 1) {
-          const tileData = this.boardModel.getTile(x, y);
+      for (let y = 0; y < this.board_model.h; y += 1) {
+        for (let x = 0; x < this.board_model.w; x += 1) {
+          const tileData = this.board_model.getTile(x, y);
           if (tileData !== ' ') {
-            const coordImg = this.coordImgFromData[tileData];
+            const coordImg = this.coord_img_from_data[tileData];
             // console.log("coordImg", coordImg)
-            this.ctxCanvasBuffer.drawImage(
-              this.tileAtlas,
+            this.ctx_canvas_buffer.drawImage(
+              this.tile_atlas,
               coordImg[0], coordImg[1], 16, 16,
-              canvasX, canvasY, this.tileWidth, this.tileHeight,
+              canvasX, canvasY, this.tile_width, this.tile_height,
             );
           }
-          canvasX += this.tileWidth;
+          canvasX += this.tile_width;
         }
         canvasX = 0;
-        canvasY += this.tileHeight;
+        canvasY += this.tile_height;
       }
-      this.ctxCanvasFinal.drawImage(this.canvasBuffer, 0, 0);
+      this.ctx_canvas_final.drawImage(this.canvas_buffer, 0, 0);
     },
 
-    onKeyDown(e) {
+    on_key_down(e) {
       // TODO : Je vais laisser ce log trainer un moment.
       // Pour être sûr que l'event listener se désactive quand le GameBoard n'est plus là.
-      console.log('onKeyDown', e.key);
+      console.log('on_key_down', e.key);
 
       const GameActionFromDir = {
         ArrowUp: 'U',
@@ -167,29 +166,29 @@ export default {
 
       if (e.key in GameActionFromDir) {
         const gameAction = GameActionFromDir[e.key];
-        this.boardModel.sendGameAction(gameAction);
-        this.drawRect();
+        this.board_model.sendGameAction(gameAction);
+        this.draw_rect();
       }
     },
 
     goUp() {
-      this.boardModel.sendGameAction('U');
-      this.drawRect();
+      this.board_model.sendGameAction('U');
+      this.draw_rect();
     },
 
     goRight() {
-      this.boardModel.sendGameAction('R');
-      this.drawRect();
+      this.board_model.sendGameAction('R');
+      this.draw_rect();
     },
 
     goDown() {
-      this.boardModel.sendGameAction('D');
-      this.drawRect();
+      this.board_model.sendGameAction('D');
+      this.draw_rect();
     },
 
     goLeft() {
-      this.boardModel.sendGameAction('L');
-      this.drawRect();
+      this.board_model.sendGameAction('L');
+      this.draw_rect();
     },
 
   },
