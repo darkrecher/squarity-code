@@ -87,6 +87,10 @@ export default {
         // TODO : la taille du sprite est plus grande que 16x16, et faudrait le décaler.
         // Pour l'instant on laisse comme ça, même si c'est moche.
         M: [197, 161],
+        '[': [169, 83],
+        ']': [185, 83],
+        '(': [215, 99],
+        ')': [215, 115],
       },
     };
   },
@@ -135,8 +139,10 @@ export default {
       for (let y = 0; y < this.board_model.h; y += 1) {
         for (let x = 0; x < this.board_model.w; x += 1) {
           const tileData = this.board_model.getTile(x, y);
-          if (tileData !== ' ') {
-            const coordImg = this.coord_img_from_data[tileData];
+
+          for (let i = 0; i < tileData.length; i += 1) {
+            const gameObject = tileData[i];
+            const coordImg = this.coord_img_from_data[gameObject];
             // console.log("coordImg", coordImg)
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
@@ -144,6 +150,7 @@ export default {
               canvasX, canvasY, this.tile_width, this.tile_height,
             );
           }
+
           canvasX += this.tile_width;
         }
         canvasX = 0;

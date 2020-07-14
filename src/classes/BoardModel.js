@@ -14,34 +14,64 @@ class BoardModel {
     this.magician_x = 4;
     this.magician_y = 3;
 
-    const strTiles = [
+    const strTiles1 = [
       '     701     70001  ',
-      '     682-----68882  ',
+      '     682     68882  ',
       '     543     54443  ',
-      '     V|V     WDDVV  ',
-      '     v|v     543vv  ',
-      '      |      yyy    ',
+      '     VVV     WDDVV  ',
+      '     vvv     543vv  ',
+      '             yyy    ',
       '    7001            ',
       ' 70068821           ',
       ' 588544381          ',
       ' y68WsWW8801        ',
-      ' 78888888882----71  ',
+      ' 78888888882    71  ',
       ' 54888888843    53  ',
       ' yy5444443yy    yy  ',
       '   yyyyyyy          ',
     ];
 
+    const strTiles2 = [
+      '                    ',
+      '       [-----]      ',
+      '      (             ',
+      '      |             ',
+      '      |             ',
+      '      |             ',
+      '      )             ',
+      '                    ',
+      '                    ',
+      '                    ',
+      '           [----]   ',
+      '                    ',
+      '                    ',
+      '                    ',
+    ];
+
     this.tiles = [];
     for (let y = 0; y < this.h; y += 1) {
-      this.tiles[y] = strTiles[y].split('');
+      this.tiles[y] = [];
+      for (let x = 0; x < this.w; x += 1) {
+        const gameObjects = [];
+        // TODO : c'est dégueux, mais on s'en tape.
+        // C'est du code temporaire.
+        if (strTiles1[y][x] !== ' ') {
+          gameObjects.push(strTiles1[y][x]);
+        }
+        if (strTiles2[y][x] !== ' ') {
+          gameObjects.push(strTiles2[y][x]);
+        }
+        this.tiles[y][x] = gameObjects;
+      }
     }
   }
 
   getTile(x, y) {
+    const gameObjects = [...this.tiles[y][x]];
     if ((x === this.magician_x) && (y === this.magician_y)) {
-      return 'M';
+      gameObjects.push('M');
     }
-    return this.tiles[y][x];
+    return gameObjects;
   }
 
   sendGameAction(actionType) {
