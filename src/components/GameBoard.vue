@@ -23,10 +23,27 @@
     </div>
 
     <p>
-      Tileset créé par Buch :
+      Tileset créé par Buch zz :
       <br>
       <a href="https://opengameart.org/users/buch">https://opengameart.org/users/buch</a>
     </p>
+
+    <!--
+      une fois que ce code est exécuté,
+      on peut lire la variable document.brython_squarity dans la console.
+      Et si on a préalablement défini document.brython_squarity_2, on la voit dans la console.
+      Par contre, tous les sauts de ligne sont flingués. Ça aide pas, en python.
+      On réglera ça plus tard. paf.
+    -->
+    <script type="text/python">
+      print("pouet brython");
+      from browser import document;
+      document.brython_squarity = "re 789 zzxx";
+      document <= "Hello ! et je suis un zozo";
+      print("fin pouet " + document.brython_squarity);
+      exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");')
+    </script>
+
   </div>
 </template>
 
@@ -93,6 +110,23 @@ export default {
         ')': [215, 115],
       },
     };
+  },
+
+  beforeMount() {
+    console.log('bef mount zzz zxxx');
+    // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
+    // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
+    // Load external script as an instance method inside a component
+    this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
+      .then(() => {
+        // Script is loaded, do something
+        console.log('loaded machin');
+        window.brython(1);
+        console.log('executed brython');
+      })
+      .catch(() => {
+        // Failed to fetch script
+      });
   },
 
   mounted() {
@@ -176,6 +210,8 @@ export default {
         this.board_model.sendGameAction(gameAction);
         this.draw_rect();
       }
+      // TODO : rien à foutre là, mais c'est pour le lulz.
+      // window.brython(1);
     },
 
     goUp() {
