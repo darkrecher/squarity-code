@@ -23,7 +23,7 @@
     </div>
 
     <p>
-      Tileset créé par Buch zz :
+      Tileset créé par Buch :
       <br>
       <a href="https://opengameart.org/users/buch">https://opengameart.org/users/buch</a>
     </p>
@@ -33,7 +33,7 @@
       on peut lire la variable document.brython_squarity dans la console.
       Et si on a préalablement défini document.brython_squarity_2, on la voit dans la console.
       Par contre, tous les sauts de ligne sont flingués. Ça aide pas, en python.
-      On réglera ça plus tard. paf.
+      On réglera ça plus tard.
     -->
     <script type="text/python">
       print("pouet brython");
@@ -43,7 +43,6 @@
       print("fin pouet " + document.brython_squarity);
       exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");')
     </script>
-
   </div>
 </template>
 
@@ -113,19 +112,25 @@ export default {
   },
 
   beforeMount() {
-    console.log('bef mount zzz zxxx');
+    console.log('beforeMount zz');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
-    // Load external script as an instance method inside a component
-    this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
+    //
+    // La récupération du script fonctionnait aussi comme ça :
+    // this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
+    // Mais je ne veux pas être dépendant d'un CDN.
+    //
+    // Le fichier brython.min.js nécessite ce fichier :
+    // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
+    // que j'ai récupéré en local, dans /public/sm.
+    this.$loadScript('/brython/brython.min.notjs')
       .then(() => {
-        // Script is loaded, do something
-        console.log('loaded machin');
+        // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
         window.brython(1);
-        console.log('executed brython');
+        console.log('loaded script and executed brython');
       })
       .catch(() => {
-        // Failed to fetch script
+        // TODO : je sais jamais quoi mettre là dedans. Osef ?
       });
   },
 
