@@ -23,7 +23,7 @@
     </div>
 
     <p>
-      Tileset créé par Buch :
+      Tileset créé par Buch:
       <br>
       <a href="https://opengameart.org/users/buch">https://opengameart.org/users/buch</a>
     </p>
@@ -35,13 +35,37 @@
       Par contre, tous les sauts de ligne sont flingués. Ça aide pas, en python.
       On réglera ça plus tard.
     -->
+    <!--
+      Le fait d'importer une lib python,
+      (Par exemple : from lib_test import say_hello)
+      déclenche une requête ajax synchrone.
+      Et ça lève un warning dans le navigateur :
+        [Deprecation] Synchronous XMLHttpRequest on the main thread is deprecated because of
+        its detrimental effects to the end user's experience.
+        For more help, check https://xhr.spec.whatwg.org/.
+      Réponse de brython à ce problème :
+      "les développeurs de navigateurs web désactiveront pas de sitôt les appels ajax bloquants"
+      https://brython.info/static_doc/en/faq.html
+      Du coup, je peux me permettre de m'en tamponner.
+
+      FUTURE :
+      Ça, ça marche pas :
+      from python_libs.lib_test import say_hello;
+      Les libs python doivent être dans la racine du site.
+      Pourtant Brython dit qu'on peut importer depuis des sous-répertoires.
+      À condition d'avoir mis le fichier __init__.py comme il faut.
+      Mais ça a pas marché.
+      J'espère que ça va pas poser de problème.
+    -->
     <script type="text/python">
       print("pouet brython");
       from browser import document;
       document.brython_squarity = "re 789 zzxx";
       document <= "Hello ! et je suis un zozo";
       print("fin pouet " + document.brython_squarity);
-      exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");')
+      exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");');
+      from lib_test import say_hello;
+      say_hello();
     </script>
   </div>
 </template>
@@ -123,9 +147,13 @@ export default {
     // Le fichier brython.min.js nécessite ce fichier :
     // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
     // que j'ai récupéré en local, dans /public/sm.
-    this.$loadScript('/brython/brython.min.notjs')
+    this.$loadScript('/brython/brython.min.js')
       .then(() => {
         // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
+        // Tous les exemples indique de déclencher la fonction brython dans le onload.
+        // Mais on peut aussi l'exécuter où on veut, avec window.
+        // Énorme merci à cette issue github :
+        // https://github.com/brython-dev/brython/issues/793
         window.brython(1);
         console.log('loaded script and executed brython');
       })
@@ -215,13 +243,13 @@ export default {
         this.board_model.sendGameAction(gameAction);
         this.draw_rect();
       }
-      // TODO : rien à foutre là, mais c'est pour le lulz.
-      // window.brython(1);
     },
 
     goUp() {
       this.board_model.sendGameAction('U');
       this.draw_rect();
+      // TODO : rien à foutre là, mais c'est pour du test.
+      window.brython(1);
     },
 
     goRight() {
