@@ -66,6 +66,8 @@
       exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");');
       from lib_test import say_hello;
       say_hello();
+      document.la_fonction_say_hello = say_hello;
+      import board_model
     </script>
   </div>
 </template>
@@ -137,29 +139,6 @@ export default {
 
   beforeMount() {
     console.log('beforeMount zz');
-    // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
-    // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
-    //
-    // La récupération du script fonctionnait aussi comme ça :
-    // this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
-    // Mais je ne veux pas être dépendant d'un CDN.
-    //
-    // Le fichier brython.min.js nécessite ce fichier :
-    // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
-    // que j'ai récupéré en local, dans /public/sm.
-    this.$loadScript('/brython/brython.min.js')
-      .then(() => {
-        // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
-        // Tous les exemples indique de déclencher la fonction brython dans le onload.
-        // Mais on peut aussi l'exécuter où on veut, avec window.
-        // Énorme merci à cette issue github :
-        // https://github.com/brython-dev/brython/issues/793
-        window.brython(1);
-        console.log('loaded script and executed brython');
-      })
-      .catch(() => {
-        // TODO : je sais jamais quoi mettre là dedans. Osef ?
-      });
   },
 
   mounted() {
@@ -176,7 +155,33 @@ export default {
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
     this.canvas_buffer.width = 640;
     this.canvas_buffer.height = 448;
-    this.draw_rect();
+
+    // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
+    // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
+    //
+    // La récupération du script fonctionnait aussi comme ça :
+    // this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
+    // Mais je ne veux pas être dépendant d'un CDN.
+    //
+    // Le fichier brython.min.js nécessite ce fichier :
+    // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
+    // que j'ai récupéré en local, dans /public/sm.
+    this.$loadScript('/brython/brython.min.js')
+      .then(() => {
+        // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
+        // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
+        // Mais on peut aussi l'exécuter où on veut, avec window.brython.
+        // Énorme merci à cette issue github :
+        // https://github.com/brython-dev/brython/issues/793
+        console.log('I will load script and execute brython');
+        window.brython(1);
+        console.log('loaded script and executed brython');
+        this.draw_rect();
+        console.log('first draw rect made');
+      })
+      .catch(() => {
+        // TODO : je sais jamais quoi mettre là dedans. Osef ?
+      });
   },
 
   // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
@@ -205,7 +210,10 @@ export default {
 
       for (let y = 0; y < this.board_model.h; y += 1) {
         for (let x = 0; x < this.board_model.w; x += 1) {
-          const tileData = this.board_model.getTile(x, y);
+          // TODO : moche. Faut préalablement récupérer la fonction pour qu'elle soit dans this.
+          // C'est pas propre de la laisser trainer dans document.
+          // const tileData = this.board_model.getTile(x, y);
+          const tileData = document.BoardModelGetTile(x, y);
 
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
@@ -240,30 +248,31 @@ export default {
 
       if (e.key in GameActionFromDir) {
         const gameAction = GameActionFromDir[e.key];
-        this.board_model.sendGameAction(gameAction);
+        document.BoardModelSendGameAction(gameAction);
         this.draw_rect();
       }
     },
 
     goUp() {
-      this.board_model.sendGameAction('U');
+      document.BoardModelSendGameAction('U');
       this.draw_rect();
       // TODO : rien à foutre là, mais c'est pour du test.
-      window.brython(1);
+      // window.brython(1);
+      document.la_fonction_say_hello();
     },
 
     goRight() {
-      this.board_model.sendGameAction('R');
+      document.BoardModelSendGameAction('R');
       this.draw_rect();
     },
 
     goDown() {
-      this.board_model.sendGameAction('D');
+      document.BoardModelSendGameAction('D');
       this.draw_rect();
     },
 
     goLeft() {
-      this.board_model.sendGameAction('L');
+      document.BoardModelSendGameAction('L');
       this.draw_rect();
     },
 
