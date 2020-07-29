@@ -42,6 +42,8 @@ DATA_TILES_2 = [
     '                    ',
 ]
 
+PASSABLE_TILOBJS = list("0123456789-|s")
+
 class BoardModel():
 
     def __init__(self, width=20, height=14):
@@ -66,23 +68,42 @@ class BoardModel():
                 self.tiles[y][x] = tile_data
 
         # TODO : Code spécifique au jeu. Faudra le sortir de là.
-        self.magician_x = 7
+        self.magician_x = 6
         self.magician_y = 4
         self.tiles[self.magician_y][self.magician_x].append('M')
+
+    def get_size(self):
+        return self.w, self.h
 
     def get_tile(self, x, y):
         return self.tiles[y][x]
 
     def send_game_action(self, action_type):
         print("send_game_action", action_type)
+        # TODO : si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
+        # Ça fait un horrible message d'erreur dans la console, qui ne cite même pas la variable inexistante.
+        # Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
         # TODO : Tout ça, c'est que du code spécifique au jeu.
         must_move = False
         move_coord = MOVE_FROM_DIR.get(action_type)
+
         if move_coord is not None:
             new_magician_x = self.magician_x + move_coord[0]
             new_magician_y = self.magician_y + move_coord[1]
             if 0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h:
-                must_move = True
+                print("pouetzzz")
+                print(PASSABLE_TILOBJS)
+                target_tile_objs = self.get_tile(new_magician_x, new_magician_y)
+                print(target_tile_objs)
+                for tile_obj in target_tile_objs:
+                    if tile_obj in PASSABLE_TILOBJS:
+                        must_move = True
+
+                if not must_move and action_type in ("R", "L") and new_magician_x < self.w:
+                    if not target_tile_objs:
+                        target_tile_objs.append('-')
+
+
         if must_move:
             self.tiles[self.magician_y][self.magician_x].remove('M')
             self.magician_x = new_magician_x
@@ -97,4 +118,5 @@ print("board_model", board_model)
 # Sinon on peut pas lui indiquer la taille du board.
 document.BoardModelGetTile = board_model.get_tile
 document.BoardModelSendGameAction = board_model.send_game_action
+document.BoardModelGetSize = board_model.get_size
 print("importation faite")

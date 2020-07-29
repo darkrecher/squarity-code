@@ -74,8 +74,6 @@
 
 <script>
 
-import BoardModel from '../classes/BoardModel';
-
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
 // TODO : dans une lib de code générique ?
@@ -105,7 +103,6 @@ export default {
       // J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
       // Du coup, ça sert à quoi ce truc ?
       message: 'Vue + Canvas API',
-      board_model: new BoardModel(),
       tile_width: 32,
       tile_height: 32,
       coord_img_from_data: {
@@ -207,12 +204,12 @@ export default {
       let canvasY = 0;
 
       this.tile_atlas = await loadImage(urlTilesetAtlas);
+      const [boardWidth, boardHeight] = document.BoardModelGetSize();
 
-      for (let y = 0; y < this.board_model.h; y += 1) {
-        for (let x = 0; x < this.board_model.w; x += 1) {
+      for (let y = 0; y < boardHeight; y += 1) {
+        for (let x = 0; x < boardWidth; x += 1) {
           // TODO : moche. Faut préalablement récupérer la fonction pour qu'elle soit dans this.
           // C'est pas propre de la laisser trainer dans document.
-          // const tileData = this.board_model.getTile(x, y);
           const tileData = document.BoardModelGetTile(x, y);
 
           for (let i = 0; i < tileData.length; i += 1) {
