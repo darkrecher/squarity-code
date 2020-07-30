@@ -2,24 +2,31 @@
   <div class="gameboard">
     <p>{{ msg }} - {{ message }}</p>
 
-    <canvas id="c" />
+    <div class="game-and-code">
+      <div>
+        <canvas id="c" />
+        <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+        <div>
+          <button @click="goUp">
+            &#x21e7;
+          </button>
+        </div>
+        <div>
+          <button @click="goLeft">
+            &#x21e6;
+          </button>
+          <button @click="goDown">
+            &#x21e9;
+          </button>
+          <button @click="goRight">
+            &#x21e8;
+          </button>
+        </div>
+      </div>
 
-    <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-    <div>
-      <button @click="goUp">
-        &#x21e7;
-      </button>
-    </div>
-    <div>
-      <button @click="goLeft">
-        &#x21e6;
-      </button>
-      <button @click="goDown">
-        &#x21e9;
-      </button>
-      <button @click="goRight">
-        &#x21e8;
-      </button>
+      <div>
+        <GameUserCode @update-user-code="onUpdateCode" />
+      </div>
     </div>
 
     <p>
@@ -74,6 +81,8 @@
 
 <script>
 
+import GameUserCode from './GameUserCode.vue';
+
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
 // TODO : dans une lib de code générique ?
@@ -90,6 +99,9 @@ const urlTilesetAtlas = require('../assets/dungeon_tiles_2.png');
 
 export default {
   name: 'GameBoard',
+  components: {
+    GameUserCode,
+  },
 
   props: {
     msg: {
@@ -273,6 +285,11 @@ export default {
       this.draw_rect();
     },
 
+    onUpdateCode(payload) {
+      console.log('update-user-code pouet');
+      console.log(payload);
+    },
+
   },
 
 };
@@ -293,6 +310,15 @@ export default {
     width: 600px;
     height: 400px;
     border: 1px solid gray;
+  }
+
+  .game-and-code {
+    display: flex;
+  }
+
+  .game-and-code > div{
+    width:50%;
+    padding:5px;
   }
 
 </style>

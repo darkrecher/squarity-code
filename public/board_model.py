@@ -44,6 +44,8 @@ DATA_TILES_2 = [
 
 PASSABLE_TILOBJS = list("0123456789-|s")
 
+# TODO : l'utilisateur devra coder toute la classe BoardModel.
+# (Évidemment, on pourra l'aider. On lui en fait une de base, et il la surcharge).
 class BoardModel():
 
     def __init__(self, width=20, height=14):
@@ -91,10 +93,7 @@ class BoardModel():
             new_magician_x = self.magician_x + move_coord[0]
             new_magician_y = self.magician_y + move_coord[1]
             if 0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h:
-                print("pouetzzz")
-                print(PASSABLE_TILOBJS)
                 target_tile_objs = self.get_tile(new_magician_x, new_magician_y)
-                print(target_tile_objs)
                 for tile_obj in target_tile_objs:
                     if tile_obj in PASSABLE_TILOBJS:
                         must_move = True
