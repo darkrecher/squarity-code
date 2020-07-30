@@ -4,8 +4,16 @@
       Le code du jeu
     </div>
     <div>
+      <textarea
+        id="user-code"
+        name=""
+        cols="100"
+        rows="40"
+      />
+    </div>
+    <div>
       <button @click="sendCode">
-        Envoyer le code
+        &lt;&lt;&lt; Envoyer le code
       </button>
     </div>
   </div>

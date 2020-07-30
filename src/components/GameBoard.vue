@@ -3,8 +3,15 @@
     <p>{{ msg }} - {{ message }}</p>
 
     <div class="game-and-code">
-      <div>
-        <canvas id="c" />
+      <!--
+        Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
+        https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
+      -->
+      <div
+        ref="gameinterface"
+        tabindex="0"
+      >
+        <canvas ref="gamecanvas" />
         <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
         <div>
           <button @click="goUp">
@@ -151,7 +158,9 @@ export default {
   },
 
   mounted() {
-    const canvasFinal = document.getElementById('c');
+    // Utiliser la variable $refs pour récupérer tous les trucs référencés dans le template.
+    // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
+    const canvasFinal = this.$refs.gamecanvas;
     this.ctx_canvas_final = canvasFinal.getContext('2d');
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
@@ -164,6 +173,12 @@ export default {
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
     this.canvas_buffer.width = 640;
     this.canvas_buffer.height = 448;
+
+    // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
+    // C'est relou ces récupération d'appui de touches.
+    // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
+    const elemGameInterface = this.$refs.gameinterface;
+    elemGameInterface.addEventListener('keydown', this.on_key_down);
 
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
@@ -193,14 +208,9 @@ export default {
       });
   },
 
-  // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
-  // C'est relou ces récupération d'appui de touches.
-  // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
-  created() {
-    window.addEventListener('keydown', this.on_key_down);
-  },
   destroyed() {
-    window.removeEventListener('keydown', this.on_key_down);
+    const elemGameInterface = this.$refs.gameinterface;
+    elemGameInterface.removeEventListener('keydown', this.on_key_down);
   },
 
   methods: {
