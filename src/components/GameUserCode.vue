@@ -5,10 +5,10 @@
     </div>
     <div>
       <textarea
-        id="user-code"
+        ref="usercode"
         name=""
         cols="100"
-        rows="40"
+        rows="35"
       />
     </div>
     <div>
@@ -20,10 +20,17 @@
 </template>
 
 <script>
+
+import gameExamples from '../classes/gameExamples';
+
 export default {
   name: 'GameUserCode',
 
   props: {
+  },
+
+  mounted() {
+    this.$refs.usercode.value = gameExamples.GAME_EXEMPLE_MAGICIAN;
   },
 
   methods: {
@@ -34,7 +41,7 @@ export default {
       // Je me suis cassé les fesses à organiser les composents GameBoard et GameUserCode
       // en hiérarchie parent-enfant.
       // je trouve ça un peu étrange. Si j'ai fait ça pour rien, c'est naze.
-      this.$emit('update-user-code', 124);
+      this.$emit('update-user-code', this.$refs.usercode.value);
     },
 
   },
@@ -42,4 +49,6 @@ export default {
 </script>
 
 <style scoped>
+/* TODO : zone de texte en fond gris avec texte blanc.
+          Un marge en bas pour s'espacer avec le bouton d'envoi du code. */
 </style>

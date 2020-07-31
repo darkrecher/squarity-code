@@ -71,6 +71,10 @@
       Mais ça a pas marché.
       J'espère que ça va pas poser de problème.
     -->
+    <!--
+      BIG BIG TODO : c'est tout crade. J'ai fait nimp et j'ai mis du log partout.
+      Mais ça marche. Faut juste nettoyer tout ça.
+    -->
     <script type="text/python">
       print("pouet brython");
       from browser import document;
@@ -81,7 +85,17 @@
       from lib_test import say_hello;
       say_hello();
       document.la_fonction_say_hello = say_hello;
-      import board_model
+      import board_model;
+      compiled_code = compile(document.userCode, "user_code", "exec");
+      print("zut");
+      exec(compiled_code);
+      print("zut demi");
+      board_model = BoardModel();
+      print("zuzut");
+      document.BoardModelGetTile = board_model.get_tile;
+      document.BoardModelSendGameAction = board_model.send_game_action;
+      document.BoardModelGetSize = board_model.get_size;
+      print("c'est peut être bon");
     </script>
   </div>
 </template>
@@ -197,11 +211,13 @@ export default {
         // Mais on peut aussi l'exécuter où on veut, avec window.brython.
         // Énorme merci à cette issue github :
         // https://github.com/brython-dev/brython/issues/793
-        console.log('I will load script and execute brython');
-        window.brython(1);
-        console.log('loaded script and executed brython');
-        this.draw_rect();
-        console.log('first draw rect made');
+        console.log('I will NOT load script and execute brython');
+        // window.brython(1);
+        // console.log('loaded script and executed brython');
+        // document.compileUserCode();
+        // console.log('compiled user code');
+        // this.draw_rect();
+        // console.log('first draw rect made');
       })
       .catch(() => {
         // TODO : je sais jamais quoi mettre là dedans. Osef ?
@@ -295,9 +311,12 @@ export default {
       this.draw_rect();
     },
 
-    onUpdateCode(payload) {
+    onUpdateCode(userCode) {
       console.log('update-user-code pouet');
-      console.log(payload);
+      // console.log(userCode);
+      document.userCode = userCode;
+      window.brython(1);
+      this.draw_rect();
     },
 
   },
