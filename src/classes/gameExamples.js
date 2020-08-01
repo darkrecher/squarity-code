@@ -4,7 +4,36 @@
 // Dans un fichier .py qui se colore-syntax correctement, et lors du build du projet,
 // on le met dans une string comme ça à l'arrache.
 export default Object.freeze({
-  GAME_EXEMPLE_MAGICIAN: `
+  // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
+  // Pour l'instant on laisse comme ça, même si c'est moche.
+  // C'est le sprite "M".
+  GAME_MAGICIAN_COORDS_TILESET: `
+  {
+    "0": [48, 32],
+    "1": [96, 32],
+    "2": [96, 48],
+    "3": [96, 96],
+    "4": [48, 96],
+    "5": [32, 96],
+    "6": [32, 48],
+    "7": [32, 32],
+    "8": [48, 48],
+    "W": [88, 208],
+    "|": [165, 132],
+    "-": [142, 132],
+    "V": [32, 336],
+    "v": [32, 352],
+    "y": [32, 143],
+    "s": [216, 64],
+    "D": [156, 212],
+    "M": [197, 161],
+    "[": [169, 83],
+    "]": [185, 83],
+    "(": [215, 99],
+    ")": [215, 115]
+  }
+  `,
+  GAME_MAGICIAN_USER_CODE: `
 
 # TODO : Les variables DATA_TILES sont spécifique au jeu. Faudra les mettre ailleurs.
 DATA_TILES_1 = [

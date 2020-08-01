@@ -116,8 +116,6 @@ function loadImage(src) {
   });
 }
 
-const urlTilesetAtlas = require('../assets/dungeon_tiles_2.png');
-
 export default {
   name: 'GameBoard',
   components: {
@@ -138,32 +136,6 @@ export default {
       message: 'Vue + Canvas API',
       tile_width: 32,
       tile_height: 32,
-      coord_img_from_data: {
-        0: [48, 32],
-        1: [96, 32],
-        2: [96, 48],
-        3: [96, 96],
-        4: [48, 96],
-        5: [32, 96],
-        6: [32, 48],
-        7: [32, 32],
-        8: [48, 48],
-        W: [88, 208],
-        '|': [165, 132],
-        '-': [142, 132],
-        V: [32, 336],
-        v: [32, 352],
-        y: [32, 143],
-        s: [216, 64],
-        D: [156, 212],
-        // TODO : la taille du sprite est plus grande que 16x16, et faudrait le décaler.
-        // Pour l'instant on laisse comme ça, même si c'est moche.
-        M: [197, 161],
-        '[': [169, 83],
-        ']': [185, 83],
-        '(': [215, 99],
-        ')': [215, 115],
-      },
     };
   },
 
@@ -187,6 +159,7 @@ export default {
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
     this.canvas_buffer.width = 640;
     this.canvas_buffer.height = 448;
+    this.current_url_tileset = '';
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
@@ -231,7 +204,7 @@ export default {
 
   methods: {
 
-    async draw_rect() {
+    draw_rect() {
       // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
       // clear canvas
       this.ctx_canvas_buffer.fillStyle = '#000000';
@@ -243,7 +216,6 @@ export default {
       let canvasX = 0;
       let canvasY = 0;
 
-      this.tile_atlas = await loadImage(urlTilesetAtlas);
       const [boardWidth, boardHeight] = document.BoardModelGetSize();
 
       for (let y = 0; y < boardHeight; y += 1) {
@@ -254,7 +226,7 @@ export default {
 
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
-            const coordImg = this.coord_img_from_data[gameObject];
+            const coordImg = this.coords_tileset[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
               coordImg[0], coordImg[1], 16, 16,
@@ -312,11 +284,19 @@ export default {
       this.draw_rect();
     },
 
-    onUpdateCode(userCode) {
+    async onUpdateCode(urlTileset, coordsTileset, userCode) {
       console.log('update-user-code pouet');
       // console.log(userCode);
       document.userCode = userCode;
       window.brython(1);
+      if (this.current_url_tileset !== urlTileset) {
+        // TODO : faire quelque chose si le chargement de l'image merdouille.
+        this.tile_atlas = await loadImage(urlTileset);
+        this.current_url_tileset = urlTileset;
+      }
+      // TODO : faire quelque chose si le json est pourri,
+      // ou qu'il contient des coordonnée qui dépasse du tileset.
+      this.coords_tileset = JSON.parse(coordsTileset);
       this.draw_rect();
     },
 

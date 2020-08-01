@@ -1,7 +1,27 @@
 <template>
   <div class="game-user-code">
     <div>
-      Le code du jeu
+      Url de l'image tileset.
+    </div>
+    <div>
+      <input
+        ref="urltileset"
+        type="text"
+      >
+    </div>
+    <div>
+      Coordonnées des images du tileset (en JSON).
+    </div>
+    <div>
+      <textarea
+        ref="coordstileset"
+        cols="100"
+        rows="10"
+        spellcheck="false"
+      />
+    </div>
+    <div>
+      Le code du jeu.
     </div>
     <div>
       <textarea
@@ -23,6 +43,12 @@
 
 import gameExamples from '../classes/gameExamples';
 
+// Je suis obligé de mettre ça la, parce que je peux pas appeler require dans gameExamples.js
+// Et je peux pas définir l'url relative ailleurs, parce que require nécessite
+// obligatoirement des strings literals.
+// Cochonnerie de javascript en vrac qui met du bazar partout.
+const GAME_MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
+
 export default {
   name: 'GameUserCode',
 
@@ -30,7 +56,9 @@ export default {
   },
 
   mounted() {
-    this.$refs.usercode.value = gameExamples.GAME_EXEMPLE_MAGICIAN;
+    this.$refs.urltileset.value = GAME_MAGICIAN_URL_TILESET;
+    this.$refs.coordstileset.value = gameExamples.GAME_MAGICIAN_COORDS_TILESET;
+    this.$refs.usercode.value = gameExamples.GAME_MAGICIAN_USER_CODE;
   },
 
   methods: {
@@ -41,7 +69,12 @@ export default {
       // Je me suis cassé les fesses à organiser les composents GameBoard et GameUserCode
       // en hiérarchie parent-enfant.
       // je trouve ça un peu étrange. Si j'ai fait ça pour rien, c'est naze.
-      this.$emit('update-user-code', this.$refs.usercode.value);
+      this.$emit(
+        'update-user-code',
+        this.$refs.urltileset.value,
+        this.$refs.coordstileset.value,
+        this.$refs.usercode.value,
+      );
     },
 
   },
