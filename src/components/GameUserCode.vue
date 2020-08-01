@@ -6,9 +6,9 @@
     <div>
       <textarea
         ref="usercode"
-        name=""
         cols="100"
         rows="35"
+        spellcheck="false"
       />
     </div>
     <div>
@@ -49,6 +49,9 @@ export default {
 </script>
 
 <style scoped>
-/* TODO : zone de texte en fond gris avec texte blanc.
-          Un marge en bas pour s'espacer avec le bouton d'envoi du code. */
+  textarea {
+    background-color: #202020;
+    color: #C0C0C0;
+    margin-bottom: 1em;
+  }
 </style>

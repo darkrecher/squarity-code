@@ -235,6 +235,8 @@ export default {
       // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
       // clear canvas
       this.ctx_canvas_buffer.fillStyle = '#000000';
+      // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
+      this.ctx_canvas_buffer.imageSmoothingEnabled = false;
       // J'ai tenté clearRect. Mais ça ne marche pas bien.
       // Mon bonhomme reste dessiné sur les cases noires. Osef.
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
@@ -253,7 +255,6 @@ export default {
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
             const coordImg = this.coord_img_from_data[gameObject];
-            // console.log("coordImg", coordImg)
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
               coordImg[0], coordImg[1], 16, 16,
@@ -335,10 +336,11 @@ export default {
     font-weight: bold;
   }
 
-  #c {
-    width: 600px;
-    height: 400px;
+  #gamecanvas {
+    width: 640px;
+    height: 448px;
     border: 1px solid gray;
+    image-rendering: pixelated;
   }
 
   .game-and-code {
