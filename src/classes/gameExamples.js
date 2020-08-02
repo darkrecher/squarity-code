@@ -158,25 +158,40 @@ class BoardModel():
     "gas_right": [0, 96],
     "gas_down": [32, 96],
     "gas_left": [64, 96],
-    "gas_up": [96, 96]
-  }
+    "gas_up": [96, 96],
+    "E": [0, 128],
+    "wet_sponge": [32, 128],
+    "-": [64, 128],
+    "|": [96, 128],
+    "=": [0, 160],
+    "I": [32, 160],
+    "gas_dead": [64, 160],
+    "water_right_pipe": [0, 192],
+    "water_down_pipe": [32, 192],
+    "water_left_pipe": [64, 192],
+    "water_up_pipe": [96, 192],
+    "gas_right_pipe": [0, 224],
+    "gas_down_pipe": [32, 224],
+    "gas_left_pipe": [64, 224],
+    "gas_up_pipe": [96,224]
+}
   `,
   GAME_H2O_USER_CODE: `
 
 DATA_TILES_1 = [
     'XXXXXXXXXXXXXXXXXXXX',
     '....................',
-    '....................',
+    '...........=..-.....',
     '.......S............',
-    '....................',
-    '...............XXX..',
+    '...........I..|.....',
+    '................XX..',
     '....H.......C.......',
     '....................',
-    '....................',
-    '....................',
-    '...X.X.X............',
-    '....................',
-    '....................',
+    '....EEE.......XIX...',
+    '..............X.X...',
+    '...X.X.X....XXX.X...',
+    '.............=..X...',
+    '............XXXXX...',
     '....................',
 ]
 
@@ -211,20 +226,39 @@ class BoardModel():
         return self.w, self.h
 
     def get_tile(self, x, y):
+        tile_gamobjs = self.tiles[y][x]
         hero_dir_names = {
             "U": "up",
             "D": "down",
             "L": "left",
             "R": "right",
         }
-        if x == self.hero_x and y == self.hero_y:
-            hero_gamobj = [ "%s_%s" % (self.hero_state, hero_dir_names[self.hero_dir]) ]
+        if self.hero_alive and x == self.hero_x and y == self.hero_y:
+            hero_gamobj = "%s_%s" % (self.hero_state, hero_dir_names[self.hero_dir])
+            if "-" in tile_gamobjs or "|" in tile_gamobjs:
+                hero_gamobj += "_pipe"
+            hero_gamobj = [hero_gamobj]
         else:
             hero_gamobj = []
-        return self.tiles[y][x] + hero_gamobj
+        return tile_gamobjs + hero_gamobj
 
+
+    def can_move(self, start_tile_objs, dest_tile_objs, move_dir):
+        if "X" in dest_tile_objs:
+            return False
+        if {"-", "="}.intersection(set(start_tile_objs + dest_tile_objs)) and move_dir in ("U", "D"):
+            return False
+        if {"|", "I"}.intersection(set(start_tile_objs + dest_tile_objs)) and move_dir in ("L", "R"):
+            return False
+        if self.hero_state == "ice" and ("-" in dest_tile_objs or "|" in dest_tile_objs):
+            return False
+        return True
 
     def send_game_action(self, action_type):
+
+        if not self.hero_alive:
+            # TODO : faudrait redémarrer le niveau.
+            return
 
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
@@ -234,8 +268,11 @@ class BoardModel():
             new_hero_y = self.hero_y + move_coord[1]
             if 0 <= new_hero_x < self.w and 0 <= new_hero_y < self.h:
                 target_tile_objs = self.get_tile(new_hero_x, new_hero_y)
-                if "X" not in target_tile_objs:
-                    must_move = True
+                must_move = self.can_move(
+                    self.get_tile(self.hero_x, self.hero_y),
+                    target_tile_objs,
+                    action_type
+                )
 
         if must_move:
             self.hero_dir = action_type
@@ -257,6 +294,13 @@ class BoardModel():
                 "gas": "gas",
             }
             self.hero_state = to_hot[self.hero_state]
+        if "E" in tile_data_new_pos and self.hero_state == "water":
+            self.hero_alive = False
+            tile_data_new_pos.remove("E")
+            tile_data_new_pos.append("wet_sponge")
+        if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
+            self.hero_alive = False
+            tile_data_new_pos.append("gas_dead")
 
   `,
 
