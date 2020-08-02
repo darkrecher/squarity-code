@@ -78,24 +78,14 @@
     <script type="text/python">
       print("pouet brython");
       from browser import document;
-      document.brython_squarity = "re 789 zzxx";
-      document <= "Hello ! et je suis un zozo";
-      print("fin pouet " + document.brython_squarity);
-      exec('try:print(document.brython_squarity_2);\nexcept:print("tant pis pour l autre var 2");');
-      from lib_test import say_hello;
-      say_hello();
-      document.la_fonction_say_hello = say_hello;
       import board_model;
       compiled_code = compile(document.userCode, "user_code", "exec");
-      print("zut");
       exec(compiled_code);
-      print("zut demi");
       board_model = BoardModel();
-      print("zuzut");
       document.BoardModelGetTile = board_model.get_tile;
       document.BoardModelSendGameAction = board_model.send_game_action;
       document.BoardModelGetSize = board_model.get_size;
-      print("c'est peut être bon");
+      print("Compilation du user code OK.");
     </script>
   </div>
 </template>
@@ -229,7 +219,8 @@ export default {
             const coordImg = this.coords_tileset[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
-              coordImg[0], coordImg[1], 16, 16,
+              coordImg[0], coordImg[1],
+              this.tilesize_tileset, this.tilesize_tileset,
               canvasX, canvasY, this.tile_width, this.tile_height,
             );
           }
@@ -266,7 +257,6 @@ export default {
       this.draw_rect();
       // TODO : rien à foutre là, mais c'est pour du test.
       // window.brython(1);
-      document.la_fonction_say_hello();
     },
 
     goRight() {
@@ -297,6 +287,9 @@ export default {
       // TODO : faire quelque chose si le json est pourri,
       // ou qu'il contient des coordonnée qui dépasse du tileset.
       this.coords_tileset = JSON.parse(coordsTileset);
+      // TODO : très très vilain. On met des données de différents types
+      // dans le même dictionnaire JSON.
+      this.tilesize_tileset = this.coords_tileset.tilesize;
       this.draw_rect();
     },
 

@@ -16,7 +16,7 @@
       <textarea
         ref="coordstileset"
         cols="100"
-        rows="10"
+        rows="8"
         spellcheck="false"
       />
     </div>
@@ -48,6 +48,7 @@ import gameExamples from '../classes/gameExamples';
 // obligatoirement des strings literals.
 // Cochonnerie de javascript en vrac qui met du bazar partout.
 const GAME_MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
+const GAME_H2O_URL_TILESET = require('../assets/h2o_tileset.png');
 
 export default {
   name: 'GameUserCode',
@@ -56,9 +57,12 @@ export default {
   },
 
   mounted() {
-    this.$refs.urltileset.value = GAME_MAGICIAN_URL_TILESET;
-    this.$refs.coordstileset.value = gameExamples.GAME_MAGICIAN_COORDS_TILESET;
-    this.$refs.usercode.value = gameExamples.GAME_MAGICIAN_USER_CODE;
+    // this.$refs.urltileset.value = GAME_MAGICIAN_URL_TILESET;
+    // this.$refs.coordstileset.value = gameExamples.GAME_MAGICIAN_COORDS_TILESET;
+    // this.$refs.usercode.value = gameExamples.GAME_MAGICIAN_USER_CODE;
+    this.$refs.urltileset.value = GAME_H2O_URL_TILESET;
+    this.$refs.coordstileset.value = gameExamples.GAME_H2O_COORDS_TILESET;
+    this.$refs.usercode.value = gameExamples.GAME_H2O_USER_CODE;
   },
 
   methods: {
