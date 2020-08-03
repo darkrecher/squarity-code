@@ -173,33 +173,106 @@ class BoardModel():
     "gas_right_pipe": [0, 224],
     "gas_down_pipe": [32, 224],
     "gas_left_pipe": [64, 224],
-    "gas_up_pipe": [96,224]
+    "gas_up_pipe": [96,224],
+    "O": [0, 256],
+    "wet_grid": [32, 256],
+    "S": [64, 256]
 }
   `,
   GAME_H2O_USER_CODE: `
 
-DATA_TILES_1 = [
-    'XXXXXXXXXXXXXXXXXXXX',
-    '....................',
-    '...........=..-.....',
-    '.......S............',
-    '...........I..|.....',
-    '................XX..',
-    '....H.......C.......',
-    '....................',
-    '....EEE.......XIX...',
-    '..............X.X...',
-    '...X.X.X....XXX.X...',
-    '.............=..X...',
-    '............XXXXX...',
-    '....................',
-]
+LEVELS = (
+    (
+        'XXXXXXXXXXXXXXXXXXXX',
+        'X...-...XXX...=....X',
+        'X..XXX..XXX..XXX...X',
+        'S...E....H....-....X',
+        'X..XXX..XXX..XXX.X.X',
+        'X...=...X.X...E..X.X',
+        'XXXXXXXXX.XXXXXXXX.X',
+        'XXXXXXXXX.XXXXXXXXCX',
+        'X.H.H...X.X...E..X.X',
+        'X..CCC..XXX..XXX.XCX',
+        'X.HCO.........=....X',
+        'X..CCC..XXX..XXX.XXX',
+        'X.H.H...XXX...-..XXX',
+        'XXXXXXXXXXXXXXXXXXXX',
+    ),
+    (
+        'X.H.XXX.C.XXX.H.XXXX',
+        'S...-.E...=.E.....XX',
+        'X.C.XXX.H.XXX.C.X|XX',
+        'XXXXXXXXXXXXXXXXX.XX',
+        'X.H.XXX.C.XXX.H.XIXX',
+        'XC..=.H...-.C.....XX',
+        'X...XXX.H.XXX.C.XXXX',
+        'XX.XX.XXXXX.XXXXX...',
+        'XXCX.X.X...XXXXXXX..',
+        'XXHXXXXX..XX.....X..',
+        'XXEX.H.XXXXX..O..X..',
+        'XX......HCE......X..',
+        'XXXX.C.XXXXXH...CX..',
+        'XXXXXXXXXXXXXXXXXX..',
+    ),
+    (
+        'XXXXXXXXXXXXXXXXXXXX',
+        'XXXXXXXX.....XXXXXXX',
+        'XXXXXXXX.XXXHXXXXXXX',
+        'XXXXXXXX.XXXHXXXXXXX',
+        'X.H.XXXX.XXXCXXXXXXX',
+        'S....E-..CCHE.....XX',
+        'X.C.XXXX.XXXCXXX..XX',
+        'XXXXX..X.XXXHX.....X',
+        'X.--.||X.XXXCX.XXX.X',
+        'X|XX..|X.....X..CH.X',
+        'X|X.--.XXXXXXXXXHCXX',
+        'X|XOXXXXXXX.----CHXX',
+        'X.---------.XXXXXXXX',
+        'XXXXXXXXXXXXXXXXXXXX',
+    ),
+    (
+        'EIEXIIIXIIIXIIIIIIII',
+        'ECE=...=...=...===O=',
+        'EEE=.=.=.=.=.=.===I=',
+        'X=.=.=.=.=.=.=.=...=',
+        'X=...=...=...=...=.=',
+        'XXIIIXIIIXIIIXIII=H=',
+        'XXXXXXXXXXXXXXXXXEHE',
+        'XEHEEEEEEEEEEEEEEXIX',
+        'XE......EE.....EEEEE',
+        'XEEEEEE....EEE.....E',
+        'XEEEEEEEEEEEEEEEEE.E',
+        'XE...E...E...E...E.E',
+        'S..E...E...E...E...E',
+        'XEEEEEEEEEEEEE-CEEEE',
+    ),
+    (
+        'XXXXXXXXXXXXXXXXXXXX',
+        'X.HHHH..H..H..H..H.X',
+        'X.H.....H..HH.H..H.X',
+        'X.HH....H..H.HH..H.X',
+        'X.H.....H..H..H....X',
+        'X.H.....H..H..H..H.X',
+        'S..................X',
+        'X.....CC.....CC....X',
+        'X.....CC.....CC....X',
+        'X..................X',
+        'X...C...........C..X',
+        'X....C.........C...X',
+        'X.....CCCCCCCCC....X',
+        'XXXXXXXXXXXXXXXXXXXX',
+    ),
+)
 
 class BoardModel():
 
     def __init__(self, width=20, height=14):
         self.w = width
         self.h = height
+        self.current_level_idx = 0
+        self.init_level()
+
+    def init_level(self):
         self.hero_alive = False
         self.tiles = [
             [
@@ -207,20 +280,24 @@ class BoardModel():
             ]
             for y in range(self.h)
         ]
+        cur_level = LEVELS[self.current_level_idx]
+
         for y in range(self.h):
             for x in range(self.w):
                 tile_data = []
-                tile_data_add = DATA_TILES_1[y][x]
+                tile_data_add = cur_level[y][x]
                 if tile_data_add == "S":
-                    tile_data.append(".")
-                    self.hero_x = x
+                    # Si le tuyau d'arrivée est tout à droite, ça pète.
+                    # Not my problem.
+                    self.hero_x = x + 1
                     self.hero_y = y
                     self.hero_alive = True
                     self.hero_dir = "D"
                     self.hero_state = "water"
-                elif tile_data_add != " ":
+                if tile_data_add != " ":
                     tile_data.append(tile_data_add)
                 self.tiles[y][x] = tile_data
+
 
     def get_size(self):
         return self.w, self.h
@@ -244,7 +321,7 @@ class BoardModel():
 
 
     def can_move(self, start_tile_objs, dest_tile_objs, move_dir):
-        if "X" in dest_tile_objs:
+        if "X" in dest_tile_objs or "S" in dest_tile_objs:
             return False
         if {"-", "="}.intersection(set(start_tile_objs + dest_tile_objs)) and move_dir in ("U", "D"):
             return False
@@ -257,7 +334,7 @@ class BoardModel():
     def send_game_action(self, action_type):
 
         if not self.hero_alive:
-            # TODO : faudrait redémarrer le niveau.
+            self.init_level()
             return
 
         must_move = False
@@ -280,14 +357,14 @@ class BoardModel():
             self.hero_y = new_hero_y
 
         tile_data_new_pos = self.tiles[self.hero_y][self.hero_x]
-        if "C" in tile_data_new_pos:
+        if must_move and "C" in tile_data_new_pos:
             to_cold = {
                 "ice": "ice",
                 "water": "ice",
                 "gas": "water",
             }
             self.hero_state = to_cold[self.hero_state]
-        if "H" in tile_data_new_pos:
+        if must_move and "H" in tile_data_new_pos:
             to_hot = {
                 "ice": "water",
                 "water": "gas",
@@ -298,10 +375,14 @@ class BoardModel():
             self.hero_alive = False
             tile_data_new_pos.remove("E")
             tile_data_new_pos.append("wet_sponge")
+        if "O" in tile_data_new_pos and self.hero_state == "water":
+            self.hero_alive = False
+            tile_data_new_pos.remove("O")
+            tile_data_new_pos.append("wet_grid")
+            self.current_level_idx += 1
         if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
             self.hero_alive = False
             tile_data_new_pos.append("gas_dead")
-
   `,
 
 });
