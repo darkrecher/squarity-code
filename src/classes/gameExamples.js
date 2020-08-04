@@ -97,7 +97,7 @@ class BoardModel():
                 self.tiles[y][x] = tile_data
 
         self.magician_x = 6
-        self.magician_y = 4
+        self.magician_y = 5
         self.tiles[self.magician_y][self.magician_x].append('M')
 
     def get_size(self):

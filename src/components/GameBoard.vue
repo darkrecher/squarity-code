@@ -37,9 +37,13 @@
     </div>
 
     <p>
-      Tileset créé par Buch:
+      Le tileset du jeu du magicien a été créé par Buch :
+      <a href="https://opengameart.org/content/dungeon-tileset">https://opengameart.org/content/dungeon-tileset</a>
       <br>
-      <a href="https://opengameart.org/users/buch">https://opengameart.org/users/buch</a>
+      Les aventures de H2O sont inspirés
+      <a href="https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html">
+        du jeu "H2O" sur la mini-console Storio.
+      </a>
     </p>
 
     <!--
