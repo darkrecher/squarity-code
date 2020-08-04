@@ -111,6 +111,7 @@ class BoardModel():
         # TODO : si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
         # Ça fait un horrible message d'erreur dans la console, qui ne cite même pas la variable inexistante.
         # Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
+        # On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel de user-code.
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
 
@@ -137,7 +138,6 @@ class BoardModel():
             self.magician_x = new_magician_x
             self.magician_y = new_magician_y
             self.tiles[self.magician_y][self.magician_x].append('M')
-        print(board_model.juste_pour_tester)
   `,
 
   GAME_H2O_COORDS_TILESET: `

@@ -76,8 +76,8 @@ export default {
       // TODO : est-ce que la fonction $emit envoie l'événement à tout le monde,
       // ou uniquement au component parent ?
       // Je me suis cassé les fesses à organiser les composents GameBoard et GameUserCode
-      // en hiérarchie parent-enfant.
-      // je trouve ça un peu étrange. Si j'ai fait ça pour rien, c'est naze.
+      // en hiérarchie parent-enfant alors que je trouvais ça étrange.
+      // Si j'ai fait ça pour rien, c'est naze.
       this.$emit(
         'update-user-code',
         this.$refs.urltileset.value,

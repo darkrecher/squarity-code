@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-    <GameBoard msg="Ici il y a mon board" />
+    <HelloWorld msg="Welcome to the python-board-2D-game-engine !" />
+    <GameBoard msg="*-*-*-*" />
   </div>
 </template>
 

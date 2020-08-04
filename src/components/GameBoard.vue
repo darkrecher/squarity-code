@@ -32,7 +32,10 @@
       </div>
 
       <div>
-        <GameUserCode @update-user-code="onUpdateCode" />
+        <GameUserCode
+          ref="gameUserCode"
+          @update-user-code="onUpdateCode"
+        />
       </div>
     </div>
 
@@ -40,20 +43,24 @@
       Le tileset du jeu du magicien a été créé par Buch :
       <a href="https://opengameart.org/content/dungeon-tileset">https://opengameart.org/content/dungeon-tileset</a>
       <br>
-      Les aventures de H2O sont inspirés
+      Les aventures de H2O sont inspirées
       <a href="https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html">
         du jeu "H2O" sur la mini-console Storio.
       </a>
+      <br>
+      <a href="https://github.com/darkrecher/squarity-code">Code source sur github.</a>
     </p>
 
     <!--
-      une fois que ce code est exécuté,
-      on peut lire la variable document.brython_squarity dans la console.
-      Et si on a préalablement défini document.brython_squarity_2, on la voit dans la console.
-      Par contre, tous les sauts de ligne sont flingués. Ça aide pas, en python.
-      On réglera ça plus tard.
-    -->
-    <!--
+
+      1)
+      On peut exécuter du code python dans une balise "text/python".
+      Il est possible d'échanger des données (variables, fonctions) entre brython et js,
+      en lisant/écrivant des données dans "document".
+      En JS, document existe dès le départ (c'est le document HTML actuel),
+      en brython, il suffit de faire "from browser import document".
+
+      2)
       Le fait d'importer une lib python,
       (Par exemple : from lib_test import say_hello)
       déclenche une requête ajax synchrone.
@@ -66,21 +73,26 @@
       https://brython.info/static_doc/en/faq.html
       Du coup, je peux me permettre de m'en tamponner.
 
-      FUTURE :
-      Ça, ça marche pas :
+      3)
+      TODO : Ça, ça marche pas :
       from python_libs.lib_test import say_hello;
       Les libs python doivent être dans la racine du site.
-      Pourtant Brython dit qu'on peut importer depuis des sous-répertoires.
+      Pourtant la doc brython dit qu'on peut importer depuis des sous-répertoires.
       À condition d'avoir mis le fichier __init__.py comme il faut.
-      Mais ça a pas marché.
+      Mais ça n'a pas marché.
       J'espère que ça va pas poser de problème.
-    -->
-    <!--
-      BIG BIG TODO : c'est tout crade. J'ai fait nimp et j'ai mis du log partout.
-      Mais ça marche. Faut juste nettoyer tout ça.
+
+      4)
+      Tous les sauts de ligne dans la balise text/python sont flingués.
+      Je suppose que c'est Vue ou ESLint qui fait ça (minification, ou un truc du genre).
+      Mais ça aide pas pour le python, dans lequel les sauts de lignes sont significatifs.
+      Du coup, je suis obligé de mettre des points-virgules partout !
+      TODO : si on peut trouver une solution plus élégante, ce serait bien.
+      Peut-être en important depuis un fichier .py.
+      Mais il faut que la compilation du user-code soit accessible.
     -->
     <script type="text/python">
-      print("pouet brython");
+      print("Compilation user code start.");
       from browser import document;
       import board_model;
       compiled_code = compile(document.userCode, "user_code", "exec");
@@ -89,7 +101,7 @@
       document.BoardModelGetTile = board_model.get_tile;
       document.BoardModelSendGameAction = board_model.send_game_action;
       document.BoardModelGetSize = board_model.get_size;
-      print("Compilation du user code OK.");
+      print("Compilation user code end.");
     </script>
   </div>
 </template>
@@ -125,20 +137,19 @@ export default {
 
   data() {
     return {
-      // J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
+      // TODO : J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
       // Du coup, ça sert à quoi ce truc ?
-      message: 'Vue + Canvas API',
+      message: '-+-+-',
       tile_width: 32,
       tile_height: 32,
     };
   },
 
   beforeMount() {
-    console.log('beforeMount zz');
   },
 
   mounted() {
-    // Utiliser la variable $refs pour récupérer tous les trucs référencés dans le template.
+    // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
     const canvasFinal = this.$refs.gamecanvas;
     this.ctx_canvas_final = canvasFinal.getContext('2d');
@@ -173,21 +184,18 @@ export default {
     // que j'ai récupéré en local, dans /public/sm.
     this.$loadScript('/brython/brython.min.js')
       .then(() => {
-        // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
-        // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
-        // Mais on peut aussi l'exécuter où on veut, avec window.brython.
-        // Énorme merci à cette issue github :
-        // https://github.com/brython-dev/brython/issues/793
-        console.log('I will NOT load script and execute brython');
-        // window.brython(1);
-        // console.log('loaded script and executed brython');
-        // document.compileUserCode();
-        // console.log('compiled user code');
-        // this.draw_rect();
-        // console.log('first draw rect made');
+        console.log('Brython lib loaded.');
+        // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
+        // le message "update-user-code" pour activer le jeu par défaut.
+        // Tellement génial le javascript.
+        this.$refs.gameUserCode.example_magician();
       })
       .catch(() => {
-        // TODO : je sais jamais quoi mettre là dedans. Osef ?
+        // Je sais jamais quoi mettre là dedans.
+        // Dans ce cas en particulier, si j'ai pas la lib brython, j'ai rien du tout.
+        // Et c'est pas censé arriver car cette lib est sur le même serveur
+        // que ce fichier GameBoard.vue. Donc, je décide que "not supposed to happen",
+        // et je ne fais rien de spécial dans cette fonction catch().
       });
   },
 
@@ -209,13 +217,12 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-
       const [boardWidth, boardHeight] = document.BoardModelGetSize();
 
       for (let y = 0; y < boardHeight; y += 1) {
         for (let x = 0; x < boardWidth; x += 1) {
           // TODO : moche. Faut préalablement récupérer la fonction pour qu'elle soit dans this.
-          // C'est pas propre de la laisser trainer dans document.
+          // C'est pas propre de la laisser trainer dans "document".
           const tileData = document.BoardModelGetTile(x, y);
 
           for (let i = 0; i < tileData.length; i += 1) {
@@ -238,10 +245,6 @@ export default {
     },
 
     on_key_down(e) {
-      // TODO : Je vais laisser ce log trainer un moment.
-      // Pour être sûr que l'event listener se désactive quand le GameBoard n'est plus là.
-      console.log('on_key_down', e.key);
-
       const GameActionFromDir = {
         ArrowUp: 'U',
         ArrowRight: 'R',
@@ -259,8 +262,6 @@ export default {
     goUp() {
       document.BoardModelSendGameAction('U');
       this.draw_rect();
-      // TODO : rien à foutre là, mais c'est pour du test.
-      // window.brython(1);
     },
 
     goRight() {
@@ -279,10 +280,6 @@ export default {
     },
 
     async onUpdateCode(urlTileset, coordsTileset, userCode) {
-      console.log('update-user-code pouet');
-      // console.log(userCode);
-      document.userCode = userCode;
-      window.brython(1);
       if (this.current_url_tileset !== urlTileset) {
         // TODO : faire quelque chose si le chargement de l'image merdouille.
         this.tile_atlas = await loadImage(urlTileset);
@@ -294,7 +291,17 @@ export default {
       // TODO : très très vilain. On met des données de différents types
       // dans le même dictionnaire JSON.
       this.tilesize_tileset = this.coords_tileset.tilesize;
+
+      document.userCode = userCode;
+      // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
+      // Mais on peut aussi l'exécuter où on veut, avec window.brython.
+      // Énorme merci à cette issue github :
+      // https://github.com/brython-dev/brython/issues/793
+      // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
+      window.brython(1);
+
       this.draw_rect();
+      console.log('First draw rect of updated user-code made.');
     },
 
   },
