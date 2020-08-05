@@ -10,6 +10,8 @@
       <div
         ref="gameinterface"
         tabindex="0"
+        class="game"
+        :class="{ full: hideCode }"
       >
         <canvas ref="gamecanvas" />
         <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
@@ -31,7 +33,23 @@
         </div>
       </div>
 
-      <div>
+      <div class="separator">
+        <button @click="toggleCodeDisplay">
+          Masquer /
+          <br>
+          Afficher
+          <br>
+          le code.
+        </button>
+      </div>
+
+      <!--
+        C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
+        Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
+      -->
+      <div
+        :class="{ hidden: hideCode }"
+      >
         <GameUserCode
           ref="gameUserCode"
           @update-user-code="onUpdateCode"
@@ -138,10 +156,11 @@ export default {
   data() {
     return {
       // TODO : J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
-      // Du coup, ça sert à quoi ce truc ?
+      // Du coup, ça sert à quoi ce truc de data ?
       message: '-+-+-',
       tile_width: 32,
       tile_height: 32,
+      hideCode: false,
     };
   },
 
@@ -304,6 +323,10 @@ export default {
       console.log('First draw rect of updated user-code made.');
     },
 
+    toggleCodeDisplay() {
+      this.hideCode = !this.hideCode;
+    },
+
   },
 
 };
@@ -312,12 +335,13 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-  button {
+  .game button {
     width: 2em;
     height: 2em;
     background-color: #707070;
     font-size: 2em;
     font-weight: bold;
+    border-color: black;
   }
 
   #gamecanvas {
@@ -331,9 +355,30 @@ export default {
     display: flex;
   }
 
-  .game-and-code > div{
-    width:50%;
-    padding:5px;
+  .game-and-code > div {
+    width: 47%;
+    padding: 5px;
+  }
+
+  .game-and-code > div.hidden {
+    width: 0%;
+    display: none;
+  }
+
+  .game-and-code > div.full {
+    width: 94%;
+  }
+
+  .game-and-code > div.separator {
+    width: 5%;
+    /*
+      J'ai toujours un doute sur le flex. Est-ce que ça va fonctionner partout ?
+      Mais zut, ça va bien. J'ai pas envie de me prendre le chou avec du CSS.
+      https://css-tricks.com/centering-css-complete-guide/
+    */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
 </style>

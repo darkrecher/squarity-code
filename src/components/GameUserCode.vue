@@ -37,7 +37,7 @@
       <textarea
         ref="usercode"
         cols="100"
-        rows="30"
+        rows="28"
         spellcheck="false"
       />
     </div>
