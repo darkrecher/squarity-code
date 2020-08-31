@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import './plugins/bootstrap-vue';
 import LoadScript from 'vue-plugin-load-script';
 import App from './App.vue';
 

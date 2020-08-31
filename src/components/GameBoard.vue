@@ -2,60 +2,75 @@
   <div class="gameboard">
     <p>{{ msg }} - {{ message }}</p>
 
-    <div class="game-and-code">
-      <!--
-        Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
-        https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
-      -->
-      <div
-        ref="gameinterface"
-        tabindex="0"
-        class="game"
-        :class="{ full: hideCode }"
-      >
-        <canvas ref="gamecanvas" />
-        <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-        <div>
-          <button @click="goUp">
-            &#x21e7;
-          </button>
-        </div>
-        <div>
-          <button @click="goLeft">
-            &#x21e6;
-          </button>
-          <button @click="goDown">
-            &#x21e9;
-          </button>
-          <button @click="goRight">
-            &#x21e8;
-          </button>
-        </div>
-      </div>
-
-      <div class="separator">
-        <button @click="toggleCodeDisplay">
-          Masquer /
-          <br>
-          Afficher
-          <br>
-          le code.
-        </button>
-      </div>
-
-      <!--
-        C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
-        Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
-      -->
-      <div
-        :class="{ hidden: hideCode }"
-      >
-        <GameUserCode
-          ref="gameUserCode"
-          @update-user-code="onUpdateCode"
-        />
-      </div>
+    <div>
+      <button @click="toggleCodeDisplay">
+        Masquer / Afficher le code.
+      </button>
     </div>
+
+    <b-container
+      fluid
+    >
+      <b-row>
+        <b-col
+          sm="12"
+          :md="hideCode ? 12 : 6"
+          :lg="hideCode ? 8 : 6"
+          :offset-lg="hideCode ? 2 : 0"
+          :xl="hideCode ? 8 : 6"
+          :offset-xl="hideCode ? 2 : 0"
+        >
+          <!--
+            Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
+            https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
+          -->
+          <div
+            ref="gameinterface"
+            tabindex="0"
+            class="game"
+            :class="{ full: hideCode }"
+          >
+            <canvas ref="gamecanvas" />
+            <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+            <div>
+              <button @click="goUp">
+                &#x21e7;
+              </button>
+            </div>
+            <div>
+              <button @click="goLeft">
+                &#x21e6;
+              </button>
+              <button @click="goDown">
+                &#x21e9;
+              </button>
+              <button @click="goRight">
+                &#x21e8;
+              </button>
+            </div>
+          </div>
+        </b-col>
+
+        <b-col
+          sm="12"
+          md="6"
+          lg="6"
+          xl="6"
+          :class="{ hidden: hideCode }"
+        >
+          <!--
+            C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
+            Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
+          -->
+          <div>
+            <GameUserCode
+              ref="gameUserCode"
+              @update-user-code="onUpdateCode"
+            />
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
 
     <p>
       Le tileset du jeu du magicien a été créé par Buch :
@@ -175,8 +190,12 @@ export default {
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
     // https://www.w3schools.com/tags/att_canvas_width.asp
-    // TODO : il faudra quand même l'adapter à la taille de la fenêtre,
-    //        et aux proportions du BoardModel aussi.
+    // Et faut le faire deux fois :
+    // Pour canvasFinal (width, height), et aussi pour this.canvas_buffer (width, height aussi)
+    // TODO : j'ai pas tout compris ces histoires de taille. Faut que je le regarde.
+    //
+    // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
+    // elem.clientHeight et elem.clientWidth.
     canvasFinal.width = 640;
     canvasFinal.height = 448;
     this.canvas_buffer = document.createElement('canvas');
@@ -344,41 +363,20 @@ export default {
     border-color: black;
   }
 
-  #gamecanvas {
-    width: 640px;
-    height: 448px;
+  canvas {
+    width: 100%;
+    height: 100%;
     border: 1px solid gray;
     image-rendering: pixelated;
   }
 
-  .game-and-code {
-    display: flex;
-  }
-
-  .game-and-code > div {
-    width: 47%;
-    padding: 5px;
-  }
-
-  .game-and-code > div.hidden {
+  div.hidden {
     width: 0%;
     display: none;
   }
 
-  .game-and-code > div.full {
-    width: 94%;
-  }
-
-  .game-and-code > div.separator {
-    width: 5%;
-    /*
-      J'ai toujours un doute sur le flex. Est-ce que ça va fonctionner partout ?
-      Mais zut, ça va bien. J'ai pas envie de me prendre le chou avec du CSS.
-      https://css-tricks.com/centering-css-complete-guide/
-    */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  .gameboard > div {
+    padding-bottom: 1em;
   }
 
 </style>
