@@ -239,7 +239,15 @@ export default {
 
   destroyed() {
     const elemGameInterface = this.$refs.gameinterface;
-    elemGameInterface.removeEventListener('keydown', this.on_key_down);
+    // Je dois vérifier que elemGameInterface n'est pas Null.
+    // Quand je recharge ma page, pas de problème.
+    // Quand je modifie le code et que npm me recharge automatiquement la page
+    // (d'une manière manifestement différente qu'un rechargement complet)
+    // Ça me fait une erreur. Je sais pas pourquoi.
+    // Osef, y'a qu'à checker.
+    if (elemGameInterface) {
+      elemGameInterface.removeEventListener('keydown', this.on_key_down);
+    }
   },
 
   methods: {

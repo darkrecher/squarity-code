@@ -52,6 +52,7 @@
 <script>
 
 import gameExamples from '../classes/gameExamples';
+import userCodeLoader from '../classes/userCodeLoader';
 
 // Je suis obligé de mettre ça là, parce que je peux pas appeler require dans gameExamples.js
 // Et je peux pas définir l'url relative ailleurs, parce que require nécessite
@@ -67,6 +68,12 @@ export default {
   },
 
   mounted() {
+    const haha = userCodeLoader.url_user_code_from_loc_hash();
+    if (haha === null) {
+      console.log('c\'est du null');
+    } else {
+      console.log(haha);
+    }
   },
 
   methods: {
@@ -113,5 +120,6 @@ export default {
     background-color: #202020;
     color: #C0C0C0;
     margin-bottom: 1em;
+    font-family: monospace;
   }
 </style>
