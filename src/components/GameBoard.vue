@@ -226,7 +226,7 @@ export default {
         // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
         // le message "update-user-code" pour activer le jeu par défaut.
         // Tellement génial le javascript.
-        this.$refs.gameUserCode.example_magician();
+        this.$refs.gameUserCode.fetch_code_from_loc_hash();
       })
       .catch(() => {
         // Je sais jamais quoi mettre là dedans.

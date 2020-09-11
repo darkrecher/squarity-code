@@ -1,4 +1,4 @@
-// const axios = require('axios');
+const axios = require('axios');
 
 export default Object.freeze({
 
@@ -29,10 +29,24 @@ export default Object.freeze({
     return urlPattern.replace('{gameExternalId}', gameExternalId);
   },
 
-  // TODO : crap
-  // axios.get('https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/4Mqg1FjN')
-  // .then((response) => {
-  //   // handle success
-  //   console.log(response);
-  // });
+  async fetch_game_user_code(url) {
+    let response = '';
+    try {
+      response = await axios.get(url);
+      // TODO : moche et provisoire. Ce sera mieux
+      // quand on aura fusionné les img coords et le code dans un même champ.
+    } catch (error) {
+      return null;
+    }
+    const dataSplitted = response.data.split('--------');
+    if (dataSplitted.length !== 3) {
+      return null;
+    }
+    return {
+      urltileset: dataSplitted[0],
+      coordstileset: dataSplitted[1],
+      usercode: dataSplitted[2],
+    };
+  },
+
 });

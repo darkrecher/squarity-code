@@ -68,12 +68,7 @@ export default {
   },
 
   mounted() {
-    const haha = userCodeLoader.url_user_code_from_loc_hash();
-    if (haha === null) {
-      console.log('c\'est du null');
-    } else {
-      console.log(haha);
-    }
+    console.log('juste pour dire coucou');
   },
 
   methods: {
@@ -111,6 +106,25 @@ export default {
       this.activate_current_code();
     },
 
+    async fetch_code_from_loc_hash() {
+      // console.log('fucking mounted');
+      // Pour tester : https://pastebin.com/ycBMkY4L
+      const urlUserCode = userCodeLoader.url_user_code_from_loc_hash();
+      let loadDefaultGame = true;
+      if (urlUserCode !== null) {
+        const gameUserCode = await userCodeLoader.fetch_game_user_code(urlUserCode);
+        if (gameUserCode !== null) {
+          this.$refs.urltileset.value = gameUserCode.urltileset;
+          this.$refs.coordstileset.value = gameUserCode.coordstileset;
+          this.$refs.usercode.value = gameUserCode.usercode;
+          this.activate_current_code();
+          loadDefaultGame = false;
+        }
+      }
+      if (loadDefaultGame) {
+        this.example_magician();
+      }
+    },
   },
 };
 </script>
