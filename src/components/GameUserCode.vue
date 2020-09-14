@@ -107,22 +107,29 @@ export default {
     },
 
     async fetch_code_from_loc_hash() {
-      // console.log('fucking mounted');
-      // Pour tester : https://pastebin.com/ycBMkY4L
-      const urlUserCode = userCodeLoader.url_user_code_from_loc_hash();
-      let loadDefaultGame = true;
-      if (urlUserCode !== null) {
-        const gameUserCode = await userCodeLoader.fetch_game_user_code(urlUserCode);
-        if (gameUserCode !== null) {
-          this.$refs.urltileset.value = gameUserCode.urltileset;
-          this.$refs.coordstileset.value = gameUserCode.coordstileset;
-          this.$refs.usercode.value = gameUserCode.usercode;
-          this.activate_current_code();
-          loadDefaultGame = false;
-        }
-      }
-      if (loadDefaultGame) {
+      // Pour tester :
+      // http://localhost:8080/#fetchez_pastebin_2QjANjCU
+      // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/gamecode.txt
+      const locHash = window.location.hash;
+      if (!locHash) {
         this.example_magician();
+      } else {
+        const urlUserCode = userCodeLoader.url_user_code_from_loc_hash(locHash);
+        if (urlUserCode === null) {
+          // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
+          console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
+        } else {
+          const gameUserCode = await userCodeLoader.fetch_game_user_code(urlUserCode);
+          if (gameUserCode === null) {
+            // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
+            console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
+          } else {
+            this.$refs.urltileset.value = gameUserCode.urltileset;
+            this.$refs.coordstileset.value = gameUserCode.coordstileset;
+            this.$refs.usercode.value = gameUserCode.usercode;
+            this.activate_current_code();
+          }
+        }
       }
     },
   },

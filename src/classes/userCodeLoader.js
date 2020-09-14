@@ -4,48 +4,69 @@ export default Object.freeze({
 
   // TODO : on est bien d'accord que c'est dégueux de dépendre de deux ressources externes :
   // pastebin et cors-anywhere qui permet de passer la sécurité CORS.
-  URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{gameExternalId}',
+  URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
+  URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
 
-  url_user_code_from_loc_hash() {
-    const locHashSplitted = window.location.hash.split('_');
+  url_user_code_from_loc_hash(locHash) {
+    const locHashSplitted = locHash.split('_');
     if (locHashSplitted.length !== 3) {
       return null;
     }
     if (locHashSplitted[0] !== '#fetchez') {
       return null;
     }
-    const gameExternalId = locHashSplitted[2];
-    if (!gameExternalId.match(/^[0-9a-zA-Z]+$/)) {
-      return null;
-    }
     let urlPattern = '';
-    // TODO : Pour l'instant, on n'a que pastebin, mais faudra ajouter github.
+    const externalId = locHashSplitted[2];
+
     if (locHashSplitted[1] === 'pastebin') {
       urlPattern = this.URL_PATTERN_PASTEBIN;
+      if (!externalId.match(/^[0-9a-zA-Z]+$/)) {
+        return null;
+      }
+    } else if (locHashSplitted[1] === 'githubgist') {
+      urlPattern = this.URL_PATTERN_GITHUBGIST;
+      if (!externalId.match(/^[0-9a-zA-Z/._-]+$/)) {
+        return null;
+      }
     }
     if (!urlPattern) {
       return null;
     }
-    return urlPattern.replace('{gameExternalId}', gameExternalId);
+    return urlPattern.replace('{externalId}', externalId);
   },
 
   async fetch_game_user_code(url) {
     let response = '';
     try {
       response = await axios.get(url);
-      // TODO : moche et provisoire. Ce sera mieux
-      // quand on aura fusionné les img coords et le code dans un même champ.
     } catch (error) {
       return null;
     }
-    const dataSplitted = response.data.split('--------');
-    if (dataSplitted.length !== 3) {
+    // On parse selon le format décrit ici :
+    // https://trello.com/c/pbxgBITh/44-%C3%A9crire-la-documentation-utilisateur
+    // Ce sera dans une vraie doc plus tard.
+    const dataLines = response.data.split('\n');
+    if (dataLines.length < 2) {
       return null;
     }
+    const urlTileset = dataLines[0];
+    const separator = dataLines[1].trimEnd();
+    let indexSeparator = 2;
+    while (
+      (indexSeparator < dataLines.length)
+      && (dataLines[indexSeparator].trimEnd() !== separator)
+    ) {
+      indexSeparator += 1;
+    }
+    if (indexSeparator === dataLines.length) {
+      return null;
+    }
+    const jsonConfig = dataLines.slice(2, indexSeparator).join('\n');
+    const gameCode = dataLines.slice(indexSeparator + 1).join('\n');
     return {
-      urltileset: dataSplitted[0],
-      coordstileset: dataSplitted[1],
-      usercode: dataSplitted[2],
+      urltileset: urlTileset,
+      coordstileset: jsonConfig,
+      usercode: gameCode,
     };
   },
 
