@@ -3,8 +3,8 @@
     <p>{{ msg }} - {{ message }}</p>
 
     <div>
-      <button @click="toggleCodeDisplay">
-        Masquer / Afficher le code.
+      <button @click="toggleDevZoneDisplay">
+        Masquer / Afficher zone de dev.
       </button>
     </div>
 
@@ -63,9 +63,9 @@
             Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
           -->
           <div>
-            <GameUserCode
-              ref="gameUserCode"
-              @update-user-code="onUpdateCode"
+            <DevZone
+              ref="devZone"
+              @update-game-spec="onUpdateGameSpec"
             />
           </div>
         </b-col>
@@ -122,26 +122,26 @@
       Du coup, je suis obligé de mettre des points-virgules partout !
       TODO : si on peut trouver une solution plus élégante, ce serait bien.
       Peut-être en important depuis un fichier .py.
-      Mais il faut que la compilation du user-code soit accessible.
+      Mais il faut que la compilation du game-code soit accessible.
     -->
     <script type="text/python">
-      print("Compilation user code start.");
+      print("Compilation game code start.");
       from browser import document;
       import board_model;
-      compiled_code = compile(document.userCode, "user_code", "exec");
+      compiled_code = compile(document.gameCode, "game_code", "exec");
       exec(compiled_code);
       board_model = BoardModel();
       document.BoardModelGetTile = board_model.get_tile;
       document.BoardModelSendGameAction = board_model.send_game_action;
       document.BoardModelGetSize = board_model.get_size;
-      print("Compilation user code end.");
+      print("Compilation game code end.");
     </script>
   </div>
 </template>
 
 <script>
 
-import GameUserCode from './GameUserCode.vue';
+import DevZone from './DevZone.vue';
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
@@ -158,7 +158,7 @@ function loadImage(src) {
 export default {
   name: 'GameBoard',
   components: {
-    GameUserCode,
+    DevZone,
   },
 
   props: {
@@ -224,9 +224,9 @@ export default {
       .then(() => {
         console.log('Brython lib loaded.');
         // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
-        // le message "update-user-code" pour activer le jeu par défaut.
+        // le message "update-game-spec" pour activer le jeu par défaut.
         // Tellement génial le javascript.
-        this.$refs.gameUserCode.fetch_code_from_loc_hash();
+        this.$refs.devZone.fetch_game_spec_from_loc_hash();
       })
       .catch(() => {
         // Je sais jamais quoi mettre là dedans.
@@ -273,7 +273,7 @@ export default {
 
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
-            const coordImg = this.coords_tileset[gameObject];
+            const coordImg = this.json_conf[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
               coordImg[0], coordImg[1],
@@ -325,7 +325,7 @@ export default {
       this.draw_rect();
     },
 
-    async onUpdateCode(urlTileset, coordsTileset, userCode) {
+    async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
       if (this.current_url_tileset !== urlTileset) {
         // TODO : faire quelque chose si le chargement de l'image merdouille.
         this.tile_atlas = await loadImage(urlTileset);
@@ -333,12 +333,12 @@ export default {
       }
       // TODO : faire quelque chose si le json est pourri,
       // ou qu'il contient des coordonnée qui dépasse du tileset.
-      this.coords_tileset = JSON.parse(coordsTileset);
+      this.json_conf = JSON.parse(jsonConf);
       // TODO : très très vilain. On met des données de différents types
       // dans le même dictionnaire JSON.
-      this.tilesize_tileset = this.coords_tileset.tilesize;
+      this.tilesize_tileset = this.json_conf.tilesize;
 
-      document.userCode = userCode;
+      document.gameCode = gameCode;
       // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
       // Mais on peut aussi l'exécuter où on veut, avec window.brython.
       // Énorme merci à cette issue github :
@@ -347,10 +347,10 @@ export default {
       window.brython(1);
 
       this.draw_rect();
-      console.log('First draw rect of updated user-code made.');
+      console.log('First draw rect of updated game-code made.');
     },
 
-    toggleCodeDisplay() {
+    toggleDevZoneDisplay() {
       this.hideCode = !this.hideCode;
     },
 

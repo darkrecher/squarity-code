@@ -1,5 +1,5 @@
 <template>
-  <div class="game-user-code">
+  <div class="dev-zone">
     <div>
       <button @click="example_magician">
         Exemple 1 : Le magicien faiseur de ponts
@@ -14,17 +14,22 @@
       Url de l'image tileset.
     </div>
     <div>
+      <!--
+        TODO : c'est quoi la préconisation pour les noms de ref ?
+        Camel case ? lower case ?
+        Je peux faire ce que je veux ?
+      -->
       <input
         ref="urltileset"
         type="text"
       >
     </div>
     <div>
-      Coordonnées des images du tileset (en JSON).
+      Config du jeu (en JSON).
     </div>
     <div>
       <textarea
-        ref="coordstileset"
+        ref="jsonconf"
         cols="100"
         rows="8"
         spellcheck="false"
@@ -35,15 +40,15 @@
     </div>
     <div>
       <textarea
-        ref="usercode"
+        ref="gamecode"
         cols="100"
         rows="28"
         spellcheck="false"
       />
     </div>
     <div>
-      <button @click="send_code">
-        &lt;&lt;&lt; Envoyer le code
+      <button @click="send_game_spec">
+        &lt;&lt;&lt; Envoyer le jeu
       </button>
     </div>
   </div>
@@ -52,17 +57,17 @@
 <script>
 
 import gameExamples from '../classes/gameExamples';
-import userCodeLoader from '../classes/userCodeLoader';
+import gameSpecLoader from '../classes/gameSpecLoader';
 
 // Je suis obligé de mettre ça là, parce que je peux pas appeler require dans gameExamples.js
 // Et je peux pas définir l'url relative ailleurs, parce que require nécessite
 // obligatoirement des strings literals.
 // Cochonnerie de javascript en vrac qui met du bazar partout.
-const GAME_MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
-const GAME_H2O_URL_TILESET = require('../assets/h2o_tileset.png');
+const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
+const H2O_URL_TILESET = require('../assets/h2o_tileset.png');
 
 export default {
-  name: 'GameUserCode',
+  name: 'DevZone',
 
   props: {
   },
@@ -73,40 +78,40 @@ export default {
 
   methods: {
 
-    activate_current_code() {
+    activate_current_game_spec() {
       // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/6535686-emit-events-to-parent-components
       // TODO : est-ce que la fonction $emit envoie l'événement à tout le monde,
       // ou uniquement au component parent ?
-      // Je me suis cassé les fesses à organiser les composents GameBoard et GameUserCode
+      // Je me suis cassé les fesses à organiser les composents GameBoard et DevZone
       // en hiérarchie parent-enfant alors que je trouvais ça étrange.
       // Si j'ai fait ça pour rien, c'est naze.
       this.$emit(
-        'update-user-code',
+        'update-game-spec',
         this.$refs.urltileset.value,
-        this.$refs.coordstileset.value,
-        this.$refs.usercode.value,
+        this.$refs.jsonconf.value,
+        this.$refs.gamecode.value,
       );
     },
 
-    send_code() {
-      this.activate_current_code();
+    send_game_spec() {
+      this.activate_current_game_spec();
     },
 
     example_magician() {
-      this.$refs.urltileset.value = GAME_MAGICIAN_URL_TILESET;
-      this.$refs.coordstileset.value = gameExamples.GAME_MAGICIAN_COORDS_TILESET;
-      this.$refs.usercode.value = gameExamples.GAME_MAGICIAN_USER_CODE;
-      this.activate_current_code();
+      this.$refs.urltileset.value = MAGICIAN_URL_TILESET;
+      this.$refs.jsonconf.value = gameExamples.MAGICIAN_JSON_CONF;
+      this.$refs.gamecode.value = gameExamples.MAGICIAN_GAME_CODE;
+      this.activate_current_game_spec();
     },
 
     example_h2o() {
-      this.$refs.urltileset.value = GAME_H2O_URL_TILESET;
-      this.$refs.coordstileset.value = gameExamples.GAME_H2O_COORDS_TILESET;
-      this.$refs.usercode.value = gameExamples.GAME_H2O_USER_CODE;
-      this.activate_current_code();
+      this.$refs.urltileset.value = H2O_URL_TILESET;
+      this.$refs.jsonconf.value = gameExamples.H2O_JSON_CONF;
+      this.$refs.gamecode.value = gameExamples.H2O_GAME_CODE;
+      this.activate_current_game_spec();
     },
 
-    async fetch_code_from_loc_hash() {
+    async fetch_game_spec_from_loc_hash() {
       // Pour tester :
       // http://localhost:8080/#fetchez_pastebin_2QjANjCU
       // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/gamecode.txt
@@ -114,20 +119,21 @@ export default {
       if (!locHash) {
         this.example_magician();
       } else {
-        const urlUserCode = userCodeLoader.url_user_code_from_loc_hash(locHash);
-        if (urlUserCode === null) {
+        const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
+        if (urlGameSpec === null) {
           // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
           console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
         } else {
-          const gameUserCode = await userCodeLoader.fetch_game_user_code(urlUserCode);
-          if (gameUserCode === null) {
+          const gameSpec = await gameSpecLoader.fetch_game_spec(urlGameSpec);
+          if (gameSpec === null) {
             // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
             console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
           } else {
-            this.$refs.urltileset.value = gameUserCode.urltileset;
-            this.$refs.coordstileset.value = gameUserCode.coordstileset;
-            this.$refs.usercode.value = gameUserCode.usercode;
-            this.activate_current_code();
+            this.$refs.urltileset.value = gameSpec.urlTileset;
+            // TODO WIP : faut pas appeler ça jsonconf. Y'a plus de trucs que ça dedans.
+            this.$refs.jsonconf.value = gameSpec.jsonConf;
+            this.$refs.gamecode.value = gameSpec.gameCode;
+            this.activate_current_game_spec();
           }
         }
       }

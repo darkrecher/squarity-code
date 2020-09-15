@@ -7,7 +7,7 @@ export default Object.freeze({
   // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
   // Pour l'instant on laisse comme ça, même si c'est moche.
   // C'est le sprite "M".
-  GAME_MAGICIAN_COORDS_TILESET: `
+  MAGICIAN_JSON_CONF: `
   {
     "tilesize": 16,
     "0": [48, 32],
@@ -34,7 +34,7 @@ export default Object.freeze({
     ")": [215, 115]
   }
   `,
-  GAME_MAGICIAN_USER_CODE: `
+  MAGICIAN_GAME_CODE: `
 
 DATA_TILES_1 = [
     '     701     70001  ',
@@ -111,7 +111,7 @@ class BoardModel():
         # TODO : si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
         # Ça fait un horrible message d'erreur dans la console, qui ne cite même pas la variable inexistante.
         # Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
-        # On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel de user-code.
+        # On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel du game-code.
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
 
@@ -140,7 +140,7 @@ class BoardModel():
             self.tiles[self.magician_y][self.magician_x].append('M')
   `,
 
-  GAME_H2O_COORDS_TILESET: `
+  H2O_JSON_CONF: `
   {
     "tilesize": 32,
     "X": [0, 0],
@@ -179,7 +179,7 @@ class BoardModel():
     "S": [64, 256]
 }
   `,
-  GAME_H2O_USER_CODE: `
+  H2O_GAME_CODE: `
 
 LEVELS = (
     (

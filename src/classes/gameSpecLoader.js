@@ -7,7 +7,7 @@ export default Object.freeze({
   URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
 
-  url_user_code_from_loc_hash(locHash) {
+  url_game_spec_from_loc_hash(locHash) {
     const locHashSplitted = locHash.split('_');
     if (locHashSplitted.length !== 3) {
       return null;
@@ -35,7 +35,7 @@ export default Object.freeze({
     return urlPattern.replace('{externalId}', externalId);
   },
 
-  async fetch_game_user_code(url) {
+  async fetch_game_spec(url) {
     let response = '';
     try {
       response = await axios.get(url);
@@ -61,12 +61,12 @@ export default Object.freeze({
     if (indexSeparator === dataLines.length) {
       return null;
     }
-    const jsonConfig = dataLines.slice(2, indexSeparator).join('\n');
+    const jsonConf = dataLines.slice(2, indexSeparator).join('\n');
     const gameCode = dataLines.slice(indexSeparator + 1).join('\n');
     return {
-      urltileset: urlTileset,
-      coordstileset: jsonConfig,
-      usercode: gameCode,
+      urlTileset,
+      jsonConf,
+      gameCode,
     };
   },
 
