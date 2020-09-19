@@ -31,22 +31,36 @@
             :class="{ full: hideCode }"
           >
             <canvas ref="gamecanvas" />
-            <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-            <div>
-              <button @click="goUp">
-                &#x21e7;
-              </button>
-            </div>
-            <div>
-              <button @click="goLeft">
-                &#x21e6;
-              </button>
-              <button @click="goDown">
-                &#x21e9;
-              </button>
-              <button @click="goRight">
-                &#x21e8;
-              </button>
+            <div class="d-flex flex-row justify-content-center align-items-end">
+              <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+              <div class="p-2">
+                <div>
+                  <button @click="goUp">
+                    &#x21e7;
+                  </button>
+                </div>
+                <div>
+                  <button @click="goLeft">
+                    &#x21e6;
+                  </button>
+                  <button @click="goDown">
+                    &#x21e9;
+                  </button>
+                  <button @click="goRight">
+                    &#x21e8;
+                  </button>
+                </div>
+              </div>
+              <div class="p-2">
+                <div>
+                  <button @click="action1">
+                    1
+                  </button>
+                  <button @click="action2">
+                    2
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </b-col>
@@ -132,7 +146,7 @@
       exec(compiled_code);
       board_model = BoardModel();
       document.BoardModelGetTile = board_model.get_tile;
-      document.BoardModelSendGameAction = board_model.send_game_action;
+      document.BoardModelSendGameAction = board_model.on_player_event;
       document.BoardModelGetSize = board_model.get_size;
       print("Compilation game code end.");
     </script>
@@ -296,10 +310,16 @@ export default {
         ArrowRight: 'R',
         ArrowDown: 'D',
         ArrowLeft: 'L',
+        Digit1: 'action_1',
+        Digit2: 'action_2',
+        Numpad1: 'action_1',
+        Numpad2: 'action_2',
       };
 
-      if (e.key in GameActionFromDir) {
-        const gameAction = GameActionFromDir[e.key];
+      // https://hacks.mozilla.org/2017/03/internationalize-your-keyboard-controls/
+      // C'est quand même un peu le bazar la gestion des touches dans les navigateurs.
+      if (e.code in GameActionFromDir) {
+        const gameAction = GameActionFromDir[e.code];
         document.BoardModelSendGameAction(gameAction);
         this.draw_rect();
         e.preventDefault();
@@ -323,6 +343,16 @@ export default {
 
     goLeft() {
       document.BoardModelSendGameAction('L');
+      this.draw_rect();
+    },
+
+    action1() {
+      document.BoardModelSendGameAction('action_1');
+      this.draw_rect();
+    },
+
+    action2() {
+      document.BoardModelSendGameAction('action_2');
       this.draw_rect();
     },
 
@@ -369,7 +399,18 @@ export default {
     background-color: #707070;
     font-size: 2em;
     font-weight: bold;
-    border-color: black;
+    border: 0;
+    margin: 2px;
+  }
+  .game button:hover {
+    background-color: #909090;
+  }
+  .game button:active {
+    background-color: #B0B0B0;
+  }
+  /* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */
+  .game button:focus {
+    outline: thin dotted;
   }
 
   canvas {

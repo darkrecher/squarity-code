@@ -28,6 +28,7 @@ export default Object.freeze({
       "y": [32, 143],
       "s": [216, 64],
       "D": [156, 212],
+      "d": [140, 212],
       "M": [197, 161],
       "[": [169, 83],
       "]": [185, 83],
@@ -48,7 +49,7 @@ DATA_TILES_1 = [
     '    7001            ',
     ' 70068821           ',
     ' 588544381          ',
-    ' y68WsWW8801        ',
+    ' y68WsdW8801        ',
     ' 78888888882    71  ',
     ' 54888888843    53  ',
     ' yy5444443yy    yy  ',
@@ -108,8 +109,21 @@ class BoardModel():
     def get_tile(self, x, y):
         return self.tiles[y][x]
 
-    def send_game_action(self, action_type):
-        print("send_game_action", action_type)
+    def on_player_event(self, action_type):
+        print("on_player_event", action_type)
+
+        if action_type == 'action_1':
+            action_target_y = self.magician_y - 1
+            if action_target_y > 0:
+                target_tile_objs = self.get_tile(self.magician_x, action_target_y)
+                if 'd' in target_tile_objs:
+                    target_tile_objs.remove('d')
+                    target_tile_objs.append('D')
+                elif 'D' in target_tile_objs:
+                    target_tile_objs.remove('D')
+                    target_tile_objs.append('d')
+            return
+
         # TODO : si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
         # Ça fait un horrible message d'erreur dans la console, qui ne cite même pas la variable inexistante.
         # Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
@@ -335,7 +349,7 @@ class BoardModel():
             return False
         return True
 
-    def send_game_action(self, action_type):
+    def on_player_event(self, action_type):
 
         if not self.hero_alive:
             self.init_level()
