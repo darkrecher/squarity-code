@@ -302,6 +302,7 @@ export default {
         const gameAction = GameActionFromDir[e.key];
         document.BoardModelSendGameAction(gameAction);
         this.draw_rect();
+        e.preventDefault();
       }
     },
 
@@ -347,6 +348,7 @@ export default {
       window.brython(1);
 
       this.draw_rect();
+      this.$refs.gameinterface.focus();
       console.log('First draw rect of updated game-code made.');
     },
 

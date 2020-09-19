@@ -1,5 +1,8 @@
 <template>
-  <div class="dev-zone">
+  <div
+    class="dev-zone"
+    ref="devzone"
+  >
     <div>
       <button @click="example_magician">
         Exemple 1 : Le magicien faiseur de ponts
@@ -74,6 +77,19 @@ export default {
 
   mounted() {
     console.log('juste pour dire coucou');
+
+    const elemDevZone = this.$refs.devzone;
+    elemDevZone.addEventListener('keydown', this.on_key_down);
+  },
+
+  destroyed() {
+    // TODO : duplicate code avec le composant GameBoard.vue.
+    // Et c'est tellement un truc à la con que ce serait bien de trouver un moyen de factoriser ça.
+    // Au moins, j'aurais ce truc à la con à un seul endroit, et pas dans tous mes components.
+    const elemDevZone = this.$refs.devzone;
+    if (elemDevZone) {
+      elemDevZone.removeEventListener('keydown', this.on_key_down);
+    }
   },
 
   methods: {
@@ -118,26 +134,38 @@ export default {
       const locHash = window.location.hash;
       if (!locHash) {
         this.example_magician();
+        return;
+      }
+      const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
+      if (urlGameSpec === null) {
+        // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
+        console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
       } else {
-        const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
-        if (urlGameSpec === null) {
+        const gameSpec = await gameSpecLoader.fetch_game_spec(urlGameSpec);
+        if (gameSpec === null) {
           // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
-          console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
+          console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
         } else {
-          const gameSpec = await gameSpecLoader.fetch_game_spec(urlGameSpec);
-          if (gameSpec === null) {
-            // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
-            console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
-          } else {
-            this.$refs.urltileset.value = gameSpec.urlTileset;
-            // TODO WIP : faut pas appeler ça jsonconf. Y'a plus de trucs que ça dedans.
-            this.$refs.jsonconf.value = gameSpec.jsonConf;
-            this.$refs.gamecode.value = gameSpec.gameCode;
-            this.activate_current_game_spec();
-          }
+          this.$refs.urltileset.value = gameSpec.urlTileset;
+          this.$refs.jsonconf.value = gameSpec.jsonConf;
+          this.$refs.gamecode.value = gameSpec.gameCode;
+          this.activate_current_game_spec();
         }
       }
     },
+
+    on_key_down(e) {
+      // L'événement sera déclenché plusieurs fois si on reste appuyé sur les touches Ctrl+Entrée.
+      // C'est pourri. Mais osef.
+      // (Quand même pas de ma faute si le javascript une gestion d'appuis de touches de prolo).
+      //
+      // https://stackoverflow.com/questions/905222/enter-key-press-event-in-javascript
+      if (e.ctrlKey && e.key === 'Enter') {
+        this.activate_current_game_spec();
+        e.preventDefault();
+      }
+    },
+
   },
 };
 </script>
