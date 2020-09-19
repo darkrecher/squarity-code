@@ -273,7 +273,7 @@ export default {
 
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
-            const coordImg = this.json_conf[gameObject];
+            const coordImg = this.tile_coords[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
               coordImg[0], coordImg[1],
@@ -335,9 +335,8 @@ export default {
       // TODO : faire quelque chose si le json est pourri,
       // ou qu'il contient des coordonnée qui dépasse du tileset.
       this.json_conf = JSON.parse(jsonConf);
-      // TODO : très très vilain. On met des données de différents types
-      // dans le même dictionnaire JSON.
-      this.tilesize_tileset = this.json_conf.tilesize;
+      this.tilesize_tileset = this.json_conf.tile_size;
+      this.tile_coords = this.json_conf.tile_coords;
 
       document.gameCode = gameCode;
       // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
