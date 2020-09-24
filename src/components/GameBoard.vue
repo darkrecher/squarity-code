@@ -1,7 +1,5 @@
 <template>
   <div class="gameboard">
-    <p>{{ msg }} - {{ message }}</p>
-
     <div>
       <button @click="toggleDevZoneDisplay">
         Masquer / Afficher zone de dev.
@@ -31,7 +29,15 @@
             :class="{ full: hideCode }"
           >
             <canvas ref="gamecanvas" />
-            <div class="d-flex flex-row justify-content-center align-items-end">
+            <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
+            <div class="d-flex flex-row justify-content-center align-items-stretch">
+              <div class="p-2 flex-grow-1">
+                <textarea
+                  id="python_console"
+                  ref="python_console"
+                  readonly
+                />
+              </div>
               <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
               <div class="p-2">
                 <div>
@@ -52,7 +58,7 @@
                 </div>
               </div>
               <div class="p-2">
-                <div>
+                <div class="action-buttons">
                   <button @click="action1">
                     1
                   </button>
@@ -86,16 +92,21 @@
       </b-row>
     </b-container>
 
-    <p>
-      Le tileset du jeu du magicien a été créé par Buch :
-      <a href="https://opengameart.org/content/dungeon-tileset">https://opengameart.org/content/dungeon-tileset</a>
-      <br>
-      Les aventures de H2O sont inspirées
-      <a href="https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html">
-        du jeu "H2O" sur la mini-console Storio.
+    <p class="footer">
+      <a
+        href="https://github.com/darkrecher/squarity-code"
+        target="_blank"
+      >
+        Code source
       </a>
-      <br>
-      <a href="https://github.com/darkrecher/squarity-code">Code source sur github.</a>
+      et
+      <a
+        href="https://github.com/darkrecher/squarity-doc"
+        target="_blank"
+      >
+        documentation
+      </a>
+      sur github.
     </p>
 
     <!--
@@ -139,7 +150,6 @@
       Mais il faut que la compilation du game-code soit accessible.
     -->
     <script type="text/python">
-      print("Compilation game code start.");
       from browser import document;
       import board_model;
       compiled_code = compile(document.gameCode, "game_code", "exec");
@@ -148,7 +158,6 @@
       document.BoardModelGetTile = board_model.get_tile;
       document.BoardModelSendGameAction = board_model.on_player_event;
       document.BoardModelGetSize = board_model.get_size;
-      print("Compilation game code end.");
     </script>
   </div>
 </template>
@@ -186,7 +195,6 @@ export default {
     return {
       // TODO : J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
       // Du coup, ça sert à quoi ce truc de data ?
-      message: '-+-+-',
       tile_width: 32,
       tile_height: 32,
       hideCode: false,
@@ -367,6 +375,7 @@ export default {
       this.json_conf = JSON.parse(jsonConf);
       this.tilesize_tileset = this.json_conf.tile_size;
       this.tile_coords = this.json_conf.tile_coords;
+      this.$refs.python_console.textContent = '';
 
       document.gameCode = gameCode;
       // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
@@ -427,6 +436,27 @@ export default {
 
   .gameboard > div {
     padding-bottom: 1em;
+  }
+
+  .action-buttons {
+    margin-top: 1.5em;
+  }
+
+  #python_console {
+    width: 100%;
+    height: 100%;
+  }
+
+  textarea {
+    background-color: #202020;
+    color: #D0D0D0;
+    margin-bottom: 1em;
+    font-size: 1.25em;
+    font-family: monospace;
+  }
+
+  .footer {
+    font-size: 0.8em;
   }
 
 </style>

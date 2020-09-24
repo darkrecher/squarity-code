@@ -3,6 +3,15 @@
 // TODO : faudra stocker ça autrement quand on aura plusieurs exemples de jeu.
 // Dans un fichier .py qui se colore-syntax correctement, et lors du build du projet,
 // on le met dans une string comme ça à l'arrache.
+
+// TODO : dans le game_code, si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
+// Ça fait un vilain message d'erreur console, qui ne cite même pas la variable inexistante.
+// Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
+// On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel du game-code.
+
+// TODO : l'utilisateur devra coder toute la classe BoardModel dans son game_code.
+// Il faut décider si on lui en fait une de base, pour qu'il la surcharge.
+
 export default Object.freeze({
   // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
   // Pour l'instant on laisse comme ça, même si c'est moche.
@@ -30,6 +39,7 @@ export default Object.freeze({
       "D": [156, 212],
       "d": [140, 212],
       "M": [197, 161],
+      "N": [175, 161],
       "[": [169, 83],
       "]": [185, 83],
       "(": [215, 99],
@@ -68,15 +78,13 @@ DATA_TILES_2 = [
     '                    ',
     '                    ',
     '           [----]   ',
-    '                    ',
+    '       N            ',
     '                    ',
     '                    ',
 ]
 
 PASSABLE_TILOBJS = list("0123456789-|s")
 
-# TODO : l'utilisateur devra coder toute la classe BoardModel.
-# (Évidemment, on pourra l'aider. On lui en fait une de base, et il la surcharge).
 class BoardModel():
 
     def __init__(self, width=20, height=14):
@@ -99,9 +107,25 @@ class BoardModel():
                     tile_data.append(tile_data_add)
                 self.tiles[y][x] = tile_data
 
+        self.dialogue_texts = [
+            "Magicien : Bonjour !",
+            "Nain : Yep.",
+            "Magicien : Comment ça se fait qu'on voit des nains et jamais de naines dans les jeux vidéo ?",
+            "Nain : Il y en a, mais elles ont peu de poitrine et sont barbues.",
+            "Magicien : OK...",
+            "Nain(·e?) : Vous vouliez parler d'autres choses ?",
+            "Magicien : Je ne sais pas trop.",
+            "Nain(·e?) : Il suffirait de changer le contenu de la liste 'dialogue_texts', dans le code du jeu.",
+            "Magicien : Le code du jeu ?",
+            "Nain(·e?) : La zone de texte à droite. Et ensuite, il faut cliquer sur le bouton 'envoyer le jeu' qui est en dessous.",
+        ]
+
         self.magician_x = 6
         self.magician_y = 5
         self.tiles[self.magician_y][self.magician_x].append('M')
+        print("Le tileset de ce jeu a été créé par Buch :")
+        print("https://opengameart.org/content/dungeon-tileset")
+        print()
 
     def get_size(self):
         return self.w, self.h
@@ -110,7 +134,9 @@ class BoardModel():
         return self.tiles[y][x]
 
     def on_player_event(self, action_type):
-        print("on_player_event", action_type)
+        # Décommentez la ligne ci-dessous pour afficher une ligne d'info
+        # à chaque fois que le joueur appuie sur une touche.
+        # print("on_player_event", action_type)
 
         if action_type == 'action_1':
             action_target_y = self.magician_y - 1
@@ -124,30 +150,36 @@ class BoardModel():
                     target_tile_objs.append('d')
             return
 
-        # TODO : si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
-        # Ça fait un horrible message d'erreur dans la console, qui ne cite même pas la variable inexistante.
-        # Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
-        # On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel du game-code.
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
+        if move_coord is None:
+            return
 
-        if move_coord is not None:
-            new_magician_x = self.magician_x + move_coord[0]
-            new_magician_y = self.magician_y + move_coord[1]
-            if 0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h:
-                target_tile_objs = self.get_tile(new_magician_x, new_magician_y)
-                for tile_obj in target_tile_objs:
-                    if tile_obj in PASSABLE_TILOBJS:
-                        must_move = True
+        new_magician_x = self.magician_x + move_coord[0]
+        new_magician_y = self.magician_y + move_coord[1]
+        if not (0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h):
+            return
 
-                if not must_move and action_type in ("R", "L") and new_magician_x < self.w:
-                    if not target_tile_objs:
-                        target_tile_objs.append('-')
+        target_tile_objs = self.get_tile(new_magician_x, new_magician_y)
 
-                if not must_move and action_type in ("U", "D") and new_magician_y < self.h:
-                    if not target_tile_objs:
-                        target_tile_objs.append('|')
+        if "N" in target_tile_objs:
+            if self.dialogue_texts:
+                text = self.dialogue_texts.pop(0)
+                print(text)
+                print("---")
+            return
 
+        for tile_obj in target_tile_objs:
+            if tile_obj in PASSABLE_TILOBJS:
+                must_move = True
+
+        if not must_move and action_type in ("R", "L") and new_magician_x < self.w:
+            if not target_tile_objs:
+                target_tile_objs.append('-')
+
+        if not must_move and action_type in ("U", "D") and new_magician_y < self.h:
+            if not target_tile_objs:
+                target_tile_objs.append('|')
 
         if must_move:
             self.tiles[self.magician_y][self.magician_x].remove('M')
@@ -289,6 +321,9 @@ class BoardModel():
         self.h = height
         self.current_level_idx = 0
         self.init_level()
+        print("Ce jeu est inspiré de \\"H2O\\", sur la mini-console Storio.")
+        print("https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html")
+        print()
 
     def init_level(self):
         self.hero_alive = False
@@ -305,8 +340,8 @@ class BoardModel():
                 tile_data = []
                 tile_data_add = cur_level[y][x]
                 if tile_data_add == "S":
-                    # Si le tuyau d'arrivée est tout à droite, ça pète.
-                    # Not my problem.
+                    # Si le tuyau d'arrivée est tout à droite, ça fera planter le jeu.
+                    # Faut juste pas faire des niveaux avec le tuyau d'arrivée tout à droite.
                     self.hero_x = x + 1
                     self.hero_y = y
                     self.hero_alive = True
@@ -355,6 +390,9 @@ class BoardModel():
             self.init_level()
             return
 
+        if action_type.startswith("action") and self.current_level_idx == 0:
+            print("Les boutons d'actions ne servent à rien dans ce jeu.")
+
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
 
@@ -389,18 +427,24 @@ class BoardModel():
                 "gas": "gas",
             }
             self.hero_state = to_hot[self.hero_state]
+        if "O" in tile_data_new_pos:
+            if self.hero_state == "water":
+                self.hero_alive = False
+                tile_data_new_pos.remove("O")
+                tile_data_new_pos.append("wet_grid")
+                self.current_level_idx += 1
+                print("Bravo, vous passez au niveau %s" % (self.current_level_idx + 1))
+            elif self.current_level_idx == 0:
+                print("Il faut être en état liquide.")
+        if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
+            self.hero_alive = False
+            tile_data_new_pos.append("gas_dead")
+            print("Blarg ! Appuyez sur un bouton pour ressusciter")
         if "E" in tile_data_new_pos and self.hero_state == "water":
             self.hero_alive = False
             tile_data_new_pos.remove("E")
             tile_data_new_pos.append("wet_sponge")
-        if "O" in tile_data_new_pos and self.hero_state == "water":
-            self.hero_alive = False
-            tile_data_new_pos.remove("O")
-            tile_data_new_pos.append("wet_grid")
-            self.current_level_idx += 1
-        if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
-            self.hero_alive = False
-            tile_data_new_pos.append("gas_dead")
+            print("Blarg ! Appuyez sur un bouton pour ressusciter")
   `,
 
 });

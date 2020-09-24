@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to the python-board-2D-game-engine !" />
-    <GameBoard msg="*-*-*-*" />
+    <HelloWorld msg="Welcome to Squarity, the python-board-2D-game-engine !" />
+    <GameBoard />
   </div>
 </template>
 

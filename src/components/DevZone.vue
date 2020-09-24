@@ -45,7 +45,7 @@
       <textarea
         ref="gamecode"
         cols="100"
-        rows="28"
+        rows="22"
         spellcheck="false"
       />
     </div>
