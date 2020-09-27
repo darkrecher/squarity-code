@@ -156,7 +156,7 @@
       exec(compiled_code);
       board_model = BoardModel();
       document.BoardModelGetTile = board_model.get_tile;
-      document.BoardModelSendGameAction = board_model.on_player_event;
+      document.BoardModelOnPlayerEvent = board_model.on_player_event;
       document.BoardModelGetSize = board_model.get_size;
     </script>
   </div>
@@ -176,6 +176,26 @@ function loadImage(src) {
     img.onerror = reject;
     img.src = src;
   });
+}
+
+// TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
+// un truc vraiment spécifique aux interactions brython/javascript
+function isNonePython(val) {
+  // Si la valeur correspond au "None" du python, on a :
+  // val.__class__.$infos.__name__ == "NoneType".
+  let valName = '';
+  // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
+  try {
+    /* eslint-disable no-underscore-dangle */
+    valName = val.__class__.$infos.__name__;
+    /* eslint-enable no-underscore-dangle */
+  } catch (e) {
+    if (e instanceof TypeError) {
+      return false;
+    }
+    throw e;
+  }
+  return valName === 'NoneType';
 }
 
 export default {
@@ -312,8 +332,46 @@ export default {
       this.ctx_canvas_final.drawImage(this.canvas_buffer, 0, 0);
     },
 
+    isStrTransitionalState(strVal) {
+      return (strVal === 't' || strVal === 'T' || strVal === 'transitional_state');
+    },
+
+    send_game_event(eventName) {
+      const eventResult = document.BoardModelOnPlayerEvent(eventName);
+      // Si eventResult est une chaîne indiquant un transitional_state,
+      // ou bien si eventResult est un tableau, dont le premier élément est une chaîne
+      // indiquant un transitional_state, alors faut déclencher un transitional_state.
+      let transStateName = null;
+      let transStateDelay = 500;
+      if (this.isStrTransitionalState(eventResult)) {
+        transStateName = eventResult;
+      } else if (eventResult instanceof Array && eventResult.length > 0) {
+        const eventResultType = eventResult.shift();
+        if (this.isStrTransitionalState(eventResultType)) {
+          if (eventResult.length > 0) {
+            transStateName = eventResult.shift();
+          } else {
+            transStateName = eventResultType;
+          }
+          if (eventResult.length > 0) {
+            const transStateDelayAny = eventResult.shift();
+            if (Number.isInteger(transStateDelayAny) && transStateDelayAny > 0) {
+              transStateDelay = transStateDelayAny;
+            }
+          }
+        }
+      }
+      // TODO : faut gérer si c'est bloquant ou pas.
+      if (transStateName !== null) {
+        setTimeout(() => {
+          this.send_game_event(transStateName);
+        }, transStateDelay);
+      }
+      this.draw_rect();
+    },
+
     on_key_down(e) {
-      const GameActionFromDir = {
+      const eventNameFromButton = {
         ArrowUp: 'U',
         ArrowRight: 'R',
         ArrowDown: 'D',
@@ -326,42 +384,35 @@ export default {
 
       // https://hacks.mozilla.org/2017/03/internationalize-your-keyboard-controls/
       // C'est quand même un peu le bazar la gestion des touches dans les navigateurs.
-      if (e.code in GameActionFromDir) {
-        const gameAction = GameActionFromDir[e.code];
-        document.BoardModelSendGameAction(gameAction);
-        this.draw_rect();
+      if (e.code in eventNameFromButton) {
+        const eventName = eventNameFromButton[e.code];
+        this.send_game_event(eventName);
         e.preventDefault();
       }
     },
 
     goUp() {
-      document.BoardModelSendGameAction('U');
-      this.draw_rect();
+      this.send_game_event('U');
     },
 
     goRight() {
-      document.BoardModelSendGameAction('R');
-      this.draw_rect();
+      this.send_game_event('R');
     },
 
     goDown() {
-      document.BoardModelSendGameAction('D');
-      this.draw_rect();
+      this.send_game_event('D');
     },
 
     goLeft() {
-      document.BoardModelSendGameAction('L');
-      this.draw_rect();
+      this.send_game_event('L');
     },
 
     action1() {
-      document.BoardModelSendGameAction('action_1');
-      this.draw_rect();
+      this.send_game_event('action_1');
     },
 
     action2() {
-      document.BoardModelSendGameAction('action_2');
-      this.draw_rect();
+      this.send_game_event('action_2');
     },
 
     async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {

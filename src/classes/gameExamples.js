@@ -43,7 +43,8 @@ export default Object.freeze({
       "[": [169, 83],
       "]": [185, 83],
       "(": [215, 99],
-      ")": [215, 115]
+      ")": [215, 115],
+      "fire": [187, 128]
     }
   }
   `,
@@ -122,7 +123,12 @@ class BoardModel():
 
         self.magician_x = 6
         self.magician_y = 5
+        self.magician_cur_dir = 'R'
         self.tiles[self.magician_y][self.magician_x].append('M')
+
+        self.fires = []
+        self.fire_cooldown = 0
+
         print("Le tileset de ce jeu a été créé par Buch :")
         print("https://opengameart.org/content/dungeon-tileset")
         print()
@@ -133,15 +139,53 @@ class BoardModel():
     def get_tile(self, x, y):
         return self.tiles[y][x]
 
+    # TODO : Faut expliquer ça dans une doc ou un comm. On a une fonction interne, qui renvoie la liste d'objets.
+    # et on a get_tile qui est la fonction externe, qui pourrait renvoyer plein d'autres trucs.
+    # TODO : à changer dans h2o.
+    def get_tile_gamobjs(self, x, y):
+        return self.tiles[y][x]
+
+    def handle_fire(self):
+        if self.fire_cooldown:
+            self.fire_cooldown -= 1
+        for fire_infos in self.fires:
+            fire_x, fire_y, fire_dir, in_game = fire_infos
+            # TODO : get_tile_gamobjs
+            self.tiles[fire_y][fire_x].remove("fire")
+            mov_x, mov_y = board_model.MOVE_FROM_DIR[fire_dir]
+            fire_x += mov_x
+            fire_y += mov_y
+            if 0 <= fire_x < self.w and 0 <= fire_y < self.h:
+                gamobjs_new_fire_pos = self.get_tile_gamobjs(fire_x, fire_y)
+                if "-" in gamobjs_new_fire_pos:
+                    gamobjs_new_fire_pos.remove("-")
+                if "|" in gamobjs_new_fire_pos:
+                    gamobjs_new_fire_pos.remove("|")
+                gamobjs_new_fire_pos.append("fire")
+            else:
+                in_game = False
+            fire_infos[:] = [fire_x, fire_y, fire_dir, in_game]
+
+        self.fires = [ fire_infos for fire_infos in self.fires if fire_infos[3] ]
+
+        if self.fires or self.fire_cooldown:
+            return ("transitional_state", "handle_fire")
+        else:
+            return None
+
+    # TODO : renommer ce truc en on_game_event, et event_name.
     def on_player_event(self, action_type):
         # Décommentez la ligne ci-dessous pour afficher une ligne d'info
         # à chaque fois que le joueur appuie sur une touche.
         # print("on_player_event", action_type)
 
+        if action_type == 'handle_fire':
+            return self.handle_fire()
+
         if action_type == 'action_1':
             action_target_y = self.magician_y - 1
             if action_target_y > 0:
-                target_tile_objs = self.get_tile(self.magician_x, action_target_y)
+                target_tile_objs = self.get_tile_gamobjs(self.magician_x, action_target_y)
                 if 'd' in target_tile_objs:
                     target_tile_objs.remove('d')
                     target_tile_objs.append('D')
@@ -150,6 +194,22 @@ class BoardModel():
                     target_tile_objs.append('d')
             return
 
+        if action_type == 'action_2':
+            if self.fire_cooldown == 0:
+                already_fire = bool(self.fires)
+                fire_infos = [self.magician_x, self.magician_y, self.magician_cur_dir, True]
+                self.fires.append(fire_infos)
+                self.fire_cooldown = 5
+                tile_fire_objs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
+                tile_fire_objs.append("fire")
+                # TODO : il faut que j'explique ce truc.
+                if already_fire:
+                    return
+                else:
+                    return ("transitional_state", "handle_fire")
+            else:
+                return
+
         must_move = False
         move_coord = board_model.MOVE_FROM_DIR.get(action_type)
         if move_coord is None:
@@ -157,6 +217,7 @@ class BoardModel():
 
         new_magician_x = self.magician_x + move_coord[0]
         new_magician_y = self.magician_y + move_coord[1]
+        self.magician_cur_dir = action_type
         if not (0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h):
             return
 
