@@ -39,30 +39,51 @@
                 />
               </div>
               <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+              <!-- TODO : c'est dégueu de devoir répéter
+                   le disabled = is_player_locked à chaque fois
+              -->
               <div class="p-2">
                 <div>
-                  <button @click="goUp">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="goUp"
+                  >
                     &#x21e7;
                   </button>
                 </div>
                 <div>
-                  <button @click="goLeft">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="goLeft"
+                  >
                     &#x21e6;
                   </button>
-                  <button @click="goDown">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="goDown"
+                  >
                     &#x21e9;
                   </button>
-                  <button @click="goRight">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="goRight"
+                  >
                     &#x21e8;
                   </button>
                 </div>
               </div>
               <div class="p-2">
                 <div class="action-buttons">
-                  <button @click="action1">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="action1"
+                  >
                     1
                   </button>
-                  <button @click="action2">
+                  <button
+                    :disabled="is_player_locked"
+                    @click="action2"
+                  >
                     2
                   </button>
                 </div>
@@ -180,6 +201,7 @@ function loadImage(src) {
 
 // TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
 // un truc vraiment spécifique aux interactions brython/javascript
+// Commentage momentané sinon ES Lint gueule. Désolé.
 function isNonePython(val) {
   // Si la valeur correspond au "None" du python, on a :
   // val.__class__.$infos.__name__ == "NoneType".
@@ -197,6 +219,9 @@ function isNonePython(val) {
   }
   return valName === 'NoneType';
 }
+
+// TODO : y'a moyen de foutre ça dans la classe, mais que ça reste quand même une constante ?
+const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 
 export default {
   name: 'GameBoard',
@@ -218,6 +243,8 @@ export default {
       tile_width: 32,
       tile_height: 32,
       hideCode: false,
+      player_locks: [],
+      is_player_locked: false,
     };
   },
 
@@ -258,6 +285,8 @@ export default {
     // La récupération du script fonctionnait aussi comme ça :
     // this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
     // Mais je ne veux pas être dépendant d'un CDN.
+    // Et sinon, le fichier de lib standard vient d'ici.
+    // https://cdnjs.cloudflare.com/ajax/libs/brython/3.8.9/brython_stdlib.min.js
     //
     // Le fichier brython.min.js nécessite ce fichier :
     // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
@@ -337,37 +366,71 @@ export default {
     },
 
     send_game_event(eventName) {
-      const eventResult = document.BoardModelOnPlayerEvent(eventName);
-      // Si eventResult est une chaîne indiquant un transitional_state,
-      // ou bien si eventResult est un tableau, dont le premier élément est une chaîne
-      // indiquant un transitional_state, alors faut déclencher un transitional_state.
-      let transStateName = null;
-      let transStateDelay = 500;
-      if (this.isStrTransitionalState(eventResult)) {
-        transStateName = eventResult;
-      } else if (eventResult instanceof Array && eventResult.length > 0) {
-        const eventResultType = eventResult.shift();
-        if (this.isStrTransitionalState(eventResultType)) {
-          if (eventResult.length > 0) {
-            transStateName = eventResult.shift();
-          } else {
-            transStateName = eventResultType;
-          }
-          if (eventResult.length > 0) {
-            const transStateDelayAny = eventResult.shift();
-            if (Number.isInteger(transStateDelayAny) && transStateDelayAny > 0) {
-              transStateDelay = transStateDelayAny;
+      // infos à récupérer :
+      // TODO : foutre ça dans de la doc.
+      // {
+      //   "delayed_actions": [
+      //       {"name": "blabla", "delay_ms": 500},
+      //       {"name": "blabla2", "delay_ms": 250}
+      //   ],
+      //   "redraw: 0,"
+      //   "player_locks": ["name1", "name2"],
+      //   "player_unlocks": ["name1", "name2", "*"],
+      // }
+
+      if (this.is_player_locked && actionsFromPlayer.includes(eventName)) {
+        return;
+      }
+
+      let mustRedraw = true;
+      const eventResultRaw = document.BoardModelOnPlayerEvent(eventName);
+      if (!isNonePython(eventResultRaw)) {
+        // TODO : message d'erreur correct si c'est pas du json.
+        const eventResult = JSON.parse(eventResultRaw);
+        if ('delayed_actions' in eventResult) {
+          // Syntaxe de for-loop de merde... Putain de javascript. Putain de linter.
+          eventResult.delayed_actions.forEach((delayedAction) => {
+            let delayTime = 500;
+            if ('delay_ms' in delayedAction) {
+              delayTime = delayedAction.delay_ms;
             }
+            if ('name' in delayedAction) {
+              const actionName = delayedAction.name;
+              setTimeout(() => {
+                this.send_game_event(actionName);
+              }, delayTime);
+            }
+          });
+        }
+        if ('player_locks' in eventResult) {
+          eventResult.player_locks.forEach((lockName) => {
+            if (!this.player_locks.includes(lockName)) {
+              this.player_locks.push(lockName);
+            }
+          });
+          if (!this.is_player_locked && this.player_locks.length > 0) {
+            this.is_player_locked = true;
           }
         }
+        if ('player_unlocks' in eventResult) {
+          eventResult.player_unlocks.forEach((unlockName) => {
+            if (unlockName === '*') {
+              this.player_locks = [];
+            } else {
+              this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
+            }
+          });
+          if (this.is_player_locked && this.player_locks.length === 0) {
+            this.is_player_locked = false;
+          }
+        }
+        if ('redraw' in eventResult) {
+          mustRedraw = eventResult.redraw !== 0;
+        }
       }
-      // TODO : faut gérer si c'est bloquant ou pas.
-      if (transStateName !== null) {
-        setTimeout(() => {
-          this.send_game_event(transStateName);
-        }, transStateDelay);
+      if (mustRedraw) {
+        this.draw_rect();
       }
-      this.draw_rect();
     },
 
     on_key_down(e) {

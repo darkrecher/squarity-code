@@ -54,13 +54,13 @@ DATA_TILES_1 = [
     '     701     70001  ',
     '     682     68882  ',
     '     543     54443  ',
-    '     VVV     WDDVV  ',
+    '     VVV     WDdVV  ',
     '     vvv     543vv  ',
     '             yyy    ',
     '    7001            ',
     ' 70068821           ',
     ' 588544381          ',
-    ' y68WsdW8801        ',
+    ' y68WsDW8801        ',
     ' 78888888882    71  ',
     ' 54888888843    53  ',
     ' yy5444443yy    yy  ',
@@ -109,8 +109,8 @@ class BoardModel():
                 self.tiles[y][x] = tile_data
 
         self.dialogue_texts = [
-            "Magicien : Bonjour !",
-            "Nain : Yep.",
+            "Magicien : Yo frère !",
+            "Nain : SAAAAAALUUUUUUUT.",
             "Magicien : Comment ça se fait qu'on voit des nains et jamais de naines dans les jeux vidéo ?",
             "Nain : Il y en a, mais elles ont peu de poitrine et sont barbues.",
             "Magicien : OK...",
@@ -127,7 +127,7 @@ class BoardModel():
         self.tiles[self.magician_y][self.magician_x].append('M')
 
         self.fires = []
-        self.fire_cooldown = 0
+        self.fire_ready = True
 
         print("Le tileset de ce jeu a été créé par Buch :")
         print("https://opengameart.org/content/dungeon-tileset")
@@ -146,8 +146,6 @@ class BoardModel():
         return self.tiles[y][x]
 
     def handle_fire(self):
-        if self.fire_cooldown:
-            self.fire_cooldown -= 1
         for fire_infos in self.fires:
             fire_x, fire_y, fire_dir, in_game = fire_infos
             # TODO : get_tile_gamobjs
@@ -168,10 +166,57 @@ class BoardModel():
 
         self.fires = [ fire_infos for fire_infos in self.fires if fire_infos[3] ]
 
-        if self.fires or self.fire_cooldown:
-            return ("transitional_state", "handle_fire")
+        if self.fires:
+            # Faut des fonctions qui construisent ce json.
+            return """{ "delayed_actions": [ {"name": "handle_fire", "delay_ms": 500} ] }"""
         else:
             return None
+
+    def check_teledoortation(self, magi_mov_x, magi_mov_y):
+        coord_other_door = None
+        for y in range(self.h):
+            for x in range(self.w):
+                if (x, y) != (magi_mov_x, magi_mov_y) and "d" in self.get_tile_gamobjs(x, y):
+                    if coord_other_door is None:
+                        coord_other_door = (x, y)
+                    else:
+                        return None
+        return coord_other_door
+
+    def handle_teledoortation(self):
+        if self.teledoortation_state == 0:
+            # TODO : pas supposé faire comme ça, car crado.
+            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.magician_y -= 1
+            first_door_gamobjs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
+            first_door_gamobjs.remove("d")
+            first_door_gamobjs.append("M")
+            first_door_gamobjs.append("d")
+
+        elif self.teledoortation_state == 1:
+            self.tiles[self.magician_y][self.magician_x].remove('M')
+
+        elif self.teledoortation_state == 2:
+            self.magician_x = self.coord_other_door[0]
+            self.magician_y = self.coord_other_door[1]
+            first_door_gamobjs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
+            first_door_gamobjs.remove("d")
+            first_door_gamobjs.append("M")
+            first_door_gamobjs.append("d")
+
+        elif self.teledoortation_state == 3:
+            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.magician_y += 1
+            self.tiles[self.magician_y][self.magician_x].append('M')
+
+        self.teledoortation_state += 1
+
+        if self.teledoortation_state == 4:
+            return """ { "player_unlocks": ["teledoortation"] } """
+        else:
+            return """ { "delayed_actions": [ {"name": "handle_teledoortation", "delay_ms": 500} ], "player_locks": ["teledoortation"] } """
+            self.coord_other_door = None
+            self.teledoortation_state == None
 
     # TODO : renommer ce truc en on_game_event, et event_name.
     def on_player_event(self, action_type):
@@ -181,6 +226,13 @@ class BoardModel():
 
         if action_type == 'handle_fire':
             return self.handle_fire()
+
+        if action_type == "handle_teledoortation":
+            return self.handle_teledoortation()
+
+        if action_type == 'reload_fire':
+            self.fire_ready = True
+            return """{ "redraw": 0 }"""
 
         if action_type == 'action_1':
             action_target_y = self.magician_y - 1
@@ -195,18 +247,18 @@ class BoardModel():
             return
 
         if action_type == 'action_2':
-            if self.fire_cooldown == 0:
+            if self.fire_ready:
                 already_fire = bool(self.fires)
                 fire_infos = [self.magician_x, self.magician_y, self.magician_cur_dir, True]
                 self.fires.append(fire_infos)
-                self.fire_cooldown = 5
+                self.fire_ready = False
                 tile_fire_objs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
                 tile_fire_objs.append("fire")
                 # TODO : il faut que j'explique ce truc.
                 if already_fire:
-                    return
+                    return """{ "delayed_actions": [ {"name": "reload_fire", "delay_ms": 2500} ] }"""
                 else:
-                    return ("transitional_state", "handle_fire")
+                    return """{ "delayed_actions": [ {"name": "handle_fire", "delay_ms": 500}, {"name": "reload_fire", "delay_ms": 2500} ] }"""
             else:
                 return
 
@@ -241,6 +293,13 @@ class BoardModel():
         if not must_move and action_type in ("U", "D") and new_magician_y < self.h:
             if not target_tile_objs:
                 target_tile_objs.append('|')
+
+        if not must_move and action_type == "U" and "d" in target_tile_objs:
+            coord_other_door = self.check_teledoortation(new_magician_x, new_magician_y)
+            if coord_other_door is not None:
+                self.coord_other_door = coord_other_door
+                self.teledoortation_state = 0
+                return self.handle_teledoortation()
 
         if must_move:
             self.tiles[self.magician_y][self.magician_x].remove('M')
