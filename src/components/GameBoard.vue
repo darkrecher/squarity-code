@@ -176,8 +176,8 @@
       compiled_code = compile(document.gameCode, "game_code", "exec");
       exec(compiled_code);
       board_model = BoardModel();
-      document.BoardModelGetTile = board_model.get_tile;
-      document.BoardModelOnPlayerEvent = board_model.on_player_event;
+      document.BoardModelExportTile = board_model.export_tile;
+      document.BoardModelOnGameEvent = board_model.on_game_event;
       document.BoardModelGetSize = board_model.get_size;
     </script>
   </div>
@@ -340,7 +340,7 @@ export default {
         for (let x = 0; x < boardWidth; x += 1) {
           // TODO : moche. Faut préalablement récupérer la fonction pour qu'elle soit dans this.
           // C'est pas propre de la laisser trainer dans "document".
-          const tileData = document.BoardModelGetTile(x, y);
+          const tileData = document.BoardModelExportTile(x, y);
 
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
@@ -383,7 +383,7 @@ export default {
       }
 
       let mustRedraw = true;
-      const eventResultRaw = document.BoardModelOnPlayerEvent(eventName);
+      const eventResultRaw = document.BoardModelOnGameEvent(eventName);
       if (!isNonePython(eventResultRaw)) {
         // TODO : message d'erreur correct si c'est pas du json.
         const eventResult = JSON.parse(eventResultRaw);

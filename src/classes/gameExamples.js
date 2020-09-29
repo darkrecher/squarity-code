@@ -12,6 +12,16 @@
 // TODO : l'utilisateur devra coder toute la classe BoardModel dans son game_code.
 // Il faut décider si on lui en fait une de base, pour qu'il la surcharge.
 
+// TODO : expliquer dans la doc qu'il y a la fonction externe "export_tile".
+// Elle est appelée automatiquement par le système.
+// Elle pourra, dans le futur, renvoyer plein de trucs.
+// (Même si pour l'instant elle ne renvoie qu'une liste de string).
+// Et il y a la fonction interne get_tile_gamobjs, qui renvoie la liste d'objets.
+// Cette fonction permet de manipuler la liste, ajouter/enlever des éléments, ...
+
+// TODO : des petites fonctions pour construire les json à renvoyer,
+// avec dedans les "delayed_actions", "player_locks", etc.
+
 export default Object.freeze({
   // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
   // Pour l'instant on laisse comme ça, même si c'est moche.
@@ -49,39 +59,38 @@ export default Object.freeze({
   }
   `,
   MAGICIAN_GAME_CODE: `
-
 DATA_TILES_1 = [
-    '     701     70001  ',
-    '     682     68882  ',
-    '     543     54443  ',
-    '     VVV     WDdVV  ',
-    '     vvv     543vv  ',
-    '             yyy    ',
-    '    7001            ',
-    ' 70068821           ',
-    ' 588544381          ',
-    ' y68WsDW8801        ',
-    ' 78888888882    71  ',
-    ' 54888888843    53  ',
-    ' yy5444443yy    yy  ',
-    '   yyyyyyy          ',
+    "     701     70001  ",
+    "     682     68882  ",
+    "     543     54443  ",
+    "     VVV     WDdVV  ",
+    "     vvv     543vv  ",
+    "             yyy    ",
+    "    7001            ",
+    " 70068821           ",
+    " 588544381          ",
+    " y68WsDW8801        ",
+    " 78888888882    71  ",
+    " 54888888843    53  ",
+    " yy5444443yy    yy  ",
+    "   yyyyyyy          ",
 ]
 
 DATA_TILES_2 = [
-    '                    ',
-    '       [-----]      ',
-    '      (             ',
-    '      |             ',
-    '      |             ',
-    '      |             ',
-    '      )             ',
-    '                    ',
-    '                    ',
-    '                    ',
-    '           [----]   ',
-    '       N            ',
-    '                    ',
-    '                    ',
+    "                    ",
+    "       [-----]      ",
+    "      (             ",
+    "      |             ",
+    "      |             ",
+    "      |             ",
+    "      )             ",
+    "                    ",
+    "                    ",
+    "                    ",
+    "           [----]   ",
+    "       N            ",
+    "                    ",
+    "                    ",
 ]
 
 PASSABLE_TILOBJS = list("0123456789-|s")
@@ -101,10 +110,10 @@ class BoardModel():
             for x in range(self.w):
                 tile_data = []
                 tile_data_add = DATA_TILES_1[y][x]
-                if tile_data_add != ' ':
+                if tile_data_add != " ":
                     tile_data.append(tile_data_add)
                 tile_data_add = DATA_TILES_2[y][x]
-                if tile_data_add != ' ':
+                if tile_data_add != " ":
                     tile_data.append(tile_data_add)
                 self.tiles[y][x] = tile_data
 
@@ -123,9 +132,8 @@ class BoardModel():
 
         self.magician_x = 6
         self.magician_y = 5
-        self.magician_cur_dir = 'R'
-        self.tiles[self.magician_y][self.magician_x].append('M')
-
+        self.magician_cur_dir = "R"
+        self.get_tile_gamobjs(self.magician_x, self.magician_y).append("M")
         self.fires = []
         self.fire_ready = True
 
@@ -136,23 +144,36 @@ class BoardModel():
     def get_size(self):
         return self.w, self.h
 
-    def get_tile(self, x, y):
+    def export_tile(self, x, y):
         return self.tiles[y][x]
 
-    # TODO : Faut expliquer ça dans une doc ou un comm. On a une fonction interne, qui renvoie la liste d'objets.
-    # et on a get_tile qui est la fonction externe, qui pourrait renvoyer plein d'autres trucs.
-    # TODO : à changer dans h2o.
     def get_tile_gamobjs(self, x, y):
         return self.tiles[y][x]
 
+    def start_fire(self):
+        if not self.fire_ready:
+            return
+
+        already_fire = bool(self.fires)
+        fire_infos = [self.magician_x, self.magician_y, self.magician_cur_dir, True]
+        self.fires.append(fire_infos)
+        self.fire_ready = False
+        tile_fire_objs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
+        tile_fire_objs.append("fire")
+        if already_fire:
+            return """{ "delayed_actions": [ {"name": "reload_fire", "delay_ms": 2500} ] }"""
+        else:
+            return """{ "delayed_actions": [ {"name": "handle_fire", "delay_ms": 500}, {"name": "reload_fire", "delay_ms": 2500} ] }"""
+
     def handle_fire(self):
         for fire_infos in self.fires:
+
             fire_x, fire_y, fire_dir, in_game = fire_infos
-            # TODO : get_tile_gamobjs
-            self.tiles[fire_y][fire_x].remove("fire")
+            self.get_tile_gamobjs(fire_x, fire_y).remove("fire")
             mov_x, mov_y = board_model.MOVE_FROM_DIR[fire_dir]
             fire_x += mov_x
             fire_y += mov_y
+
             if 0 <= fire_x < self.w and 0 <= fire_y < self.h:
                 gamobjs_new_fire_pos = self.get_tile_gamobjs(fire_x, fire_y)
                 if "-" in gamobjs_new_fire_pos:
@@ -165,12 +186,21 @@ class BoardModel():
             fire_infos[:] = [fire_x, fire_y, fire_dir, in_game]
 
         self.fires = [ fire_infos for fire_infos in self.fires if fire_infos[3] ]
-
         if self.fires:
-            # Faut des fonctions qui construisent ce json.
             return """{ "delayed_actions": [ {"name": "handle_fire", "delay_ms": 500} ] }"""
         else:
             return None
+
+    def toggle_door(self):
+        action_target_y = self.magician_y - 1
+        if action_target_y > 0:
+            target_tile_objs = self.get_tile_gamobjs(self.magician_x, action_target_y)
+            if "d" in target_tile_objs:
+                target_tile_objs.remove("d")
+                target_tile_objs.append("D")
+            elif "D" in target_tile_objs:
+                target_tile_objs.remove("D")
+                target_tile_objs.append("d")
 
     def check_teledoortation(self, magi_mov_x, magi_mov_y):
         coord_other_door = None
@@ -185,8 +215,7 @@ class BoardModel():
 
     def handle_teledoortation(self):
         if self.teledoortation_state == 0:
-            # TODO : pas supposé faire comme ça, car crado.
-            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).remove("M")
             self.magician_y -= 1
             first_door_gamobjs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
             first_door_gamobjs.remove("d")
@@ -194,7 +223,7 @@ class BoardModel():
             first_door_gamobjs.append("d")
 
         elif self.teledoortation_state == 1:
-            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).remove("M")
 
         elif self.teledoortation_state == 2:
             self.magician_x = self.coord_other_door[0]
@@ -205,9 +234,9 @@ class BoardModel():
             first_door_gamobjs.append("d")
 
         elif self.teledoortation_state == 3:
-            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).remove('M')
             self.magician_y += 1
-            self.tiles[self.magician_y][self.magician_x].append('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).append('M')
 
         self.teledoortation_state += 1
 
@@ -216,64 +245,41 @@ class BoardModel():
         else:
             return """ { "delayed_actions": [ {"name": "handle_teledoortation", "delay_ms": 500} ], "player_locks": ["teledoortation"] } """
             self.coord_other_door = None
-            self.teledoortation_state == None
+            self.teledoortation_state = None
 
-    # TODO : renommer ce truc en on_game_event, et event_name.
-    def on_player_event(self, action_type):
+    def on_game_event(self, event_name):
         # Décommentez la ligne ci-dessous pour afficher une ligne d'info
         # à chaque fois que le joueur appuie sur une touche.
-        # print("on_player_event", action_type)
+        # print("on_game_event", event_name)
 
-        if action_type == 'handle_fire':
+        if event_name == "handle_fire":
             return self.handle_fire()
 
-        if action_type == "handle_teledoortation":
+        if event_name == "handle_teledoortation":
             return self.handle_teledoortation()
 
-        if action_type == 'reload_fire':
+        if event_name == "reload_fire":
             self.fire_ready = True
             return """{ "redraw": 0 }"""
 
-        if action_type == 'action_1':
-            action_target_y = self.magician_y - 1
-            if action_target_y > 0:
-                target_tile_objs = self.get_tile_gamobjs(self.magician_x, action_target_y)
-                if 'd' in target_tile_objs:
-                    target_tile_objs.remove('d')
-                    target_tile_objs.append('D')
-                elif 'D' in target_tile_objs:
-                    target_tile_objs.remove('D')
-                    target_tile_objs.append('d')
-            return
+        if event_name == "action_1":
+            return self.toggle_door()
 
-        if action_type == 'action_2':
-            if self.fire_ready:
-                already_fire = bool(self.fires)
-                fire_infos = [self.magician_x, self.magician_y, self.magician_cur_dir, True]
-                self.fires.append(fire_infos)
-                self.fire_ready = False
-                tile_fire_objs = self.get_tile_gamobjs(self.magician_x, self.magician_y)
-                tile_fire_objs.append("fire")
-                # TODO : il faut que j'explique ce truc.
-                if already_fire:
-                    return """{ "delayed_actions": [ {"name": "reload_fire", "delay_ms": 2500} ] }"""
-                else:
-                    return """{ "delayed_actions": [ {"name": "handle_fire", "delay_ms": 500}, {"name": "reload_fire", "delay_ms": 2500} ] }"""
-            else:
-                return
+        if event_name == "action_2":
+            return self.start_fire()
 
         must_move = False
-        move_coord = board_model.MOVE_FROM_DIR.get(action_type)
-        if move_coord is None:
+        move_offset = board_model.MOVE_FROM_DIR.get(event_name)
+        if move_offset is None:
             return
 
-        new_magician_x = self.magician_x + move_coord[0]
-        new_magician_y = self.magician_y + move_coord[1]
-        self.magician_cur_dir = action_type
+        new_magician_x = self.magician_x + move_offset[0]
+        new_magician_y = self.magician_y + move_offset[1]
+        self.magician_cur_dir = event_name
         if not (0 <= new_magician_x < self.w and 0 <= new_magician_y < self.h):
             return
 
-        target_tile_objs = self.get_tile(new_magician_x, new_magician_y)
+        target_tile_objs = self.get_tile_gamobjs(new_magician_x, new_magician_y)
 
         if "N" in target_tile_objs:
             if self.dialogue_texts:
@@ -286,15 +292,15 @@ class BoardModel():
             if tile_obj in PASSABLE_TILOBJS:
                 must_move = True
 
-        if not must_move and action_type in ("R", "L") and new_magician_x < self.w:
+        if not must_move and event_name in ("R", "L") and new_magician_x < self.w:
             if not target_tile_objs:
-                target_tile_objs.append('-')
+                target_tile_objs.append("-")
 
-        if not must_move and action_type in ("U", "D") and new_magician_y < self.h:
+        if not must_move and event_name in ("U", "D") and new_magician_y < self.h:
             if not target_tile_objs:
-                target_tile_objs.append('|')
+                target_tile_objs.append("|")
 
-        if not must_move and action_type == "U" and "d" in target_tile_objs:
+        if not must_move and event_name == "U" and "d" in target_tile_objs:
             coord_other_door = self.check_teledoortation(new_magician_x, new_magician_y)
             if coord_other_door is not None:
                 self.coord_other_door = coord_other_door
@@ -302,10 +308,11 @@ class BoardModel():
                 return self.handle_teledoortation()
 
         if must_move:
-            self.tiles[self.magician_y][self.magician_x].remove('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).remove("M")
             self.magician_x = new_magician_x
             self.magician_y = new_magician_y
-            self.tiles[self.magician_y][self.magician_x].append('M')
+            self.get_tile_gamobjs(self.magician_x, self.magician_y).append("M")
+
   `,
 
   H2O_JSON_CONF: `
@@ -353,84 +360,84 @@ class BoardModel():
 
 LEVELS = (
     (
-        'XXXXXXXXXXXXXXXXXXXX',
-        'X...-...XXX...=....X',
-        'X..XXX..XXX..XXX...X',
-        'S...E....H....-....X',
-        'X..XXX..XXX..XXX.X.X',
-        'X...=...X.X...E..X.X',
-        'XXXXXXXXX.XXXXXXXX.X',
-        'XXXXXXXXX.XXXXXXXXCX',
-        'X.H.H...X.X...E..X.X',
-        'X..CCC..XXX..XXX.XCX',
-        'X.HCO.........=....X',
-        'X..CCC..XXX..XXX.XXX',
-        'X.H.H...XXX...-..XXX',
-        'XXXXXXXXXXXXXXXXXXXX',
+        "XXXXXXXXXXXXXXXXXXXX",
+        "X...-...XXX...=....X",
+        "X..XXX..XXX..XXX...X",
+        "S...E....H....-....X",
+        "X..XXX..XXX..XXX.X.X",
+        "X...=...X.X...E..X.X",
+        "XXXXXXXXX.XXXXXXXX.X",
+        "XXXXXXXXX.XXXXXXXXCX",
+        "X.H.H...X.X...E..X.X",
+        "X..CCC..XXX..XXX.XCX",
+        "X.HCO.........=....X",
+        "X..CCC..XXX..XXX.XXX",
+        "X.H.H...XXX...-..XXX",
+        "XXXXXXXXXXXXXXXXXXXX",
     ),
     (
-        'X.H.XXX.C.XXX.H.XXXX',
-        'S...-.E...=.E.....XX',
-        'X.C.XXX.H.XXX.C.X|XX',
-        'XXXXXXXXXXXXXXXXX.XX',
-        'X.H.XXX.C.XXX.H.XIXX',
-        'XC..=.H...-.C.....XX',
-        'X...XXX.H.XXX.C.XXXX',
-        'XX.XX.XXXXX.XXXXX...',
-        'XXCX.X.X...XXXXXXX..',
-        'XXHXXXXX..XX.....X..',
-        'XXEX.H.XXXXX..O..X..',
-        'XX......HCE......X..',
-        'XXXX.C.XXXXXH...CX..',
-        'XXXXXXXXXXXXXXXXXX..',
+        "X.H.XXX.C.XXX.H.XXXX",
+        "S...-.E...=.E.....XX",
+        "X.C.XXX.H.XXX.C.X|XX",
+        "XXXXXXXXXXXXXXXXX.XX",
+        "X.H.XXX.C.XXX.H.XIXX",
+        "XC..=.H...-.C.....XX",
+        "X...XXX.H.XXX.C.XXXX",
+        "XX.XX.XXXXX.XXXXX...",
+        "XXCX.X.X...XXXXXXX..",
+        "XXHXXXXX..XX.....X..",
+        "XXEX.H.XXXXX..O..X..",
+        "XX......HCE......X..",
+        "XXXX.C.XXXXXH...CX..",
+        "XXXXXXXXXXXXXXXXXX..",
     ),
     (
-        'XXXXXXXXXXXXXXXXXXXX',
-        'XXXXXXXX.....XXXXXXX',
-        'XXXXXXXX.XXXHXXXXXXX',
-        'XXXXXXXX.XXXHXXXXXXX',
-        'X.H.XXXX.XXXCXXXXXXX',
-        'S....E-..CCHE.....XX',
-        'X.C.XXXX.XXXCXXX..XX',
-        'XXXXX..X.XXXHX.....X',
-        'X.--.||X.XXXCX.XXX.X',
-        'X|XX..|X.....X..CH.X',
-        'X|X.--.XXXXXXXXXHCXX',
-        'X|XOXXXXXXX.----CHXX',
-        'X.---------.XXXXXXXX',
-        'XXXXXXXXXXXXXXXXXXXX',
+        "XXXXXXXXXXXXXXXXXXXX",
+        "XXXXXXXX.....XXXXXXX",
+        "XXXXXXXX.XXXHXXXXXXX",
+        "XXXXXXXX.XXXHXXXXXXX",
+        "X.H.XXXX.XXXCXXXXXXX",
+        "S....E-..CCHE.....XX",
+        "X.C.XXXX.XXXCXXX..XX",
+        "XXXXX..X.XXXHX.....X",
+        "X.--.||X.XXXCX.XXX.X",
+        "X|XX..|X.....X..CH.X",
+        "X|X.--.XXXXXXXXXHCXX",
+        "X|XOXXXXXXX.----CHXX",
+        "X.---------.XXXXXXXX",
+        "XXXXXXXXXXXXXXXXXXXX",
     ),
     (
-        'EIEXIIIXIIIXIIIIIIII',
-        'ECE=...=...=...===O=',
-        'EEE=.=.=.=.=.=.===I=',
-        'X=.=.=.=.=.=.=.=...=',
-        'X=...=...=...=...=.=',
-        'XXIIIXIIIXIIIXIII=H=',
-        'XXXXXXXXXXXXXXXXXEHE',
-        'XEHEEEEEEEEEEEEEEXIX',
-        'XE......EE.....EEEEE',
-        'XEEEEEE....EEE.....E',
-        'XEEEEEEEEEEEEEEEEE.E',
-        'XE...E...E...E...E.E',
-        'S..E...E...E...E...E',
-        'XEEEEEEEEEEEEE-CEEEE',
+        "EIEXIIIXIIIXIIIIIIII",
+        "ECE=...=...=...===O=",
+        "EEE=.=.=.=.=.=.===I=",
+        "X=.=.=.=.=.=.=.=...=",
+        "X=...=...=...=...=.=",
+        "XXIIIXIIIXIIIXIII=H=",
+        "XXXXXXXXXXXXXXXXXEHE",
+        "XEHEEEEEEEEEEEEEEXIX",
+        "XE......EE.....EEEEE",
+        "XEEEEEE....EEE.....E",
+        "XEEEEEEEEEEEEEEEEE.E",
+        "XE...E...E...E...E.E",
+        "S..E...E...E...E...E",
+        "XEEEEEEEEEEEEE-CEEEE",
     ),
     (
-        'XXXXXXXXXXXXXXXXXXXX',
-        'X.HHHH..H..H..H..H.X',
-        'X.H.....H..HH.H..H.X',
-        'X.HH....H..H.HH..H.X',
-        'X.H.....H..H..H....X',
-        'X.H.....H..H..H..H.X',
-        'S..................X',
-        'X.....CC.....CC....X',
-        'X.....CC.....CC....X',
-        'X..................X',
-        'X...C...........C..X',
-        'X....C.........C...X',
-        'X.....CCCCCCCCC....X',
-        'XXXXXXXXXXXXXXXXXXXX',
+        "XXXXXXXXXXXXXXXXXXXX",
+        "X.HHHH..H..H..H..H.X",
+        "X.H.....H..HH.H..H.X",
+        "X.HH....H..H.HH..H.X",
+        "X.H.....H..H..H....X",
+        "X.H.....H..H..H..H.X",
+        "S..................X",
+        "X.....CC.....CC....X",
+        "X.....CC.....CC....X",
+        "X..................X",
+        "X...C...........C..X",
+        "X....C.........C...X",
+        "X.....CCCCCCCCC....X",
+        "XXXXXXXXXXXXXXXXXXXX",
     ),
 )
 
@@ -471,11 +478,13 @@ class BoardModel():
                     tile_data.append(tile_data_add)
                 self.tiles[y][x] = tile_data
 
-
     def get_size(self):
         return self.w, self.h
 
-    def get_tile(self, x, y):
+    def get_tile_gamobjs(self, x, y):
+        return self.tiles[y][x]
+
+    def export_tile(self, x, y):
         tile_gamobjs = self.tiles[y][x]
         hero_dir_names = {
             "U": "up",
@@ -492,7 +501,6 @@ class BoardModel():
             hero_gamobj = []
         return tile_gamobjs + hero_gamobj
 
-
     def can_move(self, start_tile_objs, dest_tile_objs, move_dir):
         if "X" in dest_tile_objs or "S" in dest_tile_objs:
             return False
@@ -504,35 +512,35 @@ class BoardModel():
             return False
         return True
 
-    def on_player_event(self, action_type):
+    def on_game_event(self, event_name):
 
         if not self.hero_alive:
             self.init_level()
             return
 
-        if action_type.startswith("action") and self.current_level_idx == 0:
+        if event_name.startswith("action") and self.current_level_idx == 0:
             print("Les boutons d'actions ne servent à rien dans ce jeu.")
 
         must_move = False
-        move_coord = board_model.MOVE_FROM_DIR.get(action_type)
+        move_coord = board_model.MOVE_FROM_DIR.get(event_name)
 
         if move_coord is not None:
             new_hero_x = self.hero_x + move_coord[0]
             new_hero_y = self.hero_y + move_coord[1]
             if 0 <= new_hero_x < self.w and 0 <= new_hero_y < self.h:
-                target_tile_objs = self.get_tile(new_hero_x, new_hero_y)
+                target_tile_objs = self.get_tile_gamobjs(new_hero_x, new_hero_y)
                 must_move = self.can_move(
-                    self.get_tile(self.hero_x, self.hero_y),
+                    self.get_tile_gamobjs(self.hero_x, self.hero_y),
                     target_tile_objs,
-                    action_type
+                    event_name
                 )
 
         if must_move:
-            self.hero_dir = action_type
+            self.hero_dir = event_name
             self.hero_x = new_hero_x
             self.hero_y = new_hero_y
 
-        tile_data_new_pos = self.tiles[self.hero_y][self.hero_x]
+        tile_data_new_pos = self.get_tile_gamobjs(self.hero_x, self.hero_y)
         if must_move and "C" in tile_data_new_pos:
             to_cold = {
                 "ice": "ice",
@@ -547,6 +555,7 @@ class BoardModel():
                 "gas": "gas",
             }
             self.hero_state = to_hot[self.hero_state]
+
         if "O" in tile_data_new_pos:
             if self.hero_state == "water":
                 self.hero_alive = False
@@ -556,15 +565,18 @@ class BoardModel():
                 print("Bravo, vous passez au niveau %s" % (self.current_level_idx + 1))
             elif self.current_level_idx == 0:
                 print("Il faut être en état liquide.")
+
         if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
             self.hero_alive = False
             tile_data_new_pos.append("gas_dead")
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
+
         if "E" in tile_data_new_pos and self.hero_state == "water":
             self.hero_alive = False
             tile_data_new_pos.remove("E")
             tile_data_new_pos.append("wet_sponge")
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
+
   `,
 
 });
