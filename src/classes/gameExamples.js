@@ -22,6 +22,8 @@
 // TODO : des petites fonctions pour construire les json à renvoyer,
 // avec dedans les "delayed_actions", "player_locks", etc.
 
+// TODO : afficher tout le tileset en une seule instruction dans le code python.
+
 export default Object.freeze({
   // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
   // Pour l'instant on laisse comme ça, même si c'est moche.

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Squarity, the python-board-2D-game-engine !" />
+    <HelloWorld msg="Squarity, un moteur de jeux case par case, en python" />
     <GameBoard />
   </div>
 </template>

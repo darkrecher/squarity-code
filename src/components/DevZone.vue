@@ -5,18 +5,23 @@
   >
     <div>
       <button @click="example_magician">
-        Exemple 1 : Le magicien faiseur de ponts
+        Ex 1 : Le magicien faiseur de ponts
       </button>
       &nbsp;&nbsp;
       <button @click="example_h2o">
-        Exemple 2 : Les aventures de H2O
+        Ex 2 : Les aventures de H2O
       </button>
+      <br> <!-- TODO : arrêter de faire nimp' avec les BR. -->
+      <a
+        href="https://github.com/darkrecher/squarity-doc/blob/master/user_manual/main_page.md"
+        target="_blank"
+      >
+        Comment créer ses jeux.
+      </a>
     </div>
     <br>
     <div>
-      Url de l'image tileset.
-    </div>
-    <div>
+      Url de l'image tileset :
       <!--
         TODO : c'est quoi la préconisation pour les noms de ref ?
         Camel case ? lower case ?
