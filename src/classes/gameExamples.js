@@ -146,6 +146,9 @@ class BoardModel():
     def get_size(self):
         return self.w, self.h
 
+    def export_all_tiles(self):
+        return self.tiles
+
     def export_tile(self, x, y):
         return self.tiles[y][x]
 
@@ -172,7 +175,7 @@ class BoardModel():
 
             fire_x, fire_y, fire_dir, in_game = fire_infos
             self.get_tile_gamobjs(fire_x, fire_y).remove("fire")
-            mov_x, mov_y = board_model.MOVE_FROM_DIR[fire_dir]
+            mov_x, mov_y = squarity.MOVE_FROM_DIR[fire_dir]
             fire_x += mov_x
             fire_y += mov_y
 
@@ -271,7 +274,7 @@ class BoardModel():
             return self.start_fire()
 
         must_move = False
-        move_offset = board_model.MOVE_FROM_DIR.get(event_name)
+        move_offset = squarity.MOVE_FROM_DIR.get(event_name)
         if move_offset is None:
             return
 
@@ -486,7 +489,18 @@ class BoardModel():
     def get_tile_gamobjs(self, x, y):
         return self.tiles[y][x]
 
+    def export_all_tiles(self):
+        tiles = [
+            [
+                self.export_tile(x, y) for x in range(self.w)
+            ]
+            for y in range(self.h)
+        ]
+        return tiles
+
     def export_tile(self, x, y):
+        # TODO : y'a moyen d'optimiser ça.
+        # Puisqu'on a juste besoin de export_all_tiles.
         tile_gamobjs = self.tiles[y][x]
         hero_dir_names = {
             "U": "up",
@@ -524,7 +538,7 @@ class BoardModel():
             print("Les boutons d'actions ne servent à rien dans ce jeu.")
 
         must_move = False
-        move_coord = board_model.MOVE_FROM_DIR.get(event_name)
+        move_coord = squarity.MOVE_FROM_DIR.get(event_name)
 
         if move_coord is not None:
             new_hero_x = self.hero_x + move_coord[0]

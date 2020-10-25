@@ -1,4 +1,5 @@
 from browser import document
+import squarity
 
 # Technique initiale pour rediriger les prints.
 # https://stackoverflow.com/questions/61348313/how-can-i-redirect-all-brython-output-to-a-textarea-element
@@ -26,14 +27,32 @@ class MyOutput:
         self.python_console.scrollTop = self.python_console.scrollHeight
 
 __BRYTHON__.stdout = MyOutput()
+__BRYTHON__.stderr = __BRYTHON__.stdout
 
-# Ci-dessous, tout le bazar spécifique au code du jeu,
-# utilisable par les créateurs de jeu.
-# Bon, pour l'instant, y'a pas grand-chose.
 
-MOVE_FROM_DIR = {
-    "U": [0, -1],
-    "R": [1, 0],
-    "D": [0, 1],
-    "L": [-1, 0],
-}
+def main():
+    # TODO : il va falloir expliquer pourquoi on est obligé de faire un truc aussi dégueux,
+    # avec une grosse suite de if contenant toutes les fonctions à exécuter,
+    # et des variables document.squabr_xxxx de partout.
+    squabr_board_model_func = document.squabr_board_model_func
+    if squabr_board_model_func == "init":
+        decorated_gamecode = "\n".join(
+            (
+                "from browser import document",
+                document.gameCode,
+                "document.BoardModel = BoardModel"
+            )
+        )
+        exec(decorated_gamecode)
+        document.board_model = document.BoardModel()
+    elif squabr_board_model_func == "export_all_tiles":
+        document.tiles_data = document.board_model.export_all_tiles()
+    elif squabr_board_model_func == "on_game_event":
+        document.squabr_event_result = document.board_model.on_game_event(
+            document.squabr_game_event
+        )
+    elif squabr_board_model_func == "get_size":
+        width, height = document.board_model.get_size()
+        document.squabr_board_width = width
+        document.squabr_board_height = height
+

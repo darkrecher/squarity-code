@@ -171,14 +171,8 @@
       Mais il faut que la compilation du game-code soit accessible.
     -->
     <script type="text/python">
-      from browser import document;
       import board_model;
-      compiled_code = compile(document.gameCode, "game_code", "exec");
-      exec(compiled_code);
-      board_model = BoardModel();
-      document.BoardModelExportTile = board_model.export_tile;
-      document.BoardModelOnGameEvent = board_model.on_game_event;
-      document.BoardModelGetSize = board_model.get_size;
+      board_model.main();
     </script>
   </div>
 </template>
@@ -334,14 +328,19 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-      const [boardWidth, boardHeight] = document.BoardModelGetSize();
+      // TODO : on devrait peut-être pas redemander la taille du board à chaque fois.
+      // Elle est pas censée changer.
+      document.squabr_board_model_func = 'get_size';
+      window.brython(1);
+      const boardWidth = document.squabr_board_width;
+      const boardHeight = document.squabr_board_height;
+      document.squabr_board_model_func = 'export_all_tiles';
+      window.brython(1);
+      const tilesData = document.tiles_data;
 
       for (let y = 0; y < boardHeight; y += 1) {
         for (let x = 0; x < boardWidth; x += 1) {
-          // TODO : moche. Faut préalablement récupérer la fonction pour qu'elle soit dans this.
-          // C'est pas propre de la laisser trainer dans "document".
-          const tileData = document.BoardModelExportTile(x, y);
-
+          const tileData = tilesData[y][x];
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
             const coordImg = this.tile_coords[gameObject];
@@ -383,7 +382,11 @@ export default {
       }
 
       let mustRedraw = true;
-      const eventResultRaw = document.BoardModelOnGameEvent(eventName);
+      document.squabr_board_model_func = 'on_game_event';
+      document.squabr_game_event = eventName;
+      window.brython(1);
+      const eventResultRaw = document.squabr_event_result;
+
       if (!isNonePython(eventResultRaw)) {
         // TODO : message d'erreur correct si c'est pas du json.
         const eventResult = JSON.parse(eventResultRaw);
@@ -497,6 +500,7 @@ export default {
       // Énorme merci à cette issue github :
       // https://github.com/brython-dev/brython/issues/793
       // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
+      document.squabr_board_model_func = 'init';
       window.brython(1);
 
       this.draw_rect();
