@@ -166,9 +166,12 @@
       Je suppose que c'est Vue ou ESLint qui fait ça (minification, ou un truc du genre).
       Mais ça aide pas pour le python, dans lequel les sauts de lignes sont significatifs.
       Du coup, je suis obligé de mettre des points-virgules partout !
-      TODO : si on peut trouver une solution plus élégante, ce serait bien.
-      Peut-être en important depuis un fichier .py.
-      Mais il faut que la compilation du game-code soit accessible.
+
+      5)
+      Le param ipy_id de la fonction brython ne marche pas.
+      https://brython.info/static_doc/en/options.html
+      Ça cible bien la bonne balise script avec le bon id, mais l'exécution du code python plante.
+      On se retrouve avec un message d'erreur qu'on n'a pas quand on utilise pas ce param.
     -->
     <script type="text/python">
       import board_model;
@@ -195,13 +198,14 @@ function loadImage(src) {
 
 // TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
 // un truc vraiment spécifique aux interactions brython/javascript
-// Commentage momentané sinon ES Lint gueule. Désolé.
 function isNonePython(val) {
   // Si la valeur correspond au "None" du python, on a :
   // val.__class__.$infos.__name__ == "NoneType".
   let valName = '';
   // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
   try {
+    // Et c'est presque un miracle que y'ai besoin de désactiver que cette règle d'ESLint
+    // pour une suite de nom aussi cradingue.
     /* eslint-disable no-underscore-dangle */
     valName = val.__class__.$infos.__name__;
     /* eslint-enable no-underscore-dangle */

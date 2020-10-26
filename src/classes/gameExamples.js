@@ -490,32 +490,26 @@ class BoardModel():
         return self.tiles[y][x]
 
     def export_all_tiles(self):
-        tiles = [
+        rendered_tiles = [
             [
-                self.export_tile(x, y) for x in range(self.w)
+                list(self.tiles[y][x]) for x in range(self.w)
             ]
             for y in range(self.h)
         ]
-        return tiles
-
-    def export_tile(self, x, y):
-        # TODO : y'a moyen d'optimiser ça.
-        # Puisqu'on a juste besoin de export_all_tiles.
-        tile_gamobjs = self.tiles[y][x]
         hero_dir_names = {
             "U": "up",
             "D": "down",
             "L": "left",
             "R": "right",
         }
-        if self.hero_alive and x == self.hero_x and y == self.hero_y:
+        if self.hero_alive :
+            tile_of_hero = rendered_tiles[self.hero_y][self.hero_x]
             hero_gamobj = "%s_%s" % (self.hero_state, hero_dir_names[self.hero_dir])
-            if "-" in tile_gamobjs or "|" in tile_gamobjs:
+            if "-" in tile_of_hero or "|" in tile_of_hero:
                 hero_gamobj += "_pipe"
-            hero_gamobj = [hero_gamobj]
-        else:
-            hero_gamobj = []
-        return tile_gamobjs + hero_gamobj
+            tile_of_hero.append(hero_gamobj)
+
+        return rendered_tiles
 
     def can_move(self, start_tile_objs, dest_tile_objs, move_dir):
         if "X" in dest_tile_objs or "S" in dest_tile_objs:

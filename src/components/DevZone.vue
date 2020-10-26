@@ -141,6 +141,10 @@ export default {
         this.example_magician();
         return;
       }
+      if (locHash === '#fetchez_example_h2o') {
+        this.example_h2o();
+        return;
+      }
       const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
       if (urlGameSpec === null) {
         // TODO : Mettre ce message dans la console du jeu, quand y'en aura une.
