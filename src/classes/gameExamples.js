@@ -4,11 +4,6 @@
 // Dans un fichier .py qui se colore-syntax correctement, et lors du build du projet,
 // on le met dans une string comme ça à l'arrache.
 
-// TODO : dans le game_code, si j'utilise une variable qui n'existe pas. Par exemple : print(zut)
-// Ça fait un vilain message d'erreur console, qui ne cite même pas la variable inexistante.
-// Ça va être très embarrassant si on peut pas avoir des messages d'erreur plus clairs. À voir...
-// On doit pouvoir s'en sortir avec des gros try-except qui encapsulent chaque appel du game-code.
-
 // TODO : l'utilisateur devra coder toute la classe BoardModel dans son game_code.
 // Il faut décider si on lui en fait une de base, pour qu'il la surcharge.
 

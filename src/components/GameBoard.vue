@@ -165,7 +165,7 @@
       Tous les sauts de ligne dans la balise text/python sont flingués.
       Je suppose que c'est Vue ou ESLint qui fait ça (minification, ou un truc du genre).
       Mais ça aide pas pour le python, dans lequel les sauts de lignes sont significatifs.
-      Du coup, je suis obligé de mettre des points-virgules partout !
+      Du coup, faut mettre des points-virgules en fin de ligne.
 
       5)
       Le param ipy_id de la fonction brython ne marche pas.
