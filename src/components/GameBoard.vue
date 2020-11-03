@@ -184,6 +184,8 @@
 
 import DevZone from './DevZone.vue';
 
+const axios = require('axios');
+
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
 // TODO : dans une lib de code générique ?
@@ -199,23 +201,15 @@ function loadImage(src) {
 // TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
 // un truc vraiment spécifique aux interactions brython/javascript
 function isNonePython(val) {
-  // Si la valeur correspond au "None" du python, on a :
-  // val.__class__.$infos.__name__ == "NoneType".
-  let valName = '';
-  // https://stackoverflow.com/questions/2631001/test-for-existence-of-nested-javascript-object-key
-  try {
-    // Et c'est presque un miracle que y'ai besoin de désactiver que cette règle d'ESLint
-    // pour une suite de nom aussi cradingue.
-    /* eslint-disable no-underscore-dangle */
-    valName = val.__class__.$infos.__name__;
-    /* eslint-enable no-underscore-dangle */
-  } catch (e) {
-    if (e instanceof TypeError) {
-      return false;
-    }
-    throw e;
-  }
-  return valName === 'NoneType';
+  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
+
+  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
+  // La manière de vérifier si une variable est "undefined" en javascript est
+  // vraiment dégueulasse, mais tout le monde fait comme ça.
+  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
+  // il faut passer par un typeof et une comparaison de chaîne de caractères.
+  // Tu te fous vraiment de ma gueule, javascript.
+  return typeof val === 'undefined';
 }
 
 // TODO : y'a moyen de foutre ça dans la classe, mais que ça reste quand même une constante ?
@@ -249,7 +243,7 @@ export default {
   beforeMount() {
   },
 
-  mounted() {
+  async mounted() {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
     const canvasFinal = this.$refs.gamecanvas;
@@ -277,6 +271,12 @@ export default {
     const elemGameInterface = this.$refs.gameinterface;
     elemGameInterface.addEventListener('keydown', this.on_key_down);
 
+    const libSquarityCode = await axios.get('squarity.py');
+
+    // await axios.get('squarity.txt').then((response) => {
+    //   console.log(response);
+    // });
+
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     //
@@ -291,11 +291,11 @@ export default {
     // que j'ai récupéré en local, dans /public/sm.
     this.$loadScript('/brython/brython.min.js')
       .then(() => {
-        console.log('Brython lib loaded.');
+        console.log('Brython lib WIP BLARG BRYTHON loaded.');
         // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
         // le message "update-game-spec" pour activer le jeu par défaut.
         // Tellement génial le javascript.
-        this.$refs.devZone.fetch_game_spec_from_loc_hash();
+        // WIP BLARG BRYTHON this.$refs.devZone.fetch_game_spec_from_loc_hash();
       })
       .catch(() => {
         // Je sais jamais quoi mettre là dedans.
@@ -303,6 +303,60 @@ export default {
         // Et c'est pas censé arriver car cette lib est sur le même serveur
         // que ce fichier GameBoard.vue. Donc, je décide que "not supposed to happen",
         // et je ne fais rien de spécial dans cette fonction catch().
+      });
+
+    // window.languagePluginUrl = 'https://pyodide-cdn2.iodide.io/v0.15.0/full/';
+    window.languagePluginUrl = '/pyodide/v0.15.0/';
+    // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
+    // Ce script js télécharge les fichiers suivants :
+    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.wasm
+    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data.js
+    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data
+    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
+    // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
+    this.$loadScript('pyodide.js')
+      .then(() => {
+        console.log('Pyodide downloaded');
+        window.languagePluginLoader.then(() => {
+          console.log('WASM Pyodide sgrabaradjed');
+          this.$refs.devZone.fetch_game_spec_from_loc_hash();
+          window.pyodide.runPython(libSquarityCode.data);
+
+          /*
+          window.pyodide.runPython('print("Je suis du pyodide z");
+          import random;print(random.randrange(100));');
+
+          console.log('response');
+          console.log(response);
+          console.log('response');
+
+          //   await axios.get('/api/myGetRequest').
+          // then(response => (this.mydata = response))     this.dataReady = true   }
+          // window.pyodide.runPython('import squarity');
+          // window.pyodide.eval_code(window.pyodide.open_url('squarity.js'));
+          // window.pyodide.pyimport('http://localhost:8080/squarity.js');
+          // MOVE_FROM_DIR
+          // window.pyodide.runPython('print(squarity);');
+          // window.pyodide.loadPackage('http://localhost:8080/squarity.js').then(() => {
+          //   window.pyodide.runPython('print("je suis peuêtre loaded.");');
+          // });
+          try {
+            window.pyodide.runPython('haha = 7');
+            window.pyodide.runPython('print(haha*2)');
+            window.pyodide.runPython(response.data);
+            window.pyodide.runPython('print(MOVE_FROM_DIR)');
+            window.pyodide.runPython('youpla()');
+            const a = window.pyodide.runPython('None');
+            console.log('(pouet pouet mes fesses). la valeur de a:');
+            console.log(a);
+          } catch (err) {
+            console.log('Il y a eu une erreur dans le python.');
+            console.log(err.message);
+            console.log(err.message.length);
+            console.log('Voilà, c\'était l\'erreur.');
+          }
+          */
+        });
       });
   },
 
@@ -321,6 +375,32 @@ export default {
 
   methods: {
 
+    async truc() {
+      let response = '';
+      try {
+        response = await axios.get('squarity.txt');
+      } catch (error) {
+        return null;
+      }
+      return response;
+    },
+
+    runPython(pythonCode, codeLabel) {
+      let resultPython = null;
+      try {
+        resultPython = window.pyodide.runPython(pythonCode);
+      } catch (err) {
+        const errMessage = err.message;
+        const errorDescription = `Erreur python durant l'action : \n${codeLabel}\n${errMessage}`;
+        this.$refs.python_console.textContent += errorDescription;
+        this.$refs.python_console.scrollTop = this.$refs.python_console.scrollHeight;
+        // Je rethrow l'exception, parce que si le code python déconne,
+        // vaut mieux pas essayer de faire d'autres choses après.
+        throw err;
+      }
+      return resultPython;
+    },
+
     draw_rect() {
       // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
       // clear canvas
@@ -334,13 +414,25 @@ export default {
       let canvasY = 0;
       // TODO : on devrait peut-être pas redemander la taille du board à chaque fois.
       // Elle est pas censée changer.
-      document.squabr_board_model_func = 'get_size';
-      window.brython(1);
-      const boardWidth = document.squabr_board_width;
-      const boardHeight = document.squabr_board_height;
-      document.squabr_board_model_func = 'export_all_tiles';
-      window.brython(1);
-      const tilesData = document.tiles_data;
+
+      // document.squabr_board_model_func = 'get_size';
+      // window.brython(1);
+      // const boardWidth = document.squabr_board_width;
+      // const boardHeight = document.squabr_board_height;
+      // document.squabr_board_model_func = 'export_all_tiles';
+      // window.brython(1);
+
+      const boardSize = this.runPython(
+        'board_model.get_size()',
+        'Récupération de la taille du Board.',
+      );
+      // runPython('truc = board_model.get_size()');
+      // runPython('print(truc)');
+      const [boardWidth, boardHeight] = boardSize;
+      const tilesData = this.runPython(
+        'board_model.export_all_tiles()',
+        'Récupération des tiles pour les dessiner',
+      );
 
       for (let y = 0; y < boardHeight; y += 1) {
         for (let x = 0; x < boardWidth; x += 1) {
@@ -386,10 +478,18 @@ export default {
       }
 
       let mustRedraw = true;
-      document.squabr_board_model_func = 'on_game_event';
-      document.squabr_game_event = eventName;
-      window.brython(1);
-      const eventResultRaw = document.squabr_event_result;
+      // document.squabr_board_model_func = 'on_game_event';
+      document.eventName = eventName;
+      // window.brython(1);
+      // window.pyodide.runPython('print("J\'agis sur une action du player z");
+      // print(random.randrange(100));');
+      // window.pyodide.runPython('print(MOVE_FROM_DIR)');
+      // window.pyodide.runPython('print("J\'agis sur une action du player z");
+      // print(random.randrange(100));');
+      const eventResultRaw = this.runPython(
+        'board_model.on_game_event(js.document.eventName)',
+        `Exécution d'un événement ${eventName}`,
+      );
 
       if (!isNonePython(eventResultRaw)) {
         // TODO : message d'erreur correct si c'est pas du json.
@@ -498,15 +598,23 @@ export default {
       this.tile_coords = this.json_conf.tile_coords;
       this.$refs.python_console.textContent = '';
 
-      document.gameCode = gameCode;
+      // document.gameCode = gameCode;
       // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
       // Mais on peut aussi l'exécuter où on veut, avec window.brython.
       // Énorme merci à cette issue github :
       // https://github.com/brython-dev/brython/issues/793
       // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
-      document.squabr_board_model_func = 'init';
-      window.brython(1);
+      // document.squabr_board_model_func = 'init';
+      // window.brython(1);
 
+      this.runPython(
+        gameCode,
+        'Interprétation du gameCode.',
+      );
+      this.runPython(
+        'board_model = BoardModel()',
+        'Instanciation du BoardModel',
+      );
       this.draw_rect();
       this.$refs.gameinterface.focus();
       console.log('First draw rect of updated game-code made.');
