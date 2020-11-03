@@ -114,6 +114,7 @@
     </b-container>
 
     <p class="footer">
+      Fonctionne grâce à Pyodide.
       <a
         href="https://github.com/darkrecher/squarity-code"
         target="_blank"
@@ -129,54 +130,6 @@
       </a>
       sur github.
     </p>
-
-    <!--
-
-      1)
-      On peut exécuter du code python dans une balise "text/python".
-      Il est possible d'échanger des données (variables, fonctions) entre brython et js,
-      en lisant/écrivant des données dans "document".
-      En JS, document existe dès le départ (c'est le document HTML actuel),
-      en brython, il suffit de faire "from browser import document".
-
-      2)
-      Le fait d'importer une lib python,
-      (Par exemple : from lib_test import say_hello)
-      déclenche une requête ajax synchrone.
-      Et ça lève un warning dans le navigateur :
-        [Deprecation] Synchronous XMLHttpRequest on the main thread is deprecated because of
-        its detrimental effects to the end user's experience.
-        For more help, check https://xhr.spec.whatwg.org/.
-      Réponse de brython à ce problème :
-      "les développeurs de navigateurs web désactiveront pas de sitôt les appels ajax bloquants"
-      https://brython.info/static_doc/en/faq.html
-      Du coup, je peux me permettre de m'en tamponner.
-
-      3)
-      TODO : Ça, ça marche pas :
-      from python_libs.lib_test import say_hello;
-      Les libs python doivent être dans la racine du site.
-      Pourtant la doc brython dit qu'on peut importer depuis des sous-répertoires.
-      À condition d'avoir mis le fichier __init__.py comme il faut.
-      Mais ça n'a pas marché.
-      J'espère que ça va pas poser de problème.
-
-      4)
-      Tous les sauts de ligne dans la balise text/python sont flingués.
-      Je suppose que c'est Vue ou ESLint qui fait ça (minification, ou un truc du genre).
-      Mais ça aide pas pour le python, dans lequel les sauts de lignes sont significatifs.
-      Du coup, faut mettre des points-virgules en fin de ligne.
-
-      5)
-      Le param ipy_id de la fonction brython ne marche pas.
-      https://brython.info/static_doc/en/options.html
-      Ça cible bien la bonne balise script avec le bon id, mais l'exécution du code python plante.
-      On se retrouve avec un message d'erreur qu'on n'a pas quand on utilise pas ce param.
-    -->
-    <script type="text/python">
-      import board_model;
-      board_model.main();
-    </script>
   </div>
 </template>
 
@@ -199,7 +152,7 @@ function loadImage(src) {
 }
 
 // TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
-// un truc vraiment spécifique aux interactions brython/javascript
+// un truc vraiment spécifique aux interactions pyodide/javascript
 function isNonePython(val) {
   // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
 
@@ -270,43 +223,17 @@ export default {
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
     const elemGameInterface = this.$refs.gameinterface;
     elemGameInterface.addEventListener('keydown', this.on_key_down);
-
+    // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
+    // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
+    // J'ai pas trop compris le principe, et ça me semble un peu overkill.
+    // Alors j'y vais à la bourrin : je charge tout le code dans une string
+    // et je la balance ensuite directement à la fonction runPython.
     const libSquarityCode = await axios.get('squarity.py');
 
-    // await axios.get('squarity.txt').then((response) => {
-    //   console.log(response);
-    // });
-
+    window.languagePluginUrl = '/pyodide/v0.15.0/';
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     //
-    // La récupération du script fonctionnait aussi comme ça :
-    // this.$loadScript('https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js')
-    // Mais je ne veux pas être dépendant d'un CDN.
-    // Et sinon, le fichier de lib standard vient d'ici.
-    // https://cdnjs.cloudflare.com/ajax/libs/brython/3.8.9/brython_stdlib.min.js
-    //
-    // Le fichier brython.min.js nécessite ce fichier :
-    // https://cdn.jsdelivr.net/sm/86dc384fe8720364cf614210eddbfe3303d45efbc7b1981d42011efb5ace5ffd.map
-    // que j'ai récupéré en local, dans /public/sm.
-    this.$loadScript('/brython/brython.min.js')
-      .then(() => {
-        console.log('Brython lib WIP BLARG BRYTHON loaded.');
-        // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
-        // le message "update-game-spec" pour activer le jeu par défaut.
-        // Tellement génial le javascript.
-        // WIP BLARG BRYTHON this.$refs.devZone.fetch_game_spec_from_loc_hash();
-      })
-      .catch(() => {
-        // Je sais jamais quoi mettre là dedans.
-        // Dans ce cas en particulier, si j'ai pas la lib brython, j'ai rien du tout.
-        // Et c'est pas censé arriver car cette lib est sur le même serveur
-        // que ce fichier GameBoard.vue. Donc, je décide que "not supposed to happen",
-        // et je ne fais rien de spécial dans cette fonction catch().
-      });
-
-    // window.languagePluginUrl = 'https://pyodide-cdn2.iodide.io/v0.15.0/full/';
-    window.languagePluginUrl = '/pyodide/v0.15.0/';
     // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
     // Ce script js télécharge les fichiers suivants :
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.wasm
@@ -319,43 +246,14 @@ export default {
         console.log('Pyodide downloaded');
         window.languagePluginLoader.then(() => {
           console.log('WASM Pyodide sgrabaradjed');
+          this.runPython(
+            libSquarityCode.data,
+            'Interprétation de la lib python squarity',
+          );
+          // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
+          // le message "update-game-spec" pour activer le jeu par défaut.
+          // Tellement génial le javascript.
           this.$refs.devZone.fetch_game_spec_from_loc_hash();
-          window.pyodide.runPython(libSquarityCode.data);
-
-          /*
-          window.pyodide.runPython('print("Je suis du pyodide z");
-          import random;print(random.randrange(100));');
-
-          console.log('response');
-          console.log(response);
-          console.log('response');
-
-          //   await axios.get('/api/myGetRequest').
-          // then(response => (this.mydata = response))     this.dataReady = true   }
-          // window.pyodide.runPython('import squarity');
-          // window.pyodide.eval_code(window.pyodide.open_url('squarity.js'));
-          // window.pyodide.pyimport('http://localhost:8080/squarity.js');
-          // MOVE_FROM_DIR
-          // window.pyodide.runPython('print(squarity);');
-          // window.pyodide.loadPackage('http://localhost:8080/squarity.js').then(() => {
-          //   window.pyodide.runPython('print("je suis peuêtre loaded.");');
-          // });
-          try {
-            window.pyodide.runPython('haha = 7');
-            window.pyodide.runPython('print(haha*2)');
-            window.pyodide.runPython(response.data);
-            window.pyodide.runPython('print(MOVE_FROM_DIR)');
-            window.pyodide.runPython('youpla()');
-            const a = window.pyodide.runPython('None');
-            console.log('(pouet pouet mes fesses). la valeur de a:');
-            console.log(a);
-          } catch (err) {
-            console.log('Il y a eu une erreur dans le python.');
-            console.log(err.message);
-            console.log(err.message.length);
-            console.log('Voilà, c\'était l\'erreur.');
-          }
-          */
         });
       });
   },
@@ -374,16 +272,6 @@ export default {
   },
 
   methods: {
-
-    async truc() {
-      let response = '';
-      try {
-        response = await axios.get('squarity.txt');
-      } catch (error) {
-        return null;
-      }
-      return response;
-    },
 
     runPython(pythonCode, codeLabel) {
       let resultPython = null;
@@ -414,20 +302,10 @@ export default {
       let canvasY = 0;
       // TODO : on devrait peut-être pas redemander la taille du board à chaque fois.
       // Elle est pas censée changer.
-
-      // document.squabr_board_model_func = 'get_size';
-      // window.brython(1);
-      // const boardWidth = document.squabr_board_width;
-      // const boardHeight = document.squabr_board_height;
-      // document.squabr_board_model_func = 'export_all_tiles';
-      // window.brython(1);
-
       const boardSize = this.runPython(
         'board_model.get_size()',
         'Récupération de la taille du Board.',
       );
-      // runPython('truc = board_model.get_size()');
-      // runPython('print(truc)');
       const [boardWidth, boardHeight] = boardSize;
       const tilesData = this.runPython(
         'board_model.export_all_tiles()',
@@ -447,7 +325,6 @@ export default {
               canvasX, canvasY, this.tile_width, this.tile_height,
             );
           }
-
           canvasX += this.tile_width;
         }
         canvasX = 0;
@@ -478,14 +355,7 @@ export default {
       }
 
       let mustRedraw = true;
-      // document.squabr_board_model_func = 'on_game_event';
       document.eventName = eventName;
-      // window.brython(1);
-      // window.pyodide.runPython('print("J\'agis sur une action du player z");
-      // print(random.randrange(100));');
-      // window.pyodide.runPython('print(MOVE_FROM_DIR)');
-      // window.pyodide.runPython('print("J\'agis sur une action du player z");
-      // print(random.randrange(100));');
       const eventResultRaw = this.runPython(
         'board_model.on_game_event(js.document.eventName)',
         `Exécution d'un événement ${eventName}`,
@@ -592,21 +462,11 @@ export default {
         this.current_url_tileset = urlTileset;
       }
       // TODO : faire quelque chose si le json est pourri,
-      // ou qu'il contient des coordonnée qui dépasse du tileset.
+      // ou qu'il contient des coordonnées qui dépassent du tileset.
       this.json_conf = JSON.parse(jsonConf);
       this.tilesize_tileset = this.json_conf.tile_size;
       this.tile_coords = this.json_conf.tile_coords;
       this.$refs.python_console.textContent = '';
-
-      // document.gameCode = gameCode;
-      // Tous les exemples indiquent de déclencher la fonction brython dans le onload.
-      // Mais on peut aussi l'exécuter où on veut, avec window.brython.
-      // Énorme merci à cette issue github :
-      // https://github.com/brython-dev/brython/issues/793
-      // TODO : faudra peut-être pas garder le "1". C'est pour dire qu'on veut du debug.
-      // document.squabr_board_model_func = 'init';
-      // window.brython(1);
-
       this.runPython(
         gameCode,
         'Interprétation du gameCode.',
