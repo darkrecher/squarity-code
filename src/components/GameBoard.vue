@@ -28,7 +28,14 @@
             class="game"
             :class="{ full: hideCode }"
           >
-            <canvas ref="gamecanvas" />
+            <canvas
+              v-show="loading_done"
+              ref="gamecanvas"
+            />
+            <ProgressIndicator
+              v-if="!loading_done"
+              ref="progressIndicator"
+            />
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
             <div class="d-flex flex-row justify-content-center align-items-stretch">
               <div class="p-2 flex-grow-1">
@@ -92,6 +99,7 @@
           </div>
         </b-col>
 
+        <!-- TODO : v-show -->
         <b-col
           sm="12"
           md="6"
@@ -136,6 +144,7 @@
 <script>
 
 import DevZone from './DevZone.vue';
+import ProgressIndicator from './ProgressIndicator.vue';
 
 const axios = require('axios');
 
@@ -172,6 +181,7 @@ export default {
   name: 'GameBoard',
   components: {
     DevZone,
+    ProgressIndicator,
   },
 
   props: {
@@ -185,6 +195,7 @@ export default {
     return {
       // TODO : J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
       // Du coup, ça sert à quoi ce truc de data ?
+      loading_done: false,
       tile_width: 32,
       tile_height: 32,
       hideCode: false,
@@ -228,9 +239,11 @@ export default {
     // J'ai pas trop compris le principe, et ça me semble un peu overkill.
     // Alors j'y vais à la bourrin : je charge tout le code dans une string
     // et je la balance ensuite directement à la fonction runPython.
+    this.showProgress('Pré-squarification du python géant.');
     const libSquarityCode = await axios.get('squarity.py');
 
     window.languagePluginUrl = '/pyodide/v0.15.0/';
+    this.showProgress('Téléchargement du téléchargeur.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     //
@@ -243,9 +256,9 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
     this.$loadScript('pyodide.js')
       .then(() => {
-        console.log('Pyodide downloaded');
+        this.showProgress('Iodification du python géant.');
         window.languagePluginLoader.then(() => {
-          console.log('WASM Pyodide sgrabaradjed');
+          this.showProgress('Déballage de la cartouche du jeu.');
           this.runPython(
             libSquarityCode.data,
             'Interprétation de la lib python squarity',
@@ -272,6 +285,12 @@ export default {
   },
 
   methods: {
+
+    showProgress(msg) {
+      if (!this.loading_done) {
+        this.$refs.progressIndicator.add_progress_message(msg);
+      }
+    },
 
     runPython(pythonCode, codeLabel) {
       let resultPython = null;
@@ -432,6 +451,7 @@ export default {
     },
 
     goUp() {
+      this.loading_done = true;
       this.send_game_event('U');
     },
 
@@ -456,11 +476,13 @@ export default {
     },
 
     async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
+      this.showProgress('Gloubiboulgatisation des pixels.');
       if (this.current_url_tileset !== urlTileset) {
         // TODO : faire quelque chose si le chargement de l'image merdouille.
         this.tile_atlas = await loadImage(urlTileset);
         this.current_url_tileset = urlTileset;
       }
+      this.showProgress('Compilation de la compote.');
       // TODO : faire quelque chose si le json est pourri,
       // ou qu'il contient des coordonnées qui dépassent du tileset.
       this.json_conf = JSON.parse(jsonConf);
@@ -477,7 +499,8 @@ export default {
       );
       this.draw_rect();
       this.$refs.gameinterface.focus();
-      console.log('First draw rect of updated game-code made.');
+      this.showProgress('C\'est parti !');
+      this.loading_done = true;
     },
 
     toggleDevZoneDisplay() {

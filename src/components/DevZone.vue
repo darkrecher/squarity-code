@@ -1,7 +1,7 @@
 <template>
   <div
-    class="dev-zone"
     ref="devzone"
+    class="dev-zone"
   >
     <div>
       <button @click="example_magician">
@@ -81,8 +81,6 @@ export default {
   },
 
   mounted() {
-    console.log('juste pour dire coucou');
-
     const elemDevZone = this.$refs.devzone;
     elemDevZone.addEventListener('keydown', this.on_key_down);
   },

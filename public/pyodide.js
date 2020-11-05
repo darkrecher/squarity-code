@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
  * The main bootstrap script for loading pyodide.
  */
