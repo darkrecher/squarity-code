@@ -1,4 +1,11 @@
 <template>
+  <!--
+    Ce spinner de progress est inspiré de SpinKit :
+    https://tobiasahlin.com/spinkit/
+    https://github.com/tobiasahlin/SpinKit
+    Licence MIT.
+  -->
+
   <div class="progress-indicator">
     <div>
       <div class="sk-cube-grid">
@@ -12,6 +19,8 @@
         <div class="sk-cube sk-cube8" />
         <div class="sk-cube sk-cube9" />
       </div>
+
+      Please wait / Veuillez patienter...
 
       <ul id="example-2">
         <li
@@ -48,6 +57,7 @@ export default {
 
     add_progress_message(msg) {
       console.log(`progress: ${msg}`);
+      this.messages[this.messages.length - 1] = ' ';
       this.messages.push(msg);
     },
   },
@@ -69,6 +79,12 @@ export default {
 
   ul {
     text-align: left;
+    padding-top: 1em;
+    list-style: none;
+  }
+
+  ul li:before {
+    content:"\2713\0020 ";
   }
 
   .sk-cube-grid {
@@ -83,8 +99,8 @@ export default {
     background-color: #CCC;
     color: #CCC;
     float: left;
-    -webkit-transform: scale3D(0, 0, 1);
-            transform: scale3D(0, 0, 1);
+    -webkit-transform: scale(0.1, 0.1);
+            transform: scale(0.1, 0.1);
     -webkit-animation: sk-cubeGridScaleDelay 1.6s infinite ease-in-out;
             animation: sk-cubeGridScaleDelay 1.6s infinite ease-in-out;
   }
@@ -129,23 +145,23 @@ export default {
 
   @-webkit-keyframes sk-cubeGridScaleDelay {
     0%, 50%, 100% {
-      -webkit-transform: scale3D(0, 0, 1);
-              transform: scale3D(0, 0, 1);
+      -webkit-transform: scale(0, 0);
+              transform: scale(0, 0);
     }
     25% {
-      -webkit-transform: scale3D(1, 1, 1);
-              transform: scale3D(1, 1, 1);
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
     }
   }
 
   @keyframes sk-cubeGridScaleDelay {
     0%, 50%, 100% {
-      -webkit-transform: scale3D(0, 0, 1);
-              transform: scale3D(0, 0, 1);
+      -webkit-transform: scale(0, 0);
+              transform: scale(0, 0);
     }
     25% {
-      -webkit-transform: scale3D(1, 1, 1);
-              transform: scale3D(1, 1, 1);
+      -webkit-transform: scale(1, 1);
+              transform: scale(1, 1);
     }
   }
 
