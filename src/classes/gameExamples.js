@@ -319,103 +319,192 @@ class BoardModel():
   {
     "tile_size": 32,
     "tile_coords": {
-      "X": [0, 0],
-      ".": [32, 0],
-      "H": [64, 0],
-      "C": [96, 0],
-      "water_right": [0, 32],
-      "water_down": [32, 32],
-      "water_left": [64, 32],
-      "water_up": [96, 32],
-      "ice_right": [0, 64],
-      "ice_down": [32, 64],
-      "ice_left": [64, 64],
-      "ice_up": [96, 64],
-      "gas_right": [0, 96],
-      "gas_down": [32, 96],
-      "gas_left": [64, 96],
-      "gas_up": [96, 96],
-      "E": [0, 128],
-      "wet_sponge": [32, 128],
-      "-": [64, 128],
-      "|": [96, 128],
-      "=": [0, 160],
-      "I": [32, 160],
-      "gas_dead": [64, 160],
-      "water_right_pipe": [0, 192],
-      "water_down_pipe": [32, 192],
-      "water_left_pipe": [64, 192],
-      "water_up_pipe": [96, 192],
-      "gas_right_pipe": [0, 224],
-      "gas_down_pipe": [32, 224],
-      "gas_left_pipe": [64, 224],
-      "gas_up_pipe": [96,224],
-      "O": [0, 256],
-      "wet_grid": [32, 256],
-      "S": [64, 256]
+
+      "water_right": [0, 0],
+      "water_down": [32, 0],
+      "water_left": [64, 0],
+      "water_up": [96, 0],
+      "ice_right": [0, 32],
+      "ice_down": [32, 32],
+      "ice_left": [64, 32],
+      "ice_up": [96, 32],
+      "gas_right": [0, 64],
+      "gas_down": [32, 64],
+      "gas_left": [64, 64],
+      "gas_up": [96, 64],
+
+      "water_right_pipe": [0, 96],
+      "water_down_pipe": [32, 96],
+      "water_left_pipe": [64, 96],
+      "water_up_pipe": [96, 96],
+      "gas_right_pipe": [0, 128],
+      "gas_down_pipe": [32, 128],
+      "gas_left_pipe": [64, 128],
+      "gas_up_pipe": [96,128],
+
+      "E": [64, 160],
+      "wet_sponge": [96, 160],
+
+      "O": [64, 192],
+      "wet_grid": [96, 192],
+
+      "S": [64, 224],
+      "C": [96, 224],
+
+      "=": [32, 256],
+      "H": [96, 256],
+
+      "gas_dead": [0, 288],
+      ".": [96, 288],
+
+      "X": [160, 64],
+      "+": [0, 416],
+
+      "K": [160, 352],
+
+      "pattern_*.*.XX*.*": [128, 0],
+      "pattern_*.*XXX*.*": [160, 0],
+      "pattern_*.*XX.*.*": [192, 0],
+      "pattern_*.*.X.*X*": [224, 0],
+      "pattern_*.*.XX*X*": [128, 32],
+      "pattern_*.*XXX*X*": [160, 32],
+      "pattern_*.*XX.*X*": [192, 32],
+      "pattern_*X*.X.*X*": [224, 32],
+      "pattern_*X*.XX*X*": [128, 64],
+      "pattern_*X*XX.*X*": [192, 64],
+      "pattern_*X*.X.*.*": [224, 64],
+      "pattern_*X*.XX*.*": [128, 96],
+      "pattern_*X*XXX*.*": [160, 96],
+      "pattern_*X*XX.*.*": [192, 96],
+      "pattern_*.*.X.*.*": [224, 96],
+      "pattern_***XXX.XX": [128, 128],
+      "pattern_***XXXXX.": [160, 128],
+      "pattern_*X*XX..X*": [192, 128],
+      "pattern_*X*.XX*X.": [224, 128],
+      "pattern_*.*XX..X*": [192, 160],
+      "pattern_*.*.XX*X.": [224, 160],
+      "pattern_***XXX.X.": [160, 256],
+
+      "pattern_*X*.-X***": [128, 192],
+      "pattern_*X*X-.***": [160, 192],
+      "pattern_***.-*.X*": [224, 192],
+      "pattern_*X*.-*.X*": [128, 224],
+      "-": [160, 224],
+      "pattern_*X**-.*X.": [192, 224],
+      "pattern_****-.*X.": [224, 224],
+      "pattern_*X*.-.***": [160, 288],
+      "pattern_*X*.-..X.": [192, 288],
+
+      "pattern_*.**|**X*": [128, 256],
+      "|": [224, 256],
+      "pattern_*X**|**.*": [128, 288],
+      "pattern_*.**|**.*": [224, 288],
+
+      "I_wall_up": [0, 224],
+      "I": [128, 320],
+      "electroball_D": [0, 384],
+      "electroball_U": [32, 384],
+      "electroball_R": [64, 384],
+      "electroball_L": [96, 384],
+
+      "pattern_*X*.X=*.*": [0, 160],
+      "pattern_*X*=X.*.*": [32, 160],
+      "pattern_***XXX*I*": [0, 192],
+      "pattern_*X*.X.*I*": [32, 192],
+      "pattern_*X*XX=XX*": [0, 256],
+      "pattern_*X*=XX*XX": [64, 256],
+
+      "pattern_*X*.XX*I*": [32, 288],
+      "pattern_*X*XX.*I*": [64, 288],
+
+      "pattern_*.*.X=*.*": [0, 320],
+      "pattern_*.*=X.*.*": [32, 320],
+      "pattern_*.*XX=*.*": [64, 320],
+      "pattern_*.*=XX*.*": [96, 320],
+
+      "pattern_*X*.X=*I*": [160, 320],
+      "pattern_*X*=X.*I*": [192, 320],
+      "pattern_*X*=X=*I*": [224, 320],
+
+      "pattern_*.*XX=XX*": [0, 352],
+      "pattern_*.*=XX*XX": [32, 352],
+      "pattern_*.*=X=*X*": [64, 352],
+      "pattern_*.*=X.*X*": [96, 352],
+      "pattern_*.*.X=*X*": [128, 352],
+
+      "pattern_*I*=+.*.*": [192, 384],
+      "pattern_*I*.+=*.*": [224, 384],
+
+      "pattern_*I*=+=*.*": [32, 416],
+      "pattern_*I*.+=*I*": [64, 416],
+      "pattern_*I*=+.*I*": [96, 416],
+      "pattern_*.*=+=*I*": [128, 416],
+      "pattern_*.*=+.*I*": [160, 416],
+      "pattern_*.*.+=*I*": [192, 416]
+
+
     }
-}
+  }
   `,
   H2O_GAME_CODE: `
-
 LEVELS = (
     (
         "XXXXXXXXXXXXXXXXXXXX",
-        "X...-...XXX...=....X",
-        "X..XXX..XXX..XXX...X",
-        "S...E....H....-....X",
+        "X...-...XXX...E..XXX",
+        "X..XXX..XXX..XXX.XXX",
+        "S...E....H....I....X",
         "X..XXX..XXX..XXX.X.X",
-        "X...=...X.X...E..X.X",
-        "XXXXXXXXX.XXXXXXXX.X",
-        "XXXXXXXXX.XXXXXXXXCX",
-        "X.H.H...X.X...E..X.X",
-        "X..CCC..XXX..XXX.XCX",
-        "X.HCO.........=....X",
+        "X...I...X.X...-..X.X",
+        "X..XXX..X.XXXXXXXXCX",
+        "XXXXXXXXX.X..XXX.X.X",
+        "X.H.H...X.X...E..XCX",
+        "X..CCC..XXX..XXX.X.X",
+        "X.HCO.........-....X",
         "X..CCC..XXX..XXX.XXX",
-        "X.H.H...XXX...-..XXX",
+        "X.H.H...XXX...I..XXX",
         "XXXXXXXXXXXXXXXXXXXX",
     ),
     (
+        "XXXXXXXXXXXXXXXXXXXX",
         "X.H.XXX.C.XXX.H.XXXX",
-        "S...-.E...=.E.....XX",
+        "S....-E...I.E.....XX",
         "X.C.XXX.H.XXX.C.X|XX",
         "XXXXXXXXXXXXXXXXX.XX",
-        "X.H.XXX.C.XXX.H.XIXX",
-        "XC..=.H...-.C.....XX",
+        "X.H.XXX.C.XXX.H.X=XX",
+        "XC..I.H....-C.....XX",
         "X...XXX.H.XXX.C.XXXX",
-        "XX.XX.XXXXX.XXXXX...",
-        "XXCX.X.X...XXXXXXX..",
-        "XXHXXXXX..XX.....X..",
-        "XXEX.H.XXXXX..O..X..",
-        "XX......HCE......X..",
-        "XXXX.C.XXXXXH...CX..",
-        "XXXXXXXXXXXXXXXXXX..",
-    ),
-    (
-        "XXXXXXXXXXXXXXXXXXXX",
-        "XXXXXXXX.....XXXXXXX",
-        "XXXXXXXX.XXXHXXXXXXX",
-        "XXXXXXXX.XXXHXXXXXXX",
-        "X.H.XXXX.XXXCXXXXXXX",
-        "S....E-..CCHE.....XX",
-        "X.C.XXXX.XXXCXXX..XX",
-        "XXXXX..X.XXXHX.....X",
-        "X.--.||X.XXXCX.XXX.X",
-        "X|XX..|X.....X..CH.X",
-        "X|X.--.XXXXXXXXXHCXX",
-        "X|XOXXXXXXX.----CHXX",
-        "X.---------.XXXXXXXX",
+        "XXCX...XXXXXXXXXXXXX",
+        "XXHXXXXXXX...X....HX",
+        "XXEX.H.XXXXXXX.....X",
+        "XX........HCE...O..X",
+        "XXXX.C.XXXXXXX....CX",
         "XXXXXXXXXXXXXXXXXXXX",
     ),
     (
-        "EIEXIIIXIIIXIIIIIIII",
-        "ECE=...=...=...===O=",
-        "EEE=.=.=.=.=.=.===I=",
-        "X=.=.=.=.=.=.=.=...=",
-        "X=...=...=...=...=.=",
-        "XXIIIXIIIXIIIXIII=H=",
+        "XXXXXXXXXXXXXXXXXXXX",
+        "X.H.XXXX.....XX.I.HX",
+        "S...EE-..XXXHXX=+==X",
+        "X.C.XXXX.XXXHXX====X",
+        "XXXXX..X.XXXCXX.XXXX",
+        "X.---.|X.CCHE...-..X",
+        "X|XXXX|X.XXXCXXXXXCX",
+        "X|.--.|X.XXXHX.....X",
+        "X||XX||X.XXXCX.X.X.X",
+        "X||XX..X.....X.HCHCX",
+        "X|..XXXXXXXXXXXXHCHX",
+        "X|X.-.-.-OX.----CHCX",
+        "X.---------.XXXXHCHX",
+        "XXXXXXXXXXXXXXXXXXXX",
+    ),
+    (
+        "===+===+===+===+++=+",
+        "ECEI...I...I...IIIOI",
+        "EEEI.I.I.I.I.I.I++=+",
+        "XI.I.I.I.I.I.I.I...I",
+        "XI...I...I...I...I.I",
+        "XX===X===X===X===+HI",
         "XXXXXXXXXXXXXXXXXEHE",
-        "XEHEEEEEEEEEEEEEEXIX",
+        "XEHEEEEEEEEEEEEEXX=X",
         "XE......EE.....EEEEE",
         "XEEEEEE....EEE.....E",
         "XEEEEEEEEEEEEEEEEE.E",
@@ -425,21 +514,238 @@ LEVELS = (
     ),
     (
         "XXXXXXXXXXXXXXXXXXXX",
-        "X.HHHH..H..H..H..H.X",
-        "X.H.....H..HH.H..H.X",
-        "X.HH....H..H.HH..H.X",
-        "X.H.....H..H..H....X",
-        "X.H.....H..H..H..H.X",
-        "S..................X",
-        "X.....CC.....CC....X",
-        "X.....CC.....CC....X",
-        "X..................X",
-        "X...C...........C..X",
-        "X....C.........C...X",
-        "X.....CCCCCCCCC....X",
+        "X.XIX.X.I.---.-....X",
+        "X.X+X.I.X.XXX.-....X",
+        "X..+==XX=XX.XXXX|XXX",
+        "X.C...--...........X",
+        "S....XXXX=X.X=+.|..X",
+        "X.H...........I.|..X",
+        "X.....--.....++.|..X",
+        "X..+..XX.....I.....X",
+        "X.....II..X=X+X....X",
+        "X==++=++..X=X+X..X=X",
+        "X..++.....I.III....X",
+        "X..++.....+=+++...OX",
         "XXXXXXXXXXXXXXXXXXXX",
     ),
+    (
+        "....................",
+        "XXXX..X.X...........",
+        "S.K...XKX..XXX......",
+        "XXXX..XXX..XKX......",
+        "...........X.X......",
+        "....................",
+        "...........XXXXX....",
+        "...XXX......KXK.....",
+        "....KX....XXXXXXX...",
+        "...XXX....-EEEEE-...",
+        "...XK...C.-E+=+E-...",
+        "...XXX....-EIKIE-...",
+        "........H.-E+=+E-...",
+        "..........-EEEEE-...",
+    ),
 )
+
+
+# Les patterns de suppression des tunnels en diagonale qui sont raccrochés à rien.
+PATTERNS_REPLACEMENT_TUNNELS_TOO_FAR = """
+
+    -.*     |.*     *.-     *.|
+    .**     .**     **.     **.
+    ***     ***     ***     ***
+    =>0:.   =>0:.   =>2:.   =>2:.
+
+    ***     ***     ***     ***
+    .**     .**     **.     **.
+    -.*     |.*     *.-     *.|
+    =>6:.   =>6:.   =>8:.   =>8:.
+"""
+
+# Les 4 premiers patterns :
+# remplacement des lasers "cross" par des lasers lines, sur les 4 tiles adjacentes à la middle tile.
+# Comme ça, la stylisation fonctionne aussi bien avec des crosses qu'avec des lines.
+# Les 4 patterns suivants :
+# remplacement des lasers lines sur les 4 tiles adjacentes, mais qui sont pas dans le bon sens
+# et ne sont donc pas accrochés à la middle tile.
+# Par exemple : un laser horizontal qui passe au-dessus de la middle tile.
+PATTERNS_REPLACEMENT_CROSS_LASERS = """
+    *+*     ***     ***     ***
+    ***     **+     ***     +**
+    ***     ***     *+*     ***
+    =>1:I   =>5:=   =>7:I   =>3:=
+
+    *=*     ***     ***     ***
+    ***     **I     ***     I**
+    ***     ***     *=*     ***
+    =>1:.   =>5:.   =>7:.   =>3:.
+"""
+
+# Quand il y a un laser au-dessus de la middle tile, on s'en fiche complètement.
+# La perpective cache le bas du laser, et on n'a rien à styliser dans ce cas.
+PATTERNS_REPLACEMENT_PERSPECTIVE_WALL_LASERS = """
+    *I*
+    ***
+    ***
+    =>1:.
+"""
+
+# Stylisation des lasers cross.
+PATTERNS_CROSS_LASERS = """
+    *.*   *I*   *I*   *.*
+    =+.   =+.   .+=   .+=
+    *I*   *.*   *.*   *I*
+
+    *I*   *I*   *.*   *I*
+    =+=   .+=   =+=   =+.
+    *.*   *I*   *I*   *I*
+"""
+
+# Stylisation des murs comportant un générateur de laser sur une ou plusieurs de ses parois
+PATTERNS_WALL_WITH_LASER = """
+    ***   *X*   *X*   *X*
+    XXX   .X.   XX=   =XX
+    *I*   *I*   XX*   *XX
+
+    *X*   *X*   *X*   *X*
+    .X=   =X.   .XX   XX.
+    *.*   *.*   *I*   *I*
+
+    *.*   *.*   *.*   *.*
+    .X=   =X.   XX=   =XX
+    *.*   *.*   *.*   *.*
+
+    *X*   *X*   *X*
+    .X=   =X.   =X=
+    *I*   *I*   *I*
+
+    *.*   *.*
+    XX=   =XX
+    XX*   *XX
+
+    *.*   *.*   *.*
+    =X=   =X.   .X=
+    *X*   *X*   *X*
+"""
+
+# Stylisation des murs tout simple.
+PATTERNS_WALL_SIMPLE = """
+    ***   ***   ***
+    XXX   XXX   XXX
+    .XX   XX.   .X.
+
+    *X*   *X*
+    XX.   .XX
+    .X*   *X.
+
+    *.*   *.*
+    XX.   .XX
+    .X*   *X.
+
+    *.*   *X*   *X*   *X*
+    XXX   XX.   XXX   .XX
+    *X*   *X*   *.*   *X*
+
+    *.*   *X*   *X*   *.*   *.*   *X*
+    XXX   .X.   .XX   .XX   XX.   XX.
+    *.*   *X*   *.*   *X*   *X*   *.*
+
+    *.*   *X*   *.*   *.*   *.*
+    .X.   .X.   .XX   .X.   XX.
+    *.*   *.*   *.*   *X*   *.*
+"""
+
+# Sylisation des tunnels horizontaux.
+# Il y a tout un tas de bazar, pour gérer les bords de tunnels
+# qui sont parfois rognés en diagonale, et parfois droit.
+PATTERNS_TUNNEL_HORIZ = """
+
+    *X*   *X*   *X*   *X*
+    .-.   .-.   .-*   *-.
+    .X.   ***   .X*   *X.
+
+    *X*   *X*   ***   ***
+    .-X   X-.   .-*   *-.
+    ***   ***   .X*   *X.
+"""
+
+# Stylisation des tunnels verticaux. Là c'est beaucoup plus simple.
+PATTERNS_TUNNEL_VERTIC = """
+    *.*   *X*   *.*
+    *|*   *|*   *|*
+    *X*   *.*   *.*
+"""
+
+def iter_line_chunks(str_lines, lines_per_chunk):
+    current_chunks = []
+    current_nb_lines = 0
+    for line in str_lines.split("\\n"):
+        if line:
+            if not current_chunks:
+                current_chunks = [[line_elem] for line_elem in line.split()]
+            else:
+                for current_chunk, line_elem in zip(current_chunks, line.split()):
+                    current_chunk.append(line_elem)
+            current_nb_lines += 1
+        if current_nb_lines == lines_per_chunk:
+            for chunk in current_chunks:
+                yield chunk
+            current_chunks = []
+            current_nb_lines = 0
+
+def compile_match_patterns(str_patterns):
+    patterns = [
+        "".join(chunk_lines)
+        for chunk_lines
+        in iter_line_chunks(str_patterns, 3)
+    ]
+    return tuple(patterns)
+
+def compile_replace_patterns(str_patterns):
+    patterns = []
+    for chunk in iter_line_chunks(str_patterns, 4):
+        pat = "".join(chunk[:3])
+        l_rep = chunk[-1]
+        l_rep = l_rep[2:]
+        l_rep = l_rep.split(",")
+        l_rep = tuple([
+            (int(index), char_rep)
+            for index, semicolon, char_rep in
+            l_rep
+        ])
+        patterns.append((pat, l_rep))
+    return tuple(patterns)
+
+def match_with_patterns(main_pattern, test_patterns):
+    for test_pattern in test_patterns:
+        correct = True
+        for char_test, char_main in zip(test_pattern, main_pattern):
+            if char_test != "*" and char_test != char_main:
+                correct = False
+                break
+        if correct:
+            return test_pattern
+    return None
+
+def apply_replacement_patterns(main_pattern, replacement_patterns):
+    applied_replacement = False
+    for test_pat, repl_actions in replacement_patterns:
+        correct = True
+        for char_test, char_main in zip(test_pat, main_pattern):
+            if char_test != "*" and char_test != char_main:
+                correct = False
+                break
+        if correct:
+            if not applied_replacement:
+                applied_replacement = True
+                main_pattern = list(main_pattern)
+            for index, char_rep in repl_actions:
+                main_pattern[index] = char_rep
+
+    if applied_replacement:
+        return "".join(main_pattern)
+    else:
+        return main_pattern
+
 
 class BoardModel():
 
@@ -447,26 +753,232 @@ class BoardModel():
         self.w = width
         self.h = height
         self.current_level_idx = 0
+
+        self.patterns_wall_with_laser = compile_match_patterns(PATTERNS_WALL_WITH_LASER)
+        self.patterns_wall_simple = compile_match_patterns(PATTERNS_WALL_SIMPLE)
+        self.patterns_tunnel_horiz = compile_match_patterns(PATTERNS_TUNNEL_HORIZ)
+        self.patterns_tunnel_vertic = compile_match_patterns(PATTERNS_TUNNEL_VERTIC)
+        self.patterns_cross_lasers = compile_match_patterns(PATTERNS_CROSS_LASERS)
+        self.patterns_replacement_tunnels_too_far = compile_replace_patterns(PATTERNS_REPLACEMENT_TUNNELS_TOO_FAR)
+        self.patterns_replacement_cross_lasers = compile_replace_patterns(PATTERNS_REPLACEMENT_CROSS_LASERS)
+        self.patterns_replacement_perspective_wall_lasers = compile_replace_patterns(PATTERNS_REPLACEMENT_PERSPECTIVE_WALL_LASERS)
+
         self.init_level()
-        print("Ce jeu est inspiré de \\"H2O\\", sur la mini-console Storio.")
-        print("https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html")
+        print("Le tileset a été dessiné par Tacheul.")
+        print("http://pixeljoint.com/p/121104.htm")
         print()
 
+    def in_bound(self, x, y):
+        return (0 <= x < self.w) and (0 <= y < self.h)
+
+    def stylify_tile(self, x, y):
+        """
+        Stylisation des murs et des tunnels.
+        La fonction renvoie None si pas de style possible, ou bien une string.
+        La string correspond à un gamobj, à afficher par-dessus le gamobj initial,
+        afin d'avoir des niveaux plus joli.
+        (Dans tous les cas, on garde le gamobj initial, car toute la logique du jeu se base uniquement
+        sur les gamobj de base, ceux que l'on utilise pour créer les niveaux).
+        """
+
+        gamobj_mid = self.cur_level[y][x]
+        if gamobj_mid not in ("X", "-", "|", "+"):
+            return None
+
+        main_pattern = ""
+        for y_offset in (-1, 0, 1):
+            for x_offset in (-1, 0, 1):
+                x_check = x + x_offset
+                y_check = y + y_offset
+                # Les tiles à l'extérieur de la map sont considérées comme des murs.
+                if not self.in_bound(x_check, y_check):
+                    main_pattern += "X"
+                else:
+                    lvl_map_char = self.cur_level[y_check][x_check]
+                    if lvl_map_char in ("X", "S"):
+                        main_pattern += "X"
+                    elif lvl_map_char in ("-", "|", "=", "I", "+"):
+                        main_pattern += lvl_map_char
+                    else:
+                        main_pattern += "."
+
+        # Dans la suite de cette fonction, on fait tout un tas de replace. C'est moche et pas optimisé.
+        # Je n'ai pas de meilleure méthode pour le moment. Pouet pouet.
+
+        if gamobj_mid == "X":
+
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_tunnels_too_far)
+            main_pattern = main_pattern.replace("-", "X")
+            main_pattern = main_pattern.replace("|", "X")
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_cross_lasers)
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_perspective_wall_lasers)
+            matched_pattern = match_with_patterns(main_pattern, self.patterns_wall_with_laser)
+            if matched_pattern is not None:
+                return "pattern_" + matched_pattern
+
+            main_pattern = main_pattern.replace("I", ".")
+            main_pattern = main_pattern.replace("=", ".")
+            main_pattern = main_pattern.replace("+", ".")
+            # Il faut retenter les patterns de remplacment, car on vient de supprimer les lasers,
+            # et ça a peut-être changé des choses.
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_tunnels_too_far)
+            matched_pattern = match_with_patterns(main_pattern, self.patterns_wall_simple)
+            if matched_pattern is not None:
+                return "pattern_" + matched_pattern
+            return None
+
+        if gamobj_mid == "-":
+            main_pattern = main_pattern.replace("I", ".")
+            main_pattern = main_pattern.replace("=", ".")
+            main_pattern = main_pattern.replace("+", ".")
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_tunnels_too_far)
+            main_pattern = main_pattern.replace("-", "X")
+            main_pattern = main_pattern.replace("|", "X")
+            # On remet le gamobj_mid comme il faut.
+            main_pattern = main_pattern[:4] + gamobj_mid + main_pattern[5:]
+            matched_pattern = match_with_patterns(main_pattern, self.patterns_tunnel_horiz)
+            if matched_pattern is not None:
+                return "pattern_" + matched_pattern
+            return None
+
+        if gamobj_mid == "|":
+            main_pattern = main_pattern.replace("I", ".")
+            main_pattern = main_pattern.replace("=", ".")
+            main_pattern = main_pattern.replace("+", ".")
+            # Pas besoin d'appliquer patterns_replacement_tunnels_too_far, car ça ne concerne que des cases
+            # sur les diagonales. Or, le tunnel vertical s'en fiche de ce qu'il peut y avoir sur les cases diagonales.
+            main_pattern = main_pattern.replace("-", "X")
+            main_pattern = main_pattern.replace("|", "X")
+            # On remet le gamobj_mid comme il faut.
+            main_pattern = main_pattern[:4] + gamobj_mid + main_pattern[5:]
+            matched_pattern = match_with_patterns(main_pattern, self.patterns_tunnel_vertic)
+            if matched_pattern is not None:
+                return "pattern_" + matched_pattern
+            return None
+
+        if gamobj_mid == "+":
+            main_pattern = main_pattern.replace("-", ".")
+            main_pattern = main_pattern.replace("|", ".")
+            main_pattern = main_pattern.replace("X", ".")
+            main_pattern = apply_replacement_patterns(main_pattern, self.patterns_replacement_cross_lasers)
+            matched_pattern = match_with_patterns(main_pattern, self.patterns_cross_lasers)
+            if matched_pattern is not None:
+                return "pattern_" + matched_pattern
+            return None
+
+        return None
+
+    def stylify_laser(self, x, y, lvl_map_char):
+        """
+        Détermine les endroits où il faut placer les petites boules grises de lasers.
+        Modifie l'apparence du laser, dans le cas où c'est un "laser cross",
+        et dans le cas où on a pu placer un mur générateur de laser juste au-dessus.
+        """
+        len_str_prefix = len("pattern_")
+        gamobjs_final = []
+        electroball_U = electroball_D = lvl_map_char in ("I", "+")
+        electroball_R = electroball_L = lvl_map_char in ("=", "+")
+
+        # C'est un peu moche, parce qu'il y a du duplicate code, mais pas complètement.
+        # Je préfère pas factoriser un truc comme ça.
+        # Ça risque d'ajouter plus de complexité que ce qu'il y a déjà.
+
+        if lvl_map_char in ("I", "+"):
+
+            # up
+            gamobjs_up = self.tiles[y-1][x] if self.in_bound(x, y-1) else ["X"]
+            for gamobj in gamobjs_up:
+                if gamobj in ("I", "+"):
+                    electroball_U = False
+                elif gamobj.startswith("pattern_"):
+                    # Exemple de pattern qui fonctionne : "pattern_***XXX.I."
+                    if gamobj[len_str_prefix + 7] == "I":
+                        electroball_U = False
+                        if lvl_map_char == "I" and gamobj[len_str_prefix + 4] == "X":
+                            gamobjs_final.append("I_wall_up")
+
+            # down
+            gamobjs_down = self.tiles[y+1][x] if self.in_bound(x, y+1) else ["X"]
+            for gamobj in gamobjs_down:
+                if gamobj in ("I", "+", "X"):
+                    electroball_D = False
+
+            # cross
+            if lvl_map_char == "+":
+                gamobjs_cur = self.tiles[y][x]
+                for gamobj in gamobjs_cur:
+                    if gamobj.startswith("pattern_"):
+                        if gamobj[len_str_prefix + 7] == ".":
+                            electroball_D = False
+                        if gamobj[len_str_prefix + 1] == ".":
+                            electroball_U = False
+
+        if lvl_map_char in ("=", "+"):
+
+            # left
+            gamobjs_adj = self.tiles[y][x-1] if self.in_bound(x-1, y) else ["X"]
+            for gamobj in gamobjs_adj:
+                if gamobj in ("=", "+"):
+                    electroball_L = False
+                elif gamobj.startswith("pattern_"):
+                    # Exemple de pattern qui fonctionne : "pattern_*X*XX=XX*"
+                    if gamobj[len_str_prefix + 5] == "=":
+                        electroball_L = False
+
+            # right
+            gamobjs_adj = self.tiles[y][x+1] if self.in_bound(x+1, y) else ["X"]
+            for gamobj in gamobjs_adj:
+                if gamobj in ("=", "+"):
+                    electroball_R = False
+                elif gamobj.startswith("pattern_"):
+                    # Exemple de pattern qui fonctionne : "pattern_*X*=XX*XX"
+                    if gamobj[len_str_prefix + 3] == "=":
+                        electroball_R = False
+
+            # cross
+            if lvl_map_char == "+":
+                gamobjs_cur = self.tiles[y][x]
+                for gamobj in gamobjs_cur:
+                    if gamobj.startswith("pattern_"):
+                        if gamobj[len_str_prefix + 1] == ".":
+                            electroball_U = False
+                        if gamobj[len_str_prefix + 5] == ".":
+                            electroball_R = False
+                        if gamobj[len_str_prefix + 7] == ".":
+                            electroball_D = False
+                        if gamobj[len_str_prefix + 3] == ".":
+                            electroball_L = False
+
+        electrob_correspondance = (
+            (electroball_D, "electroball_D"),
+            (electroball_U, "electroball_U"),
+            (electroball_R, "electroball_R"),
+            (electroball_L, "electroball_L"),
+        )
+        for has_electrob, gamobj_name in electrob_correspondance:
+            if has_electrob:
+                gamobjs_final.append(gamobj_name)
+
+        return gamobjs_final
+
     def init_level(self):
+
         self.hero_alive = False
-        self.tiles = [
-            [
+        self.tiles = tuple([
+            tuple([
                 [] for x in range(self.w)
-            ]
+            ])
             for y in range(self.h)
-        ]
-        cur_level = LEVELS[self.current_level_idx]
+        ])
+        self.cur_level = LEVELS[self.current_level_idx]
+        self.knowledge_positions = {}
+        knowledge_index = 0
 
         for y in range(self.h):
             for x in range(self.w):
-                tile_data = []
-                tile_data_add = cur_level[y][x]
-                if tile_data_add == "S":
+                gamobjs = []
+                lvl_map_char = self.cur_level[y][x]
+                if lvl_map_char == "S":
                     # Si le tuyau d'arrivée est tout à droite, ça fera planter le jeu.
                     # Faut juste pas faire des niveaux avec le tuyau d'arrivée tout à droite.
                     self.hero_x = x + 1
@@ -474,9 +986,21 @@ class BoardModel():
                     self.hero_alive = True
                     self.hero_dir = "D"
                     self.hero_state = "water"
-                if tile_data_add != " ":
-                    tile_data.append(tile_data_add)
-                self.tiles[y][x] = tile_data
+                if lvl_map_char == "K":
+                    self.knowledge_positions[(x, y)] = knowledge_index
+                    knowledge_index += 1
+                if lvl_map_char != " ":
+                    gamobjs.append(lvl_map_char)
+                styled_wall = self.stylify_tile(x, y)
+                if styled_wall is not None:
+                    gamobjs.append(styled_wall)
+                self.tiles[y][x][:] = gamobjs
+
+        for y in range(self.h):
+            for x in range(self.w):
+                lvl_map_char = self.cur_level[y][x]
+                if lvl_map_char in ("I", "=", "+"):
+                    self.tiles[y][x].extend(self.stylify_laser(x, y, lvl_map_char))
 
     def get_size(self):
         return self.w, self.h
@@ -486,9 +1010,7 @@ class BoardModel():
 
     def export_all_tiles(self):
         rendered_tiles = [
-            [
-                list(self.tiles[y][x]) for x in range(self.w)
-            ]
+            [ list(self.tiles[y][x]) for x in range(self.w) ]
             for y in range(self.h)
         ]
         hero_dir_names = {
@@ -507,12 +1029,15 @@ class BoardModel():
         return rendered_tiles
 
     def can_move(self, start_tile_objs, dest_tile_objs, move_dir):
+        # On ne peut pas bouger dans un mur (y compris le mur contenant le tuyau d'arrivée)
         if "X" in dest_tile_objs or "S" in dest_tile_objs:
             return False
-        if {"-", "="}.intersection(set(start_tile_objs + dest_tile_objs)) and move_dir in ("U", "D"):
+        # On ne peut pas traverser horizontalement un tunnel vertical, et vice-versa.
+        if "-" in (start_tile_objs + dest_tile_objs) and move_dir in ("U", "D"):
             return False
-        if {"|", "I"}.intersection(set(start_tile_objs + dest_tile_objs)) and move_dir in ("L", "R"):
+        if "|" in (start_tile_objs + dest_tile_objs) and move_dir in ("L", "R"):
             return False
+        # On ne peut pas du tout aller dans un tunnel si on est en glace.
         if self.hero_state == "ice" and ("-" in dest_tile_objs or "|" in dest_tile_objs):
             return False
         return True
@@ -523,8 +1048,10 @@ class BoardModel():
             self.init_level()
             return
 
-        if event_name.startswith("action") and self.current_level_idx == 0:
-            print("Les boutons d'actions ne servent à rien dans ce jeu.")
+        if event_name.startswith("action"):
+            if self.current_level_idx == 0:
+                print("Les boutons d'actions ne servent à rien dans ce jeu.")
+            return
 
         must_move = False
         move_coord = squarity.MOVE_FROM_DIR.get(event_name)
@@ -546,6 +1073,7 @@ class BoardModel():
             self.hero_y = new_hero_y
 
         tile_data_new_pos = self.get_tile_gamobjs(self.hero_x, self.hero_y)
+        # Refroidissement du héros.
         if must_move and "C" in tile_data_new_pos:
             to_cold = {
                 "ice": "ice",
@@ -553,6 +1081,7 @@ class BoardModel():
                 "gas": "water",
             }
             self.hero_state = to_cold[self.hero_state]
+        # Réchauffage du héros.
         if must_move and "H" in tile_data_new_pos:
             to_hot = {
                 "ice": "water",
@@ -561,6 +1090,28 @@ class BoardModel():
             }
             self.hero_state = to_hot[self.hero_state]
 
+        # Affichage des connaissances (dans le dernier niveau).
+        if "K" in tile_data_new_pos:
+            KNOWLEDGE = (
+                "Vous mélangez votre eau à celle du bassin de sapience... Essayez les autres bassins pour vous imprégner de tout le savoir de H2O",
+                "Pour jouer à la version originale du jeu : http://squarity.fr#fetchez_githubgist_darkrecher/ca7386545255db3244d571ec997e715b/raw/h2o-original",
+                "H2O est inspiré du jeu éponyme de la console Storio. https://www.vtechda.com/Store/ITMax/ContentDetail/FR_fre_1838_58-126805-000-289_False.html",
+                "DaLk, une personne classe, a commencé un autre tileset : http://squarity.fr#fetchez_githubgist_darkrecher/a0e7f7a5da6dbf1838060290e4e2e157/raw/h2o-daLk",
+                "Le niveau précédent ne servait à rien. C'était juste un test pour vérifier l'arrangement des tiles. L'eau li l'eau l' !!",
+                "Sous l'écume il y a l'eau claire (Luke).",
+                "Pour accéder au dernier bassin de sapience, vous allez devoir tricher.",
+                "Bravo, vous avez compris comment modifier les niveaux. Et si vous faisiez les vôtres et que vous les partagiez ? C'est pas la mer à boire !",
+            )
+            knowledge_index = self.knowledge_positions.get((self.hero_x, self.hero_y))
+            if knowledge_index is not None:
+                if knowledge_index < len(KNOWLEDGE):
+                    print(KNOWLEDGE[knowledge_index])
+                else:
+                    really = "vraiment " * (knowledge_index-len(KNOWLEDGE))
+                    print("Je n'ai " + really + "plus rien à vous dire.")
+                print()
+
+        # Passage au niveau suivant si le héros a atteint la grille de fin de niveau.
         if "O" in tile_data_new_pos:
             if self.hero_state == "water":
                 self.hero_alive = False
@@ -568,20 +1119,22 @@ class BoardModel():
                 tile_data_new_pos.append("wet_grid")
                 self.current_level_idx += 1
                 print("Bravo, vous passez au niveau %s" % (self.current_level_idx + 1))
+                print()
             elif self.current_level_idx == 0:
                 print("Il faut être en état liquide.")
 
-        if ("=" in tile_data_new_pos or "I" in tile_data_new_pos) and self.hero_state == "gas":
+        # Mort du héros si il est en gaz et qu'il va dans des lasers.
+        if set("=I+").intersection(set(tile_data_new_pos)) and self.hero_state == "gas":
             self.hero_alive = False
             tile_data_new_pos.append("gas_dead")
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
 
+        # Mort du héros si il est en liquide et qu'il va dans une éponge .
         if "E" in tile_data_new_pos and self.hero_state == "water":
             self.hero_alive = False
             tile_data_new_pos.remove("E")
             tile_data_new_pos.append("wet_sponge")
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
-
   `,
 
 });

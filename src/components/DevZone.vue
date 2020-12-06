@@ -72,7 +72,7 @@ import gameSpecLoader from '../classes/gameSpecLoader';
 // obligatoirement des strings literals.
 // Cochonnerie de javascript en vrac qui met du bazar partout.
 const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
-const H2O_URL_TILESET = require('../assets/h2o_tileset.png');
+const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
 
 export default {
   name: 'DevZone',
