@@ -1,28 +1,6 @@
 // https://stackoverflow.com/questions/47597384/best-way-to-define-common-constants-in-vue-js
 
-// TODO : faudra stocker ça autrement quand on aura plusieurs exemples de jeu.
-// Dans un fichier .py qui se colore-syntax correctement, et lors du build du projet,
-// on le met dans une string comme ça à l'arrache.
-
-// TODO : l'utilisateur devra coder toute la classe BoardModel dans son game_code.
-// Il faut décider si on lui en fait une de base, pour qu'il la surcharge.
-
-// TODO : expliquer dans la doc qu'il y a la fonction externe "export_tile".
-// Elle est appelée automatiquement par le système.
-// Elle pourra, dans le futur, renvoyer plein de trucs.
-// (Même si pour l'instant elle ne renvoie qu'une liste de string).
-// Et il y a la fonction interne get_tile_gamobjs, qui renvoie la liste d'objets.
-// Cette fonction permet de manipuler la liste, ajouter/enlever des éléments, ...
-
-// TODO : des petites fonctions pour construire les json à renvoyer,
-// avec dedans les "delayed_actions", "player_locks", etc.
-
-// TODO : afficher tout le tileset en une seule instruction dans le code python.
-
 export default Object.freeze({
-  // TODO : la taille du sprite du magicien est plus grande que 16x16, et faudrait le décaler.
-  // Pour l'instant on laisse comme ça, même si c'est moche.
-  // C'est le sprite "M".
   MAGICIAN_JSON_CONF: `
   {
     "tile_size": 16,

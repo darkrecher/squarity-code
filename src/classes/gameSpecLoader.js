@@ -2,8 +2,7 @@ const axios = require('axios');
 
 export default Object.freeze({
 
-  // TODO : on est bien d'accord que c'est dégueux de dépendre de deux ressources externes :
-  // pastebin et cors-anywhere qui permet de passer la sécurité CORS.
+  // Ça marche pas pastebin.Même avec le proxy de cors. On laisse tomber ça pour l'instant.
   URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
 

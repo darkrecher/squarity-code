@@ -46,8 +46,11 @@
                 />
               </div>
               <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-              <!-- TODO : c'est dégueu de devoir répéter
-                   le disabled = is_player_locked à chaque fois
+              <!--
+                C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
+                Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
+                tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
+                Si un jour on a une solution tant mieux. Sinon, osef.
               -->
               <div class="p-2">
                 <div>
@@ -99,7 +102,6 @@
           </div>
         </b-col>
 
-        <!-- TODO : v-show -->
         <b-col
           sm="12"
           md="6"
@@ -150,7 +152,6 @@ const axios = require('axios');
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
-// TODO : dans une lib de code générique ?
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -160,8 +161,6 @@ function loadImage(src) {
   });
 }
 
-// TODO : ouais, ça, faut vraiment que ça aille dans une lib de code à part, parce que c'est
-// un truc vraiment spécifique aux interactions pyodide/javascript
 function isNonePython(val) {
   // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
 
@@ -174,7 +173,6 @@ function isNonePython(val) {
   return typeof val === 'undefined';
 }
 
-// TODO : y'a moyen de foutre ça dans la classe, mais que ça reste quand même une constante ?
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 
 export default {
@@ -193,8 +191,6 @@ export default {
 
   data() {
     return {
-      // TODO : J'ai pas besoin d'initialiser toutes mes variables membres là-dedans.
-      // Du coup, ça sert à quoi ce truc de data ?
       loading_done: false,
       tile_width: 32,
       tile_height: 32,
@@ -217,7 +213,7 @@ export default {
     // https://www.w3schools.com/tags/att_canvas_width.asp
     // Et faut le faire deux fois :
     // Pour canvasFinal (width, height), et aussi pour this.canvas_buffer (width, height aussi)
-    // TODO : j'ai pas tout compris ces histoires de taille. Faut que je le regarde.
+    // J'ai pas tout compris ces histoires de taille. J'ai mis une tâche dans Trello pour ça.
     //
     // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
     // elem.clientHeight et elem.clientWidth.
@@ -319,8 +315,6 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-      // TODO : on devrait peut-être pas redemander la taille du board à chaque fois.
-      // Elle est pas censée changer.
       const boardSize = this.runPython(
         'board_model.get_size()',
         'Récupération de la taille du Board.',
@@ -478,13 +472,10 @@ export default {
     async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
       this.showProgress('Gloubiboulgatisation des pixels.');
       if (this.current_url_tileset !== urlTileset) {
-        // TODO : faire quelque chose si le chargement de l'image merdouille.
         this.tile_atlas = await loadImage(urlTileset);
         this.current_url_tileset = urlTileset;
       }
       this.showProgress('Compilation de la compote.');
-      // TODO : faire quelque chose si le json est pourri,
-      // ou qu'il contient des coordonnées qui dépassent du tileset.
       this.json_conf = JSON.parse(jsonConf);
       this.tilesize_tileset = this.json_conf.tile_size;
       this.tile_coords = this.json_conf.tile_coords;
