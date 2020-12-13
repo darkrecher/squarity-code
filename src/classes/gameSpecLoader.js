@@ -60,9 +60,9 @@ export default Object.freeze({
     const jsonConf = gameSpecElems[1];
     const gameCode = gameSpecElems[2];
     return {
-      urlTileset,
-      jsonConf,
-      gameCode,
+      url_tileset: urlTileset,
+      json_conf: jsonConf,
+      game_code: gameCode,
     };
   },
 

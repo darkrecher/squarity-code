@@ -1,7 +1,7 @@
 <template>
   <div
-    ref="devzone"
-    class="devzone"
+    ref="dev_zone"
+    class="dev_zone"
   >
     <div>
       <button @click="example_magician">
@@ -12,7 +12,7 @@
         Ex 2 : Les aventures de H2O
       </button>
     </div>
-    <div class="doc-link">
+    <div class="doc_link">
       <a
         href="https://github.com/darkrecher/squarity-doc/blob/master/user_manual/main_page.md"
         target="_blank"
@@ -23,7 +23,7 @@
     <div>
       Url de l'image tileset :
       <input
-        ref="urltileset"
+        ref="url_tileset"
         type="text"
       >
     </div>
@@ -32,7 +32,7 @@
     </div>
     <div>
       <textarea
-        ref="jsonconf"
+        ref="json_conf"
         cols="100"
         rows="8"
         spellcheck="false"
@@ -43,7 +43,7 @@
     </div>
     <div>
       <textarea
-        ref="gamecode"
+        ref="game_code"
         cols="100"
         rows="22"
         spellcheck="false"
@@ -76,11 +76,11 @@ export default {
   },
 
   mounted() {
-    this.$refs.devzone.addEventListener('keydown', this.on_key_down);
+    this.$refs.dev_zone.addEventListener('keydown', this.on_key_down);
   },
 
   destroyed() {
-    const elemDevZone = this.$refs.devzone;
+    const elemDevZone = this.$refs.dev_zone;
     if (elemDevZone) {
       elemDevZone.removeEventListener('keydown', this.on_key_down);
     }
@@ -91,10 +91,10 @@ export default {
     activate_current_game_spec() {
       // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/6535686-emit-events-to-parent-components
       this.$emit(
-        'update-game-spec',
-        this.$refs.urltileset.value,
-        this.$refs.jsonconf.value,
-        this.$refs.gamecode.value,
+        'update_game_spec',
+        this.$refs.url_tileset.value,
+        this.$refs.json_conf.value,
+        this.$refs.game_code.value,
       );
     },
 
@@ -103,22 +103,22 @@ export default {
     },
 
     example_magician() {
-      this.$refs.urltileset.value = MAGICIAN_URL_TILESET;
-      this.$refs.jsonconf.value = gameExamples.MAGICIAN_JSON_CONF;
-      this.$refs.gamecode.value = gameExamples.MAGICIAN_GAME_CODE;
+      this.$refs.url_tileset.value = MAGICIAN_URL_TILESET;
+      this.$refs.json_conf.value = gameExamples.MAGICIAN_JSON_CONF;
+      this.$refs.game_code.value = gameExamples.MAGICIAN_GAME_CODE;
       this.activate_current_game_spec();
     },
 
     example_h2o() {
-      this.$refs.urltileset.value = H2O_URL_TILESET;
-      this.$refs.jsonconf.value = gameExamples.H2O_JSON_CONF;
-      this.$refs.gamecode.value = gameExamples.H2O_GAME_CODE;
+      this.$refs.url_tileset.value = H2O_URL_TILESET;
+      this.$refs.json_conf.value = gameExamples.H2O_JSON_CONF;
+      this.$refs.game_code.value = gameExamples.H2O_GAME_CODE;
       this.activate_current_game_spec();
     },
 
     async fetch_game_spec_from_loc_hash() {
       // Pour tester :
-      // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/gamecode.txt
+      // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
         this.example_magician();
@@ -136,9 +136,9 @@ export default {
         if (gameSpec === null) {
           console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
         } else {
-          this.$refs.urltileset.value = gameSpec.urlTileset;
-          this.$refs.jsonconf.value = gameSpec.jsonConf;
-          this.$refs.gamecode.value = gameSpec.gameCode;
+          this.$refs.url_tileset.value = gameSpec.url_tileset;
+          this.$refs.json_conf.value = gameSpec.json_conf;
+          this.$refs.game_code.value = gameSpec.game_code;
           this.activate_current_game_spec();
         }
       }
@@ -161,7 +161,7 @@ export default {
 </script>
 
 <style scoped>
-  .doc-link {
+  .doc_link {
     padding-bottom: 1em;
   }
 

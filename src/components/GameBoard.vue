@@ -1,7 +1,7 @@
 <template>
-  <div class="gameboard">
+  <div class="game_board">
     <div>
-      <button @click="toggleDevZoneDisplay">
+      <button @click="toggle_dev_zone_display">
         Masquer / Afficher zone de dev.
       </button>
     </div>
@@ -12,11 +12,11 @@
       <b-row>
         <b-col
           sm="12"
-          :md="hideCode ? 12 : 6"
-          :lg="hideCode ? 8 : 6"
-          :offset-lg="hideCode ? 2 : 0"
-          :xl="hideCode ? 8 : 6"
-          :offset-xl="hideCode ? 2 : 0"
+          :md="hide_code ? 12 : 6"
+          :lg="hide_code ? 8 : 6"
+          :offset-lg="hide_code ? 2 : 0"
+          :xl="hide_code ? 8 : 6"
+          :offset-xl="hide_code ? 2 : 0"
         >
           <!--
             Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
@@ -26,7 +26,7 @@
             ref="game_interface"
             tabindex="0"
             class="game"
-            :class="{ full: hideCode }"
+            :class="{ full: hide_code }"
           >
             <canvas
               v-show="loading_done"
@@ -56,7 +56,7 @@
                 <div>
                   <button
                     :disabled="is_player_locked"
-                    @click="goUp"
+                    @click="go_up"
                   >
                     &#x21e7;
                   </button>
@@ -64,35 +64,35 @@
                 <div>
                   <button
                     :disabled="is_player_locked"
-                    @click="goLeft"
+                    @click="go_left"
                   >
                     &#x21e6;
                   </button>
                   <button
                     :disabled="is_player_locked"
-                    @click="goDown"
+                    @click="go_down"
                   >
                     &#x21e9;
                   </button>
                   <button
                     :disabled="is_player_locked"
-                    @click="goRight"
+                    @click="go_right"
                   >
                     &#x21e8;
                   </button>
                 </div>
               </div>
               <div class="p-2">
-                <div class="action-buttons">
+                <div class="action_buttons">
                   <button
                     :disabled="is_player_locked"
-                    @click="action1"
+                    @click="action_1"
                   >
                     1
                   </button>
                   <button
                     :disabled="is_player_locked"
-                    @click="action2"
+                    @click="action_2"
                   >
                     2
                   </button>
@@ -107,7 +107,7 @@
           md="6"
           lg="6"
           xl="6"
-          :class="{ hidden: hideCode }"
+          :class="{ hidden: hide_code }"
         >
           <!--
             C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
@@ -115,8 +115,8 @@
           -->
           <div>
             <DevZone
-              ref="devZone"
-              @update-game-spec="onUpdateGameSpec"
+              ref="dev_zone"
+              @update_game_spec="on_update_game_spec"
             />
           </div>
         </b-col>
@@ -198,7 +198,7 @@ export default {
   data() {
     return {
       loading_done: false,
-      hideCode: false,
+      hide_code: false,
       is_player_locked: false,
     };
   },
@@ -241,11 +241,11 @@ export default {
     // J'ai pas trop compris le principe, et ça me semble un peu overkill.
     // Alors j'y vais à la bourrin : je charge tout le code dans une string
     // et je la balance ensuite directement à la fonction runPython.
-    this.showProgress('Pré-squarification du python géant.');
+    this.show_progress('Pré-squarification du python géant.');
     const libSquarityCode = await axios.get('squarity.py');
 
     window.languagePluginUrl = '/pyodide/v0.15.0/';
-    this.showProgress('Téléchargement du téléchargeur.');
+    this.show_progress('Téléchargement du téléchargeur.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     //
@@ -257,17 +257,17 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
     await this.$loadScript('pyodide.js');
-    this.showProgress('Iodification du python géant.');
+    this.show_progress('Iodification du python géant.');
     await window.languagePluginLoader;
-    this.showProgress('Déballage de la cartouche du jeu.');
-    this.runPython(
+    this.show_progress('Déballage de la cartouche du jeu.');
+    this.run_python(
       libSquarityCode.data,
       'Interprétation de la lib python squarity',
     );
     // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
     // le message "update-game-spec" pour activer le jeu par défaut.
     // Tellement génial le javascript.
-    this.$refs.devZone.fetch_game_spec_from_loc_hash();
+    this.$refs.dev_zone.fetch_game_spec_from_loc_hash();
   },
 
   destroyed() {
@@ -285,24 +285,25 @@ export default {
 
   methods: {
 
-    showProgress(msg) {
+    show_progress(msg) {
       if (!this.loading_done) {
         this.$refs.progress_indicator.add_progress_message(msg);
       }
     },
 
-    consoleLog(msg) {
-      this.$refs.python_console.textContent += msg;
-      this.$refs.python_console.scrollTop = this.$refs.python_console.scrollHeight;
+    console_log(msg) {
+      const pythonConsole = this.$refs.python_console;
+      pythonConsole.textContent += msg;
+      pythonConsole.scrollTop = pythonConsole.scrollHeight;
     },
 
-    runPython(pythonCode, codeLabel) {
+    run_python(pythonCode, codeLabel) {
       let resultPython = null;
       try {
         resultPython = window.pyodide.runPython(pythonCode);
       } catch (err) {
         const errMessage = err.message;
-        this.consoleLog(`Erreur python durant l'action : \n${codeLabel}\n${errMessage}`);
+        this.console_log(`Erreur python durant l'action : \n${codeLabel}\n${errMessage}`);
         // Je rethrow l'exception, parce que si le code python déconne,
         // vaut mieux pas essayer de faire d'autres choses après.
         throw err;
@@ -321,12 +322,12 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-      const boardSize = this.runPython(
+      const boardSize = this.run_python(
         'board_model.get_size()',
         'Récupération de la taille du Board.',
       );
       const [boardWidth, boardHeight] = boardSize;
-      const tilesData = this.runPython(
+      const tilesData = this.run_python(
         'board_model.export_all_tiles()',
         'Récupération des tiles pour les dessiner',
       );
@@ -351,7 +352,7 @@ export default {
       this.ctx_canvas_final.drawImage(this.canvas_buffer, 0, 0);
     },
 
-    isStrTransitionalState(strVal) {
+    is_str_transitional_state(strVal) {
       return (strVal === 't' || strVal === 'T' || strVal === 'transitional_state');
     },
 
@@ -373,7 +374,7 @@ export default {
 
       let mustRedraw = true;
       document.eventName = eventName;
-      const eventResultRaw = this.runPython(
+      const eventResultRaw = this.run_python(
         'board_model.on_game_event(js.document.eventName)',
         `Exécution d'un événement ${eventName}`,
       );
@@ -434,57 +435,57 @@ export default {
       }
     },
 
-    goUp() {
+    go_up() {
       this.send_game_event('U');
     },
 
-    goRight() {
+    go_right() {
       this.send_game_event('R');
     },
 
-    goDown() {
+    go_down() {
       this.send_game_event('D');
     },
 
-    goLeft() {
+    go_left() {
       this.send_game_event('L');
     },
 
-    action1() {
+    action_1() {
       this.send_game_event('action_1');
     },
 
-    action2() {
+    action_2() {
       this.send_game_event('action_2');
     },
 
-    async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
-      this.showProgress('Gloubiboulgatisation des pixels.');
+    async on_update_game_spec(urlTileset, jsonConf, gameCode) {
+      this.show_progress('Gloubiboulgatisation des pixels.');
       if (this.current_url_tileset !== urlTileset) {
         this.tile_atlas = await loadImage(urlTileset);
         this.current_url_tileset = urlTileset;
       }
-      this.showProgress('Compilation de la compote.');
+      this.show_progress('Compilation de la compote.');
       this.json_conf = JSON.parse(jsonConf);
       this.tilesize_tileset = this.json_conf.tile_size;
       this.tile_coords = this.json_conf.tile_coords;
       this.$refs.python_console.textContent = '';
-      this.runPython(
+      this.run_python(
         gameCode,
         'Interprétation du gameCode.',
       );
-      this.runPython(
+      this.run_python(
         'board_model = BoardModel()',
         'Instanciation du BoardModel',
       );
       this.draw_rect();
       this.$refs.game_interface.focus();
-      this.showProgress('C\'est parti !');
+      this.show_progress('C\'est parti !');
       this.loading_done = true;
     },
 
-    toggleDevZoneDisplay() {
-      this.hideCode = !this.hideCode;
+    toggle_dev_zone_display() {
+      this.hide_code = !this.hide_code;
     },
 
   },
@@ -527,11 +528,11 @@ export default {
     display: none;
   }
 
-  .gameboard > div {
+  .game_board > div {
     padding-bottom: 0.8em;
   }
 
-  .action-buttons {
+  .action_buttons {
     margin-top: 1.5em;
   }
 
