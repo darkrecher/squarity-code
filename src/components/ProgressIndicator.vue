@@ -22,10 +22,15 @@
 
       Please wait / Veuillez patienter...
 
-      <ul id="example-2">
+      <ul>
+        <!--
+          https://stackoverflow.com/questions/51086657/vue-warn-duplicate-keys-detected-x-this-may-cause-an-update-error
+          On est obligé de prendre l'index dans la boucle v-for, et de l'utiliser dans "key".
+          Sinon, ça fait une erreur "Duplicate keys detected: ' '. This may cause an update error"
+        -->
         <li
-          v-for="msg in messages"
-          :key="msg"
+          v-for="(msg, index) in messages"
+          :key="index"
         >
           {{ msg }}
         </li>
@@ -57,6 +62,8 @@ export default {
 
     add_progress_message(msg) {
       console.log(`progress: ${msg}`);
+      // On met à vide le message d'avant.
+      // Sinon ça fait trop de texte à lire juste pour une barre de progress.
       this.messages[this.messages.length - 1] = ' ';
       this.messages.push(msg);
     },
@@ -68,11 +75,6 @@ export default {
   .progress-indicator {
     background-color: #303030;
     color: #C0C0C0;
-    /* TODO : c'est très mal de remettre ça ici.
-       Mais de toutes façons, on est d'accord que la hauteur du canvas
-       (et donc de l'indicateur de progress qui est à sa place)
-       est très mal gérée pour l'instant.
-    */
     height: 640px;
     padding: 1em;
   }
@@ -84,6 +86,7 @@ export default {
   }
 
   ul li:before {
+    /* Le caractère "tick" à chaque élément de liste à puces. */
     content:"\2713\0020 ";
   }
 
@@ -93,6 +96,11 @@ export default {
     margin: 100px auto;
   }
 
+  /* Cette superbe anim s'affiche mal de manière aléatoire.
+     Parfois, certains carrés ne sont pas visibles,
+     d'autres fois, certains sont noirs au lieu d'être gris.
+     Osef. Je vais pas me prendre la tête pour du CSS de zouzou à paillettes.
+  */
   .sk-cube-grid .sk-cube {
     width: 33%;
     height: 33%;
@@ -164,5 +172,4 @@ export default {
               transform: scale(1, 1);
     }
   }
-
 </style>

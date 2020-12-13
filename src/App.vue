@@ -30,8 +30,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #C0C0C0;
-  margin-top: 10px;
-  background-color: #101010;
 }
 
 a {

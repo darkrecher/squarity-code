@@ -23,18 +23,18 @@
             https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
           -->
           <div
-            ref="gameinterface"
+            ref="game_interface"
             tabindex="0"
             class="game"
             :class="{ full: hideCode }"
           >
             <canvas
               v-show="loading_done"
-              ref="gamecanvas"
+              ref="game_canvas"
             />
             <ProgressIndicator
               v-if="!loading_done"
-              ref="progressIndicator"
+              ref="progress_indicator"
             />
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
             <div class="d-flex flex-row justify-content-center align-items-stretch">
@@ -123,7 +123,7 @@
       </b-row>
     </b-container>
 
-    <p class="footer">
+    <div class="footer">
       Fonctionne grâce à Pyodide.
       <a
         href="https://github.com/darkrecher/squarity-code"
@@ -139,7 +139,7 @@
         documentation
       </a>
       sur github.
-    </p>
+    </div>
   </div>
 </template>
 
@@ -175,6 +175,17 @@ function isNonePython(val) {
 
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 
+const eventNameFromButton = {
+  ArrowUp: 'U',
+  ArrowRight: 'R',
+  ArrowDown: 'D',
+  ArrowLeft: 'L',
+  Digit1: 'action_1',
+  Digit2: 'action_2',
+  Numpad1: 'action_1',
+  Numpad2: 'action_2',
+};
+
 export default {
   name: 'GameBoard',
   components: {
@@ -182,20 +193,12 @@ export default {
     ProgressIndicator,
   },
 
-  props: {
-    msg: {
-      default: '',
-      type: String,
-    },
-  },
+  props: {},
 
   data() {
     return {
       loading_done: false,
-      tile_width: 32,
-      tile_height: 32,
       hideCode: false,
-      player_locks: [],
       is_player_locked: false,
     };
   },
@@ -206,7 +209,7 @@ export default {
   async mounted() {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
-    const canvasFinal = this.$refs.gamecanvas;
+    const canvasFinal = this.$refs.game_canvas;
     this.ctx_canvas_final = canvasFinal.getContext('2d');
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
@@ -224,11 +227,14 @@ export default {
     this.canvas_buffer.width = 640;
     this.canvas_buffer.height = 448;
     this.current_url_tileset = '';
+    this.tile_width = 32;
+    this.tile_height = 32;
+    this.player_locks = [];
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
-    const elemGameInterface = this.$refs.gameinterface;
+    const elemGameInterface = this.$refs.game_interface;
     elemGameInterface.addEventListener('keydown', this.on_key_down);
     // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
     // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
@@ -250,25 +256,22 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
-    this.$loadScript('pyodide.js')
-      .then(() => {
-        this.showProgress('Iodification du python géant.');
-        window.languagePluginLoader.then(() => {
-          this.showProgress('Déballage de la cartouche du jeu.');
-          this.runPython(
-            libSquarityCode.data,
-            'Interprétation de la lib python squarity',
-          );
-          // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
-          // le message "update-game-spec" pour activer le jeu par défaut.
-          // Tellement génial le javascript.
-          this.$refs.devZone.fetch_game_spec_from_loc_hash();
-        });
-      });
+    await this.$loadScript('pyodide.js');
+    this.showProgress('Iodification du python géant.');
+    await window.languagePluginLoader;
+    this.showProgress('Déballage de la cartouche du jeu.');
+    this.runPython(
+      libSquarityCode.data,
+      'Interprétation de la lib python squarity',
+    );
+    // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
+    // le message "update-game-spec" pour activer le jeu par défaut.
+    // Tellement génial le javascript.
+    this.$refs.devZone.fetch_game_spec_from_loc_hash();
   },
 
   destroyed() {
-    const elemGameInterface = this.$refs.gameinterface;
+    const elemGameInterface = this.$refs.game_interface;
     // Je dois vérifier que elemGameInterface n'est pas Null.
     // Quand je recharge ma page, pas de problème.
     // Quand je modifie le code et que npm me recharge automatiquement la page
@@ -284,8 +287,13 @@ export default {
 
     showProgress(msg) {
       if (!this.loading_done) {
-        this.$refs.progressIndicator.add_progress_message(msg);
+        this.$refs.progress_indicator.add_progress_message(msg);
       }
+    },
+
+    consoleLog(msg) {
+      this.$refs.python_console.textContent += msg;
+      this.$refs.python_console.scrollTop = this.$refs.python_console.scrollHeight;
     },
 
     runPython(pythonCode, codeLabel) {
@@ -294,9 +302,7 @@ export default {
         resultPython = window.pyodide.runPython(pythonCode);
       } catch (err) {
         const errMessage = err.message;
-        const errorDescription = `Erreur python durant l'action : \n${codeLabel}\n${errMessage}`;
-        this.$refs.python_console.textContent += errorDescription;
-        this.$refs.python_console.scrollTop = this.$refs.python_console.scrollHeight;
+        this.consoleLog(`Erreur python durant l'action : \n${codeLabel}\n${errMessage}`);
         // Je rethrow l'exception, parce que si le code python déconne,
         // vaut mieux pas essayer de faire d'autres choses après.
         throw err;
@@ -330,11 +336,10 @@ export default {
           const tileData = tilesData[y][x];
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
-            const coordImg = this.tile_coords[gameObject];
+            const [coordImgX, coordImgY] = this.tile_coords[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
-              coordImg[0], coordImg[1],
-              this.tilesize_tileset, this.tilesize_tileset,
+              coordImgX, coordImgY, this.tilesize_tileset, this.tilesize_tileset,
               canvasX, canvasY, this.tile_width, this.tile_height,
             );
           }
@@ -351,8 +356,7 @@ export default {
     },
 
     send_game_event(eventName) {
-      // infos à récupérer :
-      // TODO : foutre ça dans de la doc.
+      // Exemple d'infos à récupérer :
       // {
       //   "delayed_actions": [
       //       {"name": "blabla", "delay_ms": 500},
@@ -375,7 +379,6 @@ export default {
       );
 
       if (!isNonePython(eventResultRaw)) {
-        // TODO : message d'erreur correct si c'est pas du json.
         const eventResult = JSON.parse(eventResultRaw);
         if ('delayed_actions' in eventResult) {
           // Syntaxe de for-loop de merde... Putain de javascript. Putain de linter.
@@ -398,9 +401,6 @@ export default {
               this.player_locks.push(lockName);
             }
           });
-          if (!this.is_player_locked && this.player_locks.length > 0) {
-            this.is_player_locked = true;
-          }
         }
         if ('player_unlocks' in eventResult) {
           eventResult.player_unlocks.forEach((unlockName) => {
@@ -410,31 +410,21 @@ export default {
               this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
             }
           });
-          if (this.is_player_locked && this.player_locks.length === 0) {
-            this.is_player_locked = false;
-          }
+        }
+        if (this.is_player_locked !== (this.player_locks.length !== 0)) {
+          this.is_player_locked = (this.player_locks.length !== 0);
         }
         if ('redraw' in eventResult) {
           mustRedraw = eventResult.redraw !== 0;
         }
       }
+
       if (mustRedraw) {
         this.draw_rect();
       }
     },
 
     on_key_down(e) {
-      const eventNameFromButton = {
-        ArrowUp: 'U',
-        ArrowRight: 'R',
-        ArrowDown: 'D',
-        ArrowLeft: 'L',
-        Digit1: 'action_1',
-        Digit2: 'action_2',
-        Numpad1: 'action_1',
-        Numpad2: 'action_2',
-      };
-
       // https://hacks.mozilla.org/2017/03/internationalize-your-keyboard-controls/
       // C'est quand même un peu le bazar la gestion des touches dans les navigateurs.
       if (e.code in eventNameFromButton) {
@@ -445,7 +435,6 @@ export default {
     },
 
     goUp() {
-      this.loading_done = true;
       this.send_game_event('U');
     },
 
@@ -489,7 +478,7 @@ export default {
         'Instanciation du BoardModel',
       );
       this.draw_rect();
-      this.$refs.gameinterface.focus();
+      this.$refs.game_interface.focus();
       this.showProgress('C\'est parti !');
       this.loading_done = true;
     },
@@ -539,7 +528,7 @@ export default {
   }
 
   .gameboard > div {
-    padding-bottom: 1em;
+    padding-bottom: 0.8em;
   }
 
   .action-buttons {

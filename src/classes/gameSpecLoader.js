@@ -44,24 +44,21 @@ export default Object.freeze({
     // On parse selon le format décrit ici :
     // https://trello.com/c/pbxgBITh/44-%C3%A9crire-la-documentation-utilisateur
     // Ce sera dans une vraie doc plus tard.
-    const dataLines = response.data.split('\n');
+    const dataLines = response.data.split('\n', 3);
     if (dataLines.length < 2) {
       return null;
     }
     const urlTileset = dataLines[0];
-    const separator = dataLines[1].trimEnd();
-    let indexSeparator = 2;
-    while (
-      (indexSeparator < dataLines.length)
-      && (dataLines[indexSeparator].trimEnd() !== separator)
-    ) {
-      indexSeparator += 1;
-    }
-    if (indexSeparator === dataLines.length) {
+    // Il faut que ce soit exactement la même ligne entre celle qui fait la séparation entre
+    // l'url et la conf json, et celle qui fait la séparation entre la conf json et le gamecode.
+    // Aux espaces près ! (Donc le mieux est de pas mettre d'espace du tout).
+    const separator = dataLines[1];
+    const gameSpecElems = response.data.split(`\n${separator}\n`, 3);
+    if (gameSpecElems.length !== 3) {
       return null;
     }
-    const jsonConf = dataLines.slice(2, indexSeparator).join('\n');
-    const gameCode = dataLines.slice(indexSeparator + 1).join('\n');
+    const jsonConf = gameSpecElems[1];
+    const gameCode = gameSpecElems[2];
     return {
       urlTileset,
       jsonConf,

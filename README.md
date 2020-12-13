@@ -1,5 +1,9 @@
 # squarity-code
 
+Moteur de jeu 2D "case par case", en python, dans un navigateur web.
+
+Vous pouvez l'essayer directement sur http://squarity.fr
+
 ## Project setup
 ```
 npm install
