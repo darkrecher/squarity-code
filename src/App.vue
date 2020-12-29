@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Squarity, un moteur de jeux case par case, en python" />
+    <MainTitle/>
     <GameBoard />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue';
+import MainTitle from './components/MainTitle.vue';
 import GameBoard from './components/GameBoard.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
+    MainTitle,
     GameBoard,
   },
 };
