@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <MainTitle/>
+    <MainTitle />
     <GameBoard />
   </div>
 </template>
