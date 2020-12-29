@@ -3,22 +3,37 @@
     ref="dev_zone"
     class="dev_zone"
   >
-    <div>
+    <div class="social_links">
+      <a
+        href="https://discord.gg/D5SYnk8u3j"
+        target="_blank"
+      >
+        <img
+          class="discord"
+          src="../assets/discord.svg"
+          alt="Logo discord"
+        >
+      </a>
+      <a
+        href="https://mstdn.io/@recher"
+        target="_blank"
+      >
+        <img
+          class="mastodon"
+          src="../assets/mastodon.svg"
+          alt="Logo mastodon"
+        >
+      </a>
+    </div>
+    <div class="game_examples">
+      Exemples de jeu :
       <button @click="example_magician">
-        Ex 1 : Le magicien faiseur de ponts
+        Le magicien
       </button>
       &nbsp;&nbsp;
       <button @click="example_h2o">
-        Ex 2 : Les aventures de H2O
+        Les aventures de H2O
       </button>
-    </div>
-    <div class="doc_link">
-      <a
-        href="https://github.com/darkrecher/squarity-doc/blob/master/user_manual/main_page.md"
-        target="_blank"
-      >
-        Comment créer ses jeux.
-      </a>
     </div>
     <div>
       Url de l'image tileset :
@@ -161,14 +176,32 @@ export default {
 </script>
 
 <style scoped>
-  .doc_link {
-    padding-bottom: 1em;
+  .social_links {
+    padding-bottom: 0.2em;
+  }
+
+  .social_links img {
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+  }
+
+  /* Crétins de svg qui ont pas la même taille apparente. */
+  img.discord {
+    height: 2.5em;
+  }
+  img.mastodon {
+    height: 2em;
+  }
+
+  .game_examples {
+    padding-bottom: 0.8em;
+
   }
 
   textarea {
     background-color: #202020;
     color: #C0C0C0;
-    margin-bottom: 1em;
+    margin-bottom: 0.2em;
     font-family: monospace;
   }
 </style>
