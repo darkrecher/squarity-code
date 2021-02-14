@@ -1,18 +1,15 @@
 <template>
   <div id="app">
-    <MainTitle />
     <GameBoard />
   </div>
 </template>
 
 <script>
-import MainTitle from './components/MainTitle.vue';
 import GameBoard from './components/GameBoard.vue';
 
 export default {
   name: 'App',
   components: {
-    MainTitle,
     GameBoard,
   },
 };

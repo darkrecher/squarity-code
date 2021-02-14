@@ -1,6 +1,7 @@
 <template>
   <div class="main_title">
-    <h1>Squarity, un moteur de jeux 2D, en python</h1>
+    <h1>Squarity</h1>
+    <div>un moteur de jeux 2D, en python</div>
   </div>
 </template>
 
@@ -13,5 +14,8 @@ export default {
 <style scoped>
   h1 {
     margin: 10px;
+  }
+  div {
+    margin-bottom: 10px;
   }
 </style>

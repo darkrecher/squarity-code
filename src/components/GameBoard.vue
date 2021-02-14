@@ -1,150 +1,187 @@
 <template>
-  <div class="game_board">
+  <div
+    class="game_board"
+    not_the_style="background-color: darkgray; height: 100vh;"
+  >
     <div>
-      <button @click="toggle_dev_zone_display">
-        Masquer / Afficher zone de dev.
-      </button>
-    </div>
-
-    <b-container
+    <!--<b-container
+      class="h-100"
       fluid
-    >
-      <b-row>
+    >-->
+      <!-- https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding -->
+      <b-row class="h-100 no-gutters">
+        <b-col
+          sm="12"
+          md="6"
+          order="2"
+          order-sm="2"
+          order-md="1"
+          :class="{ hidden: hide_code }"
+        >
+          <div style="display: flex; flex-flow: column; height: 100%;">
+            <div class="d-none d-sm-none d-md-block">
+              <MainTitle />
+            </div>
+            <div style="flex: 1 1 auto;">
+              <!--
+                C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
+                Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
+              -->
+              <div style="height: 100%;">
+                <DevZone
+                  ref="dev_zone"
+                  @update_game_spec="on_update_game_spec"
+                />
+              </div>
+              <div class="dev_footer">
+                Fonctionne grâce à Pyodide.
+                <a
+                  href="https://github.com/darkrecher/squarity-code"
+                  target="_blank"
+                >
+                  Code source
+                </a>
+                et
+                <a
+                  href="https://github.com/darkrecher/squarity-doc"
+                  target="_blank"
+                >
+                  documentation
+                </a>
+                sur github.
+              </div>
+            </div>
+          </div>
+        </b-col>
         <b-col
           sm="12"
           :md="hide_code ? 12 : 6"
-          :lg="hide_code ? 8 : 6"
-          :offset-lg="hide_code ? 2 : 0"
-          :xl="hide_code ? 8 : 6"
-          :offset-xl="hide_code ? 2 : 0"
+          order="1"
+          order-sm="1"
+          order-md="2"
         >
           <!--
             Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
             https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
           -->
           <div
+            class="game_interface"
+            style="display: flex; flex-flow: column;"
             ref="game_interface"
             tabindex="0"
-            class="game"
-            :class="{ full: hide_code }"
           >
-            <canvas
-              v-show="loading_done"
-              ref="game_canvas"
-            />
-            <ProgressIndicator
-              v-if="!loading_done"
-              ref="progress_indicator"
-            />
-            <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
-            <div class="d-flex flex-row justify-content-center align-items-stretch">
-              <div class="p-2 flex-grow-1">
-                <textarea
-                  id="python_console"
-                  ref="python_console"
-                  readonly
-                />
+            <div class="d-block d-sm-block d-md-none">
+              <div :class="{ hidden: hide_code }">
+                <MainTitle />
               </div>
-              <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-              <!--
-                C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
-                Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
-                tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
-                Si un jour on a une solution tant mieux. Sinon, osef.
-              -->
-              <div class="p-2">
-                <div>
-                  <button
-                    :disabled="is_player_locked"
-                    @click="go_up"
-                  >
-                    &#x21e7;
-                  </button>
-                </div>
-                <div>
-                  <button
-                    :disabled="is_player_locked"
-                    @click="go_left"
-                  >
-                    &#x21e6;
-                  </button>
-                  <button
-                    :disabled="is_player_locked"
-                    @click="go_down"
-                  >
-                    &#x21e9;
-                  </button>
-                  <button
-                    :disabled="is_player_locked"
-                    @click="go_right"
-                  >
-                    &#x21e8;
-                  </button>
+            </div>
+            <div style="flex: 0 1 auto; text-align: right;">
+              <button @click="toggle_dev_zone_display">
+                Jeu en plein écran.
+              </button>
+            </div>
+            <div class="the_canvas" style=" flex: 1 1 auto;">
+              <div style="display: flex; height: 100%;">
+                <!-- quand c'est plus large que haut, faut que width = 100%. Quand c'est plus haut que large, faut les deux. Ou pas...-->
+                <div style="align-self: center; width: 100%; height: 100%" ref="canvas_container">
+                  <!-- quand c'est plus large que haut, faut width = 100%. Quand c'est plus haut que large, faut height=100%.
+                  Mais ça dépend pas de l'aire de jeu. Ça dépend de la putain de fenêtre
+                  Va falloir foutre du javascript sur les onresize. C'est de la merde, mais j'ai pas mieux.
+                  .-->
+                  <canvas
+                    v-show="loading_done"
+                    ref="game_canvas"
+                    style="height: 100%;"
+                  />
+                  <ProgressIndicator
+                    v-if="!loading_done"
+                    ref="progress_indicator"
+                  />
                 </div>
               </div>
-              <div class="p-2">
-                <div class="action_buttons">
-                  <button
-                    :disabled="is_player_locked"
-                    @click="action_1"
-                  >
-                    1
-                  </button>
-                  <button
-                    :disabled="is_player_locked"
-                    @click="action_2"
-                  >
-                    2
-                  </button>
+            </div>
+            <div class="game_footer" style="flex: 0 1 auto; margin-top: 5px;">
+              <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
+              <div
+                style="display: flex; flex-wrap: wrap-reverse;"
+              >
+                <div class="" style="flex: 2 1 auto;">
+                  <textarea
+                    id="python_console"
+                    ref="python_console"
+                    readonly
+                  />
+                </div>
+                <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+                <!--
+                  C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
+                  Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
+                  tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
+                  Si un jour on a une solution tant mieux. Sinon, osef.
+                -->
+                <div class="" style="flex: 1 1 auto; min-width: 10em;">
+                  <div style="display: flex; align-items: flex-end; justify-content: center;">
+                    <div style="flex: 1;" />
+                    <div style="">
+                      <button
+                        :disabled="is_player_locked"
+                        @click="go_left"
+                      >
+                        &#x21e6;
+                      </button>
+                    </div>
+                    <div style="display: flex; flex-flow: column;">
+                      <button
+                        :disabled="is_player_locked"
+                        @click="go_up"
+                      >
+                        &#x21e7;
+                      </button>
+                      <button
+                        :disabled="is_player_locked"
+                        @click="go_down"
+                      >
+                        &#x21e9;
+                      </button>
+                    </div>
+                    <div style="">
+                      <button
+                        :disabled="is_player_locked"
+                        @click="go_right"
+                      >
+                        &#x21e8;
+                      </button>
+                    </div>
+                    <div style="flex: 0.4;" />
+                    <div style="display: flex; flex-flow: column;">
+                      <button
+                        :disabled="is_player_locked"
+                        @click="action_1"
+                      >
+                        1
+                      </button>
+                      <button
+                        :disabled="is_player_locked"
+                        @click="action_2"
+                      >
+                        2
+                      </button>
+                    </div>
+                    <div style="flex: 1;" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </b-col>
-
-        <b-col
-          sm="12"
-          md="6"
-          lg="6"
-          xl="6"
-          :class="{ hidden: hide_code }"
-        >
-          <!--
-            C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
-            Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
-          -->
-          <div>
-            <DevZone
-              ref="dev_zone"
-              @update_game_spec="on_update_game_spec"
-            />
-          </div>
-        </b-col>
       </b-row>
-    </b-container>
-
-    <div class="footer">
-      Fonctionne grâce à Pyodide.
-      <a
-        href="https://github.com/darkrecher/squarity-code"
-        target="_blank"
-      >
-        Code source
-      </a>
-      et
-      <a
-        href="https://github.com/darkrecher/squarity-doc"
-        target="_blank"
-      >
-        documentation
-      </a>
-      sur github.
     </div>
   </div>
 </template>
 
 <script>
 
+import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 
@@ -189,6 +226,7 @@ const eventNameFromButton = {
 export default {
   name: 'GameBoard',
   components: {
+    MainTitle,
     DevZone,
     ProgressIndicator,
   },
@@ -220,15 +258,17 @@ export default {
     //
     // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
     // elem.clientHeight et elem.clientWidth.
-    canvasFinal.width = 640;
-    canvasFinal.height = 448;
+
+    canvasFinal.width = 640 / 1; // 640;
+    canvasFinal.height = 448 / 2; // 448;
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
-    this.canvas_buffer.width = 640;
-    this.canvas_buffer.height = 448;
+    this.canvas_buffer.width = 640 / 1; // 640;
+    this.canvas_buffer.height = 448 / 2; // 448;
     this.current_url_tileset = '';
     this.tile_width = 32;
     this.tile_height = 32;
+    this.canvas_display_mode = 'height';
     this.player_locks = [];
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
@@ -268,6 +308,11 @@ export default {
     // le message "update-game-spec" pour activer le jeu par défaut.
     // Tellement génial le javascript.
     this.$refs.dev_zone.fetch_game_spec_from_loc_hash();
+    window.addEventListener('resize', this.handleResize);
+  },
+
+  updated() {
+    this.handleResize();
   },
 
   destroyed() {
@@ -281,6 +326,7 @@ export default {
     if (elemGameInterface) {
       elemGameInterface.removeEventListener('keydown', this.on_key_down);
     }
+    window.removeEventListener('resize', this.handleResize);
   },
 
   methods: {
@@ -309,6 +355,39 @@ export default {
         throw err;
       }
       return resultPython;
+    },
+
+    handleResize() {
+      let tooLarge = false;
+      let tooHigh = false;
+      if (this.$refs.game_canvas.clientWidth >= this.$refs.canvas_container.clientWidth) {
+        console.log('Ça dépasse à droite.');
+        tooLarge = true;
+      }
+      // Les rituels magiques pourris de javascript et du CSS.
+      // (Bon, en fait j'en ai plus besoin. Mais je laisse le lien ici, car c'est marrant).
+      // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
+      if (this.$refs.game_interface.scrollHeight > window.innerHeight) {
+        console.log('Ça dépasse en bas, mode "small".');
+        tooHigh = true;
+      }
+
+      if (tooHigh && this.canvas_display_mode === 'large') {
+        console.log('on switche vers height');
+        this.canvas_display_mode = 'height';
+        // TODO : on foutra des classes, évidemment.
+        this.$refs.canvas_container.style = 'align-self: center; width: 100%; height: 100%';
+        this.$refs.game_canvas.style = 'height: 100%;';
+      } else if (tooLarge && this.canvas_display_mode === 'height') {
+        console.log('on switche vers large');
+        this.canvas_display_mode = 'large';
+        this.$refs.canvas_container.style = 'align-self: center; width: 100%;';
+        this.$refs.game_canvas.style = 'width: 100%;';
+      }
+      // TODO : si on est tooHigh et qu'on est déjà en mode height,
+      // ça veut dire que l'écran est vraiment trop petit.
+      // Dans ce cas, il faut redéfinir le style du canvas, en mettant carrément
+      // une hauteur en pixels. On le fera plus tard, car c'est vraiment le mode "catastrophe".
     },
 
     draw_rect() {
@@ -495,30 +574,70 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/*
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins/_breakpoints";
+*/
 
-  .game button {
-    width: 2em;
-    height: 2em;
+/*
+@media (max-width: 576px) {
+  .the_canvas {
+    background-color: green;
+  }
+}*/
+
+  /*
+  TODO : on est bien d'accord que c'est dégueux des media-query avec des nombres magiques.
+  Et on essaiera de faire mieux avec du putain de scss.
+  */
+  @media only screen and (max-width: 768px) {
+    .game_footer button {
+      height: 3em;
+      width: 3em;
+    }
+  }
+
+  @media only screen and (min-width: 768px) {
+    .game_footer button {
+      height: 4em;
+      width: 4em;
+    }
+  }
+
+  .game_interface {
+    /*
+    Faut jamais mettre 100vh. Au moindre pixel de trop,
+    ça fait une scroll bar verticale de merde.
+    #vive_les_magic_number_et_fuck_le_css
+    */
+    height: 96vh;
+  }
+
+  .game_footer button {
+    /*
+    height: 50%;
     background-color: #707070;
     font-size: 2em;
     font-weight: bold;
     border: 0;
     margin: 2px;
+    */
   }
-  .game button:hover {
+  .game_footer button:hover {
     background-color: #909090;
   }
-  .game button:active {
+  .game_footer button:active {
     background-color: #B0B0B0;
   }
   /* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */
-  .game button:focus {
+  .game_footer button:focus {
     outline: thin dotted;
   }
 
   canvas {
-    width: 100%;
-    height: 100%;
+    /*width: 100%;*/
+    /*height: 100%;*/
     border: 1px solid gray;
     image-rendering: pixelated;
   }
@@ -529,11 +648,11 @@ export default {
   }
 
   .game_board > div {
-    padding-bottom: 0.8em;
+    /*padding-bottom: 0.8em;*/
   }
 
   .action_buttons {
-    margin-top: 1.5em;
+    /*margin-top: 1.5em;*/
   }
 
   #python_console {
@@ -544,12 +663,11 @@ export default {
   textarea {
     background-color: #202020;
     color: #D0D0D0;
-    margin-bottom: 1em;
     font-size: 1.25em;
     font-family: monospace;
   }
 
-  .footer {
+  .dev_footer {
     font-size: 0.8em;
   }
 

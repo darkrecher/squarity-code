@@ -75,7 +75,8 @@ export default {
   .progress_indicator {
     background-color: #303030;
     color: #C0C0C0;
-    height: 640px;
+    /* TODO : c'est de la merde ça. */
+    height: 64px;
     padding: 1em;
   }
 

@@ -35,7 +35,7 @@ export default Object.freeze({
   `,
   MAGICIAN_GAME_CODE: `
 DATA_TILES_1 = [
-    "     701     70001  ",
+    "7    701     70001  ",
     "     682     68882  ",
     "     543     54443  ",
     "     VVV     WDdVV  ",

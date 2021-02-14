@@ -2,72 +2,76 @@
   <div
     ref="dev_zone"
     class="dev_zone"
+    style="display: flex; flex-flow: column; height: 100%; padding-left: 0.2em; padding-right: 2em;"
   >
-    <div class="social_links">
-      <a
-        href="https://discord.gg/D5SYnk8u3j"
-        target="_blank"
-      >
-        <img
-          class="discord"
-          src="../assets/discord.svg"
-          alt="Logo discord"
+    <div class="links_and_exemples" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+      <div>
+        <a
+          href="https://discord.gg/D5SYnk8u3j"
+          target="_blank"
         >
-      </a>
-      <a
-        href="https://mstdn.io/@recher"
-        target="_blank"
-      >
-        <img
-          class="mastodon"
-          src="../assets/mastodon.svg"
-          alt="Logo mastodon"
+          <img
+            class="discord"
+            src="../assets/discord.svg"
+            alt="Logo discord"
+          >
+        </a>
+      </div>
+      <div>
+        <a
+          href="https://mstdn.io/@recher"
+          target="_blank"
         >
-      </a>
+          <img
+            class="mastodon"
+            src="../assets/mastodon.svg"
+            alt="Logo mastodon"
+          >
+        </a>
+      </div>
+      <div class="game_examples">
+        <div style="display: flex;">
+          Exemples de jeu :
+          <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
+          <img
+            src="../assets/magicien_icon.png"
+            @click="example_magician"
+          >
+          <img
+            src="../assets/h2o_icon.png"
+            @click="example_h2o"
+          >
+        </div>
+      </div>
     </div>
-    <div class="game_examples">
-      Exemples de jeu :
-      <button @click="example_magician">
-        Le magicien
-      </button>
-      &nbsp;&nbsp;
-      <button @click="example_h2o">
-        Les aventures de H2O
-      </button>
-    </div>
-    <div>
-      Url de l'image tileset :
+    <div style="display: flex; border-top: 2px solid #C0C0C0; padding-top: 0.6em;">
+      Url de l'image :
       <input
         ref="url_tileset"
         type="text"
+        style="flex: 1 1 auto; margin-right: 0.6em;"
       >
+      <button @click="send_game_spec">
+        Exécuter &gt;
+      </button>
     </div>
-    <div>
+    <div style="text-align: left; margin-top: 0.6em;">
       Config du jeu (en JSON).
     </div>
-    <div>
+    <div style="flex: 1 1 auto;">
       <textarea
         ref="json_conf"
-        cols="100"
-        rows="8"
         spellcheck="false"
       />
     </div>
-    <div>
+    <div style="text-align: left; margin-top: 0.6em;">
       Le code du jeu (en python).
     </div>
-    <div>
+    <div style="flex: 3 1 auto;">
       <textarea
         ref="game_code"
-        cols="100"
-        rows="22"
         spellcheck="false"
       />
-    </div>
-    <div>
-      <button @click="send_game_spec">
-        &lt;&lt;&lt; Exécuter le jeu
-      </button>
     </div>
   </div>
 </template>
@@ -176,11 +180,11 @@ export default {
 </script>
 
 <style scoped>
-  .social_links {
-    padding-bottom: 0.2em;
+  .links_and_exemples {
+    /*padding-bottom: 0.2em;*/
   }
 
-  .social_links img {
+  .links_and_exemples img {
     padding-left: 0.3em;
     padding-right: 0.3em;
   }
@@ -198,10 +202,24 @@ export default {
 
   }
 
-  textarea {
+  .game_examples img {
+    background-color: #202020;
+    height: 2em;
+  }
+
+  input {
     background-color: #202020;
     color: #C0C0C0;
-    margin-bottom: 0.2em;
     font-family: monospace;
+    border: 1px solid #808080;
+  }
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    background-color: #202020;
+    color: #C0C0C0;
+    font-family: monospace;
+    border: 1px solid #808080;
   }
 </style>
