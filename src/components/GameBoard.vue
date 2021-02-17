@@ -15,8 +15,6 @@
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
-          <!-- TODO : C'est relou ce texte de notice, parce que quand il s'écrit sur 2 lignes,
-          il me crée une scrollbar de merde. Faut le virer et le mettre autrement.-->
           <div class="dev_notice">
             Fonctionne grâce à Pyodide.
             <a
@@ -59,7 +57,6 @@
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
         -->
-        <!-- TODO : faudra essayer de sortir toute l'interface du jeu dans un component à part. -->
         <div
           ref="game_interface"
           class="game_interface flex-column"
@@ -77,10 +74,6 @@
             ref="toggle_button"
             class="flex-grow-no text-right"
           >
-            <!--
-              TODO : Faut faire ça autrement. Un mini-bouton dans le coin haut-droit du canvas.
-              Qui s'affiche par-dessus. Comme ça on prend pas de la place pour rien.
-            -->
             <button @click="toggle_dev_zone_display">
               Jeu en plein écran.
             </button>
@@ -376,8 +369,6 @@ export default {
       const Wmargin = 10;
 
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
-      // TODO : peut-être qu'on pourra prendre directement la hauteur du bidule,
-      // plutôt que de faire ce calcul pourri.
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.game_footer.clientHeight;
       const Htitle = this.$refs.title_container.clientHeight;
@@ -398,16 +389,7 @@ export default {
         authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
         // console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
       }
-      // TODO : un watch dog. Retenir les 10 valeurs précédentes de toutes les Width et Height
-      // des éléments qu'on a récupérés. Si on a des doublons dans ces valeurs, ça veut dire
-      // que le resizing s'est foutu dans une boucle infinie de merde, dans lequel
-      // ce code déclenche un resizing, qui déclenche ce code, qui déclenche un resizing, etc.
-      // D'après mes tests, ça n'arrive pas. Mais bon, c'est du web, du javascript, du CSS...
 
-      // TODO : faudrait faire un calcul qui tue de façon à ce que la proportion reste exactement
-      // exacte. Avec des nombres entiers et tout ça.
-      // Actuellement, on déforme un tout petit peu les proportions de l'aire de jeu.
-      // Pour l'instant osef. Je laisse comme ça. J'en ai vraiment marre de cette merde.
       const correspHeight = authorizedWidth * ratioFromWidthToHeight;
       let finalHeight = 0;
       let finalWidth = 0;
@@ -643,10 +625,6 @@ export default {
     align-self: center;
   }
 
-  /*
-    TODO : on est bien d'accord que c'est dégueux des media-query avec des nombres magiques.
-    Et on essaiera de faire mieux avec du putain de scss.
-  */
   @media only screen and (max-width: 768px) {
     .game_footer button {
       height: 2em;
