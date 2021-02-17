@@ -75,34 +75,26 @@
           </div>
           <div
             ref="toggle_button"
-            class="flex-grow-no"
-            style="text-align: right;"
+            class="flex-grow-no text-right"
           >
+            <!--
+              TODO : Faut faire ça autrement. Un mini-bouton dans le coin haut-droit du canvas.
+              Qui s'affiche par-dessus. Comme ça on prend pas de la place pour rien.
+            -->
             <button @click="toggle_dev_zone_display">
               Jeu en plein écran.
             </button>
           </div>
           <div class="the_canvas flex-grow">
-            <div
-              ref="canvas_super_container"
-              style="display: flex; height: 100%;"
-            >
-              <div
-                ref="canvas_container"
-                style="align-self: center; width: 100%; background-color: darkred;"
-                class=""
-              >
-                <!--:class="[canvas_display_mode === 'height' ? 'h-100' : '']" -->
-                <!-- https://stackoverflow.com/questions/49481913/vue-js-bind-to-a-class-according-to-a-condition -->
+            <div class="flex-line h-100">
+              <div class="flex-child-center w-100">
                 <canvas
                   v-show="loading_done"
                   ref="game_canvas"
                 />
-                <!-- :class="[canvas_display_mode === 'height' ? 'h-100' : 'w-100']" -->
                 <ProgressIndicator
                   v-if="!loading_done"
                   ref="progress_indicator"
-                  style="display: none;"
                 />
               </div>
             </div>
@@ -110,12 +102,9 @@
           <div
             ref="game_footer"
             class="game_footer flex-grow-no"
-            style="margin-top: 5px;"
           >
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
-            <div
-              style="display: flex; flex-wrap: wrap-reverse;"
-            >
+            <div>
               <div class="flex-grow-2">
                 <textarea
                   id="python_console"
@@ -130,8 +119,8 @@
                 tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
                 Si un jour on a une solution tant mieux. Sinon, osef.
               -->
-              <div class="flex-grow" style="min-width: 10em;">
-                <div style="display: flex; align-items: flex-end; justify-content: center;">
+              <div class="flex-grow game_buttons">
+                <div>
                   <div class="flex-grow" />
                   <div>
                     <button
@@ -155,7 +144,7 @@
                       &#x21e9;
                     </button>
                   </div>
-                  <div style="">
+                  <div>
                     <button
                       :disabled="is_player_locked"
                       @click="go_right"
@@ -248,7 +237,6 @@ export default {
       loading_done: false,
       hide_code: false,
       is_player_locked: false,
-      canvas_display_mode: 'height',
     };
   },
 
@@ -271,12 +259,12 @@ export default {
     // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
     // elem.clientHeight et elem.clientWidth.
 
-    canvasFinal.width = 640 / 1; // 640; TODO provisoire truc machin.
-    canvasFinal.height = 448 / 1; // 448;
+    canvasFinal.width = 640;
+    canvasFinal.height = 448;
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
-    this.canvas_buffer.width = 640 / 1; // 640;
-    this.canvas_buffer.height = 448 / 1; // 448;
+    this.canvas_buffer.width = 640;
+    this.canvas_buffer.height = 448;
 
     this.current_url_tileset = '';
     this.tile_width = 32;
@@ -370,44 +358,24 @@ export default {
     },
 
     handleResize() {
-      // Avertissement : c'est dégueulasse de faire comme ça,
+      // AVERTISSEMENT : c'est dégueulasse de faire comme ça,
       // mais j'ai pas trouvé de meilleure solution.
       // J'ai essayé en mettant des bouts de CSS de partout, des flex, des height 100%, etc.
       // Ça me pétait à la gueule à chaque fois.
       // Je hais le design de page web, je hais le CSS, putain de langague de zouzou !!
-
-      /*
-
-                TODO : faudra expliquer ça mieux.
-                Et peut-être pas ici.
-                quand c'est plus large que haut, faut que width = 100%.
-                Quand c'est plus haut que large, faut les deux. Ou pas...
-                <!-- quand c'est plus large que haut, faut width = 100%.
-                Quand c'est plus haut que large, faut height=100%.
-                Mais ça dépend pas de l'aire de jeu. Ça dépend de la putain de fenêtre
-                Va falloir foutre du javascript sur les onresize.
-                C'est de la merde, mais j'ai pas mieux.
-      */
-      /*
-      console.log('this.$refs.canvas_super_container.scrollHeight');
-      console.log(this.$refs.canvas_super_container.scrollHeight);
-      console.log('this.$refs.canvas_container.scrollHeight');
-      console.log(this.$refs.canvas_container.scrollHeight);
-      console.log('this.$refs.canvas_container.scrollWidth');
-      console.log(this.$refs.canvas_container.scrollWidth);
-      */
 
       // Ça, ce sera différent selon la conf du jeu.
       // Mais c'est une valeur qu'on connait tout le temps.
       const ratioFromWidthToHeight = 448 / 640;
 
       // https://stackoverflow.com/questions/8339377/how-to-get-screen-width-without-minus-scrollbar
+      // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
       const Wscreen = window.innerWidth;
       const Wbody = document.body.clientWidth;
       const WleftCol = this.$refs.left_column.clientWidth;
       const Wmargin = 10;
 
-      // nombre magique 96% à cause du 96vh que j'ai mis je-sais-plus-où.
+      // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       // TODO : peut-être qu'on pourra prendre directement la hauteur du bidule,
       // plutôt que de faire ce calcul pourri.
       const Hscreen = window.innerHeight * (96 / 100);
@@ -416,23 +384,29 @@ export default {
       const HtoggleButton = this.$refs.toggle_button.clientHeight;
       const Hmargin = 10;
 
-      // Linter de merde, qui m'oblige à fiare ça.
+      // Linter de merde, qui m'oblige à faire ça.
       let authorizedWidth = 0;
       let authorizedHeight = 0;
       if (Wscreen < 768) {
-        // On ne retire pas la colonne de gauche pour calculer la largeur autorisée.
+        // On soustrait pas la largeur de la colonne de gauche pour calculer la largeur autorisée,
         // car avec le super responsive design, cette colonne est en bas.
         authorizedWidth = Wbody - Wmargin;
         authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+        // console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
       } else {
         authorizedWidth = Wbody - WleftCol - Wmargin;
         authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+        // console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
       }
+      // TODO : un watch dog. Retenir les 10 valeurs précédentes de toutes les Width et Height
+      // des éléments qu'on a récupérés. Si on a des doublons dans ces valeurs, ça veut dire
+      // que le resizing s'est foutu dans une boucle infinie de merde, dans lequel
+      // ce code déclenche un resizing, qui déclenche ce code, qui déclenche un resizing, etc.
+      // D'après mes tests, ça n'arrive pas. Mais bon, c'est du web, du javascript, du CSS...
 
       // TODO : faudrait faire un calcul qui tue de façon à ce que la proportion reste exactement
-      // exacte. Sinon ça risque de déformer un tout petit peu l'aire de jeu.
+      // exacte. Avec des nombres entiers et tout ça.
+      // Actuellement, on déforme un tout petit peu les proportions de l'aire de jeu.
       // Pour l'instant osef. Je laisse comme ça. J'en ai vraiment marre de cette merde.
       const correspHeight = authorizedWidth * ratioFromWidthToHeight;
       let finalHeight = 0;
@@ -448,51 +422,6 @@ export default {
       }
 
       this.$refs.game_canvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
-
-      // console.log('screenHeight', screenHeight);
-      // console.log('footerHeight', footerHeight);
-      // Ça, il semblerait que ça marche.
-      // this.$refs.game_canvas.style = `height: ${screenHeight - footerHeight - 30}px;`;
-
-      // this.$refs.game_canvas.style = `height: ${this.$refs.canvas_container.clientHeight}px;`;
-      // this.$refs.canvas_container.scrollHeight - 8;
-
-      /*
-      const zutW = this.$refs.canvas_container.scrollWidth;
-      const zutH = this.$refs.canvas_container.scrollHeight; // TODO
-      if (zutH >= this.$refs.canvas_super_container.scrollHeight && zutW <= 640) {
-        console.log('c est le bazar. On fait rien.');
-        return;
-      }
-
-      let tooLarge = false;
-      let tooHigh = false;
-      if (this.$refs.game_canvas.clientWidth >= this.$refs.canvas_container.clientWidth) {
-        // Ça dépasse à droite.
-        console.log('tooLarge');
-        tooLarge = true;
-      }
-      // Les rituels magiques pourris de javascript et du CSS.
-      // (Bon, en fait j'en ai plus besoin. Mais je laisse le lien ici, car c'est marrant).
-      // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
-      if (this.$refs.game_interface.scrollHeight > window.innerHeight) {
-        // Ça dépasse en bas.
-        console.log('tooHigh');
-        tooHigh = true;
-      }
-
-      if (tooHigh && this.canvas_display_mode === 'large') {
-        // On switche vers height.
-        this.canvas_display_mode = 'height';
-      } else if (tooLarge && this.canvas_display_mode === 'height') {
-        // On switche vers large.
-        this.canvas_display_mode = 'large';
-      }
-      */
-      // TODO : si on est tooHigh et qu'on est déjà en mode height,
-      // ça veut dire que l'écran est vraiment trop petit.
-      // Dans ce cas, il faut redéfinir le style du canvas, en mettant carrément
-      // une hauteur en pixels. On le fera plus tard, car c'est vraiment le mode "catastrophe".
     },
 
     draw_rect() {
@@ -684,6 +613,9 @@ export default {
     display: flex;
     flex-flow: column;
   }
+  .flex-line {
+    display: flex;
+  }
   /*
     C'est sûrement pas comme ça qu'il faudrait faire ces trucs.
     J'ai aucune idée des bonnes pratiques en CSS.
@@ -696,31 +628,24 @@ export default {
   .flex-grow-no {
     flex: 0 1 auto;
   }
-
   .flex-grow-2 {
     flex: 2 1 auto;
   }
-
   .flex-grow-04 {
     flex: 0.4 1 auto;
   }
 
-/*
-@import "node_modules/bootstrap/scss/functions";
-@import "node_modules/bootstrap/scss/variables";
-@import "node_modules/bootstrap/scss/mixins/_breakpoints";
-*/
-
-/*
-@media (max-width: 576px) {
-  .the_canvas {
-    background-color: green;
+  .text-right {
+    text-align: right;
   }
-}*/
+
+  .flex-child-center {
+    align-self: center;
+  }
 
   /*
-  TODO : on est bien d'accord que c'est dégueux des media-query avec des nombres magiques.
-  Et on essaiera de faire mieux avec du putain de scss.
+    TODO : on est bien d'accord que c'est dégueux des media-query avec des nombres magiques.
+    Et on essaiera de faire mieux avec du putain de scss.
   */
   @media only screen and (max-width: 768px) {
     .game_footer button {
@@ -743,16 +668,23 @@ export default {
 
   .game_interface {
     /*
-    Faut jamais mettre 100vh. Au moindre pixel de trop,
-    ça fait une scroll bar verticale de merde.
-    #vive_les_magic_number_et_fuck_le_css
+      Faut jamais mettre 100vh. Au moindre pixel de trop,
+      ça fait une scroll bar verticale de merde.
+      hashtag-vive_les_magic_number_et_fuck_le_css
     */
     height: 96vh;
   }
 
+  .game_footer {
+    margin-top: 5px;
+  }
+  .game_footer > div {
+    display: flex;
+    flex-wrap: wrap-reverse;
+  }
+
   .game_footer button {
     background-color: #707070;
-    /*font-size: 2em;*/
     font-weight: bold;
     border: 0;
     margin: 2px;
@@ -769,9 +701,16 @@ export default {
     outline: thin dotted;
   }
 
+  div.game_buttons {
+    min-width: 10em;
+  }
+  div.game_buttons > div {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
   canvas {
-    /*width: 100%;*/
-    /*height: 100%;*/
     border: 1px solid gray;
     image-rendering: pixelated;
   }
@@ -779,14 +718,6 @@ export default {
   div.hidden {
     width: 0%;
     display: none;
-  }
-
-  .game_board > div {
-    /*padding-bottom: 0.8em;*/
-  }
-
-  .action_buttons {
-    /*margin-top: 1.5em;*/
   }
 
   #python_console {
