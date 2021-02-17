@@ -2,9 +2,8 @@
   <div
     ref="dev_zone"
     class="dev_zone"
-    style="display: flex; flex-flow: column; height: 100%; padding-left: 0.2em; padding-right: 2em;"
   >
-    <div class="links_and_exemples" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+    <div class="links_and_exemples">
       <div>
         <a
           href="https://discord.gg/D5SYnk8u3j"
@@ -30,7 +29,7 @@
         </a>
       </div>
       <div class="game_examples">
-        <div style="display: flex;">
+        <div>
           Exemples de jeu :
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
           <img
@@ -44,30 +43,29 @@
         </div>
       </div>
     </div>
-    <div style="display: flex; border-top: 2px solid #C0C0C0; padding-top: 0.6em;">
+    <div class="dev_field_url">
       Url de l'image :
       <input
         ref="url_tileset"
         type="text"
-        style="flex: 1 1 auto; margin-right: 0.6em;"
       >
       <button @click="send_game_spec">
-        Exécuter &gt;
+        Exécuter &#x25B6;
       </button>
     </div>
-    <div style="text-align: left; margin-top: 0.6em;">
+    <div class="dev_field_label">
       Config du jeu (en JSON).
     </div>
-    <div style="flex: 1 1 auto;">
+    <div class="dev_field_json">
       <textarea
         ref="json_conf"
         spellcheck="false"
       />
     </div>
-    <div style="text-align: left; margin-top: 0.6em;">
+    <div class="dev_field_label">
       Le code du jeu (en python).
     </div>
-    <div style="flex: 3 1 auto;">
+    <div class="dev_field_python">
       <textarea
         ref="game_code"
         spellcheck="false"
@@ -180,8 +178,19 @@ export default {
 </script>
 
 <style scoped>
+  .dev_zone {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-left: 0.2em;
+    padding-right: 2em;
+  }
+
   .links_and_exemples {
-    /*padding-bottom: 0.2em;*/
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
   }
 
   .links_and_exemples img {
@@ -199,19 +208,51 @@ export default {
 
   .game_examples {
     padding-bottom: 0.8em;
+  }
 
+  .game_examples div {
+    display: flex;
+    align-items: center;
   }
 
   .game_examples img {
-    background-color: #202020;
-    height: 2em;
+    background-color: #505050;
+    border: 1px solid #A0A0A0;
+    height: 3em;
+    padding: 0.3em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    cursor: pointer;
+  }
+  .game_examples img:hover {
+    background-color: #909090;
   }
 
-  input {
+  .dev_field_url {
+    display: flex;
+    border-top: 2px solid #C0C0C0;
+    padding-top: 0.6em;
+  }
+
+  .dev_field_url input {
     background-color: #202020;
     color: #C0C0C0;
     font-family: monospace;
     border: 1px solid #808080;
+    flex: 1 1 auto;
+    margin-right: 0.6em;
+  }
+
+  .dev_field_label {
+    text-align: left;
+    margin-top: 0.6em;
+  }
+
+  .dev_field_python {
+    flex: 3 1 auto;
+  }
+  .dev_field_json {
+    flex: 1 1 auto;
   }
 
   textarea {

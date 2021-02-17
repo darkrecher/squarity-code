@@ -1,181 +1,191 @@
 <template>
-  <div
-    class="game_board"
-    not_the_style="background-color: darkgray; height: 100vh;"
-  >
-    <div>
-    <!--<b-container
-      class="h-100"
-      fluid
-    >-->
-      <!-- https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding -->
-      <b-row class="h-100 no-gutters">
-        <b-col
-          sm="12"
-          md="6"
-          order="2"
-          order-sm="2"
-          order-md="1"
-          :class="{ hidden: hide_code }"
+  <div class="game_board">
+    <!-- https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding -->
+    <b-row class="h-100 no-gutters">
+      <b-col
+        ref="left_column"
+        sm="12"
+        md="6"
+        order="2"
+        order-sm="2"
+        order-md="1"
+        :class="{ hidden: hide_code }"
+      >
+        <div class="flex-column h-100">
+          <div class="d-none d-sm-none d-md-block">
+            <MainTitle />
+          </div>
+          <!-- TODO : C'est relou ce texte de notice, parce que quand il s'écrit sur 2 lignes,
+          il me crée une scrollbar de merde. Faut le virer et le mettre autrement.-->
+          <div class="dev_notice">
+            Fonctionne grâce à Pyodide.
+            <a
+              href="https://github.com/darkrecher/squarity-code"
+              target="_blank"
+            >
+              Code source
+            </a>
+            et
+            <a
+              href="https://github.com/darkrecher/squarity-doc"
+              target="_blank"
+            >
+              documentation
+            </a>
+            sur github.
+          </div>
+          <div class="flex-grow">
+            <!--
+              C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
+              Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
+            -->
+            <div class="h-100">
+              <DevZone
+                ref="dev_zone"
+                @update_game_spec="on_update_game_spec"
+              />
+            </div>
+          </div>
+        </div>
+      </b-col>
+      <b-col
+        sm="12"
+        :md="hide_code ? 12 : 6"
+        order="1"
+        order-sm="1"
+        order-md="2"
+      >
+        <!--
+          Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
+          https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
+        -->
+        <!-- TODO : faudra essayer de sortir toute l'interface du jeu dans un component à part. -->
+        <div
+          ref="game_interface"
+          class="game_interface flex-column"
+          tabindex="0"
         >
-          <div style="display: flex; flex-flow: column; height: 100%;">
-            <div class="d-none d-sm-none d-md-block">
+          <div
+            ref="title_container"
+            class="d-block d-sm-block d-md-none"
+          >
+            <div :class="{ hidden: hide_code }">
               <MainTitle />
             </div>
-            <div style="flex: 1 1 auto;">
-              <!--
-                C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
-                Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
-              -->
-              <div style="height: 100%;">
-                <DevZone
-                  ref="dev_zone"
-                  @update_game_spec="on_update_game_spec"
+          </div>
+          <div
+            ref="toggle_button"
+            class="flex-grow-no"
+            style="text-align: right;"
+          >
+            <button @click="toggle_dev_zone_display">
+              Jeu en plein écran.
+            </button>
+          </div>
+          <div class="the_canvas flex-grow">
+            <div
+              ref="canvas_super_container"
+              style="display: flex; height: 100%;"
+            >
+              <div
+                ref="canvas_container"
+                style="align-self: center; width: 100%; background-color: darkred;"
+                class=""
+              >
+                <!--:class="[canvas_display_mode === 'height' ? 'h-100' : '']" -->
+                <!-- https://stackoverflow.com/questions/49481913/vue-js-bind-to-a-class-according-to-a-condition -->
+                <canvas
+                  v-show="loading_done"
+                  ref="game_canvas"
+                />
+                <!-- :class="[canvas_display_mode === 'height' ? 'h-100' : 'w-100']" -->
+                <ProgressIndicator
+                  v-if="!loading_done"
+                  ref="progress_indicator"
+                  style="display: none;"
                 />
               </div>
-              <div class="dev_footer">
-                Fonctionne grâce à Pyodide.
-                <a
-                  href="https://github.com/darkrecher/squarity-code"
-                  target="_blank"
-                >
-                  Code source
-                </a>
-                et
-                <a
-                  href="https://github.com/darkrecher/squarity-doc"
-                  target="_blank"
-                >
-                  documentation
-                </a>
-                sur github.
-              </div>
             </div>
           </div>
-        </b-col>
-        <b-col
-          sm="12"
-          :md="hide_code ? 12 : 6"
-          order="1"
-          order-sm="1"
-          order-md="2"
-        >
-          <!--
-            Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
-            https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
-          -->
           <div
-            class="game_interface"
-            style="display: flex; flex-flow: column;"
-            ref="game_interface"
-            tabindex="0"
+            ref="game_footer"
+            class="game_footer flex-grow-no"
+            style="margin-top: 5px;"
           >
-            <div class="d-block d-sm-block d-md-none">
-              <div :class="{ hidden: hide_code }">
-                <MainTitle />
+            <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
+            <div
+              style="display: flex; flex-wrap: wrap-reverse;"
+            >
+              <div class="flex-grow-2">
+                <textarea
+                  id="python_console"
+                  ref="python_console"
+                  readonly
+                />
               </div>
-            </div>
-            <div style="flex: 0 1 auto; text-align: right;">
-              <button @click="toggle_dev_zone_display">
-                Jeu en plein écran.
-              </button>
-            </div>
-            <div class="the_canvas" style=" flex: 1 1 auto;">
-              <div style="display: flex; height: 100%;">
-                <!-- quand c'est plus large que haut, faut que width = 100%. Quand c'est plus haut que large, faut les deux. Ou pas...-->
-                <div style="align-self: center; width: 100%; height: 100%" ref="canvas_container">
-                  <!-- quand c'est plus large que haut, faut width = 100%. Quand c'est plus haut que large, faut height=100%.
-                  Mais ça dépend pas de l'aire de jeu. Ça dépend de la putain de fenêtre
-                  Va falloir foutre du javascript sur les onresize. C'est de la merde, mais j'ai pas mieux.
-                  .-->
-                  <canvas
-                    v-show="loading_done"
-                    ref="game_canvas"
-                    style="height: 100%;"
-                  />
-                  <ProgressIndicator
-                    v-if="!loading_done"
-                    ref="progress_indicator"
-                  />
-                </div>
-              </div>
-            </div>
-            <div class="game_footer" style="flex: 0 1 auto; margin-top: 5px;">
-              <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
-              <div
-                style="display: flex; flex-wrap: wrap-reverse;"
-              >
-                <div class="" style="flex: 2 1 auto;">
-                  <textarea
-                    id="python_console"
-                    ref="python_console"
-                    readonly
-                  />
-                </div>
-                <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
-                <!--
-                  C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
-                  Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
-                  tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
-                  Si un jour on a une solution tant mieux. Sinon, osef.
-                -->
-                <div class="" style="flex: 1 1 auto; min-width: 10em;">
-                  <div style="display: flex; align-items: flex-end; justify-content: center;">
-                    <div style="flex: 1;" />
-                    <div style="">
-                      <button
-                        :disabled="is_player_locked"
-                        @click="go_left"
-                      >
-                        &#x21e6;
-                      </button>
-                    </div>
-                    <div style="display: flex; flex-flow: column;">
-                      <button
-                        :disabled="is_player_locked"
-                        @click="go_up"
-                      >
-                        &#x21e7;
-                      </button>
-                      <button
-                        :disabled="is_player_locked"
-                        @click="go_down"
-                      >
-                        &#x21e9;
-                      </button>
-                    </div>
-                    <div style="">
-                      <button
-                        :disabled="is_player_locked"
-                        @click="go_right"
-                      >
-                        &#x21e8;
-                      </button>
-                    </div>
-                    <div style="flex: 0.4;" />
-                    <div style="display: flex; flex-flow: column;">
-                      <button
-                        :disabled="is_player_locked"
-                        @click="action_1"
-                      >
-                        1
-                      </button>
-                      <button
-                        :disabled="is_player_locked"
-                        @click="action_2"
-                      >
-                        2
-                      </button>
-                    </div>
-                    <div style="flex: 1;" />
+              <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
+              <!--
+                C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
+                Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
+                tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
+                Si un jour on a une solution tant mieux. Sinon, osef.
+              -->
+              <div class="flex-grow" style="min-width: 10em;">
+                <div style="display: flex; align-items: flex-end; justify-content: center;">
+                  <div class="flex-grow" />
+                  <div>
+                    <button
+                      :disabled="is_player_locked"
+                      @click="go_left"
+                    >
+                      &#x21e6;
+                    </button>
                   </div>
+                  <div class="flex-column">
+                    <button
+                      :disabled="is_player_locked"
+                      @click="go_up"
+                    >
+                      &#x21e7;
+                    </button>
+                    <button
+                      :disabled="is_player_locked"
+                      @click="go_down"
+                    >
+                      &#x21e9;
+                    </button>
+                  </div>
+                  <div style="">
+                    <button
+                      :disabled="is_player_locked"
+                      @click="go_right"
+                    >
+                      &#x21e8;
+                    </button>
+                  </div>
+                  <div class="flex-grow-04" />
+                  <div class="flex-column">
+                    <button
+                      :disabled="is_player_locked"
+                      @click="action_1"
+                    >
+                      1
+                    </button>
+                    <button
+                      :disabled="is_player_locked"
+                      @click="action_2"
+                    >
+                      2
+                    </button>
+                  </div>
+                  <div class="flex-grow" />
                 </div>
               </div>
             </div>
           </div>
-        </b-col>
-      </b-row>
-    </div>
+        </div>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -238,6 +248,7 @@ export default {
       loading_done: false,
       hide_code: false,
       is_player_locked: false,
+      canvas_display_mode: 'height',
     };
   },
 
@@ -247,6 +258,7 @@ export default {
   async mounted() {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
+
     const canvasFinal = this.$refs.game_canvas;
     this.ctx_canvas_final = canvasFinal.getContext('2d');
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
@@ -259,16 +271,16 @@ export default {
     // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
     // elem.clientHeight et elem.clientWidth.
 
-    canvasFinal.width = 640 / 1; // 640;
-    canvasFinal.height = 448 / 2; // 448;
+    canvasFinal.width = 640 / 1; // 640; TODO provisoire truc machin.
+    canvasFinal.height = 448 / 1; // 448;
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
     this.canvas_buffer.width = 640 / 1; // 640;
-    this.canvas_buffer.height = 448 / 2; // 448;
+    this.canvas_buffer.height = 448 / 1; // 448;
+
     this.current_url_tileset = '';
     this.tile_width = 32;
     this.tile_height = 32;
-    this.canvas_display_mode = 'height';
     this.player_locks = [];
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
@@ -358,32 +370,125 @@ export default {
     },
 
     handleResize() {
+      // Avertissement : c'est dégueulasse de faire comme ça,
+      // mais j'ai pas trouvé de meilleure solution.
+      // J'ai essayé en mettant des bouts de CSS de partout, des flex, des height 100%, etc.
+      // Ça me pétait à la gueule à chaque fois.
+      // Je hais le design de page web, je hais le CSS, putain de langague de zouzou !!
+
+      /*
+
+                TODO : faudra expliquer ça mieux.
+                Et peut-être pas ici.
+                quand c'est plus large que haut, faut que width = 100%.
+                Quand c'est plus haut que large, faut les deux. Ou pas...
+                <!-- quand c'est plus large que haut, faut width = 100%.
+                Quand c'est plus haut que large, faut height=100%.
+                Mais ça dépend pas de l'aire de jeu. Ça dépend de la putain de fenêtre
+                Va falloir foutre du javascript sur les onresize.
+                C'est de la merde, mais j'ai pas mieux.
+      */
+      /*
+      console.log('this.$refs.canvas_super_container.scrollHeight');
+      console.log(this.$refs.canvas_super_container.scrollHeight);
+      console.log('this.$refs.canvas_container.scrollHeight');
+      console.log(this.$refs.canvas_container.scrollHeight);
+      console.log('this.$refs.canvas_container.scrollWidth');
+      console.log(this.$refs.canvas_container.scrollWidth);
+      */
+
+      // Ça, ce sera différent selon la conf du jeu.
+      // Mais c'est une valeur qu'on connait tout le temps.
+      const ratioFromWidthToHeight = 448 / 640;
+
+      // https://stackoverflow.com/questions/8339377/how-to-get-screen-width-without-minus-scrollbar
+      const Wscreen = window.innerWidth;
+      const Wbody = document.body.clientWidth;
+      const WleftCol = this.$refs.left_column.clientWidth;
+      const Wmargin = 10;
+
+      // nombre magique 96% à cause du 96vh que j'ai mis je-sais-plus-où.
+      // TODO : peut-être qu'on pourra prendre directement la hauteur du bidule,
+      // plutôt que de faire ce calcul pourri.
+      const Hscreen = window.innerHeight * (96 / 100);
+      const Hfooter = this.$refs.game_footer.clientHeight;
+      const Htitle = this.$refs.title_container.clientHeight;
+      const HtoggleButton = this.$refs.toggle_button.clientHeight;
+      const Hmargin = 10;
+
+      // Linter de merde, qui m'oblige à fiare ça.
+      let authorizedWidth = 0;
+      let authorizedHeight = 0;
+      if (Wscreen < 768) {
+        // On ne retire pas la colonne de gauche pour calculer la largeur autorisée.
+        // car avec le super responsive design, cette colonne est en bas.
+        authorizedWidth = Wbody - Wmargin;
+        authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
+        console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+      } else {
+        authorizedWidth = Wbody - WleftCol - Wmargin;
+        authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
+        console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+      }
+
+      // TODO : faudrait faire un calcul qui tue de façon à ce que la proportion reste exactement
+      // exacte. Sinon ça risque de déformer un tout petit peu l'aire de jeu.
+      // Pour l'instant osef. Je laisse comme ça. J'en ai vraiment marre de cette merde.
+      const correspHeight = authorizedWidth * ratioFromWidthToHeight;
+      let finalHeight = 0;
+      let finalWidth = 0;
+      if (correspHeight < authorizedHeight) {
+        // On peut s'étendre en haut et en bas, mais pas sur les côtés.
+        finalHeight = Math.floor(correspHeight);
+        finalWidth = Math.floor(authorizedWidth);
+      } else {
+        // On peut s'étendre à gauche à droite, mais pas en haut en bas.
+        finalHeight = Math.floor(authorizedHeight);
+        finalWidth = Math.floor(authorizedHeight / ratioFromWidthToHeight);
+      }
+
+      this.$refs.game_canvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
+
+      // console.log('screenHeight', screenHeight);
+      // console.log('footerHeight', footerHeight);
+      // Ça, il semblerait que ça marche.
+      // this.$refs.game_canvas.style = `height: ${screenHeight - footerHeight - 30}px;`;
+
+      // this.$refs.game_canvas.style = `height: ${this.$refs.canvas_container.clientHeight}px;`;
+      // this.$refs.canvas_container.scrollHeight - 8;
+
+      /*
+      const zutW = this.$refs.canvas_container.scrollWidth;
+      const zutH = this.$refs.canvas_container.scrollHeight; // TODO
+      if (zutH >= this.$refs.canvas_super_container.scrollHeight && zutW <= 640) {
+        console.log('c est le bazar. On fait rien.');
+        return;
+      }
+
       let tooLarge = false;
       let tooHigh = false;
       if (this.$refs.game_canvas.clientWidth >= this.$refs.canvas_container.clientWidth) {
-        console.log('Ça dépasse à droite.');
+        // Ça dépasse à droite.
+        console.log('tooLarge');
         tooLarge = true;
       }
       // Les rituels magiques pourris de javascript et du CSS.
       // (Bon, en fait j'en ai plus besoin. Mais je laisse le lien ici, car c'est marrant).
       // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
       if (this.$refs.game_interface.scrollHeight > window.innerHeight) {
-        console.log('Ça dépasse en bas, mode "small".');
+        // Ça dépasse en bas.
+        console.log('tooHigh');
         tooHigh = true;
       }
 
       if (tooHigh && this.canvas_display_mode === 'large') {
-        console.log('on switche vers height');
+        // On switche vers height.
         this.canvas_display_mode = 'height';
-        // TODO : on foutra des classes, évidemment.
-        this.$refs.canvas_container.style = 'align-self: center; width: 100%; height: 100%';
-        this.$refs.game_canvas.style = 'height: 100%;';
       } else if (tooLarge && this.canvas_display_mode === 'height') {
-        console.log('on switche vers large');
+        // On switche vers large.
         this.canvas_display_mode = 'large';
-        this.$refs.canvas_container.style = 'align-self: center; width: 100%;';
-        this.$refs.game_canvas.style = 'width: 100%;';
       }
+      */
       // TODO : si on est tooHigh et qu'on est déjà en mode height,
       // ça veut dire que l'écran est vraiment trop petit.
       // Dans ce cas, il faut redéfinir le style du canvas, en mettant carrément
@@ -574,6 +679,32 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+  .flex-column {
+    display: flex;
+    flex-flow: column;
+  }
+  /*
+    C'est sûrement pas comme ça qu'il faudrait faire ces trucs.
+    J'ai aucune idée des bonnes pratiques en CSS.
+    De toutes façons c'est tellement un truc de hippie qu'il peut pas vraiment
+    y avoir de bonnes pratiques là-dedans.
+  */
+  .flex-grow {
+    flex: 1 1 auto;
+  }
+  .flex-grow-no {
+    flex: 0 1 auto;
+  }
+
+  .flex-grow-2 {
+    flex: 2 1 auto;
+  }
+
+  .flex-grow-04 {
+    flex: 0.4 1 auto;
+  }
+
 /*
 @import "node_modules/bootstrap/scss/functions";
 @import "node_modules/bootstrap/scss/variables";
@@ -593,15 +724,20 @@ export default {
   */
   @media only screen and (max-width: 768px) {
     .game_footer button {
-      height: 3em;
-      width: 3em;
+      height: 2em;
+      width: 2em;
+      font-size: 1.5em;
+    }
+    .dev_notice {
+      margin-top: 1em;
     }
   }
 
   @media only screen and (min-width: 768px) {
     .game_footer button {
-      height: 4em;
-      width: 4em;
+      height: 2em;
+      width: 2em;
+      font-size: 2em;
     }
   }
 
@@ -615,14 +751,12 @@ export default {
   }
 
   .game_footer button {
-    /*
-    height: 50%;
     background-color: #707070;
-    font-size: 2em;
+    /*font-size: 2em;*/
     font-weight: bold;
     border: 0;
     margin: 2px;
-    */
+    padding: 0;
   }
   .game_footer button:hover {
     background-color: #909090;
@@ -667,7 +801,7 @@ export default {
     font-family: monospace;
   }
 
-  .dev_footer {
+  .dev_notice {
     font-size: 0.8em;
   }
 

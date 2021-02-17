@@ -75,8 +75,6 @@ export default {
   .progress_indicator {
     background-color: #303030;
     color: #C0C0C0;
-    /* TODO : c'est de la merde ça. */
-    height: 64px;
     padding: 1em;
   }
 
@@ -94,7 +92,7 @@ export default {
   .sk_cube_grid {
     width: 40px;
     height: 40px;
-    margin: 100px auto;
+    margin: 1em auto;
   }
 
   /* Cette superbe anim s'affiche mal de manière aléatoire.
