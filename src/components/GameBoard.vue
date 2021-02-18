@@ -419,13 +419,9 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-      const boardSize = this.run_python(
-        'board_model.get_size()',
-        'Récupération de la taille du Board.',
-      );
-      const [boardWidth, boardHeight] = boardSize;
+      const [boardWidth, boardHeight] = [20, 14];
       const tilesData = this.run_python(
-        'board_model.export_all_tiles()',
+        'game_model.export_all_tiles()',
         'Récupération des tiles pour les dessiner',
       );
 
@@ -434,7 +430,7 @@ export default {
           const tileData = tilesData[y][x];
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
-            const [coordImgX, coordImgY] = this.tile_coords[gameObject];
+            const [coordImgX, coordImgY] = this.img_coords[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
               coordImgX, coordImgY, this.tilesize_tileset, this.tilesize_tileset,
@@ -482,7 +478,7 @@ export default {
       let mustRedraw = true;
       document.eventName = eventName;
       const eventResultRaw = this.run_python(
-        'board_model.on_game_event(js.document.eventName)',
+        'game_model.on_game_event(js.document.eventName)',
         `Exécution d'un événement ${eventName}`,
       );
 
@@ -591,18 +587,36 @@ export default {
       this.delayed_actions = [];
       this.player_locks = [];
       this.delayed_action_next_id = 0;
+      this.$refs.python_console.textContent = '';
 
       this.json_conf = JSON.parse(jsonConf);
+      // Code à virer lorsqu'on appliquera la deprecation.
+      const hasTileProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'tile_coords');
+      const hasImgProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'img_coords');
+      if (hasTileProp && !hasImgProp) {
+        this.console_log('DeprecationWarning: dans le json, utilisez la clé "img_coords" à la place de "tile_coords".\n\n');
+        this.json_conf.img_coords = this.json_conf.tile_coords;
+      }
+      // fin du code à virer.
       this.tilesize_tileset = this.json_conf.tile_size;
-      this.tile_coords = this.json_conf.tile_coords;
-      this.$refs.python_console.textContent = '';
+      this.img_coords = this.json_conf.img_coords;
+      // Re Code à virer lorsqu'on appliquera la deprecation.
+      let fuckJsCanNotRedefineParams = gameCode;
+      if (gameCode.includes('BoardModel')) {
+        this.console_log('DeprecationWarning: La classe doit s\'appeler "GameModel", et non pas "BoardModel".\n\n');
+        fuckJsCanNotRedefineParams = fuckJsCanNotRedefineParams.replace('BoardModel', 'GameModel');
+      }
+      if (gameCode.includes('get_size(')) {
+        this.console_log('DeprecationWarning: La fonction get_size n\'est plus utile. Bientôt, vous pourrez définir la taille de l\'aire de jeu, mais pas tout de suite.\n\n');
+      }
+      // re fin du code à virer.
       this.run_python(
-        gameCode,
+        fuckJsCanNotRedefineParams,
         'Interprétation du gameCode.',
       );
       this.run_python(
-        'board_model = BoardModel()',
-        'Instanciation du BoardModel',
+        'game_model = GameModel()',
+        'Instanciation du GameModel',
       );
       this.draw_rect();
       this.$refs.game_interface.focus();

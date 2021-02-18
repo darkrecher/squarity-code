@@ -4,7 +4,7 @@ export default Object.freeze({
   MAGICIAN_JSON_CONF: `
   {
     "tile_size": 16,
-    "tile_coords": {
+    "img_coords": {
       "0": [48, 32],
       "1": [96, 32],
       "2": [96, 48],
@@ -70,7 +70,7 @@ DATA_TILES_2 = [
 
 PASSABLE_TILOBJS = list("0123456789-|s")
 
-class BoardModel():
+class GameModel():
 
     def __init__(self, width=20, height=14):
         self.w = width
@@ -115,9 +115,6 @@ class BoardModel():
         print("Le tileset de ce jeu a été créé par Buch :")
         print("https://opengameart.org/content/dungeon-tileset")
         print()
-
-    def get_size(self):
-        return self.w, self.h
 
     def export_all_tiles(self):
         return self.tiles
@@ -296,7 +293,7 @@ class BoardModel():
   H2O_JSON_CONF: `
   {
     "tile_size": 32,
-    "tile_coords": {
+    "img_coords": {
 
       "water_right": [0, 0],
       "water_down": [32, 0],
@@ -725,7 +722,7 @@ def apply_replacement_patterns(main_pattern, replacement_patterns):
         return main_pattern
 
 
-class BoardModel():
+class GameModel():
 
     def __init__(self, width=20, height=14):
         self.w = width
@@ -979,9 +976,6 @@ class BoardModel():
                 lvl_map_char = self.cur_level[y][x]
                 if lvl_map_char in ("I", "=", "+"):
                     self.tiles[y][x].extend(self.stylify_laser(x, y, lvl_map_char))
-
-    def get_size(self):
-        return self.w, self.h
 
     def get_tile_gamobjs(self, x, y):
         return self.tiles[y][x]
