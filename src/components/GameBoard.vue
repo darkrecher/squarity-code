@@ -263,6 +263,8 @@ export default {
     this.tile_width = 32;
     this.tile_height = 32;
     this.player_locks = [];
+    this.delayed_action_next_id = 0;
+    this.delayed_actions = [];
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
@@ -451,6 +453,16 @@ export default {
       return (strVal === 't' || strVal === 'T' || strVal === 'transitional_state');
     },
 
+    process_delayed_action(actionId) {
+      // https://github.com/babel/babel-eslint/issues/274
+      const delayedActionInfo = this.delayed_actions.find(([, actId]) => actId === actionId);
+      if (delayedActionInfo) {
+        this.delayed_actions = this.delayed_actions.filter(([, actId]) => actId !== actionId);
+        const [, , eventName] = delayedActionInfo;
+        this.send_game_event(eventName);
+      }
+    },
+
     send_game_event(eventName) {
       // Exemple d'infos à récupérer :
       // {
@@ -478,16 +490,20 @@ export default {
         const eventResult = JSON.parse(eventResultRaw);
         if ('delayed_actions' in eventResult) {
           // Syntaxe de for-loop de merde... Putain de javascript. Putain de linter.
-          eventResult.delayed_actions.forEach((delayedAction) => {
+          eventResult.delayed_actions.forEach((newDelayedAction) => {
             let delayTime = 500;
-            if ('delay_ms' in delayedAction) {
-              delayTime = delayedAction.delay_ms;
+            if ('delay_ms' in newDelayedAction) {
+              delayTime = newDelayedAction.delay_ms;
             }
-            if ('name' in delayedAction) {
-              const actionName = delayedAction.name;
-              setTimeout(() => {
-                this.send_game_event(actionName);
+            if ('name' in newDelayedAction) {
+              const actionName = newDelayedAction.name;
+              const newActionId = this.delayed_action_next_id;
+              this.delayed_action_next_id += 1;
+              const timeOutId = setTimeout(() => {
+                this.process_delayed_action(newActionId);
               }, delayTime);
+              const newDelayedActionInfo = [timeOutId, newActionId, actionName];
+              this.delayed_actions.push(newDelayedActionInfo);
             }
           });
         }
@@ -507,8 +523,12 @@ export default {
             }
           });
         }
-        if (this.is_player_locked !== (this.player_locks.length !== 0)) {
-          this.is_player_locked = (this.player_locks.length !== 0);
+        const playerLocsNew = (this.player_locks.length !== 0);
+        if (this.is_player_locked !== playerLocsNew) {
+          this.is_player_locked = playerLocsNew;
+          if (!this.is_player_locked) {
+            this.$refs.game_interface.focus();
+          }
         }
         if ('redraw' in eventResult) {
           mustRedraw = eventResult.redraw !== 0;
@@ -560,7 +580,18 @@ export default {
         this.tile_atlas = await loadImage(urlTileset);
         this.current_url_tileset = urlTileset;
       }
+
       this.show_progress('Compilation de la compote.');
+
+      // On remet à zéro toutes les infos concernant les delayed actions.
+      this.delayed_actions.forEach((delayedActionInfo) => {
+        const [timeoutId] = delayedActionInfo;
+        clearTimeout(timeoutId);
+      });
+      this.delayed_actions = [];
+      this.player_locks = [];
+      this.delayed_action_next_id = 0;
+
       this.json_conf = JSON.parse(jsonConf);
       this.tilesize_tileset = this.json_conf.tile_size;
       this.tile_coords = this.json_conf.tile_coords;
