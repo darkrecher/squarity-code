@@ -3,6 +3,10 @@
 export default Object.freeze({
   MAGICIAN_JSON_CONF: `
   {
+    "game_area": {
+        "nb_tile_width": 22,
+        "nb_tile_height": 15
+    },
     "tile_size": 16,
     "img_coords": {
       "0": [48, 32],
@@ -35,46 +39,48 @@ export default Object.freeze({
   `,
   MAGICIAN_GAME_CODE: `
 DATA_TILES_1 = [
-    "7    701     70001  ",
-    "     682     68882  ",
-    "     543     54443  ",
-    "     VVV     WDdVV  ",
-    "     vvv     543vv  ",
-    "             yyy    ",
-    "    7001            ",
-    " 70068821           ",
-    " 588544381          ",
-    " y68WsDW8801        ",
-    " 78888888882    71  ",
-    " 54888888843    53  ",
-    " yy5444443yy    yy  ",
-    "   yyyyyyy          ",
+    "7    701     70001    ",
+    "     682     68882    ",
+    "     543     54443    ",
+    "     VVV     WDdVV    ",
+    "     vvv     543vv    ",
+    "             yyy      ",
+    "    7001              ",
+    " 70068821             ",
+    " 588544381            ",
+    " y68WsDW8801          ",
+    " 78888888882    71    ",
+    " 54888888843    62    ",
+    " yy6888882yy    53    ",
+    "   5444443      yy    ",
+    "   yyyyyyy            ",
 ]
 
 DATA_TILES_2 = [
-    "                    ",
-    "       [-----]      ",
-    "      (             ",
-    "      |             ",
-    "      |             ",
-    "      |             ",
-    "      )             ",
-    "                    ",
-    "                    ",
-    "                    ",
-    "           [----]   ",
-    "       N            ",
-    "                    ",
-    "                    ",
+    "                    --",
+    "       [-----]      --",
+    "      (             --",
+    "      |             --",
+    "      |             --",
+    "      |             --",
+    "      )             --",
+    "                    --",
+    "                   ---",
+    "                    --",
+    "           [----]   --",
+    "       N            --",
+    "                    --",
+    "                    --",
+    "                    --",
 ]
 
 PASSABLE_TILOBJS = list("0123456789-|s")
 
 class GameModel():
 
-    def __init__(self, width=20, height=14):
-        self.w = width
-        self.h = height
+    def __init__(self):
+        self.w = 22
+        self.h = 15
         self.tiles = [
             [
                 [] for x in range(self.w)

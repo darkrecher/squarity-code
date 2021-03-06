@@ -203,6 +203,9 @@ function isNonePython(val) {
 }
 
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
+const defaultTileSize = 32;
+const defaultNbTileWidth = 20;
+const defaultNbTileHeight = 14;
 
 const eventNameFromButton = {
   ArrowUp: 'U',
@@ -240,28 +243,23 @@ export default {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
 
-    const canvasFinal = this.$refs.game_canvas;
-    this.ctx_canvas_final = canvasFinal.getContext('2d');
+    const canvasElem = this.$refs.game_canvas;
+    this.ctx_canvas = canvasElem.getContext('2d');
+    this.canvas_buffer = document.createElement('canvas');
+    this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
+
     // Il faut définir explicitement la taille du canvas, à cet endroit du code,
     // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
     // https://www.w3schools.com/tags/att_canvas_width.asp
     // Et faut le faire deux fois :
-    // Pour canvasFinal (width, height), et aussi pour this.canvas_buffer (width, height aussi)
+    // Pour canvasElem (width, height), et aussi pour this.canvas_buffer (width, height aussi)
     // J'ai pas tout compris ces histoires de taille. J'ai mis une tâche dans Trello pour ça.
     //
     // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
     // elem.clientHeight et elem.clientWidth.
-
-    canvasFinal.width = 640;
-    canvasFinal.height = 448;
-    this.canvas_buffer = document.createElement('canvas');
-    this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
-    this.canvas_buffer.width = 640;
-    this.canvas_buffer.height = 448;
+    this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.current_url_tileset = '';
-    this.tile_width = 32;
-    this.tile_height = 32;
     this.player_locks = [];
     this.delayed_action_next_id = 0;
     this.delayed_actions = [];
@@ -352,16 +350,31 @@ export default {
       return resultPython;
     },
 
+    configGameSizes(tileSize, nbTileWidth, nbTileHeight) {
+      this.tile_canvas_width = tileSize;
+      this.tile_canvas_height = tileSize;
+      this.tile_img_width = tileSize;
+      this.tile_img_height = tileSize;
+      this.nb_tile_width = nbTileWidth;
+      this.nb_tile_height = nbTileHeight;
+      this.canvas_width = this.nb_tile_width * this.tile_canvas_width;
+      this.canvas_height = this.nb_tile_height * this.tile_canvas_height;
+
+      const canvasElem = this.$refs.game_canvas;
+      canvasElem.width = this.canvas_width;
+      canvasElem.height = this.canvas_height;
+      this.canvas_buffer.width = this.canvas_width;
+      this.canvas_buffer.height = this.canvas_height;
+    },
+
     handleResize() {
       // AVERTISSEMENT : c'est dégueulasse de faire comme ça,
       // mais j'ai pas trouvé de meilleure solution.
       // J'ai essayé en mettant des bouts de CSS de partout, des flex, des height 100%, etc.
       // Ça me pétait à la gueule à chaque fois.
-      // Je hais le design de page web, je hais le CSS, putain de langague de zouzou !!
+      // Je hais le design de page web, je hais le CSS, putain de langage de zouzou !!
 
-      // Ça, ce sera différent selon la conf du jeu.
-      // Mais c'est une valeur qu'on connait tout le temps.
-      const ratioFromWidthToHeight = 448 / 640;
+      const ratioFromWidthToHeight = this.canvas_height / this.canvas_width;
 
       // https://stackoverflow.com/questions/8339377/how-to-get-screen-width-without-minus-scrollbar
       // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
@@ -419,30 +432,29 @@ export default {
       this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
       let canvasX = 0;
       let canvasY = 0;
-      const [boardWidth, boardHeight] = [20, 14];
       const tilesData = this.run_python(
         'game_model.export_all_tiles()',
         'Récupération des tiles pour les dessiner',
       );
 
-      for (let y = 0; y < boardHeight; y += 1) {
-        for (let x = 0; x < boardWidth; x += 1) {
+      for (let y = 0; y < this.nb_tile_height; y += 1) {
+        for (let x = 0; x < this.nb_tile_width; x += 1) {
           const tileData = tilesData[y][x];
           for (let i = 0; i < tileData.length; i += 1) {
             const gameObject = tileData[i];
             const [coordImgX, coordImgY] = this.img_coords[gameObject];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
-              coordImgX, coordImgY, this.tilesize_tileset, this.tilesize_tileset,
-              canvasX, canvasY, this.tile_width, this.tile_height,
+              coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
+              canvasX, canvasY, this.tile_canvas_width, this.tile_canvas_height,
             );
           }
-          canvasX += this.tile_width;
+          canvasX += this.tile_canvas_width;
         }
         canvasX = 0;
-        canvasY += this.tile_height;
+        canvasY += this.tile_canvas_height;
       }
-      this.ctx_canvas_final.drawImage(this.canvas_buffer, 0, 0);
+      this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
     },
 
     is_str_transitional_state(strVal) {
@@ -598,7 +610,24 @@ export default {
         this.json_conf.img_coords = this.json_conf.tile_coords;
       }
       // fin du code à virer.
-      this.tilesize_tileset = this.json_conf.tile_size;
+      let areaWidth = 20;
+      let areaHeight = 14;
+      if ('game_area' in this.json_conf) {
+        const jsonConfGameArea = this.json_conf.game_area;
+        if ('nb_tile_width' in jsonConfGameArea) {
+          areaWidth = jsonConfGameArea.nb_tile_width;
+        }
+        if ('w' in jsonConfGameArea) {
+          areaWidth = jsonConfGameArea.w;
+        }
+        if ('nb_tile_height' in jsonConfGameArea) {
+          areaHeight = jsonConfGameArea.nb_tile_height;
+        }
+        if ('h' in jsonConfGameArea) {
+          areaHeight = jsonConfGameArea.h;
+        }
+      }
+      this.configGameSizes(this.json_conf.tile_size, areaWidth, areaHeight);
       this.img_coords = this.json_conf.img_coords;
       // Re Code à virer lorsqu'on appliquera la deprecation.
       let fuckJsCanNotRedefineParams = gameCode;
@@ -618,6 +647,7 @@ export default {
         'game_model = GameModel()',
         'Instanciation du GameModel',
       );
+      this.handleResize();
       this.draw_rect();
       this.$refs.game_interface.focus();
       this.show_progress('C\'est parti !');
