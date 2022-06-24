@@ -1,7 +1,9 @@
+/* eslint-disable */
+
 // https://stackoverflow.com/questions/47597384/best-way-to-define-common-constants-in-vue-js
 
 export default Object.freeze({
-  MAGICIAN_JSON_CONF: `
+    MAGICIAN_JSON_CONF: `
   {
     "game_area": {
         "nb_tile_width": 22,
@@ -37,7 +39,7 @@ export default Object.freeze({
     }
   }
   `,
-  MAGICIAN_GAME_CODE: `
+    MAGICIAN_GAME_CODE: `
 DATA_TILES_1 = [
     "7    701     70001    ",
     "     682     68882    ",
@@ -296,7 +298,7 @@ class GameModel():
 
   `,
 
-  H2O_JSON_CONF: `
+    H2O_JSON_CONF: `
   {
     "tile_size": 32,
     "img_coords": {
@@ -427,7 +429,7 @@ class GameModel():
     }
   }
   `,
-  H2O_GAME_CODE: `
+    H2O_GAME_CODE: `
 LEVELS = (
     (
         "XXXXXXXXXXXXXXXXXXXX",

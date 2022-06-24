@@ -1,33 +1,21 @@
 <template>
   <div class="game_board">
-    <!-- https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding -->
+    <!--
+      https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
+    -->
     <b-row class="h-100 no-gutters">
-      <b-col
-        ref="left_column"
-        sm="12"
-        md="6"
-        order="2"
-        order-sm="2"
-        order-md="1"
-        :class="{ hidden: hide_code }"
-      >
+      <b-col ref="left_column" sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
         <div class="flex-column h-100">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
           <div class="dev_notice">
             Fonctionne grâce à Pyodide.
-            <a
-              href="https://github.com/darkrecher/squarity-code"
-              target="_blank"
-            >
+            <a href="https://github.com/darkrecher/squarity-code" target="_blank">
               Code source
             </a>
             et
-            <a
-              href="https://github.com/darkrecher/squarity-doc"
-              target="_blank"
-            >
+            <a href="https://github.com/darkrecher/squarity-doc" target="_blank">
               documentation
             </a>
             sur github.
@@ -38,42 +26,23 @@
               Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
             -->
             <div class="h-100">
-              <DevZone
-                ref="dev_zone"
-                @update_game_spec="on_update_game_spec"
-              />
+              <DevZone ref="dev_zone" @update_game_spec="on_update_game_spec" />
             </div>
           </div>
         </div>
       </b-col>
-      <b-col
-        sm="12"
-        :md="hide_code ? 12 : 6"
-        order="1"
-        order-sm="1"
-        order-md="2"
-      >
+      <b-col sm="12" :md="hide_code ? 12 : 6" order="1" order-sm="1" order-md="2">
         <!--
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
         -->
-        <div
-          ref="game_interface"
-          class="game_interface flex-column"
-          tabindex="0"
-        >
-          <div
-            ref="title_container"
-            class="d-block d-sm-block d-md-none"
-          >
+        <div ref="game_interface" class="game_interface flex-column" tabindex="0">
+          <div ref="title_container" class="d-block d-sm-block d-md-none">
             <div :class="{ hidden: hide_code }">
               <MainTitle />
             </div>
           </div>
-          <div
-            ref="toggle_button"
-            class="flex-grow-no text-right"
-          >
+          <div ref="toggle_button" class="flex-grow-no text-right">
             <button @click="toggle_dev_zone_display">
               Jeu en plein écran.
             </button>
@@ -81,29 +50,16 @@
           <div class="the_canvas flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <canvas
-                  v-show="loading_done"
-                  ref="game_canvas"
-                />
-                <ProgressIndicator
-                  v-if="!loading_done"
-                  ref="progress_indicator"
-                />
+                <canvas v-show="loading_done" ref="game_canvas" />
+                <ProgressIndicator v-if="!loading_done" ref="progress_indicator" />
               </div>
             </div>
           </div>
-          <div
-            ref="game_footer"
-            class="game_footer flex-grow-no"
-          >
+          <div ref="game_footer" class="game_footer flex-grow-no">
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
             <div>
               <div class="flex-grow-2">
-                <textarea
-                  id="python_console"
-                  ref="python_console"
-                  readonly
-                />
+                <textarea id="python_console" ref="python_console" readonly />
               </div>
               <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
               <!--
@@ -116,47 +72,29 @@
                 <div>
                   <div class="flex-grow" />
                   <div>
-                    <button
-                      :disabled="is_player_locked"
-                      @click="go_left"
-                    >
+                    <button :disabled="is_player_locked" @click="go_left">
                       &#x21e6;
                     </button>
                   </div>
                   <div class="flex-column">
-                    <button
-                      :disabled="is_player_locked"
-                      @click="go_up"
-                    >
+                    <button :disabled="is_player_locked" @click="go_up">
                       &#x21e7;
                     </button>
-                    <button
-                      :disabled="is_player_locked"
-                      @click="go_down"
-                    >
+                    <button :disabled="is_player_locked" @click="go_down">
                       &#x21e9;
                     </button>
                   </div>
                   <div>
-                    <button
-                      :disabled="is_player_locked"
-                      @click="go_right"
-                    >
+                    <button :disabled="is_player_locked" @click="go_right">
                       &#x21e8;
                     </button>
                   </div>
                   <div class="flex-grow-04" />
                   <div class="flex-column">
-                    <button
-                      :disabled="is_player_locked"
-                      @click="action_1"
-                    >
+                    <button :disabled="is_player_locked" @click="action_1">
                       1
                     </button>
-                    <button
-                      :disabled="is_player_locked"
-                      @click="action_2"
-                    >
+                    <button :disabled="is_player_locked" @click="action_2">
                       2
                     </button>
                   </div>
@@ -606,7 +544,8 @@ export default {
       const hasTileProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'tile_coords');
       const hasImgProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'img_coords');
       if (hasTileProp && !hasImgProp) {
-        this.console_log('DeprecationWarning: dans le json, utilisez la clé "img_coords" à la place de "tile_coords".\n\n');
+        this.console_log('DeprecationWarning:\n');
+        this.console_log('Dans le json, utilisez la clé "img_coords" à la place de "tile_coords".\n\n');
         this.json_conf.img_coords = this.json_conf.tile_coords;
       }
       // fin du code à virer.
@@ -636,7 +575,8 @@ export default {
         fuckJsCanNotRedefineParams = fuckJsCanNotRedefineParams.replace('BoardModel', 'GameModel');
       }
       if (gameCode.includes('get_size(')) {
-        this.console_log('DeprecationWarning: La fonction get_size n\'est plus utile. Bientôt, vous pourrez définir la taille de l\'aire de jeu, mais pas tout de suite.\n\n');
+        this.console_log('DeprecationWarning: La fonction get_size n\'est plus utile.\n');
+        this.console_log('Bientôt, vous pourrez définir la taille de l\'aire de jeu, mais pas tout de suite.\n\n');
       }
       // re fin du code à virer.
       this.run_python(
@@ -665,128 +605,135 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.flex-column {
+  display: flex;
+  flex-flow: column;
+}
 
-  .flex-column {
-    display: flex;
-    flex-flow: column;
-  }
-  .flex-line {
-    display: flex;
-  }
-  /*
-    C'est sûrement pas comme ça qu'il faudrait faire ces trucs.
+.flex-line {
+  display: flex;
+}
+
+/*  C'est sûrement pas comme ça qu'il faudrait faire ces trucs.
     J'ai aucune idée des bonnes pratiques en CSS.
     De toutes façons c'est tellement un truc de hippie qu'il peut pas vraiment
     y avoir de bonnes pratiques là-dedans.
-  */
-  .flex-grow {
-    flex: 1 1 auto;
-  }
-  .flex-grow-no {
-    flex: 0 1 auto;
-  }
-  .flex-grow-2 {
-    flex: 2 1 auto;
-  }
-  .flex-grow-04 {
-    flex: 0.4 1 auto;
-  }
+*/
+.flex-grow {
+  flex: 1 1 auto;
+}
 
-  .text-right {
-    text-align: right;
-  }
+.flex-grow-no {
+  flex: 0 1 auto;
+}
 
-  .flex-child-center {
-    align-self: center;
-  }
+.flex-grow-2 {
+  flex: 2 1 auto;
+}
 
-  @media only screen and (max-width: 768px) {
-    .game_footer button {
-      height: 2em;
-      width: 2em;
-      font-size: 1.5em;
-    }
-    .dev_notice {
-      margin-top: 1em;
-    }
-  }
+.flex-grow-04 {
+  flex: 0.4 1 auto;
+}
 
-  @media only screen and (min-width: 768px) {
-    .game_footer button {
-      height: 2em;
-      width: 2em;
-      font-size: 2em;
-    }
-  }
+.text-right {
+  text-align: right;
+}
 
-  .game_interface {
-    /*
-      Faut jamais mettre 100vh. Au moindre pixel de trop,
-      ça fait une scroll bar verticale de merde.
-      hashtag-vive_les_magic_number_et_fuck_le_css
-    */
-    height: 96vh;
-  }
+.flex-child-center {
+  align-self: center;
+}
 
-  .game_footer {
-    margin-top: 5px;
-  }
-  .game_footer > div {
-    display: flex;
-    flex-wrap: wrap-reverse;
-  }
-
+@media only screen and (max-width: 768px) {
   .game_footer button {
-    background-color: #707070;
-    font-weight: bold;
-    border: 0;
-    margin: 2px;
-    padding: 0;
-  }
-  .game_footer button:hover {
-    background-color: #909090;
-  }
-  .game_footer button:active {
-    background-color: #B0B0B0;
-  }
-  /* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */
-  .game_footer button:focus {
-    outline: thin dotted;
-  }
-
-  div.game_buttons {
-    min-width: 10em;
-  }
-  div.game_buttons > div {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-  }
-
-  canvas {
-    border: 1px solid gray;
-    image-rendering: pixelated;
-  }
-
-  div.hidden {
-    width: 0%;
-    display: none;
-  }
-
-  #python_console {
-    width: 100%;
-    height: 100%;
-  }
-
-  textarea {
-    background-color: #202020;
-    color: #D0D0D0;
-    font-size: 1.25em;
-    font-family: monospace;
+    height: 2em;
+    width: 2em;
+    font-size: 1.5em;
   }
 
   .dev_notice {
-    font-size: 0.8em;
+    margin-top: 1em;
   }
+}
 
+@media only screen and (min-width: 768px) {
+  .game_footer button {
+    height: 2em;
+    width: 2em;
+    font-size: 2em;
+  }
+}
+
+.game_interface {
+  /*  Faut jamais mettre 100vh. Au moindre pixel de trop,
+      ça fait une scroll bar verticale de merde.
+      hashtag-vive_les_magic_number_et_fuck_le_css
+  */
+  height: 96vh;
+}
+
+.game_footer {
+  margin-top: 5px;
+}
+
+.game_footer>div {
+  display: flex;
+  flex-wrap: wrap-reverse;
+}
+
+.game_footer button {
+  background-color: #707070;
+  font-weight: bold;
+  border: 0;
+  margin: 2px;
+  padding: 0;
+}
+
+.game_footer button:hover {
+  background-color: #909090;
+}
+
+.game_footer button:active {
+  background-color: #B0B0B0;
+}
+
+/* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */
+.game_footer button:focus {
+  outline: thin dotted;
+}
+
+div.game_buttons {
+  min-width: 10em;
+}
+
+div.game_buttons>div {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+canvas {
+  border: 1px solid gray;
+  image-rendering: pixelated;
+}
+
+div.hidden {
+  width: 0%;
+  display: none;
+}
+
+#python_console {
+  width: 100%;
+  height: 100%;
+}
+
+textarea {
+  background-color: #202020;
+  color: #D0D0D0;
+  font-size: 1.25em;
+  font-family: monospace;
+}
+
+.dev_notice {
+  font-size: 0.8em;
+}
 </style>

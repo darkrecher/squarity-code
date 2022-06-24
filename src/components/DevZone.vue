@@ -1,54 +1,28 @@
 <template>
-  <div
-    ref="dev_zone"
-    class="dev_zone"
-  >
+  <div ref="dev_zone" class="dev_zone">
     <div class="links_and_exemples">
       <div>
-        <a
-          href="https://discord.gg/D5SYnk8u3j"
-          target="_blank"
-        >
-          <img
-            class="discord"
-            src="../assets/discord.svg"
-            alt="Logo discord"
-          >
+        <a href="https://discord.gg/D5SYnk8u3j" target="_blank">
+          <img class="discord" src="../assets/discord.svg" alt="Logo discord">
         </a>
       </div>
       <div>
-        <a
-          href="https://mstdn.io/@recher"
-          target="_blank"
-        >
-          <img
-            class="mastodon"
-            src="../assets/mastodon.svg"
-            alt="Logo mastodon"
-          >
+        <a href="https://mstdn.io/@recher" target="_blank">
+          <img class="mastodon" src="../assets/mastodon.svg" alt="Logo mastodon">
         </a>
       </div>
       <div class="game_examples">
         <div>
           Exemples de jeu :
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
-          <img
-            src="../assets/magicien_icon.png"
-            @click="example_magician"
-          >
-          <img
-            src="../assets/h2o_icon.png"
-            @click="example_h2o"
-          >
+          <img src="../assets/magicien_icon.png" @click="example_magician">
+          <img src="../assets/h2o_icon.png" @click="example_h2o">
         </div>
       </div>
     </div>
     <div class="dev_field_url">
       Url de l'image :
-      <input
-        ref="url_tileset"
-        type="text"
-      >
+      <input ref="url_tileset" type="text">
       <button @click="send_game_spec">
         Exécuter &#x25B6;
       </button>
@@ -57,19 +31,13 @@
       Config du jeu (en JSON).
     </div>
     <div class="dev_field_json">
-      <textarea
-        ref="json_conf"
-        spellcheck="false"
-      />
+      <textarea ref="json_conf" spellcheck="false" />
     </div>
     <div class="dev_field_label">
       Le code du jeu (en python).
     </div>
     <div class="dev_field_python">
-      <textarea
-        ref="game_code"
-        spellcheck="false"
-      />
+      <textarea ref="game_code" spellcheck="false" />
     </div>
   </div>
 </template>
@@ -106,7 +74,8 @@ export default {
   methods: {
 
     activate_current_game_spec() {
-      // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/6535686-emit-events-to-parent-components
+      // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/
+      // 6535686-emit-events-to-parent-components
       this.$emit(
         'update_game_spec',
         this.$refs.url_tileset.value,
@@ -178,89 +147,92 @@ export default {
 </script>
 
 <style scoped>
-  .dev_zone {
-    display: flex;
-    flex-flow: column;
-    height: 100%;
-    padding-left: 0.2em;
-    padding-right: 2em;
-  }
+.dev_zone {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  padding-left: 0.2em;
+  padding-right: 2em;
+}
 
-  .links_and_exemples {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
-  }
+.links_and_exemples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
 
-  .links_and_exemples img {
-    padding-left: 0.3em;
-    padding-right: 0.3em;
-  }
+.links_and_exemples img {
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+}
 
-  /* Crétins de svg qui ont pas la même taille apparente. */
-  img.discord {
-    height: 2.5em;
-  }
-  img.mastodon {
-    height: 2em;
-  }
+/* Crétins de svg qui ont pas la même taille apparente. */
+img.discord {
+  height: 2.5em;
+}
 
-  .game_examples {
-    padding-bottom: 0.8em;
-  }
+img.mastodon {
+  height: 2em;
+}
 
-  .game_examples div {
-    display: flex;
-    align-items: center;
-  }
+.game_examples {
+  padding-bottom: 0.8em;
+}
 
-  .game_examples img {
-    background-color: #505050;
-    border: 1px solid #A0A0A0;
-    height: 3em;
-    padding: 0.3em;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-    cursor: pointer;
-  }
-  .game_examples img:hover {
-    background-color: #909090;
-  }
+.game_examples div {
+  display: flex;
+  align-items: center;
+}
 
-  .dev_field_url {
-    display: flex;
-    border-top: 2px solid #C0C0C0;
-    padding-top: 0.6em;
-  }
+.game_examples img {
+  background-color: #505050;
+  border: 1px solid #A0A0A0;
+  height: 3em;
+  padding: 0.3em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  cursor: pointer;
+}
 
-  .dev_field_url input {
-    background-color: #202020;
-    color: #C0C0C0;
-    font-family: monospace;
-    border: 1px solid #808080;
-    flex: 1 1 auto;
-    margin-right: 0.6em;
-  }
+.game_examples img:hover {
+  background-color: #909090;
+}
 
-  .dev_field_label {
-    text-align: left;
-    margin-top: 0.6em;
-  }
+.dev_field_url {
+  display: flex;
+  border-top: 2px solid #C0C0C0;
+  padding-top: 0.6em;
+}
 
-  .dev_field_python {
-    flex: 3 1 auto;
-  }
-  .dev_field_json {
-    flex: 1 1 auto;
-  }
+.dev_field_url input {
+  background-color: #202020;
+  color: #C0C0C0;
+  font-family: monospace;
+  border: 1px solid #808080;
+  flex: 1 1 auto;
+  margin-right: 0.6em;
+}
 
-  textarea {
-    width: 100%;
-    height: 100%;
-    background-color: #202020;
-    color: #C0C0C0;
-    font-family: monospace;
-    border: 1px solid #808080;
-  }
+.dev_field_label {
+  text-align: left;
+  margin-top: 0.6em;
+}
+
+.dev_field_python {
+  flex: 3 1 auto;
+}
+
+.dev_field_json {
+  flex: 1 1 auto;
+}
+
+textarea {
+  width: 100%;
+  height: 100%;
+  background-color: #202020;
+  color: #C0C0C0;
+  font-family: monospace;
+  border: 1px solid #808080;
+}
 </style>

@@ -12,10 +12,11 @@ export default {
 </script>
 
 <style scoped>
-  h1 {
-    margin: 10px;
-  }
-  div {
-    margin-bottom: 10px;
-  }
+h1 {
+  margin: 10px;
+}
+
+div {
+  margin-bottom: 10px;
+}
 </style>

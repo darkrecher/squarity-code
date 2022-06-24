@@ -9,8 +9,7 @@
 
 <script>
 // @ is an alias to /src.
-// TODO : sauf qu'avec moi, ça marche pô !
-// Alors je mets un "../" de gros dégeulâsse.
+// Sauf qu'avec moi, ça marche pas, alors je mets un "../" de gros dégeulâsse.
 import GameBoard from '../components/GameBoard.vue';
 
 export default {
