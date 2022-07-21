@@ -39,6 +39,9 @@
     <div class="dev_field_python">
       <textarea ref="game_code" spellcheck="false" />
     </div>
+    <router-link to="/roadmap">
+      Lien vers la future roadmap, yeah !
+    </router-link>
   </div>
 </template>
 

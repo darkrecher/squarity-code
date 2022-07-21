@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <router-view />
+    <!-- https://stackoverflow.com/questions/41764825/preserve-component-state-with-vue-router -->
+    <keep-alive include="Home">
+      <router-view />
+    </keep-alive>
   </div>
 </template>
 

@@ -1,9 +1,6 @@
 <template>
   <div class="home">
     <GameBoard />
-    <router-link to="/about">
-      Lien vers la future roadmap, yeah !!
-    </router-link>
   </div>
 </template>
 
