@@ -7,7 +7,7 @@
     hahaha !!!
     <br>
 
-    <div id="tooltipWindow" class="wesh_tooltip" style="background-color: red;">
+    <div id="tooltipWindow" class="wesh_tooltip" @click="hide_tool_tip" style="background-color: red;">
       <br />
       Je suis un énorme tas de texte dans le tooltip
       <br />
@@ -88,7 +88,7 @@
       <div>z9a</div>
       <div>z1</div>
 
-      <div style="background-color: lightblue;" @click="show_tool_tip">
+      <div style="background-color: lightblue;" @click="toggle_tool_tip">
         aaa
       </div>
 
@@ -96,7 +96,7 @@
       <div class="game-engine">
         Moteur du jeu
       </div>
-      <div class="ide">
+      <div class="ide" @click="toggle_tool_tip">
         Environnement de développement intégré
       </div>
       <div>z6</div>
@@ -108,7 +108,7 @@
       <div>
         7a
       </div>
-      <div style="background-color: lightblue;" @click="show_tool_tip_2">
+      <div style="background-color: lightblue;" @click="toggle_tool_tip">
         8a
       </div>
       <div id="roadMapOrigin" class="road-map-origin">l'origine de la road-map.
@@ -202,6 +202,11 @@ export default {
   data() {
     return {
       is_tooltip_visible: false,
+      square_x_tooltip: null,
+      square_y_tooltip: null,
+      // TODO : comment on déclare et comment on utilise
+      // des constantes dans ce fichu langage ?
+      GRID_LENGTH_IN_SQUARE: 10,
     };
   },
 
@@ -212,21 +217,42 @@ export default {
   },
 
   methods: {
-    show_tool_tip(event) {
-      console.log(event);
-      this.is_tooltip_visible = true;
+    toggle_tool_tip(event) {
+      console.log(event.target);
+      const container = event.target.parentNode;
+      console.log(container);
+      const arrayChildren = Array.prototype.slice.call(container.children);
+      const indexRoadSquare = arrayChildren.indexOf(event.target);
+      const newSquareY = Math.floor(indexRoadSquare / this.GRID_LENGTH_IN_SQUARE);
+      const newSquareX = indexRoadSquare % this.GRID_LENGTH_IN_SQUARE;
+      console.log(newSquareX, newSquareY);
       const tooltipWindow = document.getElementById('tooltipWindow');
-      tooltipWindow.style.display = 'block';
-      tooltipWindow.style.top = '68em';
-      tooltipWindow.style.left = '32em';
+
+      if (
+        (this.square_x_tooltip === null)
+        || (this.square_x_tooltip !== newSquareX)
+        || (this.square_y_tooltip !== newSquareY)
+      ) {
+        // TODO : il y a des valeurs à la con, qu'il faudra mettre dans des constantes.
+        const styleTopEm = newSquareY * 10 + 8;
+        const styleLeftEm = newSquareX * 10 + 12;
+        this.is_tooltip_visible = true;
+        tooltipWindow.style.display = 'block';
+        this.square_x_tooltip = newSquareX;
+        this.square_y_tooltip = newSquareY;
+        tooltipWindow.style.top = `${styleTopEm.toString()}em`;
+        tooltipWindow.style.left = `${styleLeftEm.toString()}em`;
+      } else {
+        this.hide_tool_tip();
+      }
     },
-    show_tool_tip_2(event) {
-      console.log(event);
-      this.is_tooltip_visible = true;
+
+    hide_tool_tip() {
       const tooltipWindow = document.getElementById('tooltipWindow');
-      tooltipWindow.style.display = 'block';
-      tooltipWindow.style.top = '78em';
-      tooltipWindow.style.left = '42em';
+      this.is_tooltip_visible = false;
+      tooltipWindow.style.display = 'none';
+      this.square_x_tooltip = null;
+      this.square_y_tooltip = null;
     },
   },
 
@@ -242,6 +268,7 @@ export default {
   grid-template-columns: 10em 10em 10em 10em 10em 10em 10em 10em 10em 10em;
   font-weight: bold;
   background-color: darkblue;
+  width: fit-content;
 }
 
 .grid-container>div {
@@ -281,6 +308,7 @@ export default {
 .wesh_tooltip {
   position: absolute;
   display: none;
+  width: 15em;
   top: 0px;
   left: 0px;
 }
