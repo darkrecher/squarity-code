@@ -31,9 +31,11 @@
 
     <div class="grid-container">
 
-      <div>1 haha il se passe quoi si le texte est très très très très très très très très très très très très très
+      <p>
+        1 haha il se passe quoi si le texte est très très très très très très très très très très très très très
         très
-        très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha</div>
+        très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha
+      </p>
       <div>2</div>
       <div>3</div>
       <div>4</div>
@@ -87,15 +89,18 @@
       <div>z3</div>
       <div>z4</div>
       <div>z5</div>
-      <div class="game-engine" @click="toggle_tooltip">
-        Game Object affichant une valeur ou une information.
+      <div class="game-engine clickable" @click="toggle_tooltip">
+        <p>
+          Game Object affichant une valeur ou une information.
+        </p>
+        <img class="click-me" src="../assets/icon_click_me.png">
         <div class="tooltip-text">
           Types de Game Object :
           <br>
           - Du texte ou des nombres, pour indiquer un score, une quantité d'argent, ...
           <br>
-          - Un rectangle de taille variable, qui s'étend sur plusieurs cases, pour indiquer une barre de vie, de mana,
-          ...
+          - Un rectangle de taille variable, qui s'étend sur plusieurs cases,
+          pour indiquer une barre de vie, de mana, ...
           <br>
           - Affichage d'une quantité sous forme de camembert.
           <br>
@@ -105,8 +110,8 @@
           Il faudra rendre ces indicateurs suffisamment configurables : taille, couleur, bord arrondi,
           police de caractère, ... Mais pas trop, car ça doit rester simple.
           <br>
-          Pour des indicateurs plus spécifiques, il faudra se créer ses propres game objects, et coder leur comportement
-          directement dans le game-code.
+          Pour des indicateurs plus spécifiques, il faudra se créer ses propres game objects,
+          et coder leur comportement directement dans le game-code.
         </div>
       </div>
       <div>z7</div>
@@ -118,7 +123,9 @@
       <div>z1</div>
 
       <div style="background-color: lightblue;" @click="toggle_tooltip">
-        aaa
+        <p>
+          aaa
+        </p>
         <div class="tooltip-text">
           Blabla
           <br>
@@ -128,12 +135,21 @@
 
       <div>z3</div>
       <div class="game-engine">
-        Moteur du jeu
+        <p>
+          Moteur du jeu
+        </p>
       </div>
       <div class="ide">
-        Environnement de développement intégré
+        <p>
+          Environnement de développement intégré
+        </p>
       </div>
-      <div>z6</div>
+      <div class="ide clickable" @click="show_modal">
+        <p class="vision">
+          Fonctions de debug
+        </p>
+        <img class="click-me" src="../assets/icon_click_me.png">
+      </div>
       <div>z7</div>
       <div>9</div>
       <div>7</div>
@@ -252,14 +268,16 @@ export default {
 
   methods: {
     toggle_tooltip(event) {
-      console.log(event.target);
+      // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
+      // gives-element-or-its-child-and-not-parent-element-with-vue-js/
+      console.log(event.currentTarget);
 
       const tooltipWindow = document.getElementById('tooltipWindow');
 
-      const container = event.target.parentNode;
+      const container = event.currentTarget.parentNode;
       console.log(container);
       const arrayChildren = Array.prototype.slice.call(container.children);
-      const indexRoadSquare = arrayChildren.indexOf(event.target);
+      const indexRoadSquare = arrayChildren.indexOf(event.currentTarget);
       const newSquareY = Math.floor(indexRoadSquare / this.GRID_LENGTH_IN_SQUARE);
       const newSquareX = indexRoadSquare % this.GRID_LENGTH_IN_SQUARE;
       console.log(newSquareX, newSquareY);
@@ -285,7 +303,7 @@ export default {
         // TODO : ce sera peut-être mieux de laisser ce texte dans le json,
         // et d'aller chercher le bon texte en se basant sur les coordonnées du square.
         tooltipWindow.innerHTML = '';
-        const toolTipTexts = event.target.getElementsByClassName('tooltip-text');
+        const toolTipTexts = event.currentTarget.getElementsByClassName('tooltip-text');
         if (toolTipTexts.length === 1) {
           const toolTipText = toolTipTexts[0].innerHTML;
           console.log(toolTipText);
@@ -342,6 +360,22 @@ export default {
   align-items: center;
   background-clip: content-box, padding-box;
   box-sizing: border-box;
+  flex-direction: column;
+  background-clip: padding-box;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.clickable {
+  padding-top: 10px;
+}
+
+.clickable>p {
+  flex-grow: 1.0;
+}
+
+.click-me {
+  height: 2em;
 }
 
 .road-map-origin {
@@ -350,16 +384,24 @@ export default {
 
 .game-engine {
   background-color: #00A3FF;
-  border: 10px solid #B3E4FF;
+  border: 2px solid #B3E4FF;
 }
 
 .ide {
   background-color: #00B512;
-  border: 10px solid #B3E9B8;
+  border: 2px solid #B3E9B8;
 }
 
 .roadmap {
   position: relative;
+}
+
+.vision {
+  margin: 0.5em;
+  border: 10px solid #484848;
+  border-radius: 20px;
+  padding: 0.5em;
+  background-image: url("../assets/vision_background.png");
 }
 
 /* --- pour la fenêtre de tooltip --- */
@@ -405,7 +447,7 @@ export default {
   background: #c7c7c7;
   padding: 1vh 1vw 1vh 1vw;
   margin: 1vh 1vw 1vh 1vw;
-  border-radius: 5px;
+  border-radius: 40px;
   position: relative;
 }
 
@@ -417,7 +459,7 @@ export default {
   height: 94vh;
   background: #343434;
   margin: auto;
-  border-radius: 5px;
+  border-radius: 40px;
 }
 
 /* https://stackoverflow.com/questions/34713763/force-an-image-to-fit-and-keep-aspect-ratio */
