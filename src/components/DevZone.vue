@@ -54,6 +54,7 @@ import gameSpecLoader from '../classes/gameSpecLoader';
 // Et je peux pas définir l'url relative ailleurs, parce que require nécessite
 // obligatoirement des strings literals.
 // Cochonnerie de javascript en vrac qui met du bazar partout.
+// TODO : on va peut être s'en sortir avec require.context.
 const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
 const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
 

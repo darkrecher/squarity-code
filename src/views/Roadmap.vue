@@ -24,18 +24,19 @@
     <div class="modal-wrapper" @click="hide_modal">
       <div class="my-modal">
         <div class="my-modal-content">
-          <img class="object-fit-contain" src="../assets/test_vision.gif">
+          <img class="object-fit-contain gif-vision">
         </div>
       </div>
     </div>
 
     <div class="grid-container">
-
-      <p>
-        1 haha il se passe quoi si le texte est très très très très très très très très très très très très très
-        très
-        très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha
-      </p>
+      <div>
+        <p>
+          1 haha il se passe quoi si le texte est très très très très très très très très très très très très très
+          très
+          très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha
+        </p>
+      </div>
       <div>2</div>
       <div>3</div>
       <div>4</div>
@@ -133,47 +134,111 @@
         </div>
       </div>
 
-      <div>z3</div>
-      <div class="game-engine">
+      <div class="special-effect root-square">
         <p>
-          Moteur du jeu
+          <span>
+            "Effets spéciaux"
+          </span>
         </p>
       </div>
-      <div class="ide">
+      <div class="game-engine root-square">
         <p>
-          Environnement de développement intégré
+          <span>
+            Moteur du jeu
+          </span>
         </p>
       </div>
-      <div class="ide clickable" @click="show_modal">
+      <div class="ide root-square">
+        <p>
+          <span>
+            Environnement de développement intégré
+          </span>
+        </p>
+      </div>
+      <div class="ide clickable" gif_vision="test_vision.gif" @click="show_modal">
         <p class="vision">
           Fonctions de debug
         </p>
         <img class="click-me" src="../assets/icon_click_me.png">
       </div>
       <div>z7</div>
-      <div>9</div>
+      <div class="game-engine">
+        <p>
+          Rendre l'aire de jeu redimensionnable dynamiquement
+        </p>
+      </div>
       <div>7</div>
       <div>8</div>
       <div>9</div>
       <div>
         7a
       </div>
-      <div style="background-color: lightblue;" @click="show_modal">
-        8a
+      <div class="tuto root-square">
+        <p>
+          <span>
+            Tutoriels
+            <br><br>
+            Docs
+            <br><br>
+            Exemples
+          </span>
+        </p>
       </div>
-      <div id="roadMapOrigin" class="road-map-origin">l'origine de la road-map.
+      <div id="roadMapOrigin" class="road-map-origin">
+        <img src="../assets/squarex.png" style="height: 7em; margin: 0.5em 0 1em 0;">
+        <p>
+          Cliquez-moi dessus
+        </p>
       </div>
-      <div>z1</div>
+      <div class="level root-square" gif_vision="blorp.gif" @click="show_modal">
+        <p>
+          <span>
+            Éditeur de niveaux Gestion des tilesets
+          </span>
+        </p>
+      </div>
       <div>z2</div>
       <div>z3</div>
-      <div>z4</div>
+      <div class="empty-square" />
       <div>z5</div>
       <div>z6</div>
       <div>z7</div>
       <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
+      <div class="promo root-square">
+        <p>
+          <span>
+            Contenu
+            <br><br>
+            Jeux
+            <br><br>
+            Promotion
+          </span>
+        </p>
+      </div>
+      <div class="social root-square">
+        <p>
+          <span>
+            Social
+            <br><br>
+            Site web
+          </span>
+        </p>
+      </div>
+      <div class="optim root-square">
+        <p>
+          <span>
+            Auto-formation
+            <br><br>
+            Optimisation
+          </span>
+        </p>
+      </div>
+      <div v-for="item in road_squares" :key="item.key" :class="item.html_class" @click="toggle_tooltip">
+        <p>{{ item.title }}</p>
+        <div class="tooltip-text">
+          {{ item.description }}
+        </div>
+      </div>
       <div>z9</div>
       <div>z7a</div>
       <div>z8a</div>
@@ -257,6 +322,20 @@ export default {
       // TODO : comment on déclare et comment on utilise
       // des constantes dans ce fichu langage ?
       GRID_LENGTH_IN_SQUARE: 10,
+      road_squares: [
+        {
+          key: 'g_01',
+          title: 'coucou',
+          html_class: 'game-engine',
+          description: 'tralala pouet \n pif paf',
+        },
+        {
+          key: 'i_01',
+          title: 'un autre coucou',
+          html_class: 'ide',
+          description: 'tralala pouet \n pif paf boum',
+        },
+      ],
     };
   },
 
@@ -322,9 +401,14 @@ export default {
       this.square_y_tooltip = null;
     },
 
-    show_modal() {
+    show_modal(event) {
       const modal = document.querySelector('.modal-wrapper');
       modal.style.display = 'block';
+      const gifImgInModal = modal.querySelector('.gif-vision');
+      const imgSource = event.currentTarget.getAttribute('gif_vision');
+      // https://stackoverflow.com/questions/40491506/vue-js-dynamic-images-not-working
+      const imageGetter = require.context('../assets/', false, /\.gif$/);
+      gifImgInModal.src = imageGetter(`./${imgSource}`);
     },
 
     hide_modal() {
@@ -340,6 +424,10 @@ export default {
 </script>
 
 <style scoped>
+.roadmap {
+  background-color: #202020;
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: 10em 10em 10em 10em 10em 10em 10em 10em 10em 10em;
@@ -382,6 +470,11 @@ export default {
   background-color: #424242;
 }
 
+.special-effect {
+  background-color: #D30000;
+  border: 2px solid #F2B3B3;
+}
+
 .game-engine {
   background-color: #00A3FF;
   border: 2px solid #B3E4FF;
@@ -390,6 +483,31 @@ export default {
 .ide {
   background-color: #00B512;
   border: 2px solid #B3E9B8;
+}
+
+.tuto {
+  background-color: #95AF00;
+  border: 2px solid #F9FFC4;
+}
+
+.level {
+  background-color: #8F47E0;
+  border: 2px solid #DEC8F6;
+}
+
+.promo {
+  background-color: #FF7B23;
+  border: 2px solid #FFD8BD;
+}
+
+.social {
+  background-color: #00E8FF;
+  border: 2px solid #B3F8FF;
+}
+
+.optim {
+  background-color: #E5E500;
+  border: 2px solid #F7F7B3;
 }
 
 .roadmap {
@@ -402,6 +520,109 @@ export default {
   border-radius: 20px;
   padding: 0.5em;
   background-image: url("../assets/vision_background.png");
+}
+
+/* --- root squares --- */
+
+.root-square {
+  background-position: 0 0, 25px 25px;
+  background-size: 50px 50px;
+  background-repeat: round;
+}
+
+.root-square span {
+  padding: 5px 0 5px 0;
+  font-size: 1.1em;
+  font-weight: bolder;
+  white-space: pre-wrap
+}
+
+.special-effect.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #D30000 25%, transparent 25%, transparent 75%, #D30000 75%, #D30000),
+    repeating-linear-gradient(45deg, #D30000 25%, #F2B3B3 25%, #F2B3B3 75%, #D30000 75%, #D30000);
+}
+
+.special-effect.root-square span {
+  background-color: #D30000;
+}
+
+.ide.root-square {
+  /* https://www.magicpattern.design/tools/css-backgrounds */
+  background-image:
+    repeating-linear-gradient(45deg, #00B512 25%, transparent 25%, transparent 75%, #00B512 75%, #00B512),
+    repeating-linear-gradient(45deg, #00B512 25%, #B3E9B8 25%, #B3E9B8 75%, #00B512 75%, #00B512);
+  background-position: 0 0, 25px 25px;
+  background-size: 50px 50px;
+  background-repeat: round;
+}
+
+.ide.root-square span {
+  background-color: #00B512;
+}
+
+.game-engine.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #00A3FF 25%, transparent 25%, transparent 75%, #00A3FF 75%, #00A3FF),
+    repeating-linear-gradient(45deg, #00A3FF 25%, #B3E4FF 25%, #B3E4FF 75%, #00A3FF 75%, #00A3FF);
+}
+
+.game-engine.root-square span {
+  background-color: #00A3FF;
+}
+
+.tuto.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #95AF00 25%, transparent 25%, transparent 75%, #95AF00 75%, #95AF00),
+    repeating-linear-gradient(45deg, #95AF00 25%, #F9FFC4 25%, #F9FFC4 75%, #95AF00 75%, #95AF00);
+}
+
+.tuto.root-square span {
+  background-color: #95AF00;
+}
+
+.level.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #8F47E0 25%, transparent 25%, transparent 75%, #8F47E0 75%, #8F47E0),
+    repeating-linear-gradient(45deg, #8F47E0 25%, #DEC8F6 25%, #DEC8F6 75%, #8F47E0 75%, #8F47E0);
+}
+
+.level.root-square span {
+  background-color: #8F47E0;
+}
+
+.promo.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #FF7B23 25%, transparent 25%, transparent 75%, #FF7B23 75%, #FF7B23),
+    repeating-linear-gradient(45deg, #FF7B23 25%, #FFD8BD 25%, #FFD8BD 75%, #FF7B23 75%, #FF7B23);
+}
+
+.promo.root-square span {
+  background-color: #FF7B23;
+}
+
+.social.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #00E8FF 25%, transparent 25%, transparent 75%, #00E8FF 75%, #00E8FF),
+    repeating-linear-gradient(45deg, #00E8FF 25%, #B3F8FF 25%, #B3F8FF 75%, #00E8FF 75%, #00E8FF);
+}
+
+.social.root-square span {
+  background-color: #00E8FF;
+}
+
+.optim.root-square {
+  background-image:
+    repeating-linear-gradient(45deg, #E5E500 25%, transparent 25%, transparent 75%, #E5E500 75%, #E5E500),
+    repeating-linear-gradient(45deg, #E5E500 25%, #F7F7B3 25%, #F7F7B3 75%, #E5E500 75%, #E5E500);
+}
+
+.optim.root-square span {
+  background-color: #E5E500;
+}
+
+.empty-square {
+  background-color: #202020;
 }
 
 /* --- pour la fenêtre de tooltip --- */
@@ -420,6 +641,11 @@ export default {
   /* https://stackoverflow.com/questions/20382037/css-border-radius-and-solid-border-curved-inside */
   border-radius: 20px;
   padding: 10px;
+  display: none;
+  color: #f1f1f1;
+  /* Ne pas utiliser le tag "pre", ça met le bronx. */
+  /* https://stackoverflow.com/questions/36729634/rendering-newline-character-in-vuejs */
+  white-space: pre-wrap
 }
 
 .tooltip-text {
