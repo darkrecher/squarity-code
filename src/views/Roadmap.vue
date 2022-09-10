@@ -90,11 +90,10 @@
       <div>z3</div>
       <div>z4</div>
       <div>z5</div>
-      <div class="game-engine clickable" @click="toggle_tooltip">
+      <div class="game-engine" @click="toggle_tooltip">
         <p>
           Game Object affichant une valeur ou une information.
         </p>
-        <img class="click-me" src="../assets/icon_click_me.png">
         <div class="tooltip-text">
           Types de Game Object :
           <br>
@@ -134,33 +133,28 @@
         </div>
       </div>
 
-      <div class="special-effect root-square">
+      <div class="special-effect superior-square">
         <p>
           <span>
             "Effets spéciaux"
           </span>
         </p>
       </div>
-      <div class="game-engine root-square">
+      <div class="game-engine superior-square">
         <p>
           <span>
             Moteur du jeu
           </span>
         </p>
       </div>
-      <div class="ide root-square">
+      <div class="ide superior-square">
         <p>
           <span>
             Environnement de développement intégré
           </span>
         </p>
       </div>
-      <div class="ide clickable" gif_vision="test_vision.gif" @click="show_modal">
-        <p class="vision">
-          Fonctions de debug
-        </p>
-        <img class="click-me" src="../assets/icon_click_me.png">
-      </div>
+      <div class="empty" />
       <div>z7</div>
       <div class="game-engine">
         <p>
@@ -173,7 +167,7 @@
       <div>
         7a
       </div>
-      <div class="tuto root-square">
+      <div class="tuto superior-square">
         <p>
           <span>
             Tutoriels
@@ -184,13 +178,8 @@
           </span>
         </p>
       </div>
-      <div id="roadMapOrigin" class="road-map-origin">
-        <img src="../assets/squarex.png" style="height: 7em; margin: 0.5em 0 1em 0;">
-        <p>
-          Cliquez-moi dessus
-        </p>
-      </div>
-      <div class="level root-square" gif_vision="blorp.gif" @click="show_modal">
+      <div class="empty" />
+      <div class="level superior-square" gif_vision="dancing-banana-gif-moving-5.gif" @click="show_modal">
         <p>
           <span>
             Éditeur de niveaux Gestion des tilesets
@@ -199,12 +188,12 @@
       </div>
       <div>z2</div>
       <div>z3</div>
-      <div class="empty-square" />
+      <div class="empty" />
       <div>z5</div>
       <div>z6</div>
       <div>z7</div>
       <div>z8</div>
-      <div class="promo root-square">
+      <div class="promo superior-square">
         <p>
           <span>
             Contenu
@@ -215,7 +204,7 @@
           </span>
         </p>
       </div>
-      <div class="social root-square">
+      <div class="social superior-square">
         <p>
           <span>
             Social
@@ -224,7 +213,7 @@
           </span>
         </p>
       </div>
-      <div class="optim root-square">
+      <div class="optim superior-square">
         <p>
           <span>
             Auto-formation
@@ -233,12 +222,41 @@
           </span>
         </p>
       </div>
-      <div v-for="item in road_squares" :key="item.key" :class="item.html_class" @click="toggle_tooltip">
-        <p>{{ item.title }}</p>
-        <div class="tooltip-text">
-          {{ item.description }}
+      <template v-for="item in road_squares">
+        <!--
+          Je me pète les rouleaux à écrire `:key="item.key"` dans ce foutu code,
+          parce que si je le met pas, je me fais jeter par Vue et/ou le linter.
+          Tout ça pour ne pas avoir l'attribut key dans le DOM, et du coup je suis obligé de
+          rajouter l'attribut my_key avec la même valeur dedans. Merci !!
+        -->
+        <div v-if="item.rank === 'origin'" id="roadMapOrigin" :key="item.key" :my_key="item.key"
+          :class="item.html_class" @click="toggle_tooltip">
+          <p>
+            Cliquez-moi dessus
+          </p>
+          <img class="squarex" src="../assets/squarex.png">
+          <img class="click-me" src="../assets/icon_click_me.png">
         </div>
-      </div>
+        <div v-if="item.rank === 'superior'" :key="item.key" :my_key="item.key" :class="item.html_class"
+          :gif_vision="item.gif_vision" @click="show_modal">
+          <p>
+            <span>
+              {{ item.title }}
+            </span>
+          </p>
+        </div>
+        <div v-if="item.rank === 'vision'" :key="item.key" :my_key="item.key" :class="item.html_class"
+          :gif_vision="item.gif_vision" @click="show_modal">
+          <p class="vision">
+            {{ item.title }}
+          </p>
+        </div>
+        <div v-if="item.rank === 'normal'" :key="item.key" :my_key="item.key" :class="item.html_class"
+          @click="toggle_tooltip">
+          <p>{{ item.title }}</p>
+        </div>
+        <div v-if="item.rank === 'empty'" :key="item.key" :class="item.html_class" />
+      </template>
       <div>z9</div>
       <div>z7a</div>
       <div>z8a</div>
@@ -315,6 +333,60 @@ export default {
   props: {},
 
   data() {
+    const roadSquares = [
+      {
+        key: 'g_01',
+        rank: 'normal',
+        html_class: 'game-engine',
+        title: 'coucou',
+        description: 'tralala pouet \n\npif paf',
+      },
+      {
+        key: 'i_01',
+        rank: 'vision',
+        html_class: 'ide',
+        title: 'Fonctions de debug',
+        gif_vision: 'test_vision.gif',
+      },
+      {
+        key: 'i_02',
+        rank: 'superior',
+        html_class: 'ide superior-square',
+        title: 'un autre \n\ncoucou',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+        description: 'tralala pouet \n pif paf boum',
+      },
+      {
+        key: '#_00',
+        rank: 'origin',
+        html_class: 'road-map-origin',
+        description: (
+          'C\'est la road-map de Squarity. Elle n\'est pas linéaire.\n'
+          + 'C\'est une "road-square-map".\n'
+          + 'Cliquez sur les autres carrés pour avoir des précisions sur les fonctionnalités prévues.'),
+        link_url: 'https://github.com/darkrecher/squarity-doc/blob/master/road_map.md',
+        link_text: 'Lien vers la road-map version "document normal".',
+      },
+      {
+        key: 'v_01',
+        rank: 'empty',
+        html_class: 'empty',
+      },
+    ];
+
+    const dictSquareDescriptions = {};
+    // C'est vraiment une syntaxe de merde, ces forEach.
+    // Je peux pas faire de "for ... of" à cause de ce crétin de linter.
+    roadSquares.forEach((square) => {
+      const oneSquareDescrip = {};
+      oneSquareDescrip.description = square.description;
+      if (('link_url' in square) && ('link_text' in square)) {
+        oneSquareDescrip.link_url = square.link_url;
+        oneSquareDescrip.link_text = square.link_text;
+      }
+      dictSquareDescriptions[square.key] = oneSquareDescrip;
+    });
+
     return {
       is_tooltip_visible: false,
       square_x_tooltip: null,
@@ -322,20 +394,8 @@ export default {
       // TODO : comment on déclare et comment on utilise
       // des constantes dans ce fichu langage ?
       GRID_LENGTH_IN_SQUARE: 10,
-      road_squares: [
-        {
-          key: 'g_01',
-          title: 'coucou',
-          html_class: 'game-engine',
-          description: 'tralala pouet \n pif paf',
-        },
-        {
-          key: 'i_01',
-          title: 'un autre coucou',
-          html_class: 'ide',
-          description: 'tralala pouet \n pif paf boum',
-        },
-      ],
+      road_squares: roadSquares,
+      dict_square_descriptions: dictSquareDescriptions,
     };
   },
 
@@ -376,17 +436,14 @@ export default {
         this.square_y_tooltip = newSquareY;
         tooltipWindow.style.top = `${styleTopEm.toString()}em`;
         tooltipWindow.style.left = `${styleLeftEm.toString()}em`;
-
         // Modification du texte dans la fenêtre de tooltip.
         // Avec du inner HTML à la crade, et puis c'est tout.
-        // TODO : ce sera peut-être mieux de laisser ce texte dans le json,
-        // et d'aller chercher le bon texte en se basant sur les coordonnées du square.
-        tooltipWindow.innerHTML = '';
-        const toolTipTexts = event.currentTarget.getElementsByClassName('tooltip-text');
-        if (toolTipTexts.length === 1) {
-          const toolTipText = toolTipTexts[0].innerHTML;
-          console.log(toolTipText);
-          tooltipWindow.innerHTML = toolTipText;
+        const squareKey = event.currentTarget.getAttribute('my_key');
+        const squareDescription = this.dict_square_descriptions[squareKey];
+        tooltipWindow.innerHTML = squareDescription.description;
+        if (('link_url' in squareDescription) && ('link_text' in squareDescription)) {
+          tooltipWindow.innerHTML += `<br><a href=${squareDescription.link_url} target="_blank">`
+            + `${squareDescription.link_text}</a>`;
         }
       } else {
         this.hide_tooltip();
@@ -454,20 +511,23 @@ export default {
   padding-right: 5px;
 }
 
-.clickable {
-  padding-top: 10px;
+.road-map-origin {
+  background-color: #004000;
 }
 
-.clickable>p {
-  flex-grow: 1.0;
+.road-map-origin p {
+  font-weight: bolder;
+  color: #00D000;
+  margin: 0.2em 0 0.5em 0;
+}
+
+.squarex {
+  height: 7em;
+  margin: 0.2em 0 0.5em 0;
 }
 
 .click-me {
   height: 2em;
-}
-
-.road-map-origin {
-  background-color: #424242;
 }
 
 .special-effect {
@@ -524,30 +584,30 @@ export default {
 
 /* --- root squares --- */
 
-.root-square {
+.superior-square {
   background-position: 0 0, 25px 25px;
   background-size: 50px 50px;
   background-repeat: round;
 }
 
-.root-square span {
+.superior-square span {
   padding: 5px 0 5px 0;
   font-size: 1.1em;
   font-weight: bolder;
   white-space: pre-wrap
 }
 
-.special-effect.root-square {
+.special-effect.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #D30000 25%, transparent 25%, transparent 75%, #D30000 75%, #D30000),
     repeating-linear-gradient(45deg, #D30000 25%, #F2B3B3 25%, #F2B3B3 75%, #D30000 75%, #D30000);
 }
 
-.special-effect.root-square span {
+.special-effect.superior-square span {
   background-color: #D30000;
 }
 
-.ide.root-square {
+.ide.superior-square {
   /* https://www.magicpattern.design/tools/css-backgrounds */
   background-image:
     repeating-linear-gradient(45deg, #00B512 25%, transparent 25%, transparent 75%, #00B512 75%, #00B512),
@@ -557,71 +617,71 @@ export default {
   background-repeat: round;
 }
 
-.ide.root-square span {
+.ide.superior-square span {
   background-color: #00B512;
 }
 
-.game-engine.root-square {
+.game-engine.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #00A3FF 25%, transparent 25%, transparent 75%, #00A3FF 75%, #00A3FF),
     repeating-linear-gradient(45deg, #00A3FF 25%, #B3E4FF 25%, #B3E4FF 75%, #00A3FF 75%, #00A3FF);
 }
 
-.game-engine.root-square span {
+.game-engine.superior-square span {
   background-color: #00A3FF;
 }
 
-.tuto.root-square {
+.tuto.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #95AF00 25%, transparent 25%, transparent 75%, #95AF00 75%, #95AF00),
     repeating-linear-gradient(45deg, #95AF00 25%, #F9FFC4 25%, #F9FFC4 75%, #95AF00 75%, #95AF00);
 }
 
-.tuto.root-square span {
+.tuto.superior-square span {
   background-color: #95AF00;
 }
 
-.level.root-square {
+.level.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #8F47E0 25%, transparent 25%, transparent 75%, #8F47E0 75%, #8F47E0),
     repeating-linear-gradient(45deg, #8F47E0 25%, #DEC8F6 25%, #DEC8F6 75%, #8F47E0 75%, #8F47E0);
 }
 
-.level.root-square span {
+.level.superior-square span {
   background-color: #8F47E0;
 }
 
-.promo.root-square {
+.promo.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #FF7B23 25%, transparent 25%, transparent 75%, #FF7B23 75%, #FF7B23),
     repeating-linear-gradient(45deg, #FF7B23 25%, #FFD8BD 25%, #FFD8BD 75%, #FF7B23 75%, #FF7B23);
 }
 
-.promo.root-square span {
+.promo.superior-square span {
   background-color: #FF7B23;
 }
 
-.social.root-square {
+.social.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #00E8FF 25%, transparent 25%, transparent 75%, #00E8FF 75%, #00E8FF),
     repeating-linear-gradient(45deg, #00E8FF 25%, #B3F8FF 25%, #B3F8FF 75%, #00E8FF 75%, #00E8FF);
 }
 
-.social.root-square span {
+.social.superior-square span {
   background-color: #00E8FF;
 }
 
-.optim.root-square {
+.optim.superior-square {
   background-image:
     repeating-linear-gradient(45deg, #E5E500 25%, transparent 25%, transparent 75%, #E5E500 75%, #E5E500),
     repeating-linear-gradient(45deg, #E5E500 25%, #F7F7B3 25%, #F7F7B3 75%, #E5E500 75%, #E5E500);
 }
 
-.optim.root-square span {
+.optim.superior-square span {
   background-color: #E5E500;
 }
 
-.empty-square {
+.empty {
   background-color: #202020;
 }
 
