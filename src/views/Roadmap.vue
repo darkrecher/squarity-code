@@ -222,6 +222,10 @@
           </span>
         </p>
       </div>
+      <div class="empty" />
+      <div class="empty" />
+      <div class="empty" />
+      <div class="empty" />
       <template v-for="item in road_squares">
         <!--
           Je me pète les rouleaux à écrire `:key="item.key"` dans ce foutu code,
@@ -333,31 +337,35 @@ export default {
   props: {},
 
   data() {
-    const roadSquares = [
+    const mapSquares = [
+      '... ... ... e00 g00 i00 ... ... ... ...',
+      '... ... ... t00 #00 l00 ... ... ... ...',
+      '... ... ... c00 s00 o00 ... ... ... ...',
+    ];
+    const unorderedRoadSquares = [
       {
-        key: 'g_01',
+        key: 'g01',
         rank: 'normal',
         html_class: 'game-engine',
         title: 'coucou',
         description: 'tralala pouet \n\npif paf',
       },
       {
-        key: 'i_01',
+        key: 'i01',
         rank: 'vision',
         html_class: 'ide',
         title: 'Fonctions de debug',
         gif_vision: 'test_vision.gif',
       },
       {
-        key: 'i_02',
+        key: 'i01',
         rank: 'superior',
         html_class: 'ide superior-square',
         title: 'un autre \n\ncoucou',
         gif_vision: 'dancing-banana-gif-moving-5.gif',
-        description: 'tralala pouet \n pif paf boum',
       },
       {
-        key: '#_00',
+        key: '#00',
         rank: 'origin',
         html_class: 'road-map-origin',
         description: (
@@ -368,11 +376,97 @@ export default {
         link_text: 'Lien vers la road-map version "document normal".',
       },
       {
-        key: 'v_01',
+        key: 'e00',
+        rank: 'superior',
+        html_class: 'special-effect superior-square',
+        title: '"Effets spéciaux"',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 'g00',
+        rank: 'superior',
+        html_class: 'game-engine superior-square',
+        title: 'Moteur du jeu',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 'i00',
+        rank: 'superior',
+        html_class: 'ide superior-square',
+        title: 'Environnement de développement intégré',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 't00',
+        rank: 'superior',
+        html_class: 'tuto superior-square',
+        title: 'Tutoriels\n\nDocs\n\nExemples',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 'l00',
+        rank: 'superior',
+        html_class: 'level superior-square',
+        title: 'Éditeur de niveaux\n\nGestion des tilesets',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 'c00',
+        rank: 'superior',
+        html_class: 'promo superior-square',
+        title: 'Contenu\n\nJeux\n\nPromotion',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 's00',
+        rank: 'superior',
+        html_class: 'social superior-square',
+        title: 'Social\n\nSite web',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+      {
+        key: 'o00',
+        rank: 'superior',
+        html_class: 'optim superior-square',
+        title: 'Auto-formation\n\nOptimisation',
+        gif_vision: 'dancing-banana-gif-moving-5.gif',
+      },
+
+      {
+        key: 'v01',
         rank: 'empty',
         html_class: 'empty',
       },
     ];
+
+    let emptySquareIndex = 0;
+    const roadSquares = [];
+    mapSquares.forEach((line) => {
+      const splittedLine = line.split(' ');
+      splittedLine.forEach((elem) => {
+        if (elem === '...') {
+          const emptySquare = {
+            rank: 'empty',
+            html_class: 'empty',
+          };
+          emptySquare.key = `v${emptySquareIndex}`;
+          roadSquares.push(emptySquare);
+          emptySquareIndex += 1;
+        } else {
+          let currentSquare = null;
+          unorderedRoadSquares.forEach((square) => {
+            if (square.key === elem) {
+              currentSquare = square;
+            }
+          });
+          // TODO : faire un truc si currentSquare est toujours null.
+          // mais pas de console.log, parce qu'apparemment, c'est le mal.
+          if (currentSquare !== null) {
+            roadSquares.push(currentSquare);
+          }
+        }
+      });
+    });
 
     const dictSquareDescriptions = {};
     // C'est vraiment une syntaxe de merde, ces forEach.
@@ -567,6 +661,46 @@ export default {
 
 .optim {
   background-color: #E5E500;
+  border: 2px solid #F7F7B3;
+}
+
+.special-effect-undone {
+  background-color: #EF8B8B;
+  border: 2px solid #F2B3B3;
+}
+
+.game-engine-undone {
+  background-color: #7EB0CC;
+  border: 2px solid #B3E4FF;
+}
+
+.ide-undone {
+  background-color: #BAD8BD;
+  border: 2px solid #B3E9B8;
+}
+
+.tuto-undone {
+  background-color: #ABC191;
+  border: 2px solid #F9FFC4;
+}
+
+.level-undone {
+  background-color: #B19FC6;
+  border: 2px solid #DEC8F6;
+}
+
+.promo-undone {
+  background-color: #E5B392;
+  border: 2px solid #FFD8BD;
+}
+
+.social-undone {
+  background-color: #AAD1D5;
+  border: 2px solid #B3F8FF;
+}
+
+.optim-undone {
+  background-color: #D8D8AB;
   border: 2px solid #F7F7B3;
 }
 
