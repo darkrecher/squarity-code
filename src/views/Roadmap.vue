@@ -8,17 +8,7 @@
     <br>
 
     <div id="tooltipWindow" class="tooltip-window" @click="hide_tooltip">
-      <br>
-      Je suis un énorme tas de texte dans le tooltip
-      <br>
-      Je suis un énorme tas de texte dans le tooltip
-      <br>
-      Je suis un énorme tas de texte dans le tooltip
-      <br>
-      Je suis un énorme tas de texte dans le tooltip
-      <br>
-      Je suis un énorme tas de texte dans le tooltip zouzou prout plop
-      <br>
+      tooltip text placeholder.
     </div>
 
     <div class="modal-wrapper" @click="hide_modal">
@@ -37,195 +27,7 @@
           très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha
         </p>
       </div>
-      <div>2</div>
-      <div>3</div>
-      <div>4</div>
-      <div>5</div>
-      <div>6</div>
-      <div>7</div>
-      <div>8</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div class="game-engine" @click="toggle_tooltip">
-        <p>
-          Game Object affichant une valeur ou une information.
-        </p>
-        <div class="tooltip-text">
-          Types de Game Object :
-          <br>
-          - Du texte ou des nombres, pour indiquer un score, une quantité d'argent, ...
-          <br>
-          - Un rectangle de taille variable, qui s'étend sur plusieurs cases,
-          pour indiquer une barre de vie, de mana, ...
-          <br>
-          - Affichage d'une quantité sous forme de camembert.
-          <br>
-          - Une mini-map ? (À déterminer précisément)
-          <br>
-          <br>
-          Il faudra rendre ces indicateurs suffisamment configurables : taille, couleur, bord arrondi,
-          police de caractère, ... Mais pas trop, car ça doit rester simple.
-          <br>
-          Pour des indicateurs plus spécifiques, il faudra se créer ses propres game objects,
-          et coder leur comportement directement dans le game-code.
-        </div>
-      </div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
 
-      <div style="background-color: lightblue;" @click="toggle_tooltip">
-        <p>
-          aaa
-        </p>
-        <div class="tooltip-text">
-          Blabla
-          <br>
-          Blou
-        </div>
-      </div>
-
-      <div class="special-effect superior-square">
-        <p>
-          <span>
-            "Effets spéciaux"
-          </span>
-        </p>
-      </div>
-      <div class="game-engine superior-square">
-        <p>
-          <span>
-            Moteur du jeu
-          </span>
-        </p>
-      </div>
-      <div class="ide superior-square">
-        <p>
-          <span>
-            Environnement de développement intégré
-          </span>
-        </p>
-      </div>
-      <div class="empty" />
-      <div>z7</div>
-      <div class="game-engine">
-        <p>
-          Rendre l'aire de jeu redimensionnable dynamiquement
-        </p>
-      </div>
-      <div>7</div>
-      <div>8</div>
-      <div>9</div>
-      <div>
-        7a
-      </div>
-      <div class="tuto superior-square">
-        <p>
-          <span>
-            Tutoriels
-            <br><br>
-            Docs
-            <br><br>
-            Exemples
-          </span>
-        </p>
-      </div>
-      <div class="empty" />
-      <div class="level superior-square" gif_vision="dancing-banana-gif-moving-5.gif" @click="show_modal">
-        <p>
-          <span>
-            Éditeur de niveaux Gestion des tilesets
-          </span>
-        </p>
-      </div>
-      <div>z2</div>
-      <div>z3</div>
-      <div class="empty" />
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div class="promo superior-square">
-        <p>
-          <span>
-            Contenu
-            <br><br>
-            Jeux
-            <br><br>
-            Promotion
-          </span>
-        </p>
-      </div>
-      <div class="social superior-square">
-        <p>
-          <span>
-            Social
-            <br><br>
-            Site web
-          </span>
-        </p>
-      </div>
-      <div class="optim superior-square">
-        <p>
-          <span>
-            Auto-formation
-            <br><br>
-            Optimisation
-          </span>
-        </p>
-      </div>
-      <div class="empty" />
-      <div class="empty" />
-      <div class="empty" />
-      <div class="empty" />
       <template v-for="item in road_squares">
         <!--
           Je me pète les rouleaux à écrire `:key="item.key"` dans ce foutu code,
@@ -261,75 +63,13 @@
         </div>
         <div v-if="item.rank === 'empty'" :key="item.key" :class="item.html_class" />
       </template>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
-      <div>z1</div>
-      <div>z2</div>
-      <div>z3</div>
-      <div>z4</div>
-      <div>z5</div>
-      <div>z6</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7</div>
-      <div>z8</div>
-      <div>z9</div>
-      <div>z7a</div>
-      <div>z8a</div>
-      <div>z9a</div>
     </div>
   </div>
 </template>
 
 <script>
+
+const axios = require('axios');
 
 export default {
   name: 'RoadMap',
@@ -337,150 +77,6 @@ export default {
   props: {},
 
   data() {
-    const mapSquares = [
-      '... ... ... e00 g00 i00 ... ... ... ...',
-      '... ... ... t00 #00 l00 ... ... ... ...',
-      '... ... ... c00 s00 o00 ... ... ... ...',
-    ];
-    const unorderedRoadSquares = [
-      {
-        key: 'g01',
-        rank: 'normal',
-        html_class: 'game-engine',
-        title: 'coucou',
-        description: 'tralala pouet \n\npif paf',
-      },
-      {
-        key: 'i01',
-        rank: 'vision',
-        html_class: 'ide',
-        title: 'Fonctions de debug',
-        gif_vision: 'test_vision.gif',
-      },
-      {
-        key: 'i01',
-        rank: 'superior',
-        html_class: 'ide superior-square',
-        title: 'un autre \n\ncoucou',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: '#00',
-        rank: 'origin',
-        html_class: 'road-map-origin',
-        description: (
-          'C\'est la road-map de Squarity. Elle n\'est pas linéaire.\n'
-          + 'C\'est une "road-square-map".\n'
-          + 'Cliquez sur les autres carrés pour avoir des précisions sur les fonctionnalités prévues.'),
-        link_url: 'https://github.com/darkrecher/squarity-doc/blob/master/road_map.md',
-        link_text: 'Lien vers la road-map version "document normal".',
-      },
-      {
-        key: 'e00',
-        rank: 'superior',
-        html_class: 'special-effect superior-square',
-        title: '"Effets spéciaux"',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 'g00',
-        rank: 'superior',
-        html_class: 'game-engine superior-square',
-        title: 'Moteur du jeu',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 'i00',
-        rank: 'superior',
-        html_class: 'ide superior-square',
-        title: 'Environnement de développement intégré',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 't00',
-        rank: 'superior',
-        html_class: 'tuto superior-square',
-        title: 'Tutoriels\n\nDocs\n\nExemples',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 'l00',
-        rank: 'superior',
-        html_class: 'level superior-square',
-        title: 'Éditeur de niveaux\n\nGestion des tilesets',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 'c00',
-        rank: 'superior',
-        html_class: 'promo superior-square',
-        title: 'Contenu\n\nJeux\n\nPromotion',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 's00',
-        rank: 'superior',
-        html_class: 'social superior-square',
-        title: 'Social\n\nSite web',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-      {
-        key: 'o00',
-        rank: 'superior',
-        html_class: 'optim superior-square',
-        title: 'Auto-formation\n\nOptimisation',
-        gif_vision: 'dancing-banana-gif-moving-5.gif',
-      },
-
-      {
-        key: 'v01',
-        rank: 'empty',
-        html_class: 'empty',
-      },
-    ];
-
-    let emptySquareIndex = 0;
-    const roadSquares = [];
-    mapSquares.forEach((line) => {
-      const splittedLine = line.split(' ');
-      splittedLine.forEach((elem) => {
-        if (elem === '...') {
-          const emptySquare = {
-            rank: 'empty',
-            html_class: 'empty',
-          };
-          emptySquare.key = `v${emptySquareIndex}`;
-          roadSquares.push(emptySquare);
-          emptySquareIndex += 1;
-        } else {
-          let currentSquare = null;
-          unorderedRoadSquares.forEach((square) => {
-            if (square.key === elem) {
-              currentSquare = square;
-            }
-          });
-          // TODO : faire un truc si currentSquare est toujours null.
-          // mais pas de console.log, parce qu'apparemment, c'est le mal.
-          if (currentSquare !== null) {
-            roadSquares.push(currentSquare);
-          }
-        }
-      });
-    });
-
-    const dictSquareDescriptions = {};
-    // C'est vraiment une syntaxe de merde, ces forEach.
-    // Je peux pas faire de "for ... of" à cause de ce crétin de linter.
-    roadSquares.forEach((square) => {
-      const oneSquareDescrip = {};
-      oneSquareDescrip.description = square.description;
-      if (('link_url' in square) && ('link_text' in square)) {
-        oneSquareDescrip.link_url = square.link_url;
-        oneSquareDescrip.link_text = square.link_text;
-      }
-      dictSquareDescriptions[square.key] = oneSquareDescrip;
-    });
-
     return {
       is_tooltip_visible: false,
       square_x_tooltip: null,
@@ -488,25 +84,77 @@ export default {
       // TODO : comment on déclare et comment on utilise
       // des constantes dans ce fichu langage ?
       GRID_LENGTH_IN_SQUARE: 10,
-      road_squares: roadSquares,
-      dict_square_descriptions: dictSquareDescriptions,
+      road_squares: [],
+      dict_square_descriptions: {},
     };
   },
 
-  mounted() {
-    // Pour scroller vers un élément particulier.
+  async mounted() {
+    // TODO : il faut un "machin qui tourne" tant qu'on n'a pas récupéré le json.
+    const roadMapData = await axios.get('/road_map_data.json');
+    this.setRoadSquares(roadMapData.data.map_squares, roadMapData.data.unordered_road_squares);
+  },
+
+  updated() {
+    // Cette fonction s'exécute après le mounted, quand tout le DOM a été mis à jour.
+    // Et peut-être qu'elle s'exécute à d'autre moments, mais j'ai pas repéré.
+    //
+    // scrollIntoView permet de scroller vers un élément particulier.
     document.getElementById('roadMapOrigin').scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
-    console.log('coucou !');
   },
 
   methods: {
+    setRoadSquares(mapSquares, unorderedRoadSquares) {
+      let emptySquareIndex = 0;
+      const roadSquares = [];
+      mapSquares.forEach((line) => {
+        const splittedLine = line.split(' ');
+        splittedLine.forEach((elem) => {
+          if (elem === '...') {
+            const emptySquare = {
+              rank: 'empty',
+              html_class: 'empty',
+            };
+            emptySquare.key = `v${emptySquareIndex}`;
+            roadSquares.push(emptySquare);
+            emptySquareIndex += 1;
+          } else {
+            let currentSquare = null;
+            unorderedRoadSquares.forEach((square) => {
+              if (square.key === elem) {
+                currentSquare = square;
+              }
+            });
+            // TODO : faire un truc si currentSquare est toujours null.
+            // mais pas de console.log, parce qu'apparemment, c'est le mal.
+            if (currentSquare !== null) {
+              roadSquares.push(currentSquare);
+            }
+          }
+        });
+      });
+
+      const dictSquareDescriptions = {};
+      // C'est vraiment une syntaxe de merde, ces forEach.
+      // Je peux pas faire de "for ... of" à cause de ce crétin de linter.
+      roadSquares.forEach((square) => {
+        const oneSquareDescrip = {};
+        oneSquareDescrip.description = square.description;
+        if (('link_url' in square) && ('link_text' in square)) {
+          oneSquareDescrip.link_url = square.link_url;
+          oneSquareDescrip.link_text = square.link_text;
+        }
+        dictSquareDescriptions[square.key] = oneSquareDescrip;
+      });
+      this.road_squares = roadSquares;
+      this.dict_square_descriptions = dictSquareDescriptions;
+    },
+
     toggle_tooltip(event) {
       // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
       // gives-element-or-its-child-and-not-parent-element-with-vue-js/
       console.log(event.currentTarget);
-
       const tooltipWindow = document.getElementById('tooltipWindow');
-
       const container = event.currentTarget.parentNode;
       console.log(container);
       const arrayChildren = Array.prototype.slice.call(container.children);
@@ -840,10 +488,6 @@ export default {
   /* Ne pas utiliser le tag "pre", ça met le bronx. */
   /* https://stackoverflow.com/questions/36729634/rendering-newline-character-in-vuejs */
   white-space: pre-wrap
-}
-
-.tooltip-text {
-  display: none;
 }
 
 /* --- Pour la grosse fenêtre modale avec une gif dedans --- */

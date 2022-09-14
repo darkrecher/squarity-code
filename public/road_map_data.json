@@ -1,0 +1,98 @@
+{
+    "nb_elems_osef": "ide:8 levels:8 game-engine:18 effects:8 tuto:5 contenu:4 social:12 optim:6",
+    "map_squares": [
+        "    ... ... ... ... ... ... ... ... ...",
+        "... ... ... ... g01 g02 ... ... ... ...",
+        "... ... ... e00 g00 i00 i01 ... ... ...",
+        "... ... ... t00 #00 l00 ... ... ... ...",
+        "... ... ... c00 s00 o00 ... ... ... ...",
+        "... ... ... ... ... ... ... ... ... ..."
+    ],
+    "unordered_road_squares": [
+          {
+            "key": "#00",
+            "rank": "origin",
+            "html_class": "road-map-origin",
+            "description": "C'est la road-map de Squarity. Elle n'est pas linéaire.\nC'est une \"road-square-map\".\nCliquez sur les autres carrés pour avoir des précisions sur les fonctionnalités prévues.",
+            "link_url": "https://github.com/darkrecher/squarity-doc/blob/master/road_map.md",
+            "link_text": "Lien vers la road-map version \"document normal\"."
+          },
+          {
+            "key": "e00",
+            "rank": "superior",
+            "html_class": "special-effect superior-square",
+            "title": "\"Effets spéciaux\"",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "g00",
+            "rank": "superior",
+            "html_class": "game-engine superior-square",
+            "title": "Moteur du jeu",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "i00",
+            "rank": "superior",
+            "html_class": "ide superior-square",
+            "title": "Environnement de développement intégré",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "t00",
+            "rank": "superior",
+            "html_class": "tuto superior-square",
+            "title": "Tutoriels\n\nDocs\n\nExemples",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "l00",
+            "rank": "superior",
+            "html_class": "level superior-square",
+            "title": "Éditeur de niveaux\n\nGestion des tilesets",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "c00",
+            "rank": "superior",
+            "html_class": "promo superior-square",
+            "title": "Contenu\n\nJeux\n\nPromotion",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "s00",
+            "rank": "superior",
+            "html_class": "social superior-square",
+            "title": "Social\n\nSite web",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "o00",
+            "rank": "superior",
+            "html_class": "optim superior-square",
+            "title": "Auto-formation\n\nOptimisation",
+            "gif_vision": "dancing-banana-gif-moving-5.gif"
+          },
+          {
+            "key": "i01",
+            "rank": "vision",
+            "html_class": "ide",
+            "title": "Fonctions de debug",
+            "gif_vision": "test_vision.gif"
+          },
+          {
+            "key": "g01",
+            "rank": "normal",
+            "html_class": "game-engine",
+            "title": "Démarrer un moteur qui fonctionne",
+            "description": "descrip TODO.\n Avec des zones de texte, un bouton \"Exécuter\", et on peut jouer au jeu.\nAfficher correctement les exceptions python."
+        },
+        {
+            "key": "g02",
+            "rank": "normal",
+            "html_class": "game-engine-undone",
+            "title": "Game Object affichant une valeur ou une information.",
+            "description": "Types de Game Object :\n - Du texte ou des nombres, pour indiquer un score, une quantité d'argent, ...\n - Un rectangle de taille variable, qui s'étend sur plusieurs cases, pour indiquer une barre de vie, de mana, ...\n - Affichage d'une quantité sous forme de camembert.\n - Une mini-map ? (À déterminer précisément)\n\nIl faudra rendre ces indicateurs suffisamment configurables : taille, couleur, bord arrondi,police de caractère, ... Mais pas trop, car ça doit rester simple.\n\nPour des indicateurs plus spécifiques, il faudra se créer ses propres game objects,et coder leur comportement directement dans le game-code."
+          }
+    ]
+}
