@@ -45,11 +45,13 @@
         </div>
         <div v-if="item.rank === 'superior'" :key="item.key" :my_key="item.key" :class="item.html_class"
           :gif_vision="item.gif_vision" @click="show_modal">
-          <p>
-            <span>
-              {{ item.title }}
-            </span>
-          </p>
+          <div>
+            <p>
+              <span>
+                {{ item.title }}
+              </span>
+            </p>
+          </div>
         </div>
         <div v-if="item.rank === 'vision'" :key="item.key" :my_key="item.key" :class="item.html_class"
           :gif_vision="item.gif_vision" @click="show_modal">
@@ -83,7 +85,7 @@ export default {
       square_y_tooltip: null,
       // TODO : comment on déclare et comment on utilise
       // des constantes dans ce fichu langage ?
-      GRID_LENGTH_IN_SQUARE: 10,
+      GRID_LENGTH_IN_SQUARE: 11,
       road_squares: [],
       dict_square_descriptions: {},
     };
@@ -170,8 +172,8 @@ export default {
       ) {
         // Positionnement de la fenêtre de tooltip
         // TODO : il y a des valeurs à la con, qu'il faudra mettre dans des constantes.
-        const styleTopEm = newSquareY * 10 + 8;
-        const styleLeftEm = newSquareX * 10 + 12;
+        const styleTopEm = newSquareY * 11 + 8;
+        const styleLeftEm = newSquareX * 11 + 12;
         this.is_tooltip_visible = true;
         tooltipWindow.style.display = 'block';
         this.square_x_tooltip = newSquareX;
@@ -229,15 +231,14 @@ export default {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 10em 10em 10em 10em 10em 10em 10em 10em 10em 10em;
+  grid-template-columns: 11em 11em 11em 11em 11em 11em 11em 11em 11em 11em 11em;
   font-weight: bold;
-  background-color: darkblue;
   width: fit-content;
 }
 
 .grid-container>div {
   text-align: center;
-  height: 10em;
+  height: 11em;
   /* Ça, c'est pour que le texte ne s'affiche pas en dehors du carré. */
   overflow: hidden;
   color: black;
@@ -249,8 +250,7 @@ export default {
   box-sizing: border-box;
   flex-direction: column;
   background-clip: padding-box;
-  padding-left: 5px;
-  padding-right: 5px;
+  border: 5px solid #202020;
 }
 
 .road-map-origin {
@@ -274,82 +274,66 @@ export default {
 
 .special-effect {
   background-color: #D30000;
-  border: 2px solid #F2B3B3;
 }
 
 .game-engine {
   background-color: #00A3FF;
-  border: 2px solid #B3E4FF;
 }
 
 .ide {
   background-color: #00B512;
-  border: 2px solid #B3E9B8;
 }
 
 .tuto {
   background-color: #95AF00;
-  border: 2px solid #F9FFC4;
 }
 
 .level {
   background-color: #8F47E0;
-  border: 2px solid #DEC8F6;
 }
 
 .promo {
   background-color: #FF7B23;
-  border: 2px solid #FFD8BD;
 }
 
 .social {
   background-color: #00E8FF;
-  border: 2px solid #B3F8FF;
 }
 
 .optim {
   background-color: #E5E500;
-  border: 2px solid #F7F7B3;
 }
 
 .special-effect-undone {
   background-color: #EF8B8B;
-  border: 2px solid #F2B3B3;
 }
 
 .game-engine-undone {
   background-color: #7EB0CC;
-  border: 2px solid #B3E4FF;
 }
 
 .ide-undone {
   background-color: #BAD8BD;
-  border: 2px solid #B3E9B8;
 }
 
 .tuto-undone {
   background-color: #ABC191;
-  border: 2px solid #F9FFC4;
 }
 
 .level-undone {
   background-color: #B19FC6;
-  border: 2px solid #DEC8F6;
 }
 
 .promo-undone {
   background-color: #E5B392;
-  border: 2px solid #FFD8BD;
 }
 
 .social-undone {
   background-color: #AAD1D5;
-  border: 2px solid #B3F8FF;
 }
 
 .optim-undone {
   background-color: #D8D8AB;
-  border: 2px solid #F7F7B3;
 }
 
 .roadmap {
@@ -366,100 +350,83 @@ export default {
 
 /* --- root squares --- */
 
-.superior-square {
-  background-position: 0 0, 25px 25px;
-  background-size: 50px 50px;
-  background-repeat: round;
+div.superior-square {
+  padding: 10px;
+}
+
+.superior-square div {
+  padding: 10px;
+  height: 100%;
+  width: 100%;
 }
 
 .superior-square span {
-  padding: 5px 0 5px 0;
-  font-size: 1.1em;
+  font-size: 1.0em;
   font-weight: bolder;
-  white-space: pre-wrap
+  white-space: pre-wrap;
 }
 
 .special-effect.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #D30000 25%, transparent 25%, transparent 75%, #D30000 75%, #D30000),
-    repeating-linear-gradient(45deg, #D30000 25%, #F2B3B3 25%, #F2B3B3 75%, #D30000 75%, #D30000);
+  background-color: #F2B3B3;
 }
 
-.special-effect.superior-square span {
+.special-effect.superior-square div {
   background-color: #D30000;
 }
 
 .ide.superior-square {
-  /* https://www.magicpattern.design/tools/css-backgrounds */
-  background-image:
-    repeating-linear-gradient(45deg, #00B512 25%, transparent 25%, transparent 75%, #00B512 75%, #00B512),
-    repeating-linear-gradient(45deg, #00B512 25%, #B3E9B8 25%, #B3E9B8 75%, #00B512 75%, #00B512);
-  background-position: 0 0, 25px 25px;
-  background-size: 50px 50px;
-  background-repeat: round;
+  background-color: #B3E9B8;
 }
 
-.ide.superior-square span {
+.ide.superior-square div {
   background-color: #00B512;
 }
 
 .game-engine.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #00A3FF 25%, transparent 25%, transparent 75%, #00A3FF 75%, #00A3FF),
-    repeating-linear-gradient(45deg, #00A3FF 25%, #B3E4FF 25%, #B3E4FF 75%, #00A3FF 75%, #00A3FF);
+  background-color: #00E8FF;
 }
 
-.game-engine.superior-square span {
+.game-engine.superior-square div {
   background-color: #00A3FF;
 }
 
 .tuto.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #95AF00 25%, transparent 25%, transparent 75%, #95AF00 75%, #95AF00),
-    repeating-linear-gradient(45deg, #95AF00 25%, #F9FFC4 25%, #F9FFC4 75%, #95AF00 75%, #95AF00);
+  background-color: #F9FFC4;
 }
 
-.tuto.superior-square span {
+.tuto.superior-square div {
   background-color: #95AF00;
 }
 
 .level.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #8F47E0 25%, transparent 25%, transparent 75%, #8F47E0 75%, #8F47E0),
-    repeating-linear-gradient(45deg, #8F47E0 25%, #DEC8F6 25%, #DEC8F6 75%, #8F47E0 75%, #8F47E0);
+  background-color: #DEC8F6;
 }
 
-.level.superior-square span {
+.level.superior-square div {
   background-color: #8F47E0;
 }
 
 .promo.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #FF7B23 25%, transparent 25%, transparent 75%, #FF7B23 75%, #FF7B23),
-    repeating-linear-gradient(45deg, #FF7B23 25%, #FFD8BD 25%, #FFD8BD 75%, #FF7B23 75%, #FF7B23);
+  background-color: #FFD8BD;
 }
 
-.promo.superior-square span {
+.promo.superior-square div {
   background-color: #FF7B23;
 }
 
 .social.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #00E8FF 25%, transparent 25%, transparent 75%, #00E8FF 75%, #00E8FF),
-    repeating-linear-gradient(45deg, #00E8FF 25%, #B3F8FF 25%, #B3F8FF 75%, #00E8FF 75%, #00E8FF);
+  background-color: #B3F8FF;
 }
 
-.social.superior-square span {
+.social.superior-square div {
   background-color: #00E8FF;
 }
 
 .optim.superior-square {
-  background-image:
-    repeating-linear-gradient(45deg, #E5E500 25%, transparent 25%, transparent 75%, #E5E500 75%, #E5E500),
-    repeating-linear-gradient(45deg, #E5E500 25%, #F7F7B3 25%, #F7F7B3 75%, #E5E500 75%, #E5E500);
+  background-color: #F7F7B3;
 }
 
-.optim.superior-square span {
+.optim.superior-square div {
   background-color: #E5E500;
 }
 

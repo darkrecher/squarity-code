@@ -1,98 +1,559 @@
 {
-    "nb_elems_osef": "ide:8 levels:8 game-engine:18 effects:8 tuto:5 contenu:4 social:12 optim:6",
-    "map_squares": [
-        "    ... ... ... ... ... ... ... ... ...",
-        "... ... ... ... g01 g02 ... ... ... ...",
-        "... ... ... e00 g00 i00 i01 ... ... ...",
-        "... ... ... t00 #00 l00 ... ... ... ...",
-        "... ... ... c00 s00 o00 ... ... ... ...",
-        "... ... ... ... ... ... ... ... ... ..."
-    ],
-    "unordered_road_squares": [
-          {
-            "key": "#00",
-            "rank": "origin",
-            "html_class": "road-map-origin",
-            "description": "C'est la road-map de Squarity. Elle n'est pas linéaire.\nC'est une \"road-square-map\".\nCliquez sur les autres carrés pour avoir des précisions sur les fonctionnalités prévues.",
-            "link_url": "https://github.com/darkrecher/squarity-doc/blob/master/road_map.md",
-            "link_text": "Lien vers la road-map version \"document normal\"."
-          },
-          {
-            "key": "e00",
-            "rank": "superior",
-            "html_class": "special-effect superior-square",
-            "title": "\"Effets spéciaux\"",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "g00",
-            "rank": "superior",
-            "html_class": "game-engine superior-square",
-            "title": "Moteur du jeu",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "i00",
-            "rank": "superior",
-            "html_class": "ide superior-square",
-            "title": "Environnement de développement intégré",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "t00",
-            "rank": "superior",
-            "html_class": "tuto superior-square",
-            "title": "Tutoriels\n\nDocs\n\nExemples",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "l00",
-            "rank": "superior",
-            "html_class": "level superior-square",
-            "title": "Éditeur de niveaux\n\nGestion des tilesets",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "c00",
-            "rank": "superior",
-            "html_class": "promo superior-square",
-            "title": "Contenu\n\nJeux\n\nPromotion",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "s00",
-            "rank": "superior",
-            "html_class": "social superior-square",
-            "title": "Social\n\nSite web",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "o00",
-            "rank": "superior",
-            "html_class": "optim superior-square",
-            "title": "Auto-formation\n\nOptimisation",
-            "gif_vision": "dancing-banana-gif-moving-5.gif"
-          },
-          {
-            "key": "i01",
-            "rank": "vision",
-            "html_class": "ide",
-            "title": "Fonctions de debug",
-            "gif_vision": "test_vision.gif"
-          },
-          {
-            "key": "g01",
-            "rank": "normal",
-            "html_class": "game-engine",
-            "title": "Démarrer un moteur qui fonctionne",
-            "description": "descrip TODO.\n Avec des zones de texte, un bouton \"Exécuter\", et on peut jouer au jeu.\nAfficher correctement les exceptions python."
-        },
-        {
-            "key": "g02",
-            "rank": "normal",
-            "html_class": "game-engine-undone",
-            "title": "Game Object affichant une valeur ou une information.",
-            "description": "Types de Game Object :\n - Du texte ou des nombres, pour indiquer un score, une quantité d'argent, ...\n - Un rectangle de taille variable, qui s'étend sur plusieurs cases, pour indiquer une barre de vie, de mana, ...\n - Affichage d'une quantité sous forme de camembert.\n - Une mini-map ? (À déterminer précisément)\n\nIl faudra rendre ces indicateurs suffisamment configurables : taille, couleur, bord arrondi,police de caractère, ... Mais pas trop, car ça doit rester simple.\n\nPour des indicateurs plus spécifiques, il faudra se créer ses propres game objects,et coder leur comportement directement dans le game-code."
-          }
-    ]
+  "map_squares": [
+    "    ... g11 ... ... g14 ... ... ... ... ...",
+    "... ... g10 g07 g12 g08 ... ... ... ... ...",
+    "... e06 g05 g06 g16 g03 g15 i03 i05 ... ...",
+    "... e05 e02 g17 g13 g02 i06 i07 ... ... ...",
+    "e08 e07 e03 e01 g09 g01 g04 i04 i02 ... ...",
+    "... ... t04 e04 e00 g00 i00 i01 i08 l04 l05",
+    "... t05 t02 t01 t00 #00 l00 l01 l02 l03 ...",
+    "... ... ... t03 c00 s00 o00 l06 l07 l08 ...",
+    "... ... c04 c02 c01 s01 o01 o02 o03 ... ...",
+    "... ... ... c03 s05 s02 s03 o04 o05 ... ...",
+    "... ... ... s08 s06 s10 s04 o06 ... ... ...",
+    "... ... ... ... s09 ... s07 s11 ... ... ...",
+    "... ... ... ... ... ... s12 ... ... ... ..."
+  ],
+  "unordered_road_squares": [
+    {
+      "key": "#00",
+      "rank": "origin",
+      "html_class": "road-map-origin",
+      "description": "C'est la road-map de Squarity. Elle n'est pas lin\u00e9aire.\nC'est une \"road-square-map\".\n\nCliquez sur les autres carr\u00e9s pour avoir des pr\u00e9cisions sur les fonctionnalit\u00e9s pr\u00e9vues.\n",
+      "link_url": "https://github.com/darkrecher/squarity-doc/blob/master/road_map.md",
+      "link_text": "Lien vers la road-map version \"document normal\"."
+    },
+    {
+      "key": "e00",
+      "rank": "superior",
+      "html_class": "special-effect superior-square",
+      "title": "\n\"Effets sp\u00e9ciaux\"",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "g00",
+      "rank": "superior",
+      "html_class": "game-engine superior-square",
+      "title": "\nMoteur du jeu",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "i00",
+      "rank": "superior",
+      "html_class": "ide superior-square",
+      "title": "Environnement de d\u00e9v. int\u00e9gr\u00e9",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "t00",
+      "rank": "superior",
+      "html_class": "tuto superior-square",
+      "title": "Tutoriels\n\nDocs\n\nExemples",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "l00",
+      "rank": "superior",
+      "html_class": "level superior-square",
+      "title": "\u00c9diteur de niveaux\n\nGestion des tilesets",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "c00",
+      "rank": "superior",
+      "html_class": "promo superior-square",
+      "title": "Contenu\n\nJeux\n\nPromotion",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "s00",
+      "rank": "superior",
+      "html_class": "social superior-square",
+      "title": "\nSocial\n\nSite web",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "o00",
+      "rank": "superior",
+      "html_class": "optim superior-square",
+      "title": "Auto-formation\n\nOptimisation",
+      "gif_vision": "dancing-banana-gif-moving-5.gif"
+    },
+    {
+      "key": "i01",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Faciliter la gestion des gameconfs.",
+      "description": "Une gameconf, c'est le texte en json (ou en yaml) d\u00e9finit avec le code d'un jeu. C'est ce qui d\u00e9finit les noms des game objects, la taille de l'aire de jeu, etc.\n\nLe YAML a un int\u00e9r\u00eat, car il est plus human-readable, et permet d'indiquer des commentaires.\n\n - D\u00e9tecter les erreurs de syntaxe, les afficher dans l'IDE, montrer la ligne o\u00f9 se trouve l'erreur.\n - D\u00e9tection automatique YAML/JSON. Si il y a une accolade ou un crochet, c'est du JSON. Sinon c'est du YAML.\n - La gameconf doit \u00eatre accessible dans le code du jeu. Pour r\u00e9cup\u00e9rer la taille initiale de l'aire de jeu, et d'autres infos.\n - Au lieu de r\u00e9p\u00e9ter les coordonn\u00e9es dans le tileset, on indique une zone dans l'image (top, left, width, height), une suite de nom, et \u00e7a cr\u00e9e automatiquement tous les gamobj types \u00e0 la suite."
+    },
+    {
+      "key": "i02",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Automatiser la g\u00e9n\u00e9ration des gameconfs",
+      "description": "Un page web avec un formulaire dans lequel on d\u00e9finit les valeurs.\n\nOn indique l'url de l'image de tileset, elle s'affiche, on s\u00e9lectionne dedans les sprites et on les nomme, pour cr\u00e9er la liste des game objects."
+    },
+    {
+      "key": "i03",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Faciliter le d\u00e9buggage",
+      "description": "Ex\u00e9cution pas-\u00e0-pas, tracking, replay, variables watch, profiling, time-line d'ex\u00e9cution comportant les callbacks et la situation du jeu, etc.\n\nEssayer de core-dumper toutes les valeurs des variables python, pour avoir un \u00e9tat global de la m\u00e9moire au moment o\u00f9 a eu lieu une exception non g\u00e9r\u00e9e.\n\nTout \u00e7a est encore tr\u00e8s flou. On le pr\u00e9cisera en ajoutant d'autres squares de roadmap."
+    },
+    {
+      "key": "i04",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Am\u00e9liorer la zone de texte du gamecode",
+      "description": "Ajout automatique d'espace en d\u00e9but de ligne, coloration syntaxique, multi-curseurs...\n\nIl faut essayer de trouver quelque chose de tout fait. Les plates-formes comme CodinGame et Jupyter ont d\u00e9j\u00e0 toutes ces fonctionnalit\u00e9s."
+    },
+    {
+      "key": "i05",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Vision : timeline de debug",
+      "description": "Timeline de debug, avec un zoom sur la timeline. Les valeurs de quelques variables. Des mini-screenshots dans la timeline montrant l'\u00e9tat du jeu \u00e0 diff\u00e9rentes \u00e9tapes."
+    },
+    {
+      "key": "i06",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Ajouter une gestion des tests unitaires",
+      "description": "Pour commencer des tests unitaires validant uniquement du code.\n\nEt ensuite, int\u00e9grer ces tests dans le moteur du jeu. Par exemple, on donne une situation initiale, des inputs (appui sur les fl\u00e8ches et les boutons d'actions), et une situation finale \u00e0 v\u00e9rifier."
+    },
+    {
+      "key": "i07",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "Documenter des solutions d'IDE externe.",
+      "description": "Documenter la technique du serveur local et du bout de javascript dans le game code qui interroge ce serveur.\n\nChercher des extensions de navigateur qui synchronisent un fichier texte sur le disque avec une zone de texte dans une page web. Ce qui permettra d'\u00e9crire le gamecode avec n'importe quel \u00e9diteur de texte."
+    },
+    {
+      "key": "i08",
+      "rank": "normal",
+      "html_class": "ide-undone",
+      "title": "G\u00e9rer des librairies personnalis\u00e9es",
+      "description": "Lorsqu'il sera possible de se cr\u00e9er un compte et d'y associer des infos (images, jeux, ...)\n\nOn doit pouvoir enregistrer des fichiers de code, que l'on peut ensuite importer dans les jeux. Avec la possibilit\u00e9 de mettre ces libs \u00e0 disposition des autres."
+    },
+    {
+      "key": "l01",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Cr\u00e9er un \u00e9diteur de niveaux.",
+      "description": "Lorsque la notion de niveau sera impl\u00e9ment\u00e9, on pourra cr\u00e9er un \u00e9diteur.\n\nDans la gameconf, il faut pouvoir d\u00e9finir la liste des game objects du jeu qui sont pla\u00e7ables avec l'\u00e9diteur.\n\n\u00c7a permettra des interactions et des collaborations entre les personnes cr\u00e9ant les jeux.\n\nUne premi\u00e8re personne cr\u00e9e un jeu, avec un tileset, le game code, les game objects, et quelques niveaux. Une autre personne cr\u00e9e d'autres niveaux que la premi\u00e8re pourra reprendre.\n\nL'\u00e9diteur de niveau doit pouvoir exporter/importer la map d'un niveau, selon le m\u00eame format que les niveaux d\u00e9finis dans la gameconf."
+    },
+    {
+      "key": "l02",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Ajouter une fonction de pr\u00e9paration d'un niveau",
+      "description": "Ajouter une callback prepare_level() dans l'API. Elle est d\u00e9finissable dans le gamecode comme les autres, mais elle n'est pas appel\u00e9e pendant le d\u00e9roulement d'une partie.\n\nLa fonction est appel\u00e9e pendant l'\u00e9dition d'un niveau, \u00e0 chaque modification de la map.\n\nElle prend en entr\u00e9e la map d\u00e9finie par la personne cr\u00e9ant un niveau, et renvoie en sortie des layers, contenant des game objects.\n\n\u00c7a permettra, par exemple, d'agencer automatiquement des game objects pour faire plus joli. Par exemple, avec H2O, on a juste \u00e0 placer des game objects de base (murs, tunnels), et la fonction place automatiquement les dessins de murs sp\u00e9cifiques.\n\nCette fonction de pr\u00e9paration pourra aussi utiliser les patterns (voir le square de roadmap \"Impl\u00e9menter un syst\u00e8me de pattern\")."
+    },
+    {
+      "key": "l03",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "G\u00e9n\u00e9rer une image d'aper\u00e7u pour les niveaux",
+      "description": "Cette image d'aper\u00e7u permet d'explorer et de naviguer plus facilement dans les niveaux d'un jeu. Lorsqu'on veut les tester, les s\u00e9lectionner pour en faire une compilation, etc."
+    },
+    {
+      "key": "l04",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Impl\u00e9menter la notion de \"solution\"",
+      "description": "Une solution est une suite de mouvements effectu\u00e9s par une personne qui joue, associ\u00e9 \u00e0 un niveau. Elle permet de r\u00e9soudre le niveau.\n\nTous les jeux ne peuvent pas impl\u00e9menter cette notion, il faut d\u00e9j\u00e0 que le jeu ait la notion de \"niveau\", et qu'il ne fasse jamais intervenir le hasard.\n\nOn peut \u00e9galement associer un score \u00e0 une solution (nombre minimal de mouvement, nombre de fruits ramass\u00e9s, ...). Mais pour cela, il faut \u00e0 nouveau une fonction d'API, qui renvoie le score.\n\nLa notion de score permettra \u00e0 des personnes de comparer leurs solutions, de publier des classements, etc.\n\nEt pour aller jusqu'au bout, il faudrait valider les solutions et les scores c\u00f4t\u00e9 serveur, sinon des personnes pourront tricher. Mais on va laisser \u00e7a de c\u00f4t\u00e9 pour l'instant, c'est trop compliqu\u00e9 et trop risqu\u00e9 au niveau de la s\u00e9curit\u00e9."
+    },
+    {
+      "key": "l05",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Associer des \u00e9diteurs 2D externes",
+      "description": "Exemple d'\u00e9diteur externe : LDtk, Tiled.\n\nIl faut regarder comment ces \u00e9diteurs fonctionnent, cr\u00e9er des fonctions d'import/export entre eux et Squarity, documenter leur utilisation.\n\nC'est aussi une occasion de faire conna\u00eetre Squarity aupr\u00e8s des gens qui utilisent ces \u00e9diteurs."
+    },
+    {
+      "key": "l06",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Enregistrer et g\u00e9rer des tilesets",
+      "description": "Une personne ayant un compte doit pouvoir uploader des tilesets.\n\nUn tileset est un ensemble d'image, qui peut \u00eatre ensuite utilis\u00e9 dans des jeux.\n\nDeux types de tileset :\n\n - \"monotaille\" : toutes les images ont la m\u00eame taille et sont des carr\u00e9s.\n - \"multitaille\" : les images peuvent avoir des tailles diff\u00e9rentes, mais il faut sp\u00e9cifier un hotpoint par image."
+    },
+    {
+      "key": "l07",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "G\u00e9rer les tilesets plus finement",
+      "description": "Une personne cr\u00e9ant un tileset doit pouvoir regrouper des images pour une signification pr\u00e9cise. Par exemple :\n\n - les 4 (ou 8) directions d'un m\u00eame personnage\n - les \u00e9tapes de l'animation d'un m\u00eame objet\n - les diff\u00e9rentes combinaisons d'une route (verticale, horizontale, tournant, croisement, ...)\n - les diff\u00e9rentes combinaisons d'une zone \u00e9tendue (de l'eau, adjacente \u00e0 d'autres cases comportant de l'eau)\n\nC'est encore assez flou, car pour l'instant, c'est difficile de voir ce qui serait faisable avec ces infos de regroupement.\n\nCr\u00e9er un nouveau tilesets en prenant des images provenant de tileset diff\u00e9rents."
+    },
+    {
+      "key": "l08",
+      "rank": "normal",
+      "html_class": "level-undone",
+      "title": "Vision : Construction d'un tileset",
+      "description": "Construction d'un tileset en piochant des images de plusieurs tilesets existants. Certaines images sont des animations. D'autres sont toutes les possibilit\u00e9s de connexions d'une route."
+    },
+    {
+      "key": "g01",
+      "rank": "normal",
+      "html_class": "game-engine",
+      "title": "Faire na\u00eetre le moteur de jeu",
+      "description": "descrip TODO\n\nAvec des zones de texte, un bouton \"Ex\u00e9cuter\", et on peut jouer au jeu.\n\nAfficher correctement les exceptions python\n\navec des actions diff\u00e9r\u00e9es. Bloquante et pas bloquante.\n\nLa prochaine \u00e9tape c'est de documenter ces actions. Ha ha ha !!!"
+    },
+    {
+      "key": "g02",
+      "rank": "normal",
+      "html_class": "game-engine",
+      "title": "Configurer la taille de l'aire de jeu",
+      "description": "descrip TODO\n\nD\u00e9finissable uniquement dans la game config. \u00c7a s'applique au moment de l'ex\u00e9cution du jeu, et on ne peut pas changer la taille."
+    },
+    {
+      "key": "g03",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Sp\u00e9cifier l'API et la structure des donn\u00e9es",
+      "description": "Une fonction on_draw() renvoyant un tableau de cha\u00eenes de caract\u00e8re, c'est trop basique.\n\nIl faut des layers. Les game objects doivent \u00eatre des objets python, et non pas juste une cha\u00eene de caract\u00e8re. Ce qui permettra d'y associer d'autres infos (effet visuel, d\u00e9placement de transition) et des fonctions (move(), hide(), ...).\n\nDes layers en mode \"tableau normal\" et des layers en mode \"matrice creuse\". L'id\u00e9al, ce serait d'avoir les m\u00eames fonctions pour les deux types de layers. Certains traitements sont plus optimis\u00e9s pour un mode que pour l'autre.\n\nIl faudra peut-\u00eatre g\u00e9rer des id num\u00e9riques de layers et de game objects, pour simplifier les \u00e9changes d'infos entre le moteur Squarity et le game code.\n\nOn pourra aussi imaginer des layers sp\u00e9ciaux n'affichant pas de game objects, mais un effet visuel global : du brouillard, une distortion d'image, un filtre de couleur, ...\n\nLes fonctions de callback peuvent renvoyer diverses informations, qu'il faudra structurer. On a un d\u00e9but de quelque chose avec le json mal foutu qui indique des actions diff\u00e9r\u00e9es. Il faut am\u00e9liorer \u00e7a. Les fonctions de callback pourrait aussi renvoyer des indications de sons \u00e0 jouer.\n\nC'est le coeur du syst\u00e8me. Il faut mettre tout \u00e7a au propre dans un document de r\u00e9f\u00e9rence, et ensuite le coder. Si possible, essayer de garder une r\u00e9tro-compatibilit\u00e9."
+    },
+    {
+      "key": "g04",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Ajouter des game objects qui d\u00e9passent de la tile",
+      "description": "Ca devrait se g\u00e9rer assez facilement une fois qu'on aura les layers.\n\nDans la d\u00e9finition du game object, on ajoute une coordonn\u00e9e de hot point, et une taille (width, height)."
+    },
+    {
+      "key": "g05",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Vision : Un dialogue de visual novel",
+      "description": "Vision : des personnages et du texte qui appara\u00eet par dessus, pour faire des \"visual novel\". Avec Blondeau George Jacques Babylas dedans."
+    },
+    {
+      "key": "g06",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Afficher du texte sous forme de bulle.",
+      "description": "C'est un game object sp\u00e9cial. Au lieu de lui associer une image, on d\u00e9finit le texte \u00e0 afficher, la couleur, la position relative de la bulle par rapport \u00e0 la tile qui la g\u00e9n\u00e8re, etc.\n\nSi possible, un comportement par d\u00e9faut dans ce game object, qui le supprime automatiquement au bout de quelques secondes."
+    },
+    {
+      "key": "g07",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Ajouter des game objects affichant une valeur ou une information.",
+      "description": "Types de Game Object :\n\n- Du texte ou des nombres, pour indiquer un score, une quantit\u00e9 d'argent, ...\n- Un rectangle de taille variable, qui s'\u00e9tend sur plusieurs cases, pour indiquer une barre de vie, de mana, ...\n- Affichage d'une quantit\u00e9 sous forme de camembert.\n- Une mini-map ? (\u00c0 d\u00e9terminer pr\u00e9cis\u00e9ment)\n\nIl faudra rendre ces indicateurs suffisamment configurables : taille, couleur, bord arrondi, police de caract\u00e8re, ... Mais pas trop, car \u00e7a doit rester simple.\n\nPour des indicateurs plus sp\u00e9cifiques, il faudra se cr\u00e9er ses propres game objects, et coder leur comportement directement dans le game-code."
+    },
+    {
+      "key": "g08",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Rendre l'aire de jeu redimensionnable dynamiquement",
+      "description": "Les dimensions initiales (width, height) sont d\u00e9finies dans la config.\n\nElles doivent pouvoir \u00eatre chang\u00e9es pendant le jeu. Si c'est un jeu avec plusieurs niveaux qui s'encha\u00eenent, ils pourraient avoir des tailles diff\u00e9rentes."
+    },
+    {
+      "key": "g09",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "R\u00e9agir aux clics de souris",
+      "description": "Une fonction de callback comme une autre, pour g\u00e9rer les clics de souris.\n\nLa possibilit\u00e9 d'indiquer dans la gameconf, un mode de gestion sp\u00e9cifique des clics. On d\u00e9finit un game object cens\u00e9 \u00eatre unique dans le jeu, qui serait le personnage principal. Un clic n'appelle pas la callback de clic, mais la callback d'appui sur une touche de direction. La direction est d\u00e9duite des positions relatives du clic et du personnage principal."
+    },
+    {
+      "key": "g10",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Impl\u00e9menter un syst\u00e8me de pattern",
+      "description": "Inspir\u00e9 par le moteur PuzzleScript.\n\nExemples :\n\n - lorsqu'il y a un objet de type \"fruit\" sur une case, et que la case en-dessous n'a pas d'objet de type \"fruit\", alors on d\u00e9pace l'objet vers le bas.\n - lorsqu'il y a un objet de type H2O liquide et un objet de type \"chauffage\" sur la m\u00eame case, alors on enl\u00e8ve le H2O liquide et on met un H2O gazeux.\n\nDans un premier temps, on impl\u00e9mente les patterns uniquement sous forme de fonctions dans les layers. On ex\u00e9cute ces patterns dans le gamecode.\n\nEnsuite, ce serait bien d'avoir une interface sp\u00e9cifique dans le site, pour cr\u00e9er et tester les patterns. Le but serait de pouvoir cr\u00e9er un jeu uniquement avec les patterns, pour les personnes qui n'ont pas envie de coder.\n\nAvec, bien s\u00fbr, du debug, du log, des tests unitaires sp\u00e9cifiques pour les patterns.\n\nC'est encore tr\u00e8s flou. On le pr\u00e9cisera en ajoutant d'autres squares de roadmap."
+    },
+    {
+      "key": "g11",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Vision : Exemples de pattern",
+      "description": "\u00e9dition de pattern \u00e0 la puzzlescript, pour cr\u00e9er un jeu."
+    },
+    {
+      "key": "g12",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Ajouter une fonction d'export",
+      "description": "Un jeu doit pouvoir \u00eatre export\u00e9 sous forme d'un ensemble de fichiers, pour pouvoir y jouer en local.\n\nL'export devrait ensuite permettre d'uploader le jeu sur une autre plate-forme (itch.io, ou autre)."
+    },
+    {
+      "key": "g13",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Ex\u00e9cuter le jeu dans une sandbox",
+      "description": "Actuellement, le gamecode permet d'ex\u00e9cuter du javascript arbitraire sur le site. C'est un petit peu une faille de s\u00e9curit\u00e9.\n\nIl faudrait trouver le moyen d'interdire l'acc\u00e8s aux \u00e9l\u00e9ments du site. Le gamecode ne peut faire que des returns de fonctions, et modifier des variables internes.\n\nIl faudrait auusi trouver le moyen d'emp\u00eacher d'ex\u00e9cuter du javascript dans le python. C'est actuellement possible avec un simple \"import javascript\"."
+    },
+    {
+      "key": "g14",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Jouer \u00e0 plusieurs, \u00e0 distance",
+      "description": "Uniquement pour les jeux turn-based, et qui ne comportent pas d'actions diff\u00e9r\u00e9es. Ce serait trop compliqu\u00e9 de g\u00e9rer des \u00e9v\u00e9nements \u00e0 synchroniser en temps r\u00e9el sur plusieurs machines.\n\nIl faudra des fonctions sp\u00e9cifiques dans l'API, pour indiquer la personne qui a la main. L'interface de toutes les autres personnes est alors bloqu\u00e9e."
+    },
+    {
+      "key": "g15",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Rendre les boutons configurables",
+      "description": "La personne qui cr\u00e9e un jeu peut d\u00e9cider de la disposition des boutons.\n\nDiff\u00e9rents mode pr\u00e9d\u00e9finis :\n\n - fl\u00e8ches de direction uniquement.\n - pav\u00e9 num\u00e9rique, avec les 4 directions + les 4 diagonales.\n - 2 groupes de fl\u00e8ches de direction, pour jouer \u00e0 deux sur une m\u00eame machine.\n - un ou plusieurs boutons d'actions, en plus des fl\u00e8ches.\n\nSi possible, configuration totalement libre. Mais \u00e7a veut dire qu'il faut pouvoir d\u00e9finir la disposition des boutons."
+    },
+    {
+      "key": "g16",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Sauvegarder les parties",
+      "description": "L'API doit comporter deux fonctions :\n\n - export_game_situation() : renvoie une grande cha\u00eene de caract\u00e8re, contenant la situation du jeu s\u00e9rialis\u00e9e (position des game objects, actions diff\u00e9r\u00e9es en cours, score, niveau actuel, ...)\n - import_game_situation(game_situ) : recr\u00e9e la situation du jeu \u00e0 partir de la grande cha\u00eene pass\u00e9e en param\u00e8tre.\n\nDans un premier temps, ces fonctions doivent \u00eatre d\u00e9finies par la personne qui cr\u00e9e le jeu. Si elles ne le sont pas : pas de sauvegarde.\n\nEt ensuite, on propose un export/import par d\u00e9faut, qui fonctionnera pour les jeux simples. Cet export/import sera activ\u00e9e par une info de config.\n\nTant que Squarity n'a pas de gestion de compte utilisateur, l'export est enregistr\u00e9 dans le local storage du navigateur. Et ensuite, ce sera stock\u00e9 dans les infos du compte, ce qui permettra de continuer sa partie sur une autre machine."
+    },
+    {
+      "key": "g17",
+      "rank": "normal",
+      "html_class": "game-engine-undone",
+      "title": "Impl\u00e9menter la notion de \"niveau\"",
+      "description": "Certains jeux peuvent \u00eatre d\u00e9coup\u00e9s en niveaux (par exemple : H2O, soko-ban, soko-punk). On doit pouvoir d\u00e9finir les maps des niveaux dans la config. Un niveau est constitu\u00e9 de layers, comportant des game objects (c'est une situation de jeu comme une autre).\n\nL'API pourra ensuite utiliser cette notion de niveau, avec les fonctions suivantes :\n\n - on_init_level()\n - check_lose_level()\n - go_to_level(level_id)\n - check_win_level() -> renvoie l'identifiant du prochain niveau.\n\nDans un premier temps : g\u00e9rer les niveaux comme dans PuzzleScript. Ils sont rang\u00e9s lin\u00e9airement, lorsqu'on gagne un niveau, on passe au suivant.\n\nSi possible : permettre une gestion comme dans le jeu Drod : les niveaux sont agenc\u00e9s selon un plan global, on se d\u00e9place dedans comme on le souhaite. Chaque niveau a un \u00e9tat r\u00e9solu/\u00e0 faire. On peut les r\u00e9soudre dans n'importe quel ordre, et on peut revenir \u00e0 un niveau r\u00e9solu.\n\nCette notion de niveau permet de d\u00e9bloquer beaucoup de fonctionnalit\u00e9 de la partie \"\u00c9diteur de niveaux, gestion des tilesets\".\n\nElle permet aussi d'impl\u00e9menter tr\u00e8s facilement une fonctionnalit\u00e9 de sauvegarde de partie : il suffit d'enregistrer l'\u00e9tat r\u00e9solu/\u00e0 faire de chaque niveau, et le niveau courant. On ne peut pas enregistrer d'\u00e9tat interm\u00e9diaire dans un niveau, mais c'est d\u00e9j\u00e0 \u00e7a.\n\nC'est encore un peu flou (mais moins que d'autres choses tr\u00e8s floues)."
+    },
+    {
+      "key": "e01",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Emettre des sons \"blip-blop\"",
+      "description": "Les sons blip-blop ont 3 avantages :\n\n - un petit c\u00f4t\u00e9 r\u00e9tro qui rappellera l'\u00e9poque des sons 8-bits de la NES et des PC speakers.\n - tr\u00e8s facile \u00e0 stocker, \u00e0 transmettre et \u00e0 \u00e9diter : une cha\u00eene de caract\u00e8re suffit (associ\u00e9e au player qui va bien).\n - permet aux personnes non musiciennes une ambiance sonore, m\u00eame si \u00e7a reste basique\n\nOn pourra s'inspirer des players blip-blop existants. Il y en a dans PuzzleScript, ZZT, 3D Construction Kit... Il y a peut-\u00eatre m\u00eame des players d\u00e9di\u00e9s."
+    },
+    {
+      "key": "e02",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Emettre des vrais sons",
+      "description": "Jouer des fichiers .wav, .mp3, ...\n\nAvec les fonctions qui vont bien : jouer une fois, jouer en boucle, stopper le son, ...\n\nLe probl\u00e8me, c'est l'h\u00e9bergement de ces fichiers. Ca prend plus de place que des petites images de tileset. Le plus simple sera de limiter la taille des fichiers, et si possible de trouver des h\u00e9bergeurs publics et gratos."
+    },
+    {
+      "key": "e03",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Afficher des d\u00e9placements progressifs",
+      "description": "L'id\u00e9al serait d'indiquer dans la game config, ou bien dans des directives, qu'un certain game object (ou type de game object) se d\u00e9place progressivement. Durant le jeu, on se contente de changer la position des game objects. Les d\u00e9placements progressifs se d\u00e9duisent tout seul.\n\nCa veut dire que les game objects doivent avoir des identifiants uniques, sinon on ne peut pas retrouver qui a boug\u00e9 o\u00f9."
+    },
+    {
+      "key": "e04",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Transformer visuellement les game objects et les layers",
+      "description": "Exemples de transformation : rotation, transparence, filtre de couleur, d\u00e9calage X/Y, agrandissement/r\u00e9tr\u00e9cissement, flou, distortion, pixelisation, changement de l'image affich\u00e9e, ...\n\nCes op\u00e9rations pourraient s'appliquer sur des game objects ou des layers entiers."
+    },
+    {
+      "key": "e05",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Animer les transformations visuelles",
+      "description": "Exemple : une transformation de type \"transparence\", avec la transparence qui augmente progressivement, permet de montrer la disparition d'un game object.\n\nAutre type d'animations : un enchainement d'image, par exemple pour montrer un personnage qui marche.\n\nCertaines animations risquent d'\u00eatre plus difficile \u00e0 d\u00e9crire. Par exemple, un \"shake\" est constitu\u00e9 de plusieurs d\u00e9calages X/Y. Il faut pouvoir donner la liste de ces d\u00e9calages, ou bien une fonction qui va les g\u00e9n\u00e9rer al\u00e9atoirement.\n\nCes transformations visuelles anim\u00e9es pourraient s'appliquer sur des game objects ou des layers entiers.\n\nExemple : la taille de l'aire de jeu est de 8x8 tiles. En une seule op\u00e9ration, on passe \u00e0 une aitre de jeu de 12x12 tiles, mais on applique une transfo visuelle d'agrandissement sur tous les layers, de fa\u00e7on \u00e0 n'afficher que le milieu de l'aire de jeu. Puis, on diminue progressivement l'agrandissement pour finir par afficher les 12x12 tiles. Ca fait un d\u00e9zoom progressif.\n\nPeut-\u00eatre qu'on pourrait s'inspirer des mots-cl\u00e9s \"transitions\" et \"transform\" du CSS. Sans avoir la pr\u00e9tention de r\u00e9impl\u00e9menter tout ce que fait le CSS..."
+    },
+    {
+      "key": "e06",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Ajouter des effets de lumi\u00e8re",
+      "description": "Un game object, en plus de s'afficher sous forme d'une image, pourrait aussi \u00eatre une ou plusieurs sources lumineuses, avec couleur, intensit\u00e9, direction, etc.\n\nIl est possible d'indique qu'une source lumineuse est sur un m\u00eame plan que un ou plusieurs layers. Dans ce cas, les game objects de ces layers bloquent la lumi\u00e8re.\n\nEnsuite, on peut indiquer, pour chaque type de game object, qu'il laisse plus ou moins passer la lumi\u00e8re. Et on pourrait carr\u00e9ment d\u00e9finir des height map pour chaque game object. Une pyramide ne renvoit pas la lumi\u00e8re dans les m\u00eames directions qu'un mur."
+    },
+    {
+      "key": "e07",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Vision : Pif paf boum !",
+      "description": "Des effets sp\u00e9ciaux (\u00e9clair, explosion, distortion, ...)"
+    },
+    {
+      "key": "e08",
+      "rank": "normal",
+      "html_class": "special-effect-undone",
+      "title": "Utiliser du WebGL",
+      "description": "Pour ajouter des shaders, des moteurs de particules, etc.\n\nFonctionnalit\u00e9 tr\u00e8s floue. Il faudrait pr\nendre connaissance de ce que peut faire le WebGL."
+    },
+    {
+      "key": "t01",
+      "rank": "normal",
+      "html_class": "tuto",
+      "title": "\u00c9crire un article pour cr\u00e9er un mini-jeu",
+      "description": "descrip TODO : d\u00e9j\u00e0 fait. plop."
+    },
+    {
+      "key": "t02",
+      "rank": "normal",
+      "html_class": "tuto-undone",
+      "title": "Cr\u00e9er des vid\u00e9os de tutoriels",
+      "description": "Ce serait pour expliquer les m\u00eames chose que l'article de cr\u00e9ation d'un mini-jeu, mais on l'expliquerait dans une vid\u00e9o.\n\nIl y a des gens qui pr\u00e9f\u00e8re apprendre avec du texte, d'autres avec des vid\u00e9os, il faut essayer de toucher le plus de monde possible."
+    },
+    {
+      "key": "t03",
+      "rank": "normal",
+      "html_class": "tuto-undone",
+      "title": "\u00c9crire des snippets de code",
+      "description": "Des bouts de code et des mini-jeux, pour pr\u00e9senter chaque fonctionnalit\u00e9 de la mani\u00e8re la plus isol\u00e9e possible.\n\nOrganiser ces snippets avec des pr\u00e9-requis : \"pour comprendre la fonctionalit\u00e9 X, il faut avoir d\u00e9j\u00e0 vu les fonctionnalit\u00e9s Y et Z.\""
+    },
+    {
+      "key": "t04",
+      "rank": "normal",
+      "html_class": "tuto-undone",
+      "title": "R\u00e9diger des articles sur les jeux vid\u00e9o",
+      "description": "Une pl\u00e9thoritude de sujets pourraient \u00eatre abord\u00e9s : la perspective (vue de haut/c\u00f4t\u00e9/entre les deux), la narration, les codes culturels, un peu d'histoire, ...\n\nTODO : Documenter le vocabulaire sp\u00e9cifique de Squarity.\n\narena, tile, gamobj, sprite...\n\n\"Gamobj\", est un terme un peu moche. Pas de meilleure id\u00e9e pour l'instant."
+    },
+    {
+      "key": "t05",
+      "rank": "normal",
+      "html_class": "tuto-undone",
+      "title": "Traduire les tutoriels et les articles en anglais",
+      "description": "Et si possible dans d'autres langues. Mais il faudra d'autres gens."
+    },
+    {
+      "key": "c01",
+      "rank": "normal",
+      "html_class": "promo",
+      "title": "Participer au Ludum Dare",
+      "description": "C'est en cours depuis 2 ans. Il s'agit d'une \"t\u00e2che infinie\".\n\nListe des contributions existantes :\n\nhttps://ldjam.com/users/recher/games"
+    },
+    {
+      "key": "c02",
+      "rank": "normal",
+      "html_class": "promo-undone",
+      "title": "Cr\u00e9er des jeux pour une personne ou une organisation sp\u00e9cifique",
+      "description": "- Des challenges de hacking sous forme de jeu Squarity\n - Un mini-remake de Drod\n - Des remakes de plein d'autres jeux\n - Des jeux priv\u00e9s (pour des anniversaires de potes, des \u00e9v\u00e9nements, ...)\n - Le jeu Footnotes, \u00e0 r\u00e9v\u00e9ler en temps voulu\n - Un jeu o\u00f9 tous les gamobj sont des caract\u00e8res UTF-8 (comme ZZT), pour lutter contre l'illetrisme"
+    },
+    {
+      "key": "c03",
+      "rank": "normal",
+      "html_class": "promo-undone",
+      "title": "Recenser et qualifier des tilesets",
+      "description": "Un d\u00e9but de recensement a \u00e9t\u00e9 fait dans la partie \"Bouillonnement cr\u00e9atif\" du serveur Discord.\n\nLien vers opengamearts.org, qui contient beaucoup de jolies choses.\n\nhttps://opengameart.org/"
+    },
+    {
+      "key": "c04",
+      "rank": "normal",
+      "html_class": "promo",
+      "title": "Faire des live coding",
+      "description": "Live coding durant les game jams, ou durant le d\u00e9veloppement de Squarity en lui-m\u00eame.\n\nIl s'agit d'une \"tache infinie\".\n\nMon compte twitch super g\u00e9nial.\n\nhttps://www.twitch.tv/recher_squarity"
+    },
+    {
+      "key": "s01",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Am\u00e9liorer le \"point d'entr\u00e9e\"",
+      "description": "Une home page avec, dans l'ordre :\n\n - \"Jouer\" : liste de jeux pr\u00e9d\u00e9finis.\n - \"Cr\u00e9er des jeux\" : un jeu vide pour commencer de coder, le jeu d'exemple de soko-ban, tutoriel, documentation, r\u00e9f\u00e9rence de l'API.\n - \"En savoir un peu plus\" : lien vers mastodon, roadmap, repo git, doc d\u00e9crivant les intentions de Squarity.\n\nDans la page du jeu, on met juste un lien vers cette home page, et un lien vers le discord. Ca permettra de supprimer plein de petites infos qui polluent la page du jeu.\n\nLe bouton de plein \u00e9cran ne doit pas occuper toute une bande horizontale de la page, \u00e7a fait de la place perdue.\n\nDeux onglets, un pour l'url de l'image + gameconf, un autre pour le gamecode. Par d\u00e9faut, on affiche le game code. Une docstring au d\u00e9but du game code permet de donner une petite description du jeu.\n\nLes personnes qui veulent juste jouer seront moins pollu\u00e9es par des infos secondaires. Elles ne verront que le jeu, et une zone de texte affichant une description en langage naturel. Et \u00e7a laisse quand m\u00eame la possibilit\u00e9 d'\u00eatre curieux, de scroller pour d\u00e9couvrir du code python, de cliquer sur l'autre onglet pour d\u00e9couvrir la conf, etc."
+    },
+    {
+      "key": "s02",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Utiliser correctement le nom de domaine",
+      "description": "squarity.fr fait une redirection moche vers squarity.pythonanywhere.com. Il faut garder le nom de domaine tout le temps.\n\nEt aussi mettre du https. Avec Letsencrypt, ou quelque chose du genre."
+    },
+    {
+      "key": "s03",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "G\u00e9rer des comptes utilisateurs",
+      "description": "Une personne cr\u00e9e un compte sur le site, pour enregistrer ses jeux (la gameconf, le gamecode, l'image de tileset).\n\nAuthentification classique / OAuth / Google / github / autre. Pour \u00e9viter d'emb\u00eater des gens avec un login-password suppl\u00e9mentaire.\n\nUn peu flou pour l'instant, mais il y a s\u00fbrement des bonnes pratiques et de la doc sur le sujet."
+    },
+    {
+      "key": "s04",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Vision : les infos de profil",
+      "description": "Le profil d'une personne. Les badges gagn\u00e9s. Les scores. Les jeux favoris. Les suggestions de jeux."
+    },
+    {
+      "key": "s05",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Cr\u00e9er un mini-CMS",
+      "description": "Content Management System.\n\nLe but est de pouvoir \u00e9crire des articles, des tutoriels, des analyses de jeux vid\u00e9os, etc.\n\nSans prise de t\u00eate. On ne va pas recr\u00e9er tout un moteur de blog.\n\n - ranger les articles par cat\u00e9gories,\n - convertisseur markdown to html,\n - un petit moteur de recherche de texte.\n\nCe sera amplement suffisant."
+    },
+    {
+      "key": "s06",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Ajouter des commentaires",
+      "description": "Les commentaires pourront \u00eatre associ\u00e9 \u00e0 un jeu ou \u00e0 un article du mini-CMS.\n\nQuelque chose de basique, mais avec un peu de fonctionnalit\u00e9 quand m\u00eame :\n\n - mise en forme de texte, avec du markdown,\n - affichage d'images (qui seront h\u00e9berg\u00e9es ailleurs),\n - organisation arborescente (un commentaire de r\u00e9ponse \u00e0 un autre commentaire),\n - permalinks."
+    },
+    {
+      "key": "s07",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Faciliter les forks et les mashups de jeux",
+      "description": "Exemple de cas d'utilisation :\n\nUne personne cr\u00e9e un premier jeu, avec tous les \u00e9l\u00e9ments n\u00e9cessaires (gamecode, tilesets, ...). Une seconde personne, qui sait mieux dessiner, forke le jeu, et remplace le tileset. Une troisi\u00e8me personne reforke le jeu et ajoute des niveaux en plus. La premi\u00e8re personne r\u00e9cup\u00e8re ses \u00e9l\u00e9ments, et cr\u00e9e une nouvelle version du jeu, avec des images plus jolies et plus de niveaux.\n\nOn pourrait avoir un autre exemple avec un jeu utilisant uniquement le syst\u00e8me de pattern (pas de gamecode). Une autre personne forke le jeu, rajoute un type de game object et les patterns associ\u00e9s.\n\nLes forks doivent pouvoir \u00eatre tra\u00e7able. Pour un jeu donn\u00e9, on peut voir tous les \u00e9l\u00e9ments (pattern, tileset, etc.) provenant de jeux pr\u00e9c\u00e9dents, et on peut aussi voir tous les forks qui ont \u00e9t\u00e9 fait \u00e0 partir de ce jeu.\n\n\u00c7a n'emp\u00eachera pas des gens irrespectueux de copier-coller manuellement du code ou des images, puis de cr\u00e9er ensuite un nouveau jeu non fork\u00e9, en disant que c'est eux qui ont tout fait, mais \u00e7a c'est difficilement g\u00e9rable."
+    },
+    {
+      "key": "s08",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Faire de la curation de commentaires",
+      "description": "Si j'ai bien compris le terme, \"curation\" signifie : analyser un gros tas de donn\u00e9es (des jeux, des commentaires ou autres), et ne garder que les plus pertinents. C'est cens\u00e9 \u00eatre fait par des humains, m\u00eame si les premiers filtrages peuvent \u00eatre faits par des machines.\n\nUne personne \"curateuse\" va lire des dizaines de commentaires, et r\u00e9diger un seul commentaire r\u00e9capitulatif, avec des r\u00e9f\u00e9rences/citations vers les commentaires initiaux.\n\nUne curation peut \u00eatre de plus ou moins bonne qualit\u00e9, ce qui signifie qu'il faudrait curater les curations. Ha ha ha !!\n\nBref, c'est un peu flou pour le moment.\n\nPas de curation de jeux, car pour l'instant, ce serait trop ambitieux de dire qu'il y aura beaucoup de jeux cr\u00e9\u00e9s avec Squarity. On ne devrait pas avoir besoin de les classer par pertinence pour s'y retrouver.\n\nOn pourrait imaginer un syst\u00e8me pour noter les jeux, mais il faudrait trouver quelque chose de plus subtil qu'un nombre d'\u00e9toiles \u00e0 choisir entre 0 et 5. Un classement a tendance a \"s'auto-exag\u00e9rer\". Le jeu le plus class\u00e9 devient le jeu le plus jou\u00e9, il r\u00e9colte encore plus de bonnes notes, et devient de plus en plus ind\u00e9tr\u00f4nable de la premi\u00e8re place."
+    },
+    {
+      "key": "s09",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "G\u00e9n\u00e9rer des statistiques pour les jeux",
+      "description": "Combien de personnes ont test\u00e9 le jeu, combien ont r\u00e9ussi quels niveaux, temps de jeu moyen.\n\nTout \u00e7a par jour / semaine / mois / ann\u00e9e."
+    },
+    {
+      "key": "s10",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "G\u00e9rer le contenu \"choquant\"",
+      "description": "Une personne cr\u00e9ant un jeu doit pouvoir indiquer la pr\u00e9sence de contenu \"choquant\" : note ESRB, descripteur de contenu (sexe, violence, drogue, ...), limite d'\u00e2ge, etc.\n\nUne personne qui parcourt la liste des jeux (m\u00eame si elle n'a pas cr\u00e9\u00e9 de compte) doit pouvoir filtrer selon ces diff\u00e9rentes indications.\n\nTruc amusant : le masquage d'indicateur. Pour un descripteur de contenu, non seulement on le filtre pas, mais en plus on n'affiche pas que le jeu poss\u00e8de ce contenu. Pour les personnes qui aiment se faire surprendre par une sc\u00e8ne choquante dans un jeu alors qu'elles ne s'y attendent pas.\n\nG\u00e9rer des comptes \"enfants\". Le compte est associ\u00e9 \u00e0 un compte parent, qui d\u00e9cide des filtrages. C'est flou pour l'instant, car rien n'emp\u00eache l'enfant de se d\u00e9connecter et d'afficher la liste des jeux sans filtre. Peut-\u00eatre que le compte parent pourrait enregistrer une liste de machines accessible par l'enfant, sur lesquelles on ne pourrait plus se d\u00e9connecter du compte enfant, \u00e0 moins de saisir le mot de passe du compte parent."
+    },
+    {
+      "key": "s11",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Ajouter des badges et du score",
+      "description": "Fortement inspir\u00e9 de Kongregate, Steam, et toutes les autres plate-formes de jeux.\n\nComme d'habitude : des fonctions en plus dans l'API, pour que des actions sp\u00e9cifiques dans un jeu attribuent un badge au compte de la personne qui joue.\n\nOn affiche les badges sur le profil de la personne. Et on peut faire un peu de statistiques dessus (combien de personnes ont le badge, au bout de combien de temps de jeu, etc).\n\nM\u00eame chose avec du score. Des fonctions dans l'API permettent de donner un score \u00e0 une partie jou\u00e9e. Les scores sont enregistr\u00e9s dans les comptes utilisateurs, on peut faire des classements, des statistiques, etc.\n\nComme le code du jeu est ex\u00e9cut\u00e9 par le navigateur web, il sera tr\u00e8s facile de tricher, de s'auto-attribuer des badges et des scores tr\u00e8s haut. Dans un premier temps, on laissera comme \u00e7a.\n\nPour plus tard : il faudra r\u00e9fl\u00e9chir \u00e0 r\u00e9pliquer le d\u00e9roulement d'une partie sur le serveur. C'est une id\u00e9e tr\u00e8s floue, assez compliqu\u00e9e \u00e0 r\u00e9aliser, voire risqu\u00e9e (ex\u00e9cution de code arbitraire sur un serveur). Donc ce sera vraiment pour plus tard."
+    },
+    {
+      "key": "s12",
+      "rank": "normal",
+      "html_class": "social-undone",
+      "title": "Ajouter l'organisation de game jams",
+      "description": "Avec un th\u00e8me, une date de d\u00e9but, une date de fin, un classement, des petites ic\u00f4nes pour indiquer les jeux qui sont arriv\u00e9s les premiers.\n\nLe mode de classement est \u00e0 d\u00e9finir, il peut y en avoir plusieurs : notation par les personnes participant au game jam, jury pr\u00e9d\u00e9fini, etc.\n\nEst-ce qu'on met ensemble le classement normal sur le site et les classement de game jam, ou est-ce qu'on s\u00e9pare ?\n\nC'est tr\u00e8s flou, et avant de permettre les game jams, il faut une base de personnes utilisatrices un peu plus cons\u00e9quente que ce qu'on a maintenant."
+    },
+    {
+      "key": "o01",
+      "rank": "normal",
+      "html_class": "optim",
+      "title": "Documenter le projet",
+      "description": "Les choix d'architecture et d'outils utilis\u00e9s, une vision d'ensemble des composants, etc.\n\nPour l'instant, c'est sous forme de devlogs, avec des infos not\u00e9es au fur et \u00e0 mesure.\n\nOn ajoutera des squares pour chaque \u00e9l\u00e9ment de documentation important.\n\nLien vers les devlogs\n\nhttps://github.com/darkrecher/squarity-doc/tree/master/environnement_dev"
+    },
+    {
+      "key": "o02",
+      "rank": "normal",
+      "html_class": "optim-undone",
+      "title": "H\u00e9berger un syst\u00e8me de gestion de t\u00e2ches",
+      "description": "Au lieu d'utiliser Trello. C'est tellement plus classe d'avoir tous les outils annexes en interne."
+    },
+    {
+      "key": "o03",
+      "rank": "normal",
+      "html_class": "optim-undone",
+      "title": "H\u00e9berger une instance peertube",
+      "description": "Pour y mettre les d\u00e9mos des jeux, les tutoriels vid\u00e9os, etc.\n\nM\u00eame si on laissera des vid\u00e9os sur Youtube, parce que \"tout le monde est sur Youtube\"."
+    },
+    {
+      "key": "o04",
+      "rank": "normal",
+      "html_class": "optim-undone",
+      "title": "Mettre en place des tests unitaires",
+      "description": "Selenium est pr\u00e9vu pour les tests des environnements web client. On peut automatiser des actions, des clics de boutons, etc."
+    },
+    {
+      "key": "o05",
+      "rank": "normal",
+      "html_class": "optim-undone",
+      "title": "Optimiser les process",
+      "description": "T\u00e2che tr\u00e8s floue pour l'instant. Mais lorsqu'on aura un vrai serveur, avec une vraie base de donn\u00e9e, il y aura s\u00fbrement beaucoup de choses \u00e0 optimiser.\n\nwebpack, d\u00e9ploiement automatique, dump r\u00e9gulier de base de donn\u00e9es, etc."
+    },
+    {
+      "key": "o06",
+      "rank": "normal",
+      "html_class": "optim-undone",
+      "title": "Auto-formation",
+      "description": "C'est une t\u00e2che infinie, qui s'effectue au fur et \u00e0 mesure des d\u00e9veloppements.\n\nAuto-formation \u00e0 Vue,au javascript, au CSS, plus tard \u00e0 Django, etc."
+    }
+  ]
 }
