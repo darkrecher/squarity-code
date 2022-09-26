@@ -1,10 +1,9 @@
 <template>
   <div class="roadmap">
-    <h1>Ici, il y aura la road map.</h1>
+    <h1>Road map de Squarity</h1>
     <router-link to="/">
-      Lien de retour vers le jeu, mais il est dans mon fichier Roadmap.vue, et ça marche.
+      Retour à la page principale.
     </router-link>
-    hahaha !!!
     <br>
 
     <div id="tooltipWindow" class="tooltip-window" @click="hide_tooltip">
@@ -20,14 +19,6 @@
     </div>
 
     <div class="grid-container">
-      <div>
-        <p>
-          1 haha il se passe quoi si le texte est très très très très très très très très très très très très très
-          très
-          très très très très long pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet ha ha ha ha
-        </p>
-      </div>
-
       <template v-for="item in road_squares">
         <!--
           Je me pète les rouleaux à écrire `:key="item.key"` dans ce foutu code,
@@ -38,7 +29,7 @@
         <div v-if="item.rank === 'origin'" id="roadMapOrigin" :key="item.key" :my_key="item.key"
           :class="item.html_class" @click="toggle_tooltip">
           <p>
-            Cliquez-moi dessus
+            Cliquez sur les carrés
           </p>
           <img class="squarex" src="../assets/squarex.png">
           <img class="click-me" src="../assets/icon_click_me.png">
@@ -155,15 +146,15 @@ export default {
     toggle_tooltip(event) {
       // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
       // gives-element-or-its-child-and-not-parent-element-with-vue-js/
-      console.log(event.currentTarget);
+      // console.log(event.currentTarget);
       const tooltipWindow = document.getElementById('tooltipWindow');
       const container = event.currentTarget.parentNode;
-      console.log(container);
+      // console.log(container);
       const arrayChildren = Array.prototype.slice.call(container.children);
       const indexRoadSquare = arrayChildren.indexOf(event.currentTarget);
       const newSquareY = Math.floor(indexRoadSquare / this.GRID_LENGTH_IN_SQUARE);
       const newSquareX = indexRoadSquare % this.GRID_LENGTH_IN_SQUARE;
-      console.log(newSquareX, newSquareY);
+      // console.log(newSquareX, newSquareY);
 
       if (
         (this.square_x_tooltip === null)
@@ -172,8 +163,17 @@ export default {
       ) {
         // Positionnement de la fenêtre de tooltip
         // TODO : il y a des valeurs à la con, qu'il faudra mettre dans des constantes.
-        const styleTopEm = newSquareY * 11 + 8;
-        const styleLeftEm = newSquareX * 11 + 12;
+        const styleTopEm = newSquareY * 11 + 14;
+        let offsetX = 0;
+        if (newSquareX === 0) {
+          offsetX = 10;
+        } else if (newSquareX === this.GRID_LENGTH_IN_SQUARE - 2) {
+          offsetX = -11;
+        } else if (newSquareX === this.GRID_LENGTH_IN_SQUARE - 1) {
+          offsetX = -22;
+        }
+        const styleLeftEm = newSquareX * 11 - 9 + offsetX;
+
         this.is_tooltip_visible = true;
         tooltipWindow.style.display = 'block';
         this.square_x_tooltip = newSquareX;
@@ -220,8 +220,6 @@ export default {
 
 };
 
-// Version 0.0 de la roadmap :
-// https://miro.com/app/board/o9J_llTFtxw=/
 </script>
 
 <style scoped>
@@ -251,6 +249,7 @@ export default {
   flex-direction: column;
   background-clip: padding-box;
   border: 5px solid #202020;
+  padding: 0 5px 0 5px;
 }
 
 .road-map-origin {

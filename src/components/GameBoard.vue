@@ -19,6 +19,9 @@
               documentation
             </a>
             sur github.
+            <router-link to="/roadmap">
+              Lien vers la roadmap.
+            </router-link>
           </div>
           <div class="flex-grow">
             <!--
