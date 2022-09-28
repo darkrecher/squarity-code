@@ -47,11 +47,8 @@
 import gameExamples from '../classes/gameExamples';
 import gameSpecLoader from '../classes/gameSpecLoader';
 
-// Je suis obligé de mettre ça là, parce que je peux pas appeler require dans gameExamples.js
-// Et je peux pas définir l'url relative ailleurs, parce que require nécessite
-// obligatoirement des strings literals.
-// Cochonnerie de javascript en vrac qui met du bazar partout.
-// TODO : on va peut être s'en sortir avec require.context.
+// Faudrait utiliser require.context.
+// https://trello.com/c/UPac0v2b/124-utiliser-requirecontext-dans-la-page-devzonevue
 const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
 const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
 

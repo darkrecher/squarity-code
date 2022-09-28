@@ -6,8 +6,14 @@
     </router-link>
     <br>
 
-    <div id="tooltipWindow" class="tooltip-window" @click="hide_tooltip">
-      tooltip text placeholder.
+    <div ref="tooltipWindow" class="tooltip-window" @click="hide_tooltip">
+      {{ tooltip_window.text }}
+      <br>
+      <template v-if="tooltip_window.link_enabled">
+        <a :href="tooltip_window.link_url" target="_blank">
+          {{ tooltip_window.link_text }}
+        </a>
+      </template>
     </div>
 
     <div class="modal-wrapper" @click="hide_modal">
@@ -26,7 +32,7 @@
           Tout ça pour ne pas avoir l'attribut key dans le DOM, et du coup je suis obligé de
           rajouter l'attribut my_key avec la même valeur dedans. Merci !!
         -->
-        <div v-if="item.rank === 'origin'" id="roadMapOrigin" :key="item.key" :my_key="item.key"
+        <div v-if="item.rank === 'origin'" ref="road_map_origin" :key="item.key" :my_key="item.key"
           :class="item.html_class" @click="toggle_tooltip">
           <p>
             Cliquez sur les carrés
@@ -64,8 +70,12 @@
 
 const axios = require('axios');
 
+const GRID_LENGTH_IN_SQUARE = 11;
+const SQUARE_SIZE_IN_EM = 11;
+
 export default {
   name: 'RoadMap',
+  made_first_update: false,
 
   props: {},
 
@@ -74,26 +84,36 @@ export default {
       is_tooltip_visible: false,
       square_x_tooltip: null,
       square_y_tooltip: null,
-      // TODO : comment on déclare et comment on utilise
-      // des constantes dans ce fichu langage ?
-      GRID_LENGTH_IN_SQUARE: 11,
       road_squares: [],
       dict_square_descriptions: {},
+      tooltip_window: {
+        text: 'coucou',
+        link_enabled: false,
+        link_url: '',
+        link_text: '',
+      },
     };
   },
 
   async mounted() {
-    // TODO : il faut un "machin qui tourne" tant qu'on n'a pas récupéré le json.
+    // task trello : https://trello.com/c/UXtrO7XW/123-ajouter-un-machin-qui-tourne-pour-patienter-dans-roadmapvue
     const roadMapData = await axios.get('/road_map_data.json');
     this.setRoadSquares(roadMapData.data.map_squares, roadMapData.data.unordered_road_squares);
   },
 
   updated() {
     // Cette fonction s'exécute après le mounted, quand tout le DOM a été mis à jour.
-    // Et peut-être qu'elle s'exécute à d'autre moments, mais j'ai pas repéré.
-    //
-    // scrollIntoView permet de scroller vers un élément particulier.
-    document.getElementById('roadMapOrigin').scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
+    // Elle s'exécute à chaque fois que le contenu de data est modifié.
+    // Du coup, je met une condition à la con pour déclencher ça que à la première arrivée sur la page.
+    if (!this.made_first_update) {
+      this.made_first_update = true;
+
+      if (this.$refs.road_map_origin.length === 1) {
+        const elemRoadMapOrigin = this.$refs.road_map_origin[0];
+        // scrollIntoView permet de scroller vers un élément particulier.
+        elemRoadMapOrigin.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
+      }
+    }
   },
 
   methods: {
@@ -118,11 +138,20 @@ export default {
                 currentSquare = square;
               }
             });
-            // TODO : faire un truc si currentSquare est toujours null.
-            // mais pas de console.log, parce qu'apparemment, c'est le mal.
-            if (currentSquare !== null) {
-              roadSquares.push(currentSquare);
+            if (currentSquare === null) {
+              // Si on ne trouve pas la clé d'un square, on affiche un square de fail à la place.
+              currentSquare = {
+                key: elem,
+                rank: 'superior',
+                // Le square de fail a le même aspect visuel qu'un square
+                // de la catégorie "special effect", parce qu'il est rouge flashy.
+                // C'est pas très logique, on devrait avoir une classe html spéciale pour le fail,
+                // mais je ne vais pas m'embêter plus que ça à gérer un cas qui n'est pas censé arriver.
+                html_class: 'special-effect superior-square',
+                title: `SQUARE FAIL key:${elem}`,
+              };
             }
+            roadSquares.push(currentSquare);
           }
         });
       });
@@ -147,13 +176,12 @@ export default {
       // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
       // gives-element-or-its-child-and-not-parent-element-with-vue-js/
       // console.log(event.currentTarget);
-      const tooltipWindow = document.getElementById('tooltipWindow');
       const container = event.currentTarget.parentNode;
       // console.log(container);
       const arrayChildren = Array.prototype.slice.call(container.children);
       const indexRoadSquare = arrayChildren.indexOf(event.currentTarget);
-      const newSquareY = Math.floor(indexRoadSquare / this.GRID_LENGTH_IN_SQUARE);
-      const newSquareX = indexRoadSquare % this.GRID_LENGTH_IN_SQUARE;
+      const newSquareY = Math.floor(indexRoadSquare / GRID_LENGTH_IN_SQUARE);
+      const newSquareX = indexRoadSquare % GRID_LENGTH_IN_SQUARE;
       // console.log(newSquareX, newSquareY);
 
       if (
@@ -162,32 +190,33 @@ export default {
         || (this.square_y_tooltip !== newSquareY)
       ) {
         // Positionnement de la fenêtre de tooltip
-        // TODO : il y a des valeurs à la con, qu'il faudra mettre dans des constantes.
-        const styleTopEm = newSquareY * 11 + 14;
+        const styleTopEm = newSquareY * SQUARE_SIZE_IN_EM + SQUARE_SIZE_IN_EM + 3;
         let offsetX = 0;
         if (newSquareX === 0) {
-          offsetX = 10;
-        } else if (newSquareX === this.GRID_LENGTH_IN_SQUARE - 2) {
-          offsetX = -11;
-        } else if (newSquareX === this.GRID_LENGTH_IN_SQUARE - 1) {
-          offsetX = -22;
+          offsetX = SQUARE_SIZE_IN_EM - 1;
+        } else if (newSquareX === GRID_LENGTH_IN_SQUARE - 2) {
+          offsetX = -SQUARE_SIZE_IN_EM;
+        } else if (newSquareX === GRID_LENGTH_IN_SQUARE - 1) {
+          offsetX = -2 * SQUARE_SIZE_IN_EM;
         }
-        const styleLeftEm = newSquareX * 11 - 9 + offsetX;
+        const styleLeftEm = newSquareX * SQUARE_SIZE_IN_EM - SQUARE_SIZE_IN_EM + 2 + offsetX;
 
         this.is_tooltip_visible = true;
-        tooltipWindow.style.display = 'block';
+        this.$refs.tooltipWindow.style.display = 'block';
         this.square_x_tooltip = newSquareX;
         this.square_y_tooltip = newSquareY;
-        tooltipWindow.style.top = `${styleTopEm.toString()}em`;
-        tooltipWindow.style.left = `${styleLeftEm.toString()}em`;
-        // Modification du texte dans la fenêtre de tooltip.
-        // Avec du inner HTML à la crade, et puis c'est tout.
+        this.$refs.tooltipWindow.style.top = `${styleTopEm.toString()}em`;
+        this.$refs.tooltipWindow.style.left = `${styleLeftEm.toString()}em`;
         const squareKey = event.currentTarget.getAttribute('my_key');
         const squareDescription = this.dict_square_descriptions[squareKey];
-        tooltipWindow.innerHTML = squareDescription.description;
+        this.tooltip_window.text = squareDescription.description;
+
         if (('link_url' in squareDescription) && ('link_text' in squareDescription)) {
-          tooltipWindow.innerHTML += `<br><a href=${squareDescription.link_url} target="_blank">`
-            + `${squareDescription.link_text}</a>`;
+          this.tooltip_window.link_enabled = true;
+          this.tooltip_window.link_text = squareDescription.link_text;
+          this.tooltip_window.link_url = squareDescription.link_url;
+        } else {
+          this.tooltip_window.link_enabled = false;
         }
       } else {
         this.hide_tooltip();
@@ -195,9 +224,8 @@ export default {
     },
 
     hide_tooltip() {
-      const tooltipWindow = document.getElementById('tooltipWindow');
       this.is_tooltip_visible = false;
-      tooltipWindow.style.display = 'none';
+      this.$refs.tooltipWindow.style.display = 'none';
       this.square_x_tooltip = null;
       this.square_y_tooltip = null;
     },
@@ -451,9 +479,12 @@ div.superior-square {
   padding: 10px;
   display: none;
   color: #f1f1f1;
-  /* Ne pas utiliser le tag "pre", ça met le bronx. */
-  /* https://stackoverflow.com/questions/36729634/rendering-newline-character-in-vuejs */
-  white-space: pre-wrap
+  /* Ne pas utiliser le tag "pre", ça met le bronx.
+     https://stackoverflow.com/questions/36729634/rendering-newline-character-in-vuejs
+     pre-line, c'est mieux que pre-wrap
+     https://developer.mozilla.org/en-US/docs/Web/CSS/white-space#values
+  */
+  white-space: pre-line;
 }
 
 /* --- Pour la grosse fenêtre modale avec une gif dedans --- */
@@ -484,7 +515,8 @@ div.superior-square {
 /* Pareil avec modal-content. Faut pas l'utiliser, ça met du CSS qu'on veut pas. */
 .my-modal-content {
   /* Nombres magiques en vw et vh, parce que je comprends rien au CSS
-     Ça tombe pas juste. Ça se décale un peu en fonction de la largeur de la fenêtre. Osef. */
+     Ça tombe pas juste. Ça se décale un peu en fonction de la largeur de la fenêtre. Osef.
+  */
   width: 95vw;
   height: 94vh;
   background: #343434;
