@@ -49,8 +49,10 @@ import gameSpecLoader from '../classes/gameSpecLoader';
 
 // Faudrait utiliser require.context.
 // https://trello.com/c/UPac0v2b/124-utiliser-requirecontext-dans-la-page-devzonevue
-const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
-const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
+// const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
+// const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
+import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
+import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
 
 export default {
   name: 'DevZone',

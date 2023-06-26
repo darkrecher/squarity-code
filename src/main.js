@@ -1,14 +1,12 @@
-import Vue from 'vue';
-import './plugins/bootstrap-vue';
-import LoadScript from 'vue-plugin-load-script';
-import App from './App.vue';
-import router from './router';
+// TODO : fuck le CSS
+// import './assets/main.css'
 
-Vue.use(LoadScript);
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 
-Vue.config.productionTip = false;
+const app = createApp(App)
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount('#app');
+app.use(router)
+
+app.mount('#app')

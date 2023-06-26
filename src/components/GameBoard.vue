@@ -117,8 +117,11 @@
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
+// TODO : essayer de remettre le nom squarity.py.
+import libSquarityCode from '/squarity.txt?raw'
 
-const axios = require('axios');
+// TODO : à priori, on n'a plus besoin de ce truc.
+// const axios = require('axios');
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
@@ -216,7 +219,8 @@ export default {
     // Alors j'y vais à la bourrin : je charge tout le code dans une string
     // et je la balance ensuite directement à la fonction runPython.
     this.show_progress('Pré-squarification du python géant.');
-    const libSquarityCode = await axios.get('squarity.py');
+    // const libSquarityCode = await axios.get('squarity.py');
+    console.log(libSquarityCode);
 
     window.languagePluginUrl = '/pyodide/v0.15.0/';
     this.show_progress('Téléchargement du téléchargeur.');

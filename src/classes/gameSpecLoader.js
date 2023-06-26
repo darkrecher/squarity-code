@@ -1,4 +1,5 @@
-const axios = require('axios');
+// TODO : comment on fait des http get en Vue 3.
+// const axios = require('axios');
 
 export default Object.freeze({
 
