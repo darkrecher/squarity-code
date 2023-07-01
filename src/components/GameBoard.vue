@@ -114,6 +114,7 @@
 
 <script>
 
+import { loadScript } from "vue-plugin-load-script";
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
@@ -213,19 +214,13 @@ export default {
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
     const elemGameInterface = this.$refs.game_interface;
     elemGameInterface.addEventListener('keydown', this.on_key_down);
-    // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
-    // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
-    // J'ai pas trop compris le principe, et ça me semble un peu overkill.
-    // Alors j'y vais à la bourrin : je charge tout le code dans une string
-    // et je la balance ensuite directement à la fonction runPython.
-    this.show_progress('Pré-squarification du python géant.');
-    // const libSquarityCode = await axios.get('squarity.py');
-    console.log(libSquarityCode);
 
     window.languagePluginUrl = '/pyodide/v0.15.0/';
     this.show_progress('Téléchargement du téléchargeur.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
+    // Et aussi à ce plugin, avec la doc qui va bien. Et qui est compatible Vue 3.
+    // https://www.npmjs.com/package/vue-plugin-load-script
     //
     // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
     // Ce script js télécharge les fichiers suivants :
@@ -234,12 +229,18 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
-    await this.$loadScript('pyodide.js');
+    await loadScript('pyodide.js');
     this.show_progress('Iodification du python géant.');
     await window.languagePluginLoader;
     this.show_progress('Déballage de la cartouche du jeu.');
+
+    // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
+    // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
+    // J'ai pas trop compris le principe, et ça me semble un peu overkill.
+    // Alors j'y vais à la bourrin : je charge tout le code dans une string
+    // et je la balance ensuite directement à la fonction runPython.
     this.run_python(
-      libSquarityCode.data,
+      libSquarityCode,
       'Interprétation de la lib python squarity',
     );
     // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
