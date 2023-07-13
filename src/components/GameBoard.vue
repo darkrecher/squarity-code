@@ -1,10 +1,14 @@
 <template>
-  <div class="game_board">
+  <!-- TODO : soit y'a pas besoin du v-container et on le vire
+    soit y'en a besoin, et on indente correctement.
+    Et ça fera un énorme diff dans git, mais c'est comme ça.
+  -->
+  <div class="game_board"><v-container>
     <!--
       https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
     -->
-    <b-row class="h-100 no-gutters">
-      <b-col ref="left_column" sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
+    <v-row class="h-100 no-gutters">
+      <v-col ref="left_column" sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
         <div class="flex-column h-100">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
@@ -33,8 +37,8 @@
             </div>
           </div>
         </div>
-      </b-col>
-      <b-col sm="12" :md="hide_code ? 12 : 6" order="1" order-sm="1" order-md="2">
+      </v-col>
+      <v-col sm="12" :md="hide_code ? 12 : 6" order="1" order-sm="1" order-md="2">
         <!--
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
@@ -107,9 +111,9 @@
             </div>
           </div>
         </div>
-      </b-col>
-    </b-row>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container></div>
 </template>
 
 <script>
