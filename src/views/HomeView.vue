@@ -1,5 +1,6 @@
 <script setup>
-import GameBoard from '../components/GameBoard.vue'
+  // @ is an alias to /src.
+  import GameBoard from '@/components/GameBoard.vue'
 </script>
 
 <template>

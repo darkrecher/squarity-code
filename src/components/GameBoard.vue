@@ -3,13 +3,14 @@
     soit y'en a besoin, et on indente correctement.
     Et ça fera un énorme diff dans git, mais c'est comme ça.
   -->
-  <div class="game_board"><v-container>
+  <div class="game_board"><v-container fluid>
     <!--
       https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
     -->
     <v-row class="h-100 no-gutters">
-      <v-col ref="left_column" sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
-        <div class="flex-column h-100">
+      <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
+        <!-- TODO : à vérifier, mais je n'ai plus besoin de ce ref left_column. -->
+        <div class="flex-column h-100" ref="left_column">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
@@ -193,6 +194,7 @@ export default {
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
 
     const canvasElem = this.$refs.game_canvas;
+    console.log('canvas ref :', this.$refs.game_canvas)
     this.ctx_canvas = canvasElem.getContext('2d');
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
@@ -331,6 +333,8 @@ export default {
       const Wscreen = window.innerWidth;
       const Wbody = document.body.clientWidth;
       const WleftCol = this.$refs.left_column.clientWidth;
+      console.log('WleftCol : ', WleftCol)
+      console.log(this.$refs.left_column)
       const Wmargin = 10;
 
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
@@ -343,17 +347,22 @@ export default {
       // Linter de merde, qui m'oblige à faire ça.
       let authorizedWidth = 0;
       let authorizedHeight = 0;
+      console.log("game_interface ref", this.$refs.game_interface)
+      console.log("game_interface ref width", this.$refs.game_interface.clientWidth)
       if (Wscreen < 768) {
         // On soustrait pas la largeur de la colonne de gauche pour calculer la largeur autorisée,
         // car avec le super responsive design, cette colonne est en bas.
         authorizedWidth = Wbody - Wmargin;
         authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        // console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+        console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
       } else {
         authorizedWidth = Wbody - WleftCol - Wmargin;
         authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        // console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
+        console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
       }
+      // TODO : si ce truc marche, on peut virer plein de code dégueu.
+      // Bon, ben ça marche...
+      authorizedWidth = this.$refs.game_interface.clientWidth;
 
       const correspHeight = authorizedWidth * ratioFromWidthToHeight;
       let finalHeight = 0;
