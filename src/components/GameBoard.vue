@@ -125,9 +125,6 @@ import ProgressIndicator from './ProgressIndicator.vue';
 // TODO : essayer de remettre le nom squarity.py.
 import libSquarityCode from '/squarity.txt?raw'
 
-// TODO : à priori, on n'a plus besoin de ce truc.
-// const axios = require('axios');
-
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
 function loadImage(src) {
@@ -251,6 +248,7 @@ export default {
   },
 
   updated() {
+    console.log('coucou updated zzz');
     // Ça ne marche plus ! C'est une fonction de callback, mais elle n'est plus appelée avec Vue 3.
     // Je comprends pas pourquoi.
     // TODO : Tester Composition API ???

@@ -19,6 +19,11 @@ import HelloWorld from './components/HelloWorld.vue'
   </div>
 </template>
 
+<!--
+  Si j'ai bien compris, faut installer un linter spécial pour Vue : https://eslint.vuejs.org/user-guide/
+  TODO : installer le Linter qui va bien.
+-->
+
 <style scoped>
 body {
   background-color: #101010;

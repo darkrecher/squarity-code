@@ -1,6 +1,3 @@
-// TODO : comment on fait des http get en Vue 3.
-// const axios = require('axios');
-
 export default Object.freeze({
 
   // Ça marche pas pastebin. Même avec le proxy de cors. On laisse tomber ça pour l'instant.
@@ -36,16 +33,18 @@ export default Object.freeze({
   },
 
   async fetch_game_spec(url) {
+    // https://stackoverflow.com/questions/57411402/using-fetch-to-display-plain-text-in-a-web-page
     let response = '';
     try {
-      response = await axios.get(url);
+      response = await fetch(url);
     } catch (error) {
       return null;
     }
+    const dataText = await response.text();
     // On parse selon le format décrit ici :
     // https://trello.com/c/pbxgBITh/44-%C3%A9crire-la-documentation-utilisateur
     // Ce sera dans une vraie doc plus tard.
-    const dataLines = response.data.split('\n', 3);
+    const dataLines = dataText.split('\n', 3);
     if (dataLines.length < 2) {
       return null;
     }
@@ -54,7 +53,7 @@ export default Object.freeze({
     // l'url et la conf json, et celle qui fait la séparation entre la conf json et le gamecode.
     // Aux espaces près ! (Donc le mieux est de pas mettre d'espace du tout).
     const separator = dataLines[1];
-    const gameSpecElems = response.data.split(`\n${separator}\n`, 3);
+    const gameSpecElems = dataText.split(`\n${separator}\n`, 3);
     if (gameSpecElems.length !== 3) {
       return null;
     }
