@@ -51,6 +51,7 @@ import gameSpecLoader from '../classes/gameSpecLoader';
 // https://trello.com/c/UPac0v2b/124-utiliser-requirecontext-dans-la-page-devzonevue
 // const MAGICIAN_URL_TILESET = require('../assets/dungeon_tiles_2.png');
 // const H2O_URL_TILESET = require('../assets/h2o_tileset2.png');
+// TODO : ou pas...
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
 import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
 
@@ -235,4 +236,11 @@ textarea {
   font-family: monospace;
   border: 1px solid #808080;
 }
+
+button {
+  background-color: #909090;
+  color: black;
+  padding: 3px 3px 0px 3px;
+}
+
 </style>

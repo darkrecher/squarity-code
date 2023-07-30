@@ -9,8 +9,7 @@
     -->
     <v-row class="h-100 no-gutters">
       <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
-        <!-- TODO : à vérifier, mais je n'ai plus besoin de ce ref left_column. -->
-        <div class="flex-column h-100" ref="left_column">
+        <div class="flex-column h-100">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
@@ -50,9 +49,9 @@
               <MainTitle />
             </div>
           </div>
-          <div ref="toggle_button" class="flex-grow-no text-right">
+          <div ref="toggle_button" class="flex-grow-no full-screen-button">
             <button @click="toggle_dev_zone_display">
-              Jeu en plein écran.
+              Jeu en plein écran
             </button>
           </div>
           <div class="the_canvas flex-grow">
@@ -186,15 +185,10 @@ export default {
     };
   },
 
-  beforeMount() {
-  },
-
   async mounted() {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
-
     const canvasElem = this.$refs.game_canvas;
-    console.log('canvas ref :', this.$refs.game_canvas)
     this.ctx_canvas = canvasElem.getContext('2d');
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
@@ -257,6 +251,9 @@ export default {
   },
 
   updated() {
+    // Ça ne marche plus ! C'est une fonction de callback, mais elle n'est plus appelée avec Vue 3.
+    // Je comprends pas pourquoi.
+    // TODO : Tester Composition API ???
     this.handleResize();
   },
 
@@ -327,16 +324,6 @@ export default {
       // Je hais le design de page web, je hais le CSS, putain de langage de zouzou !!
 
       const ratioFromWidthToHeight = this.canvas_height / this.canvas_width;
-
-      // https://stackoverflow.com/questions/8339377/how-to-get-screen-width-without-minus-scrollbar
-      // https://stackoverflow.com/questions/2146874/detect-if-a-page-has-a-vertical-scrollbar/2146903
-      const Wscreen = window.innerWidth;
-      const Wbody = document.body.clientWidth;
-      const WleftCol = this.$refs.left_column.clientWidth;
-      console.log('WleftCol : ', WleftCol)
-      console.log(this.$refs.left_column)
-      const Wmargin = 10;
-
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.game_footer.clientHeight;
@@ -344,25 +331,10 @@ export default {
       const HtoggleButton = this.$refs.toggle_button.clientHeight;
       const Hmargin = 10;
 
-      // Linter de merde, qui m'oblige à faire ça.
-      let authorizedWidth = 0;
-      let authorizedHeight = 0;
-      console.log("game_interface ref", this.$refs.game_interface)
-      console.log("game_interface ref width", this.$refs.game_interface.clientWidth)
-      if (Wscreen < 768) {
-        // On soustrait pas la largeur de la colonne de gauche pour calculer la largeur autorisée,
-        // car avec le super responsive design, cette colonne est en bas.
-        authorizedWidth = Wbody - Wmargin;
-        authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        console.log('Calcul <  768. W : ', authorizedWidth, 'H : ', authorizedHeight);
-      } else {
-        authorizedWidth = Wbody - WleftCol - Wmargin;
-        authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
-        console.log('Calcul >= 768. W : ', authorizedWidth, 'H : ', authorizedHeight);
-      }
-      // TODO : si ce truc marche, on peut virer plein de code dégueu.
-      // Bon, ben ça marche...
-      authorizedWidth = this.$refs.game_interface.clientWidth;
+      let authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
+      // La taille autorisée, on peut la récupérer directement.
+      // (J'espère que ça marche comme ça sur à peu près tous les navigateurs)
+      let authorizedWidth = this.$refs.game_interface.clientWidth;
 
       const correspHeight = authorizedWidth * ratioFromWidthToHeight;
       let finalHeight = 0;
@@ -617,6 +589,13 @@ export default {
 
     toggle_dev_zone_display() {
       this.hide_code = !this.hide_code;
+      // Allez tous vous faire foutre !!
+      // Si j'appelle handleResize tout de suite, ça marche pas car les valeurs clientWidth
+      // des components n'ont pas été mises à jour.
+      // La fonction de callback n'est plus appelée avec Vue 3, et je comprends pas pourquoi !
+      // On peut ajouter des watchers,
+      // mais ils sont eux aussi appelées avant la mise à jour des clientWidth.
+      setTimeout(this.handleResize, 10);
     },
 
   },
@@ -656,8 +635,15 @@ export default {
   flex: 0.4 1 auto;
 }
 
-.text-right {
+.full-screen-button {
   text-align: right;
+}
+
+.full-screen-button button {
+  background-color: #909090;
+  color: black;
+  padding: 3px 3px 0px 3px;
+  margin-bottom: 5px;
 }
 
 .flex-child-center {
@@ -732,6 +718,10 @@ div.game_buttons>div {
   justify-content: center;
 }
 
+div.game_buttons button {
+  color: black;
+}
+
 canvas {
   border: 1px solid gray;
   image-rendering: pixelated;
@@ -745,6 +735,7 @@ div.hidden {
 #python_console {
   width: 100%;
   height: 100%;
+  border: 1px solid #808080;
 }
 
 textarea {
