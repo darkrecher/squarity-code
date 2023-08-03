@@ -68,6 +68,8 @@
 
 <script>
 
+import roadMapDataWip from '/road_map_data.txt?raw';
+
 const GRID_LENGTH_IN_SQUARE = 11;
 const SQUARE_SIZE_IN_EM = 11;
 
@@ -94,14 +96,12 @@ export default {
   },
 
   async mounted() {
-    // task trello : https://trello.com/c/UXtrO7XW/123-ajouter-un-machin-qui-tourne-pour-patienter-dans-roadmapvue
-    const roadMapResponse = await fetch('/road_map_data.json');
-    const roadMapData = await roadMapResponse.json();
+    // TODO : plus besoin de cette task trello : https://trello.com/c/UXtrO7XW/123-ajouter-un-machin-qui-tourne-pour-patienter-dans-roadmapvue
+    const roadMapData = JSON.parse(roadMapDataWip);
     this.setRoadSquares(roadMapData.map_squares, roadMapData.unordered_road_squares);
   },
 
   updated() {
-    console.log('coucou updated');
     // Cette fonction s'exécute après le mounted, quand tout le DOM a été mis à jour.
     // Elle s'exécute à chaque fois que le contenu de data est modifié.
     // Du coup, je met une condition à la con pour déclencher ça que à la première arrivée sur la page.
@@ -182,14 +182,11 @@ export default {
     toggle_tooltip(event) {
       // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
       // gives-element-or-its-child-and-not-parent-element-with-vue-js/
-      // console.log(event.currentTarget);
       const container = event.currentTarget.parentNode;
-      // console.log(container);
       const arrayChildren = Array.prototype.slice.call(container.children);
       const indexRoadSquare = arrayChildren.indexOf(event.currentTarget);
       const newSquareY = Math.floor(indexRoadSquare / GRID_LENGTH_IN_SQUARE);
       const newSquareX = indexRoadSquare % GRID_LENGTH_IN_SQUARE;
-      // console.log(newSquareX, newSquareY);
 
       if (
         (this.square_x_tooltip === null)
@@ -381,6 +378,7 @@ export default {
   border-radius: 20px;
   padding: 0.5em;
   background-image: url("../assets/vision_background.png");
+  background-repeat: repeat;
 }
 
 /* --- root squares --- */

@@ -114,6 +114,9 @@
       </v-col>
     </v-row>
   </v-container></div>
+  <template v-for="item in dummytab">
+    <div class="hidden">{{ item.dummyvar }}</div>
+  </template>
 </template>
 
 <script>
@@ -179,10 +182,12 @@ export default {
       loading_done: false,
       hide_code: false,
       is_player_locked: false,
+      dummytab: [{dummyvar: 'dummy'}],
     };
   },
 
   async mounted() {
+    console.log('coucou mounted aaa');
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
     const canvasElem = this.$refs.game_canvas;
@@ -248,10 +253,10 @@ export default {
   },
 
   updated() {
-    console.log('coucou updated zzz');
-    // Ça ne marche plus ! C'est une fonction de callback, mais elle n'est plus appelée avec Vue 3.
-    // Je comprends pas pourquoi.
-    // TODO : Tester Composition API ???
+    // Cette fonction est appelée automatiquement par Vue,
+    // mais pour ça, il faut qu'il y ait des "vraies" modifs dans le DOM.
+    // Si c'est juste des classes qui changent, ça déclenche pas updated.
+    // Mais quand la variable "dummytab" est modifiée, ça marche.
     this.handleResize();
   },
 
@@ -386,6 +391,7 @@ export default {
       this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
     },
 
+    // TODO : c'est quoi cette daube ? Qui a besoin de ça ?
     is_str_transitional_state(strVal) {
       return (strVal === 't' || strVal === 'T' || strVal === 'transitional_state');
     },
@@ -587,13 +593,13 @@ export default {
 
     toggle_dev_zone_display() {
       this.hide_code = !this.hide_code;
-      // Allez tous vous faire foutre !!
       // Si j'appelle handleResize tout de suite, ça marche pas car les valeurs clientWidth
       // des components n'ont pas été mises à jour.
-      // La fonction de callback n'est plus appelée avec Vue 3, et je comprends pas pourquoi !
-      // On peut ajouter des watchers,
-      // mais ils sont eux aussi appelées avant la mise à jour des clientWidth.
-      setTimeout(this.handleResize, 10);
+      // Il faut déclencher un appel à la callback "updated".
+      // Pour ça, on modifie une données de data, qui va modifier le DOM.
+      // Alors en vrai, ça modifie pas le DOM, parce que je change même  pas la valeur de dummytab.
+      // Mais Vue crois que le DOM a été modifié, et ça lui suffit. (J'adore tous ces frameworks JavaScript).
+      this.dummytab = [{dummyvar: 'dummy'}];
     },
 
   },

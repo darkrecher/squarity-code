@@ -1,20 +1,9 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
   <div id="app">
-    <!-- TODO : faudra voir si j'ai besoin de ce truc
-    <header>
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
-    </header>
-    -->
     <RouterView />
   </div>
 </template>
@@ -22,6 +11,10 @@ import HelloWorld from './components/HelloWorld.vue'
 <!--
   Si j'ai bien compris, faut installer un linter spécial pour Vue : https://eslint.vuejs.org/user-guide/
   TODO : installer le Linter qui va bien.
+-->
+<!--
+  TODO : essayer de déclarer les composants avec de la "Composition API"
+  (même si pour l'instant je comprends pas du tout ce que c'est).
 -->
 
 <style scoped>
