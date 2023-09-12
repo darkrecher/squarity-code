@@ -12,10 +12,6 @@ import { RouterLink, RouterView } from 'vue-router'
   Si j'ai bien compris, faut installer un linter spécial pour Vue : https://eslint.vuejs.org/user-guide/
   TODO : installer le Linter qui va bien.
 -->
-<!--
-  TODO : essayer de déclarer les composants avec de la "Composition API"
-  (même si pour l'instant je comprends pas du tout ce que c'est).
--->
 
 <style scoped>
 body {

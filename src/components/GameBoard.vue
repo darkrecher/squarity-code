@@ -1,8 +1,4 @@
 <template>
-  <!-- TODO : soit y'a pas besoin du v-container et on le vire
-    soit y'en a besoin, et on indente correctement.
-    Et ça fera un énorme diff dans git, mais c'est comme ça.
-  -->
   <div class="game_board"><v-container fluid>
     <!--
       https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
@@ -125,7 +121,6 @@ import { loadScript } from "vue-plugin-load-script";
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
-// TODO : essayer de remettre le nom squarity.py.
 import libSquarityCode from '/squarity.txt?raw'
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
@@ -389,11 +384,6 @@ export default {
         canvasY += this.tile_canvas_height;
       }
       this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
-    },
-
-    // TODO : c'est quoi cette daube ? Qui a besoin de ça ?
-    is_str_transitional_state(strVal) {
-      return (strVal === 't' || strVal === 'T' || strVal === 'transitional_state');
     },
 
     process_delayed_action(actionId) {

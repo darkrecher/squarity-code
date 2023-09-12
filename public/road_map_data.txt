@@ -28,56 +28,56 @@
       "rank": "superior",
       "html_class": "special-effect superior-square",
       "title": "\n\"Effets sp\u00e9ciaux\"",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "g00",
       "rank": "superior",
       "html_class": "game-engine superior-square",
       "title": "\nMoteur du jeu",
-      "gif_vision": "vision_game_engine.gif"
+      "gif_vision": "game_engine"
     },
     {
       "key": "i00",
       "rank": "superior",
       "html_class": "ide superior-square",
       "title": "Environnement de d\u00e9v. int\u00e9gr\u00e9",
-      "gif_vision": "ide.gif"
+      "gif_vision": "ide"
     },
     {
       "key": "t00",
       "rank": "superior",
       "html_class": "tuto superior-square",
       "title": "Tutoriels\n\nDocs\n\nExemples",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "l00",
       "rank": "superior",
       "html_class": "level superior-square",
       "title": "\u00c9diteur de niveaux\n\nGestion des tilesets",
-      "gif_vision": "level_editor.gif"
+      "gif_vision": "level_editor"
     },
     {
       "key": "c00",
       "rank": "superior",
       "html_class": "promo superior-square",
       "title": "Contenu\n\nJeux\n\nPromotion",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "s00",
       "rank": "superior",
       "html_class": "social superior-square",
       "title": "\nSocial\n\nSite web",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "o00",
       "rank": "superior",
       "html_class": "optim superior-square",
       "title": "Auto-formation\n\nOptimisation",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "i01",
@@ -112,7 +112,7 @@
       "rank": "vision",
       "html_class": "ide-undone",
       "title": "Timeline de debug",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "i06",
@@ -189,7 +189,7 @@
       "rank": "vision",
       "html_class": "level-undone",
       "title": "Construction d'un tileset",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "g01",
@@ -224,7 +224,7 @@
       "rank": "vision",
       "html_class": "game-engine-undone",
       "title": "Un dialogue de visual novel",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "g06",
@@ -268,7 +268,7 @@
       "rank": "vision",
       "html_class": "game-engine-undone",
       "title": "Exemples de pattern",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "g12",
@@ -359,7 +359,7 @@
       "rank": "vision",
       "html_class": "special-effect-undone",
       "title": "Pif paf boum !",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "e08",
@@ -465,7 +465,7 @@
       "rank": "vision",
       "html_class": "social-undone",
       "title": "les infos de profil",
-      "gif_vision": "test_vision.gif"
+      "gif_vision": "test_vision"
     },
     {
       "key": "s05",

@@ -70,8 +70,20 @@
 
 import roadMapDataWip from '/road_map_data.txt?raw';
 
+import VISION_FALLBACK_URL_GIF from '../assets/test_vision.gif';
+import VISION_IDE_URL_GIF from '../assets/ide.gif';
+import VISION_LEVEL_EDITOR_URL_GIF from '../assets/level_editor.gif';
+import VISION_GAME_ENGINE_URL_GIF from '../assets/game_engine.gif';
+
 const GRID_LENGTH_IN_SQUARE = 11;
 const SQUARE_SIZE_IN_EM = 11;
+
+const URL_GIF_FROM_RM_DATA = {
+  test_vision: VISION_FALLBACK_URL_GIF,
+  ide: VISION_IDE_URL_GIF,
+  level_editor: VISION_LEVEL_EDITOR_URL_GIF,
+  game_engine: VISION_GAME_ENGINE_URL_GIF,
+}
 
 export default {
   name: 'RoadMap',
@@ -96,7 +108,6 @@ export default {
   },
 
   async mounted() {
-    // TODO : plus besoin de cette task trello : https://trello.com/c/UXtrO7XW/123-ajouter-un-machin-qui-tourne-pour-patienter-dans-roadmapvue
     const roadMapData = JSON.parse(roadMapDataWip);
     this.setRoadSquares(roadMapData.map_squares, roadMapData.unordered_road_squares);
   },
@@ -115,13 +126,6 @@ export default {
       }
     }
   },
-
-  // TODO : https://www.javascripttutorial.net/dom/css/check-if-an-element-is-visible-in-the-viewport/
-  //
-  // pour scroller horizontalement vers un élément
-  // (vérifier avant qu'il est entièrement visible verticalement,
-  // sinon ça va aussi scroller verticalement).
-  // scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
 
   methods: {
     setRoadSquares(mapSquares, unorderedRoadSquares) {
@@ -239,9 +243,7 @@ export default {
       modal.style.display = 'block';
       const gifImgInModal = modal.querySelector('.gif-vision');
       const imgSource = event.currentTarget.getAttribute('gif_vision');
-      // https://stackoverflow.com/questions/40491506/vue-js-dynamic-images-not-working
-      const imageGetter = require.context('../assets/', false, /\.gif$/);
-      gifImgInModal.src = imageGetter(`./${imgSource}`);
+      gifImgInModal.src = URL_GIF_FROM_RM_DATA[imgSource];
     },
 
     hide_modal() {
