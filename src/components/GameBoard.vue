@@ -255,7 +255,7 @@ export default {
     this.handleResize();
   },
 
-  destroyed() {
+  unmounted() {
     const elemGameInterface = this.$refs.game_interface;
     // Je dois vérifier que elemGameInterface n'est pas Null.
     // Quand je recharge ma page, pas de problème.

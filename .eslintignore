@@ -1,0 +1,9 @@
+# https://stackoverflow.com/questions/42250257/disable-eslint-rules-for-folder
+# /node_modules/* and /bower_components/* in the project root are ignored by default
+
+# pyodide files are not VueJS files, so we don't lint them.
+public/pyodide/*
+public/pyodide.js
+
+# do not lint the dist, you fool !
+dist/*

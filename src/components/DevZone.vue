@@ -59,7 +59,7 @@ export default {
     this.$refs.dev_zone.addEventListener('keydown', this.on_key_down);
   },
 
-  destroyed() {
+  unmounted() {
     const elemDevZone = this.$refs.dev_zone;
     if (elemDevZone) {
       elemDevZone.removeEventListener('keydown', this.on_key_down);
