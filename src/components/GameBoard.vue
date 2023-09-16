@@ -110,7 +110,8 @@
       </v-col>
     </v-row>
   </v-container></div>
-  <template v-for="item in dummytab">
+  <!-- https://stackoverflow.com/questions/62227602/elements-in-iteration-expect-to-have-v-bindkey-directives-in-vueapp -->
+  <template v-for="(item, index) in dummytab" :key="index">
     <div class="hidden">{{ item.dummyvar }}</div>
   </template>
 </template>
@@ -587,7 +588,7 @@ export default {
       // des components n'ont pas été mises à jour.
       // Il faut déclencher un appel à la callback "updated".
       // Pour ça, on modifie une données de data, qui va modifier le DOM.
-      // Alors en vrai, ça modifie pas le DOM, parce que je change même  pas la valeur de dummytab.
+      // Alors en vrai, ça modifie pas le DOM, parce que je change même pas la valeur de dummytab.
       // Mais Vue crois que le DOM a été modifié, et ça lui suffit. (J'adore tous ces frameworks JavaScript).
       this.dummytab = [{dummyvar: 'dummy'}];
     },
