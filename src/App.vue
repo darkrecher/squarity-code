@@ -22,7 +22,4 @@ body {
   color: #C0C0C0;
 }
 
-a {
-  color: #A0A0D0;
-}
 </style>

@@ -600,6 +600,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+a {
+  color: #A0A0D0;
+}
+
 .flex-column {
   display: flex;
   flex-flow: column;
@@ -743,4 +748,5 @@ textarea {
 .dev_notice {
   font-size: 0.8em;
 }
+
 </style>

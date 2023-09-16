@@ -261,6 +261,11 @@ export default {
 </script>
 
 <style scoped>
+
+a {
+  color: #A0A0D0;
+}
+
 .roadmap {
   background-color: #202020;
   overflow-x:auto;
