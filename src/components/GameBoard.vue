@@ -676,6 +676,7 @@ a {
       hashtag-vive_les_magic_number_et_fuck_le_css
   */
   height: 96vh;
+  outline: none;
 }
 
 .game_footer {
