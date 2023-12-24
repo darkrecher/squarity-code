@@ -676,6 +676,7 @@ a {
       hashtag-vive_les_magic_number_et_fuck_le_css
   */
   height: 96vh;
+  /* https://stackoverflow.com/questions/2943548/how-to-reset-remove-chromes-input-highlighting-focus-border */
   outline: none;
 }
 

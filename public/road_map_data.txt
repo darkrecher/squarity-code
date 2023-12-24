@@ -63,21 +63,21 @@
       "rank": "superior",
       "html_class": "promo superior-square",
       "title": "Contenu\n\nJeux\n\nPromotion",
-      "gif_vision": "test_vision"
+      "gif_vision": "content_games"
     },
     {
       "key": "s00",
       "rank": "superior",
       "html_class": "social superior-square",
       "title": "\nSocial\n\nSite web",
-      "gif_vision": "test_vision"
+      "gif_vision": "social_web"
     },
     {
       "key": "o00",
       "rank": "superior",
       "html_class": "optim superior-square",
       "title": "Auto-formation\n\nOptimisation",
-      "gif_vision": "test_vision"
+      "gif_vision": "explode_head"
     },
     {
       "key": "i01",
@@ -109,10 +109,10 @@
     },
     {
       "key": "i05",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "ide-undone",
-      "title": "Timeline de debug",
-      "gif_vision": "test_vision"
+      "title": "Vision : Timeline de debug",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\nTimeline de debug, avec un zoom sur la timeline. Les valeurs de quelques variables. Des mini-screenshots dans la timeline montrant l'\u00e9tat du jeu \u00e0 diff\u00e9rentes \u00e9tapes."
     },
     {
       "key": "i06",
@@ -186,10 +186,10 @@
     },
     {
       "key": "l08",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "level-undone",
-      "title": "Construction d'un tileset",
-      "gif_vision": "test_vision"
+      "title": "Vision : Construction d'un tileset",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\nConstruction d'un tileset en piochant des images de plusieurs tilesets existants. Certaines images sont des animations. D'autres sont toutes les possibilit\u00e9s de connexions d'une route."
     },
     {
       "key": "g01",
@@ -221,10 +221,10 @@
     },
     {
       "key": "g05",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "game-engine-undone",
-      "title": "Un dialogue de visual novel",
-      "gif_vision": "test_vision"
+      "title": "Vision : Un dialogue de visual novel",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\nVision : des personnages et du texte qui appara\u00eet par dessus, pour faire des \"visual novel\". Avec Blondeau George Jacques Babylas dedans."
     },
     {
       "key": "g06",
@@ -265,10 +265,10 @@
     },
     {
       "key": "g11",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "game-engine-undone",
-      "title": "Exemples de pattern",
-      "gif_vision": "test_vision"
+      "title": "Vision : Exemples de pattern",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\n\u00e9dition de pattern \u00e0 la puzzlescript, pour cr\u00e9er un jeu."
     },
     {
       "key": "g12",
@@ -356,10 +356,10 @@
     },
     {
       "key": "e07",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "special-effect-undone",
-      "title": "Pif paf boum !",
-      "gif_vision": "test_vision"
+      "title": "Vision : Pif paf boum !",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\nDes effets sp\u00e9ciaux (\u00e9clair, explosion, distortion, ...)"
     },
     {
       "key": "e08",
@@ -462,10 +462,10 @@
     },
     {
       "key": "s04",
-      "rank": "vision",
+      "rank": "normal",
       "html_class": "social-undone",
-      "title": "les infos de profil",
-      "gif_vision": "test_vision"
+      "title": "Vision : les infos de profil",
+      "description": "Ce carr\u00e9 est cens\u00e9 afficher une gif anim\u00e9e, mais on verra \u00e7a plus tard. Ci-dessous, description de l'hypoth\u00e9tique gif.\n\nLe profil d'une personne. Les badges gagn\u00e9s. Les scores. Les jeux favoris. Les suggestions de jeux."
     },
     {
       "key": "s05",

@@ -70,23 +70,27 @@
 
 import roadMapDataWip from '/road_map_data.txt?raw';
 
-import VISION_FALLBACK_URL_GIF from '../assets/test_vision.gif';
 import VISION_IDE_URL_GIF from '../assets/ide.gif';
 import VISION_LEVEL_EDITOR_URL_GIF from '../assets/level_editor.gif';
 import VISION_GAME_ENGINE_URL_GIF from '../assets/game_engine.gif';
 import VISION_TUTO_URL_GIF from '../assets/tuto.gif';
 import VISION_SPECIAL_EFFECT_URL_GIF from '../assets/special_effect.gif';
+import VISION_CONTENT_GAMES_URL_GIF from '../assets/content_games.gif';
+import VISION_SOCIAL_WEB_URL_GIF from '../assets/social_web.gif';
+import VISION_EXPLODE_HEAD_URL_GIF from '../assets/explode_head.gif';
 
 const GRID_LENGTH_IN_SQUARE = 11;
 const SQUARE_SIZE_IN_EM = 11;
 
 const URL_GIF_FROM_RM_DATA = {
-  test_vision: VISION_FALLBACK_URL_GIF,
   ide: VISION_IDE_URL_GIF,
   level_editor: VISION_LEVEL_EDITOR_URL_GIF,
   game_engine: VISION_GAME_ENGINE_URL_GIF,
   tuto: VISION_TUTO_URL_GIF,
   special_effect: VISION_SPECIAL_EFFECT_URL_GIF,
+  content_games: VISION_CONTENT_GAMES_URL_GIF,
+  social_web: VISION_SOCIAL_WEB_URL_GIF,
+  explode_head: VISION_EXPLODE_HEAD_URL_GIF,
 }
 
 export default {
