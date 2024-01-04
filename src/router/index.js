@@ -20,4 +20,12 @@ const router = createRouter({
   ]
 })
 
+// source: https://stackoverflow.com/questions/51639850/how-to-change-page-titles-when-using-vue-router
+router.afterEach((to, from) => {
+    document.title = 'Squarity';
+    // La bonne pratique est d'utiliser nextTick, mais je n'arrive pas à le faire fonctionner.
+    // Use next tick to handle router history correctly
+    // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+})
+
 export default router

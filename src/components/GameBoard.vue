@@ -528,6 +528,12 @@ export default {
       this.$refs.python_console.textContent = '';
 
       this.json_conf = JSON.parse(jsonConf);
+      const hasGameName = Object.prototype.hasOwnProperty.call(this.json_conf, 'name');
+      if (hasGameName) {
+        document.title = `Squarity - ${this.json_conf.name}`;
+      } else {
+        document.title = 'Squarity';
+      }
       // Code à virer lorsqu'on appliquera la deprecation.
       const hasTileProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'tile_coords');
       const hasImgProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'img_coords');
