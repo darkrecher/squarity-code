@@ -19,7 +19,7 @@
       "key": "#00",
       "rank": "origin",
       "html_class": "road-map-origin",
-      "description": "Squarity est d\u00e9velopp\u00e9 par une \u00e9quipe d'une seule personne. Il est donc difficile d'annoncer des dates de r\u00e9alisation, ou m\u00eame d'ordonner les priorit\u00e9s. C'est pourquoi la road-map est sous forme d'un quadrillage, o\u00f9 chaque carr\u00e9 repr\u00e9sente une fonctionnalit\u00e9. Aucun ordre pr\u00e9cis ne peut \u00eatre d\u00e9duit.\n\nLes carr\u00e9s de couleurs vives sont des fonctionnalit\u00e9s d\u00e9j\u00e0 faites (pour l'instant, il y en a assez peu...). Ceux de couleurs ternes sont des fonctionnalit\u00e9s \u00e0 d\u00e9velopper.\n\nCertains carr\u00e9s afficheront des gif anim\u00e9s montrant des screenshot hypoth\u00e9tique de Squarity.\nPour l'instant ces gifs ne sont pas finis, il faudra attendre encore un peu.\nLa premi\u00e8re \u00e9tape de la road-map est de finir la road-map.\n\n",
+      "description": "Squarity est d\u00e9velopp\u00e9 par une \u00e9quipe d'une seule personne. Il est donc difficile d'annoncer des dates de r\u00e9alisation, ou m\u00eame d'ordonner les priorit\u00e9s. C'est pourquoi la road-map est sous forme d'un quadrillage, o\u00f9 chaque carr\u00e9 repr\u00e9sente une fonctionnalit\u00e9. Aucun ordre pr\u00e9cis ne peut \u00eatre d\u00e9duit.\n\nLes carr\u00e9s de couleurs vives sont des fonctionnalit\u00e9s d\u00e9j\u00e0 faites (pour l'instant, il y en a assez peu...). Ceux de couleurs ternes sont des fonctionnalit\u00e9s \u00e0 d\u00e9velopper.\n\n",
       "link_url": "https://github.com/darkrecher/squarity-doc/blob/master/road_map.md",
       "link_text": "Lien vers la road-map en version texte, pour une lecture d\u00e9taill\u00e9e plus facile."
     },

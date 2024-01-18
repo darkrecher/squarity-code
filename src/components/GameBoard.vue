@@ -703,12 +703,18 @@ a {
   padding: 0;
 }
 
-.game_footer button:hover {
+/* https://stackoverflow.com/questions/12591966/html-disabled-button-getting-active-css-pseudo-class */
+.game_footer button:enabled:hover {
   background-color: #909090;
 }
 
-.game_footer button:active {
+.game_footer button:enabled:active {
   background-color: #B0B0B0;
+}
+
+.game_footer button:disabled {
+  background-color: #505050;
+  color: #303030;
 }
 
 /* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */

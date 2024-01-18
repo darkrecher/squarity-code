@@ -5,7 +5,6 @@
 export default Object.freeze({
     MAGICIAN_JSON_CONF: `
   {
-    "name": "Magician Demo",
     "game_area": {
         "nb_tile_width": 22,
         "nb_tile_height": 15
