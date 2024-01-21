@@ -534,15 +534,6 @@ export default {
       } else {
         document.title = 'Squarity';
       }
-      // Code à virer lorsqu'on appliquera la deprecation.
-      const hasTileProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'tile_coords');
-      const hasImgProp = Object.prototype.hasOwnProperty.call(this.json_conf, 'img_coords');
-      if (hasTileProp && !hasImgProp) {
-        this.console_log('DeprecationWarning:\n');
-        this.console_log('Dans le json, utilisez la clé "img_coords" à la place de "tile_coords".\n\n');
-        this.json_conf.img_coords = this.json_conf.tile_coords;
-      }
-      // fin du code à virer.
       let areaWidth = 20;
       let areaHeight = 14;
       if ('game_area' in this.json_conf) {
@@ -562,19 +553,9 @@ export default {
       }
       this.configGameSizes(this.json_conf.tile_size, areaWidth, areaHeight);
       this.img_coords = this.json_conf.img_coords;
-      // Re Code à virer lorsqu'on appliquera la deprecation.
-      let fuckJsCanNotRedefineParams = gameCode;
-      if (gameCode.includes('BoardModel')) {
-        this.console_log('DeprecationWarning: La classe doit s\'appeler "GameModel", et non pas "BoardModel".\n\n');
-        fuckJsCanNotRedefineParams = fuckJsCanNotRedefineParams.replace('BoardModel', 'GameModel');
-      }
-      if (gameCode.includes('get_size(')) {
-        this.console_log('DeprecationWarning: La fonction get_size n\'est plus utile.\n');
-        this.console_log('Bientôt, vous pourrez définir la taille de l\'aire de jeu, mais pas tout de suite.\n\n');
-      }
-      // re fin du code à virer.
+
       this.run_python(
-        fuckJsCanNotRedefineParams,
+        gameCode,
         'Interprétation du gameCode.',
       );
       this.run_python(
