@@ -119,6 +119,7 @@ class GameModel():
         self.get_tile_gamobjs(self.magician_x, self.magician_y).append("M")
         self.fires = []
         self.fire_ready = True
+        self.clicked_once = False
 
         print("Le tileset de ce jeu a été créé par Buch :")
         print("https://opengameart.org/content/dungeon-tileset")
@@ -174,16 +175,19 @@ class GameModel():
         else:
             return None
 
-    def toggle_door(self):
-        action_target_y = self.magician_y - 1
-        if action_target_y > 0:
-            target_tile_objs = self.get_tile_gamobjs(self.magician_x, action_target_y)
-            if "d" in target_tile_objs:
-                target_tile_objs.remove("d")
-                target_tile_objs.append("D")
-            elif "D" in target_tile_objs:
-                target_tile_objs.remove("D")
-                target_tile_objs.append("d")
+    def toggle_door(self, x, y):
+        #action_target_y = self.magician_y - 1
+        #if action_target_y > 0:
+        target_tile_objs = self.get_tile_gamobjs(x, y)
+        if "d" in target_tile_objs:
+            target_tile_objs.remove("d")
+            target_tile_objs.append("D")
+            return True
+        elif "D" in target_tile_objs:
+            target_tile_objs.remove("D")
+            target_tile_objs.append("d")
+            return True
+        return False
 
     def check_teledoortation(self, magi_mov_x, magi_mov_y):
         coord_other_door = None
@@ -246,7 +250,11 @@ class GameModel():
             return """{ "redraw": 0 }"""
 
         if event_name == "action_1":
-            return self.toggle_door()
+            action_target_y = self.magician_y - 1
+            if action_target_y > 0:
+                if self.toggle_door(self.magician_x, action_target_y):
+                    return None
+            return """{ "redraw": 0 }"""
 
         if event_name == "action_2":
             return self.start_fire()
@@ -295,6 +303,15 @@ class GameModel():
             self.magician_x = new_magician_x
             self.magician_y = new_magician_y
             self.get_tile_gamobjs(self.magician_x, self.magician_y).append("M")
+
+    def on_click(self, x, y):
+        if self.toggle_door(x, y):
+            return None
+        else:
+            if not self.clicked_once:
+                print("Essayez de cliquer sur une porte.")
+                self.clicked_once = True
+            return """{ "redraw": 0 }"""
 
   `,
 

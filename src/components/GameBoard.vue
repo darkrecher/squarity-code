@@ -53,7 +53,7 @@
           <div class="the_canvas flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <canvas v-show="loading_done" ref="game_canvas" />
+                <canvas v-show="loading_done" ref="game_canvas" @click="on_game_click"/>
                 <ProgressIndicator v-if="!loading_done" ref="progress_indicator" />
               </div>
             </div>
@@ -203,6 +203,7 @@ export default {
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.current_url_tileset = '';
+    this.has_click_handling = false;
     this.player_locks = [];
     this.delayed_action_next_id = 0;
     this.delayed_actions = [];
@@ -282,6 +283,19 @@ export default {
       const pythonConsole = this.$refs.python_console;
       pythonConsole.textContent += msg;
       pythonConsole.scrollTop = pythonConsole.scrollHeight;
+    },
+
+    check_has_click_handling() {
+      let resultPython = null;
+      try {
+        resultPython = window.pyodide.runPython('game_model.on_click');
+        if (resultPython == null) {
+          return false;
+        }
+      } catch (err) {
+        return false;
+      }
+      return true;
     },
 
     run_python(pythonCode, codeLabel) {
@@ -397,6 +411,56 @@ export default {
       }
     },
 
+    process_game_event_result(eventResultRaw) {
+      let mustRedraw = true;
+      const eventResult = JSON.parse(eventResultRaw);
+      if ('delayed_actions' in eventResult) {
+        for (let newDelayedAction of eventResult.delayed_actions) {
+          let delayTime = 500;
+          if ('delay_ms' in newDelayedAction) {
+            delayTime = newDelayedAction.delay_ms;
+          }
+          if ('name' in newDelayedAction) {
+            const actionName = newDelayedAction.name;
+            const newActionId = this.delayed_action_next_id;
+            this.delayed_action_next_id += 1;
+            const timeOutId = setTimeout(() => {
+              this.process_delayed_action(newActionId);
+            }, delayTime);
+            const newDelayedActionInfo = [timeOutId, newActionId, actionName];
+            this.delayed_actions.push(newDelayedActionInfo);
+          }
+        }
+      }
+      if ('player_locks' in eventResult) {
+        for (let lockName of eventResult.player_locks) {
+          if (!this.player_locks.includes(lockName)) {
+            this.player_locks.push(lockName);
+          }
+        }
+      }
+      if ('player_unlocks' in eventResult) {
+        for (let unlockName of eventResult.player_unlocks) {
+          if (unlockName === '*') {
+            this.player_locks = [];
+          } else {
+            this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
+          }
+        }
+      }
+      const playerLocsNew = (this.player_locks.length !== 0);
+      if (this.is_player_locked !== playerLocsNew) {
+        this.is_player_locked = playerLocsNew;
+        if (!this.is_player_locked) {
+          this.$refs.game_interface.focus();
+        }
+      }
+      if ('redraw' in eventResult) {
+        mustRedraw = eventResult.redraw !== 0;
+      }
+      return mustRedraw;
+    },
+
     send_game_event(eventName) {
       // Exemple d'infos à récupérer :
       // {
@@ -408,67 +472,18 @@ export default {
       //   "player_locks": ["name1", "name2"],
       //   "player_unlocks": ["name1", "name2", "*"],
       // }
-
       if (this.is_player_locked && actionsFromPlayer.includes(eventName)) {
         return;
       }
-
       let mustRedraw = true;
       document.eventName = eventName;
       const eventResultRaw = this.run_python(
         'game_model.on_game_event(js.document.eventName)',
         `Exécution d'un événement ${eventName}`,
       );
-
       if (!isNonePython(eventResultRaw)) {
-        const eventResult = JSON.parse(eventResultRaw);
-        if ('delayed_actions' in eventResult) {
-          // Syntaxe de for-loop de merde... Putain de javascript. Putain de linter.
-          eventResult.delayed_actions.forEach((newDelayedAction) => {
-            let delayTime = 500;
-            if ('delay_ms' in newDelayedAction) {
-              delayTime = newDelayedAction.delay_ms;
-            }
-            if ('name' in newDelayedAction) {
-              const actionName = newDelayedAction.name;
-              const newActionId = this.delayed_action_next_id;
-              this.delayed_action_next_id += 1;
-              const timeOutId = setTimeout(() => {
-                this.process_delayed_action(newActionId);
-              }, delayTime);
-              const newDelayedActionInfo = [timeOutId, newActionId, actionName];
-              this.delayed_actions.push(newDelayedActionInfo);
-            }
-          });
-        }
-        if ('player_locks' in eventResult) {
-          eventResult.player_locks.forEach((lockName) => {
-            if (!this.player_locks.includes(lockName)) {
-              this.player_locks.push(lockName);
-            }
-          });
-        }
-        if ('player_unlocks' in eventResult) {
-          eventResult.player_unlocks.forEach((unlockName) => {
-            if (unlockName === '*') {
-              this.player_locks = [];
-            } else {
-              this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
-            }
-          });
-        }
-        const playerLocsNew = (this.player_locks.length !== 0);
-        if (this.is_player_locked !== playerLocsNew) {
-          this.is_player_locked = playerLocsNew;
-          if (!this.is_player_locked) {
-            this.$refs.game_interface.focus();
-          }
-        }
-        if ('redraw' in eventResult) {
-          mustRedraw = eventResult.redraw !== 0;
-        }
+        mustRedraw = this.process_game_event_result(eventResultRaw);
       }
-
       if (mustRedraw) {
         this.draw_rect();
       }
@@ -481,6 +496,42 @@ export default {
         const eventName = eventNameFromButton[e.code];
         this.send_game_event(eventName);
         e.preventDefault();
+      }
+    },
+
+    on_game_click(e) {
+      if (!this.has_click_handling) {
+        return;
+      }
+      if (this.is_player_locked) {
+        return;
+      }
+      // https://thewebdev.info/2021/03/21/how-to-get-the-coordinates-of-a-mouse-click-on-a-canvas-element/
+      const rect = this.$refs.game_canvas.getBoundingClientRect();
+      const clicked_tile_x = Math.floor((e.offsetX * this.nb_tile_width) / rect.width);
+      const clicked_tile_y = Math.floor((e.offsetY * this.nb_tile_height) / rect.height);
+      if (
+        !(
+          (clicked_tile_x >= 0)
+          && (clicked_tile_x < this.nb_tile_width)
+          && (clicked_tile_y >= 0)
+          && (clicked_tile_y < this.nb_tile_height)
+        )
+      ) {
+        return;
+      }
+      let mustRedraw = true;
+      document.clicked_tile_x = clicked_tile_x;
+      document.clicked_tile_y = clicked_tile_y;
+      const eventResultRaw = this.run_python(
+        'game_model.on_click(js.document.clicked_tile_x, js.document.clicked_tile_y)',
+        `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
+      );
+      if (!isNonePython(eventResultRaw)) {
+        mustRedraw = this.process_game_event_result(eventResultRaw);
+      }
+      if (mustRedraw) {
+        this.draw_rect();
       }
     },
 
@@ -518,10 +569,10 @@ export default {
       this.show_progress('Compilation de la compote.');
 
       // On remet à zéro toutes les infos concernant les delayed actions.
-      this.delayed_actions.forEach((delayedActionInfo) => {
+      for (let delayedActionInfo of this.delayed_actions) {
         const [timeoutId] = delayedActionInfo;
         clearTimeout(timeoutId);
-      });
+      }
       this.delayed_actions = [];
       this.player_locks = [];
       this.delayed_action_next_id = 0;
@@ -563,6 +614,7 @@ export default {
         'Instanciation du GameModel',
       );
       this.handleResize();
+      this.has_click_handling = this.check_has_click_handling();
       this.draw_rect();
       this.$refs.game_interface.focus();
       this.show_progress('C\'est parti !');
