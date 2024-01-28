@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 // https://stackoverflow.com/questions/47597384/best-way-to-define-common-constants-in-vue-js
 
 export default Object.freeze({

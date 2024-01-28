@@ -183,23 +183,17 @@ export default {
   },
 
   async mounted() {
-    console.log('coucou mounted aaa');
+
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
     const canvasElem = this.$refs.game_canvas;
     this.ctx_canvas = canvasElem.getContext('2d');
     this.canvas_buffer = document.createElement('canvas');
     this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
-
-    // Il faut définir explicitement la taille du canvas, à cet endroit du code,
-    // pour définir en même temps la taille de la zone de dessin pour le RenderingContext2D.
-    // https://www.w3schools.com/tags/att_canvas_width.asp
-    // Et faut le faire deux fois :
-    // Pour canvasElem (width, height), et aussi pour this.canvas_buffer (width, height aussi)
-    // J'ai pas tout compris ces histoires de taille. J'ai mis une tâche dans Trello pour ça.
-    //
-    // Juste pour info : pour récupérer la taille rélle d'un élément HTML, en pixel :
-    // elem.clientHeight et elem.clientWidth.
+    // Définition de la taille interne du canvas (canvasElem) et de la taille de la zone de dessin
+    // (this.canvas_buffer). C'est la même taille pour les deux, mais ça ne correspond pas
+    // à la taille réelle du canvas dans le DOM. Cette taille réelle est définie
+    // à un autre endroit du code (et de manière assez inavouable) (voir handleResize).
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.current_url_tileset = '';
