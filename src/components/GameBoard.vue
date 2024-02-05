@@ -123,6 +123,7 @@ import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 import libSquarityCode from '/squarity.txt?raw'
+import GameEngine from "../classes/gameEngine.js";
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
@@ -147,7 +148,6 @@ function isNonePython(val) {
   return typeof val === 'undefined';
 }
 
-const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
@@ -187,20 +187,17 @@ export default {
     // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
     // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
     const canvasElem = this.$refs.game_canvas;
-    this.ctx_canvas = canvasElem.getContext('2d');
-    this.canvas_buffer = document.createElement('canvas');
-    this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
-    // Définition de la taille interne du canvas (canvasElem) et de la taille de la zone de dessin
-    // (this.canvas_buffer). C'est la même taille pour les deux, mais ça ne correspond pas
-    // à la taille réelle du canvas dans le DOM. Cette taille réelle est définie
-    // à un autre endroit du code (et de manière assez inavouable) (voir handleResize).
-    this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
+    const ctx_canvas = canvasElem.getContext('2d');
+    const canvas_buffer = document.createElement('canvas');
+    const ctx_canvas_buffer = canvas_buffer.getContext('2d');
 
+    // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
+    // clear canvas
+    ctx_canvas_buffer.fillStyle = '#000000';
+    // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
+    ctx_canvas_buffer.imageSmoothingEnabled = false;
     this.current_url_tileset = '';
-    this.has_click_handling = false;
-    this.player_locks = [];
-    this.delayed_action_next_id = 0;
-    this.delayed_actions = [];
+    this.tile_atlas = null;
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
@@ -227,12 +224,25 @@ export default {
     await window.languagePluginLoader;
     this.show_progress('Déballage de la cartouche du jeu.');
 
+    this.game_engine = new GameEngine(
+      this.$refs.python_console,
+      window.pyodide,
+      this.onAfterGameEvent,
+      canvasElem,
+      ctx_canvas,
+      ctx_canvas_buffer,
+      canvas_buffer
+    );
+    this.game_engine.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
+
     // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
     // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
     // J'ai pas trop compris le principe, et ça me semble un peu overkill.
     // Alors j'y vais à la bourrin : je charge tout le code dans une string
     // et je la balance ensuite directement à la fonction runPython.
-    this.run_python(
+    // TODO : faudrait peut-être laisser faire tout ça par le game engine.
+    // comme ça, la fonction runPython est private.
+    this.game_engine.runPython(
       libSquarityCode,
       'Interprétation de la lib python squarity',
     );
@@ -273,54 +283,19 @@ export default {
       }
     },
 
-    console_log(msg) {
-      const pythonConsole = this.$refs.python_console;
-      pythonConsole.textContent += msg;
-      pythonConsole.scrollTop = pythonConsole.scrollHeight;
-    },
-
-    check_has_click_handling() {
-      let resultPython = null;
-      try {
-        resultPython = window.pyodide.runPython('game_model.on_click');
-        if (resultPython == null) {
-          return false;
+    onAfterGameEvent() {
+      // Fonction de callback un peu mal foutue, que je dois transmettre à GameEngine.
+      // Comme ça, si un événement de jeu a un effet sur le DOM
+      // (en particulier, le lock des boutons du jeu), je peux le gérer ici.
+      // Les événements de jeu pouvant être déclenché tout seul
+      // (avec du delayed_event), faut bien une callback.
+      const playerLocsNew = this.game_engine.isPlayerLocked();
+      if (this.is_player_locked !== playerLocsNew) {
+        this.is_player_locked = playerLocsNew;
+        if (!this.is_player_locked) {
+          this.$refs.game_interface.focus();
         }
-      } catch (err) {
-        return false;
       }
-      return true;
-    },
-
-    run_python(pythonCode, codeLabel) {
-      let resultPython = null;
-      try {
-        resultPython = window.pyodide.runPython(pythonCode);
-      } catch (err) {
-        const errMessage = err.message;
-        this.console_log(`Erreur python durant l'action : \n${codeLabel}\n${errMessage}`);
-        // Je rethrow l'exception, parce que si le code python déconne,
-        // vaut mieux pas essayer de faire d'autres choses après.
-        throw err;
-      }
-      return resultPython;
-    },
-
-    configGameSizes(tileSize, nbTileWidth, nbTileHeight) {
-      this.tile_canvas_width = tileSize;
-      this.tile_canvas_height = tileSize;
-      this.tile_img_width = tileSize;
-      this.tile_img_height = tileSize;
-      this.nb_tile_width = nbTileWidth;
-      this.nb_tile_height = nbTileHeight;
-      this.canvas_width = this.nb_tile_width * this.tile_canvas_width;
-      this.canvas_height = this.nb_tile_height * this.tile_canvas_height;
-
-      const canvasElem = this.$refs.game_canvas;
-      canvasElem.width = this.canvas_width;
-      canvasElem.height = this.canvas_height;
-      this.canvas_buffer.width = this.canvas_width;
-      this.canvas_buffer.height = this.canvas_height;
     },
 
     handleResize() {
@@ -330,7 +305,7 @@ export default {
       // Ça me pétait à la gueule à chaque fois.
       // Je hais le design de page web, je hais le CSS, putain de langage de zouzou !!
 
-      const ratioFromWidthToHeight = this.canvas_height / this.canvas_width;
+      const ratioFromWidthToHeight = this.game_engine.getRatioFromWidthToHeight();
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.game_footer.clientHeight;
@@ -359,128 +334,8 @@ export default {
       this.$refs.game_canvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
     },
 
-    draw_rect() {
-      // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
-      // clear canvas
-      this.ctx_canvas_buffer.fillStyle = '#000000';
-      // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
-      this.ctx_canvas_buffer.imageSmoothingEnabled = false;
-      // J'ai tenté clearRect. Mais ça ne marche pas bien.
-      // Mon bonhomme reste dessiné sur les cases noires. Osef.
-      this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
-      let canvasX = 0;
-      let canvasY = 0;
-      const tilesData = this.run_python(
-        'game_model.export_all_tiles()',
-        'Récupération des tiles pour les dessiner',
-      );
-
-      for (let y = 0; y < this.nb_tile_height; y += 1) {
-        for (let x = 0; x < this.nb_tile_width; x += 1) {
-          const tileData = tilesData[y][x];
-          for (let i = 0; i < tileData.length; i += 1) {
-            const gameObject = tileData[i];
-            const [coordImgX, coordImgY] = this.img_coords[gameObject];
-            this.ctx_canvas_buffer.drawImage(
-              this.tile_atlas,
-              coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-              canvasX, canvasY, this.tile_canvas_width, this.tile_canvas_height,
-            );
-          }
-          canvasX += this.tile_canvas_width;
-        }
-        canvasX = 0;
-        canvasY += this.tile_canvas_height;
-      }
-      this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
-    },
-
-    process_delayed_action(actionId) {
-      // https://github.com/babel/babel-eslint/issues/274
-      const delayedActionInfo = this.delayed_actions.find(([, actId]) => actId === actionId);
-      if (delayedActionInfo) {
-        this.delayed_actions = this.delayed_actions.filter(([, actId]) => actId !== actionId);
-        const [, , eventName] = delayedActionInfo;
-        this.send_game_event(eventName);
-      }
-    },
-
-    process_game_event_result(eventResultRaw) {
-      let mustRedraw = true;
-      const eventResult = JSON.parse(eventResultRaw);
-      if ('delayed_actions' in eventResult) {
-        for (let newDelayedAction of eventResult.delayed_actions) {
-          let delayTime = 500;
-          if ('delay_ms' in newDelayedAction) {
-            delayTime = newDelayedAction.delay_ms;
-          }
-          if ('name' in newDelayedAction) {
-            const actionName = newDelayedAction.name;
-            const newActionId = this.delayed_action_next_id;
-            this.delayed_action_next_id += 1;
-            const timeOutId = setTimeout(() => {
-              this.process_delayed_action(newActionId);
-            }, delayTime);
-            const newDelayedActionInfo = [timeOutId, newActionId, actionName];
-            this.delayed_actions.push(newDelayedActionInfo);
-          }
-        }
-      }
-      if ('player_locks' in eventResult) {
-        for (let lockName of eventResult.player_locks) {
-          if (!this.player_locks.includes(lockName)) {
-            this.player_locks.push(lockName);
-          }
-        }
-      }
-      if ('player_unlocks' in eventResult) {
-        for (let unlockName of eventResult.player_unlocks) {
-          if (unlockName === '*') {
-            this.player_locks = [];
-          } else {
-            this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
-          }
-        }
-      }
-      const playerLocsNew = (this.player_locks.length !== 0);
-      if (this.is_player_locked !== playerLocsNew) {
-        this.is_player_locked = playerLocsNew;
-        if (!this.is_player_locked) {
-          this.$refs.game_interface.focus();
-        }
-      }
-      if ('redraw' in eventResult) {
-        mustRedraw = eventResult.redraw !== 0;
-      }
-      return mustRedraw;
-    },
-
     send_game_event(eventName) {
-      // Exemple d'infos à récupérer :
-      // {
-      //   "delayed_actions": [
-      //       {"name": "blabla", "delay_ms": 500},
-      //       {"name": "blabla2", "delay_ms": 250}
-      //   ],
-      //   "redraw: 0,"
-      //   "player_locks": ["name1", "name2"],
-      //   "player_unlocks": ["name1", "name2", "*"],
-      // }
-      if (this.is_player_locked && actionsFromPlayer.includes(eventName)) {
-        return;
-      }
-      let mustRedraw = true;
-      document.eventName = eventName;
-      const eventResultRaw = this.run_python(
-        'game_model.on_game_event(js.document.eventName)',
-        `Exécution d'un événement ${eventName}`,
-      );
-      if (!isNonePython(eventResultRaw)) {
-        mustRedraw = this.process_game_event_result(eventResultRaw);
-      }
-      if (mustRedraw) {
-        this.draw_rect();
-      }
+      this.game_engine.sendGameEvent(eventName);
     },
 
     on_key_down(e) {
@@ -494,39 +349,7 @@ export default {
     },
 
     on_game_click(e) {
-      if (!this.has_click_handling) {
-        return;
-      }
-      if (this.is_player_locked) {
-        return;
-      }
-      // https://thewebdev.info/2021/03/21/how-to-get-the-coordinates-of-a-mouse-click-on-a-canvas-element/
-      const rect = this.$refs.game_canvas.getBoundingClientRect();
-      const clicked_tile_x = Math.floor((e.offsetX * this.nb_tile_width) / rect.width);
-      const clicked_tile_y = Math.floor((e.offsetY * this.nb_tile_height) / rect.height);
-      if (
-        !(
-          (clicked_tile_x >= 0)
-          && (clicked_tile_x < this.nb_tile_width)
-          && (clicked_tile_y >= 0)
-          && (clicked_tile_y < this.nb_tile_height)
-        )
-      ) {
-        return;
-      }
-      let mustRedraw = true;
-      document.clicked_tile_x = clicked_tile_x;
-      document.clicked_tile_y = clicked_tile_y;
-      const eventResultRaw = this.run_python(
-        'game_model.on_click(js.document.clicked_tile_x, js.document.clicked_tile_y)',
-        `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
-      );
-      if (!isNonePython(eventResultRaw)) {
-        mustRedraw = this.process_game_event_result(eventResultRaw);
-      }
-      if (mustRedraw) {
-        this.draw_rect();
-      }
+      this.game_engine.onGameClick(e);
     },
 
     go_up() {
@@ -561,28 +384,23 @@ export default {
       }
 
       this.show_progress('Compilation de la compote.');
-
-      // On remet à zéro toutes les infos concernant les delayed actions.
-      for (let delayedActionInfo of this.delayed_actions) {
-        const [timeoutId] = delayedActionInfo;
-        clearTimeout(timeoutId);
-      }
-      this.delayed_actions = [];
-      this.player_locks = [];
-      this.delayed_action_next_id = 0;
       this.$refs.python_console.textContent = '';
 
-      this.json_conf = JSON.parse(jsonConf);
-      const hasGameName = Object.prototype.hasOwnProperty.call(this.json_conf, 'name');
+      const json_conf = JSON.parse(jsonConf);
+      const hasGameName = Object.prototype.hasOwnProperty.call(json_conf, 'name');
       if (hasGameName) {
-        document.title = `Squarity - ${this.json_conf.name}`;
+        document.title = `Squarity - ${json_conf.name}`;
       } else {
         document.title = 'Squarity';
       }
+      // TODO : constante defaults.
+      // TODO : ou alors du null, et c'est le game_engine qui prend ces valeurs par défaut quand on lui donne du null.
+      // TODO : et faut aussi gérer le default de tile_size. Parce que pour l'instant on le définit mais on le prend pas en compte.
+      // si y'a pas "tile_size" dans le json, ça fait nimp'.
       let areaWidth = 20;
       let areaHeight = 14;
-      if ('game_area' in this.json_conf) {
-        const jsonConfGameArea = this.json_conf.game_area;
+      if ('game_area' in json_conf) {
+        const jsonConfGameArea = json_conf.game_area;
         if ('nb_tile_width' in jsonConfGameArea) {
           areaWidth = jsonConfGameArea.nb_tile_width;
         }
@@ -596,20 +414,12 @@ export default {
           areaHeight = jsonConfGameArea.h;
         }
       }
-      this.configGameSizes(this.json_conf.tile_size, areaWidth, areaHeight);
-      this.img_coords = this.json_conf.img_coords;
+      this.game_engine.configGameSizes(json_conf.tile_size, areaWidth, areaHeight);
+      this.game_engine.updateGameSpec(gameCode, this.tile_atlas, json_conf.img_coords);
 
-      this.run_python(
-        gameCode,
-        'Interprétation du gameCode.',
-      );
-      this.run_python(
-        'game_model = GameModel()',
-        'Instanciation du GameModel',
-      );
       this.handleResize();
-      this.has_click_handling = this.check_has_click_handling();
-      this.draw_rect();
+      this.game_engine.drawRect();
+      this.is_player_locked = false;
       this.$refs.game_interface.focus();
       this.show_progress('C\'est parti !');
       this.loading_done = true;
