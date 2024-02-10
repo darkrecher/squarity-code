@@ -148,10 +148,6 @@ function isNonePython(val) {
   return typeof val === 'undefined';
 }
 
-const defaultTileSize = 32;
-const defaultNbTileWidth = 20;
-const defaultNbTileHeight = 14;
-
 const eventNameFromButton = {
   ArrowUp: 'U',
   ArrowRight: 'R',
@@ -231,21 +227,10 @@ export default {
       canvasElem,
       ctx_canvas,
       ctx_canvas_buffer,
-      canvas_buffer
+      canvas_buffer,
+      libSquarityCode
     );
-    this.game_engine.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
-    // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
-    // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
-    // J'ai pas trop compris le principe, et ça me semble un peu overkill.
-    // Alors j'y vais à la bourrin : je charge tout le code dans une string
-    // et je la balance ensuite directement à la fonction runPython.
-    // TODO : faudrait peut-être laisser faire tout ça par le game engine.
-    // comme ça, la fonction runPython est private.
-    this.game_engine.runPython(
-      libSquarityCode,
-      'Interprétation de la lib python squarity',
-    );
     // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
     // le message "update-game-spec" pour activer le jeu par défaut.
     // Tellement génial le javascript.
@@ -287,8 +272,8 @@ export default {
       // Fonction de callback un peu mal foutue, que je dois transmettre à GameEngine.
       // Comme ça, si un événement de jeu a un effet sur le DOM
       // (en particulier, le lock des boutons du jeu), je peux le gérer ici.
-      // Les événements de jeu pouvant être déclenché tout seul
-      // (avec du delayed_event), faut bien une callback.
+      // Comme les événements de jeu peuvent être déclenchés tout seul
+      // (avec delayed_event), il faut bien une callback.
       const playerLocsNew = this.game_engine.isPlayerLocked();
       if (this.is_player_locked !== playerLocsNew) {
         this.is_player_locked = playerLocsNew;
@@ -393,29 +378,7 @@ export default {
       } else {
         document.title = 'Squarity';
       }
-      // TODO : constante defaults.
-      // TODO : ou alors du null, et c'est le game_engine qui prend ces valeurs par défaut quand on lui donne du null.
-      // TODO : et faut aussi gérer le default de tile_size. Parce que pour l'instant on le définit mais on le prend pas en compte.
-      // si y'a pas "tile_size" dans le json, ça fait nimp'.
-      let areaWidth = 20;
-      let areaHeight = 14;
-      if ('game_area' in json_conf) {
-        const jsonConfGameArea = json_conf.game_area;
-        if ('nb_tile_width' in jsonConfGameArea) {
-          areaWidth = jsonConfGameArea.nb_tile_width;
-        }
-        if ('w' in jsonConfGameArea) {
-          areaWidth = jsonConfGameArea.w;
-        }
-        if ('nb_tile_height' in jsonConfGameArea) {
-          areaHeight = jsonConfGameArea.nb_tile_height;
-        }
-        if ('h' in jsonConfGameArea) {
-          areaHeight = jsonConfGameArea.h;
-        }
-      }
-      this.game_engine.configGameSizes(json_conf.tile_size, areaWidth, areaHeight);
-      this.game_engine.updateGameSpec(gameCode, this.tile_atlas, json_conf.img_coords);
+      this.game_engine.updateGameSpec(this.tile_atlas, json_conf, gameCode);
 
       this.handleResize();
       this.game_engine.drawRect();
