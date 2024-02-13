@@ -122,8 +122,10 @@ import { loadScript } from "vue-plugin-load-script";
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
-import libSquarityCode from '/squarity.txt?raw'
-import GameEngine from "../classes/gameEngine.js";
+import libSquarityCodeV1 from '/squarity_v1.txt?raw'
+import libSquarityCodeV2 from '/squarity_v2.txt?raw'
+import GameEngineV1 from "../classes/gameEngineV1.js";
+import GameEngineV2 from "../classes/gameEngineV2.js";
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone
@@ -180,18 +182,7 @@ export default {
 
   async mounted() {
 
-    // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
-    // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
-    const canvasElem = this.$refs.game_canvas;
-    const ctx_canvas = canvasElem.getContext('2d');
-    const canvas_buffer = document.createElement('canvas');
-    const ctx_canvas_buffer = canvas_buffer.getContext('2d');
-
-    // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
-    // clear canvas
-    ctx_canvas_buffer.fillStyle = '#000000';
-    // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
-    ctx_canvas_buffer.imageSmoothingEnabled = false;
+    this.canvasBuffer = document.createElement('canvas');
     this.current_url_tileset = '';
     this.tile_atlas = null;
 
@@ -219,17 +210,6 @@ export default {
     this.show_progress('Iodification du python géant.');
     await window.languagePluginLoader;
     this.show_progress('Déballage de la cartouche du jeu.');
-
-    this.game_engine = new GameEngine(
-      this.$refs.python_console,
-      window.pyodide,
-      this.onAfterGameEvent,
-      canvasElem,
-      ctx_canvas,
-      ctx_canvas_buffer,
-      canvas_buffer,
-      libSquarityCode
-    );
 
     // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
     // le message "update-game-spec" pour activer le jeu par défaut.
@@ -362,6 +342,50 @@ export default {
     },
 
     async on_update_game_spec(urlTileset, jsonConf, gameCode) {
+
+      const json_conf = JSON.parse(jsonConf);
+      let useV2 = true;
+      if (Object.prototype.hasOwnProperty.call(json_conf, 'version')) {
+        if (json_conf.version[0] == '1') {
+          useV2 = false;
+        } else if (json_conf.version[0] == '2') {
+          useV2 = true;
+        } else {
+          const msg = `Version du moteur inconnue. (${json_conf.version})`;
+          this.$refs.python_console.textContent = msg;
+          return
+        }
+      } else {
+        // TODO: inférence dégueu selon que le code comporte le texte
+        // "class GameModel():" ou "class GameModel(GameModelBase):"
+        console.log("Il manque la version");
+        return
+      }
+
+      // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
+      // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
+      const canvasElem = this.$refs.game_canvas;
+      if (useV2) {
+        this.game_engine = new GameEngineV2(
+          this.$refs.python_console,
+          window.pyodide,
+          this.onAfterGameEvent,
+          canvasElem,
+          this.canvasBuffer,
+          libSquarityCodeV2
+        );
+      }
+      else {
+        this.game_engine = new GameEngineV1(
+          this.$refs.python_console,
+          window.pyodide,
+          this.onAfterGameEvent,
+          canvasElem,
+          this.canvasBuffer,
+          libSquarityCodeV1
+        );
+      }
+
       this.show_progress('Gloubiboulgatisation des pixels.');
       if (this.current_url_tileset !== urlTileset) {
         this.tile_atlas = await loadImage(urlTileset);
@@ -371,7 +395,6 @@ export default {
       this.show_progress('Compilation de la compote.');
       this.$refs.python_console.textContent = '';
 
-      const json_conf = JSON.parse(jsonConf);
       const hasGameName = Object.prototype.hasOwnProperty.call(json_conf, 'name');
       if (hasGameName) {
         document.title = `Squarity - ${json_conf.name}`;

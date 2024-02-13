@@ -1,11 +1,12 @@
 // https://stackoverflow.com/questions/47597384/best-way-to-define-common-constants-in-vue-js
 
 export default Object.freeze({
-    MAGICIAN_JSON_CONF: `
+  MAGICIAN_JSON_CONF: `
   {
+    "version": "1.0.0",
     "game_area": {
-        "nb_tile_width": 22,
-        "nb_tile_height": 15
+      "nb_tile_width": 22,
+      "nb_tile_height": 15
     },
     "tile_size": 16,
     "img_coords": {
@@ -37,7 +38,7 @@ export default Object.freeze({
     }
   }
   `,
-    MAGICIAN_GAME_CODE: `
+  MAGICIAN_GAME_CODE: `
 DATA_TILES_1 = [
     "7    701     70001    ",
     "     682     68882    ",
@@ -313,9 +314,10 @@ class GameModel():
 
   `,
 
-    H2O_JSON_CONF: `
+  H2O_JSON_CONF: `
   {
     "name": "H2O",
+    "version": "1.0.0",
     "tile_size": 32,
     "img_coords": {
 
@@ -445,7 +447,7 @@ class GameModel():
     }
   }
   `,
-    H2O_GAME_CODE: `
+  H2O_GAME_CODE: `
 LEVELS = (
     (
         "XXXXXXXXXXXXXXXXXXXX",
@@ -1132,5 +1134,43 @@ class GameModel():
             tile_data_new_pos.append("wet_sponge")
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
   `,
+
+  TUNNEL_MATCH_JSON_CONF: `
+  {
+    "version": "2.0.0",
+    "game_area": {
+      "nb_tile_width": 22,
+      "nb_tile_height": 15
+    },
+    "tile_size": 16,
+    "img_coords": {
+      "M": [197, 161],
+      "fire": [187, 128]
+    }
+  }
+  `,
+  TUNNEL_MATCH_GAME_CODE: `
+class GameModel(GameModelBase):
+    def on_start(self):
+        self.main_layer.get_tile(1, 1).game_objects.append(
+            GameObject(
+                # TODO : dégueu
+                self.main_layer.get_tile(1, 1),
+                "M",
+            )
+        )
+
+    def on_click(self, x, y):
+        print("on click", x, y)
+        target_tile = self.main_layer.get_tile(x, y)
+        if not target_tile.game_objects:
+            target_tile.game_objects.append(
+                GameObject(
+                    # TODO : re dégueu
+                    target_tile,
+                    "fire",
+                )
+            )
+  `
 
 });

@@ -3,25 +3,29 @@ const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
-export default class GameEngine {
+export default class GameEngineV1 {
 
   constructor(
     python_console,
     pyodide,
     onAfterGameEvent,
     game_canvas,
-    ctx_canvas,
-    ctx_canvas_buffer,
     canvas_buffer,
     libSquarityCode
   ) {
+    this.version = "1.0.0";
     this.python_console = python_console;
     this.pyodide = pyodide;
     this.onAfterGameEvent = onAfterGameEvent;
     this.game_canvas = game_canvas;
-    this.ctx_canvas = ctx_canvas;
-    this.ctx_canvas_buffer = ctx_canvas_buffer;
     this.canvas_buffer = canvas_buffer;
+    this.ctx_canvas = this.game_canvas.getContext('2d');
+    this.ctx_canvas_buffer = this.canvas_buffer.getContext('2d');
+    // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
+    // clear canvas
+    this.ctx_canvas_buffer.fillStyle = '#000000';
+    // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
+    this.ctx_canvas_buffer.imageSmoothingEnabled = false;
 
     this.delayed_actions = [];
     this.has_click_handling = false;

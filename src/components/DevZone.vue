@@ -17,6 +17,7 @@
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
           <img src="../assets/magicien_icon.png" @click="example_magician">
           <img src="../assets/h2o_icon.png" @click="example_h2o">
+          <img src="../assets/magicien_icon.png" @click="example_tunnel_match">
         </div>
       </div>
     </div>
@@ -97,16 +98,29 @@ export default {
       this.activate_current_game_spec();
     },
 
+    example_tunnel_match() {
+      this.$refs.url_tileset.value = MAGICIAN_URL_TILESET;
+      this.$refs.json_conf.value = gameExamples.TUNNEL_MATCH_JSON_CONF;
+      this.$refs.game_code.value = gameExamples.TUNNEL_MATCH_GAME_CODE;
+      this.activate_current_game_spec();
+    },
+
     async fetch_game_spec_from_loc_hash() {
       // Pour tester :
       // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
-        this.example_magician();
+        // TODO WIP bleuargh.
+        //this.example_magician();
+        this.example_tunnel_match();
         return;
       }
       if (locHash === '#fetchez_example_h2o') {
         this.example_h2o();
+        return;
+      }
+      if (locHash === '#fetchez_example_tunnel_match') {
+        this.example_tunnel_match();
         return;
       }
       const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
