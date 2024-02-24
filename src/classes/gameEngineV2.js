@@ -4,6 +4,27 @@ const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
+class GameObjectStates {
+  constructor(x, y, gameObject) {
+    // this.gobjId = gameObject._go_id;
+    this.x = x;
+    this.y = y;
+    this.img = gameObject.img;
+  }
+  compare(other) {
+    console.log("comparing")
+    if (this.x != other.x) {
+      console.log("x is different. prev: ", this.x, "new: ", other.x);
+    }
+    if (this.y != other.y) {
+      console.log("y is different. prev: ", this.y, "new: ", other.y);
+    }
+    if (this.img != other.img) {
+      console.log("img is different. prev: ", this.img, "new: ", other.img);
+    }
+  }
+}
+
 export default class GameEngineV2 {
 
   constructor(
@@ -28,6 +49,7 @@ export default class GameEngineV2 {
     // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
     this.ctx_canvas_buffer.imageSmoothingEnabled = false;
 
+    this.mapLayers = new Map();
     this.delayed_actions = [];
     this.has_click_handling = false;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
@@ -122,6 +144,29 @@ export default class GameEngineV2 {
     this.onAfterGameEvent();
   }
 
+  execGameCallback(gameCallback) {
+    // TODO : c'est un peu du duplicate code.
+    let eventResultRaw;
+    try {
+      // resultPython = this.pyodide.runPython(pythonCode);
+      eventResultRaw = gameCallback();
+    } catch (err) {
+      const errMessage = err.message;
+      this.printGameConsole(`Erreur python durant l'exécution d'une callback\n${errMessage}`);
+      // Je rethrow l'exception, parce que si le code python déconne,
+      // vaut mieux pas essayer de faire d'autres choses après.
+      throw err;
+    }
+    let mustRedraw = true;
+    if (!this.isNonePython(eventResultRaw)) {
+      mustRedraw = this.processGameEventResult(eventResultRaw);
+    }
+    if (mustRedraw) {
+      this.drawRect();
+    }
+    this.onAfterGameEvent();
+  }
+
   onGameClick(e) {
     if (!this.has_click_handling) {
       return;
@@ -148,6 +193,8 @@ export default class GameEngineV2 {
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
     let mustRedraw = true;
+    // TODO WIP
+    document.xyz = eventResultRaw;
     if (!this.isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
@@ -169,12 +216,20 @@ export default class GameEngineV2 {
     );
     console.log(layers)
     for (let layer of layers) {
-      // TODO: si c'est un layer sparse, c'est pas géré pareil.
-      console.log(layer);
+      // TODO: si c'est un layer sparse, c'est pas géré pareil. Et si c'est show_transitions non plus.
+      // TODO : gérer this.mapLayers = new Map();
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
       for (let y = 0; y < this.nb_tile_height; y += 1) {
         for (let x = 0; x < this.nb_tile_width; x += 1) {
           const gameObjects = layer.tiles[y][x].game_objects;
           for (let gameObj of gameObjects) {
+            // Pour récupérer la classe et un identifiant unique : gameObj.toString()
+            // Ça renvoit un truc comme ça : "<GameObject object at 0x9e81e8>".
+            // Mais ça me semble hasardeux. Je gérerais l'unicité avec la fonction id du python.
+            console.log(gameObj.toString());
+            // Pour récupérer la classe, on peut faire ça : gameObj.__class__.toString()
+            // On récupère ceci : "<class 'GameObject'>". Et ça me semble pas trop dégueux.
+            console.log(gameObj.__class__.toString());
             const [coordImgX, coordImgY] = this.img_coords[gameObj.img];
             this.ctx_canvas_buffer.drawImage(
               this.tile_atlas,
@@ -250,51 +305,45 @@ export default class GameEngineV2 {
     pythonConsole.scrollTop = pythonConsole.scrollHeight;
   }
 
-  processDelayedAction(timeOutIdProcessing, eventName) {
+  processDelayedAction(timeOutIdProcessing, gameCallback) {
     this.delayed_actions = this.delayed_actions.filter((eventId) => eventId !== timeOutIdProcessing);
-    this.sendGameEvent(eventName);
+    // WIP crap. this.sendGameEvent(eventName);
+    this.execGameCallback(gameCallback);
   }
 
   processGameEventResult(eventResultRaw) {
-    // Exemple d'infos à processer :
-    // {
-    //   "delayed_actions": [
-    //       {"name": "blabla", "delay_ms": 500},
-    //       {"name": "blabla2", "delay_ms": 250}
-    //   ],
-    //   "redraw: 0,"
-    //   "player_locks": ["name1", "name2"],
-    //   "player_unlocks": ["name1", "name2", "*"],
-    // }
+    console.log("eventResultRaw");
+    console.log(eventResultRaw);
     let mustRedraw = true;
-    const eventResult = JSON.parse(eventResultRaw);
-    if ('delayed_actions' in eventResult) {
-      for (let newDelayedAction of eventResult.delayed_actions) {
-        let delayTime = 500;
-        if ('delay_ms' in newDelayedAction) {
+    if (eventResultRaw.delayed_actions) {
+      for (let newDelayedAction of eventResultRaw.delayed_actions) {
+        let delayTime = 0;
+        if (newDelayedAction.delay_ms) {
           delayTime = newDelayedAction.delay_ms;
         }
-        if ('name' in newDelayedAction) {
+        if (newDelayedAction.callback) {
           // On peut utiliser l'identifiant renvoyé par setTimeout
           // à l'intérieur de la fonction callback du setTimeout.
           // Ça a l'air complètement fumé mais ça marche ... Magie JavaScript !!!
           // https://stackoverflow.com/questions/17280375/in-javascript-how-can-i-access-the-id-of-settimeout-setinterval-call-from-insid
+          console.log("on balance une callback t", delayTime);
+          console.log("on balance une callback c", newDelayedAction.callback);
           const timeOutId = setTimeout(() => {
-            this.processDelayedAction(timeOutId, newDelayedAction.name);
+            this.processDelayedAction(timeOutId, newDelayedAction.callback);
           }, delayTime);
           this.delayed_actions.push(timeOutId);
         }
       }
     }
-    if ('player_locks' in eventResult) {
-      for (let lockName of eventResult.player_locks) {
+    if (eventResultRaw.player_locks) {
+      for (let lockName of eventResultRaw.player_locks) {
         if (!this.player_locks.includes(lockName)) {
           this.player_locks.push(lockName);
         }
       }
     }
-    if ('player_unlocks' in eventResult) {
-      for (let unlockName of eventResult.player_unlocks) {
+    if (eventResultRaw.player_unlocks) {
+      for (let unlockName of eventResultRaw.player_unlocks) {
         if (unlockName === '*') {
           this.player_locks = [];
         } else {
@@ -302,9 +351,10 @@ export default class GameEngineV2 {
         }
       }
     }
-    if ('redraw' in eventResult) {
-      mustRedraw = eventResult.redraw !== 0;
-    }
+    // WIP TODO. undefined et false veulent pas dire la même chose.
+    //if ('redraw' in eventResultRaw) {
+    //  mustRedraw = eventResultRaw.redraw !== 0;
+    //}
     return mustRedraw;
   }
 

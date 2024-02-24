@@ -395,8 +395,8 @@ export default {
       this.show_progress('Compilation de la compote.');
       this.$refs.python_console.textContent = '';
 
-      const hasGameName = Object.prototype.hasOwnProperty.call(json_conf, 'name');
-      if (hasGameName) {
+      // https://caniuse.com/?search=operator%3A%20in - 97%
+      if ('name' in json_conf) {
         document.title = `Squarity - ${json_conf.name}`;
       } else {
         document.title = 'Squarity';

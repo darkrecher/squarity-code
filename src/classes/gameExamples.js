@@ -1142,35 +1142,49 @@ class GameModel():
       "nb_tile_width": 22,
       "nb_tile_height": 15
     },
-    "tile_size": 16,
+    "tile_size": 36,
     "img_coords": {
-      "M": [197, 161],
-      "fire": [187, 128]
+      "gem_green": [0, 72],
+      "rock": [72, 0]
     }
   }
   `,
   TUNNEL_MATCH_GAME_CODE: `
+class EventResult():
+    pass
+
+class CallBack():
+    pass
+
 class GameModel(GameModelBase):
     def on_start(self):
-        self.main_layer.get_tile(1, 1).game_objects.append(
-            GameObject(
-                # TODO : dégueu
-                self.main_layer.get_tile(1, 1),
-                "M",
-            )
+        dest_tile = self.main_layer.get_tile(1, 1)
+        dest_tile.game_objects.append(
+            # TODO : re-référence dégueu à dest_tile.
+            GameObject(dest_tile, "gem_green")
         )
 
     def on_click(self, x, y):
         print("on click", x, y)
         target_tile = self.main_layer.get_tile(x, y)
         if not target_tile.game_objects:
+            # TODO : re re-référence dégueu à dest_tile.
             target_tile.game_objects.append(
-                GameObject(
-                    # TODO : re dégueu
-                    target_tile,
-                    "fire",
-                )
+                GameObject(target_tile, "rock")
             )
+        event_result = EventResult()
+        event_result.delayed_actions = []
+        my_callback = CallBack()
+        my_callback.delay_ms = 100
+        my_callback.callback = self.my_callback
+        event_result.delayed_actions.append(my_callback)
+        return event_result
+
+    def on_game_event(self, event_name):
+        print("on event", event_name)
+
+    def my_callback(self):
+        print("my callback")
   `
 
 });

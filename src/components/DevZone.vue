@@ -17,7 +17,7 @@
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
           <img src="../assets/magicien_icon.png" @click="example_magician">
           <img src="../assets/h2o_icon.png" @click="example_h2o">
-          <img src="../assets/magicien_icon.png" @click="example_tunnel_match">
+          <img src="../assets/tunnel_match_icon.png" @click="example_tunnel_match">
         </div>
       </div>
     </div>
@@ -49,6 +49,7 @@ import gameExamples from '../classes/gameExamples';
 import gameSpecLoader from '../classes/gameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
 import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
+import TUNNEL_MATCH_URL_TILESET from '../assets/tunnel_match_tileset.png';
 
 export default {
   name: 'DevZone',
@@ -99,7 +100,7 @@ export default {
     },
 
     example_tunnel_match() {
-      this.$refs.url_tileset.value = MAGICIAN_URL_TILESET;
+      this.$refs.url_tileset.value = TUNNEL_MATCH_URL_TILESET;
       this.$refs.json_conf.value = gameExamples.TUNNEL_MATCH_JSON_CONF;
       this.$refs.game_code.value = gameExamples.TUNNEL_MATCH_GAME_CODE;
       this.activate_current_game_spec();
