@@ -4,25 +4,131 @@ const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
-class GameObjectStates {
-  constructor(x, y, gameObject) {
-    // this.gobjId = gameObject._go_id;
+/*
+
+Pas de fonction compare mais une fonction addTransitionFromStates
+Cet objet contient une liste de transitions, avec time start et end, val start et end, et le field concerné.
+
+Fonction pour mettre à jour les champs en fonction des transitions en cours et d'un timer donné.
+La fonction supprime les transitions passées.
+
+Fonction indiquant si l'objet a des transitions en cours.
+
+
+pour commencer, on vire pas progressivement les transitions passées.
+Si y'en a plus, on vide le tableau. Sinon, on garde tout.
+Et on fera mieux plus tard.
+
+Et sinon, pour virer un élément, c'est splice.
+ */
+
+class StateTransition {
+  constructor(fieldName, timeStart, timeEnd, valStart, valEnd) {
+    this.fieldName = fieldName;
+    this.timeStart = timeStart;
+    this.timeEnd = timeEnd;
+    this.valStart = valStart;
+    this.valEnd = valEnd;
+    this.valRange = valEnd - valStart;
+    this.timeRange = timeEnd - timeStart;
+  }
+
+  hasEnded(timeNow) {
+    return timeNow > this.timeEnd;
+  }
+
+  getCurrentVal(timeNow) {
+    // FUTURE: et bien sûr, il faudra des ease_in, ease_out, etc.
+    if (timeNow < this.timeStart) {
+      return this.valStart;
+    }
+    if (timeNow > this.timeEnd) {
+      return this.valEnd;
+    }
+    return this.valStart + this.valRange * (timeNow - this.timeStart) / this.timeRange;
+  }
+
+}
+
+class GobjState {
+  /*
+   * Cette classe contient toutes les caractéristiques pour dessiner un objet
+   * à un instant donné (en tenant compte des éventuelles transitions).
+   * Si il y a des fades, des rotations, des changements de couleurs, il faut les mettre là-dedans.
+   */
+  constructor(x, y, img) {
     this.x = x;
     this.y = y;
-    this.img = gameObject.img;
+    this.img = img;
   }
-  compare(other) {
-    console.log("comparing")
-    if (this.x != other.x) {
-      console.log("x is different. prev: ", this.x, "new: ", other.x);
+
+  clone() {
+    return new GobjState(this.x, this.y, this.img);
+  }
+}
+
+class GameObjectTransitioner {
+
+  constructor(x, y, gameObject) {
+    this.currentTransitions = [];
+    this.gobjState = new GobjState(x, y, gameObject.img);
+  }
+
+  addTransitions(x, y ,gameObject, timeNow) {
+    let somethingChanged = false;
+    if (this.gobjState.x != x) {
+      // console.log("x is different. ", gameObject.img, " prev: ", this.gobjState.x, "new: ", x);
+      // arbtrairement, une demi-seconde de transition. On fera mieux plus tard.
+      const transition = new StateTransition("x", timeNow, timeNow + 500, this.gobjState.x, x);
+      this.currentTransitions.push(transition);
+      somethingChanged = true;
     }
-    if (this.y != other.y) {
-      console.log("y is different. prev: ", this.y, "new: ", other.y);
+    if (this.gobjState.y != y) {
+      // console.log("y is different. ", gameObject.img, " prev: ", this.gobjState.y, "new: ", y);
+      const transition = new StateTransition("y", timeNow, timeNow + 500, this.gobjState.y, y);
+      this.currentTransitions.push(transition);
+      somethingChanged = true;
     }
-    if (this.img != other.img) {
-      console.log("img is different. prev: ", this.img, "new: ", other.img);
+    // Pas de transition pour img, mais on pourrait imaginer des espèces de fade ou une animation prédéfinie.
+    if (somethingChanged) {
+      this.gobjState = new GobjState(x, y, gameObject.img);
     }
   }
+
+  clearEndedTransitions(timeNow) {
+    // On vire pas progressivement les transitions passées.
+    // Si y'en a plus, on vide le tableau. Sinon, on garde tout. On fera mieux plus tard.
+    if (this.currentTransitions.length === 0) {
+      return;
+    }
+    let allEnded = true;
+    for (let transition of this.currentTransitions) {
+      if (!transition.hasEnded(timeNow)) {
+        allEnded = false;
+      }
+    }
+    if (allEnded) {
+      this.currentTransitions = [];
+    }
+  }
+
+  hasTransitions() {
+    return this.currentTransitions.length > 0;
+  }
+
+  getCurrentState(timeNow) {
+    if (this.currentTransitions.length === 0) {
+      return this.gobjState;
+    }
+    const gobjStateCurrent = this.gobjState.clone();
+    for (let transition of this.currentTransitions) {
+      if (!transition.hasEnded(timeNow)) {
+        gobjStateCurrent[transition.fieldName] = transition.getCurrentVal(timeNow);
+      }
+    }
+    return gobjStateCurrent;
+  }
+
 }
 
 export default class GameEngineV2 {
@@ -49,6 +155,7 @@ export default class GameEngineV2 {
     // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
     this.ctx_canvas_buffer.imageSmoothingEnabled = false;
 
+    this.layers = null;
     this.mapLayers = new Map();
     this.delayed_actions = [];
     this.has_click_handling = false;
@@ -193,8 +300,6 @@ export default class GameEngineV2 {
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
     let mustRedraw = true;
-    // TODO WIP
-    document.xyz = eventResultRaw;
     if (!this.isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
@@ -205,52 +310,183 @@ export default class GameEngineV2 {
   }
 
   drawRect() {
-    // J'ai tenté clearRect. Mais ça ne marche pas bien.
-    // Mon bonhomme reste dessiné sur les cases noires. Osef.
-    this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
-    let canvasX = 0;
-    let canvasY = 0;
-    const layers = this.runPython(
+    // TODO : faut pas du tout appeler ça drawRect.
+
+    const timeNowStart = performance.now();
+    this.layers = this.runPython(
       'game_model.layers',
       'Récupération des layers pour les dessiner',
     );
-    console.log(layers)
-    for (let layer of layers) {
-      // TODO: si c'est un layer sparse, c'est pas géré pareil. Et si c'est show_transitions non plus.
-      // TODO : gérer this.mapLayers = new Map();
+    const timeNow = performance.now();
+
+    // Pour les layers qui ont des transitions, on envoie les addTransitions aux objets que y'a dedans.
+    for (let layer of this.layers) {
+      const layerId = layer._l_id;
+      if (!this.mapLayers.has(layerId)) {
+        this.mapLayers.set(layerId, new Map());
+      }
+      const layerMemory = this.mapLayers.get(layerId);
+      // TODO: si c'est un layer sparse, c'est pas géré pareil.
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-      for (let y = 0; y < this.nb_tile_height; y += 1) {
-        for (let x = 0; x < this.nb_tile_width; x += 1) {
-          const gameObjects = layer.tiles[y][x].game_objects;
-          for (let gameObj of gameObjects) {
-            // Pour récupérer la classe et un identifiant unique : gameObj.toString()
-            // Ça renvoit un truc comme ça : "<GameObject object at 0x9e81e8>".
-            // Mais ça me semble hasardeux. Je gérerais l'unicité avec la fonction id du python.
-            console.log(gameObj.toString());
-            // Pour récupérer la classe, on peut faire ça : gameObj.__class__.toString()
-            // On récupère ceci : "<class 'GameObject'>". Et ça me semble pas trop dégueux.
-            console.log(gameObj.__class__.toString());
-            const [coordImgX, coordImgY] = this.img_coords[gameObj.img];
-            this.ctx_canvas_buffer.drawImage(
-              this.tile_atlas,
-              coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-              canvasX, canvasY, this.tile_canvas_width, this.tile_canvas_height,
-            );
+      if (layer.show_transitions) {
+        // TODO: un truc générique pour itérer sur les gameobjects, que ce soit un layer ou un layer sparse.
+        // FUTURE: Et en plus c'est lent. Je sais pas pourquoi.
+        for (let y = 0; y < this.nb_tile_height; y += 1) {
+          for (let x = 0; x < this.nb_tile_width; x += 1) {
+            const gameObjects = layer.tiles[y][x].game_objects;
+            for (let gameObj of gameObjects) {
+              const gobjId = gameObj._go_id;
+              let gobjTransitioner;
+              if (!layerMemory.has(gobjId)) {
+                gobjTransitioner = new GameObjectTransitioner(x, y, gameObj);
+                layerMemory.set(gobjId, gobjTransitioner);
+                console.log("ajout de l'objet : ", gobjId);
+              } else {
+                gobjTransitioner = layerMemory.get(gobjId);
+                gobjTransitioner.addTransitions(x, y, gameObj, timeNow);
+              }
+              // TODO: gérer les suppression d'objets.
+            }
           }
-          canvasX += this.tile_canvas_width;
         }
-        canvasX = 0;
-        canvasY += this.tile_canvas_height;
+      } else {
+        layerMemory.clear();
       }
     }
 
+    const timeNowAfterAnalysis = performance.now();
+    // on dessine l'état actuel. Faut tout redessiner.
+    this.drawCurrentGameBoardState(timeNow)
+    const timeNowAfterDraw = performance.now();
+    console.log("times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw);
+
+    // On regarde si il y a encore des transitions en cours.
+    // Si oui, on balance un setTimeout ou je-sais-pas-quoi.
+    if (this.hasAnyTransition()) {
+      //window.requestAnimationFrame(() => { console.log("paf") });
+      window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
+      //setTimeout(() => {
+      //  this.updateAndDrawGameBoard();
+      //}, 100);
+      // WIP
+    }
+  }
+
+  drawCurrentGameBoardState(timeNow) {
+    // J'ai tenté clearRect. Mais ça ne marche pas bien.
+    // Mon bonhomme reste dessiné sur les cases noires. Osef.
+    this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
+    for (let layer of this.layers) {
+      if (layer.show_transitions) {
+        const layerId = layer._l_id;
+        const layerMemory = this.mapLayers.get(layerId);
+        this.drawLayerWithTransitions(layer, layerMemory, timeNow);
+      } else {
+        this.drawLayerNoTransitions(layer);
+      }
+    }
     this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
   }
+
+  hasAnyTransition() {
+    for (let layer of this.layers) {
+      if (layer.show_transitions) {
+        const layerId = layer._l_id;
+        const layerMemory = this.mapLayers.get(layerId);
+        for (let [gobjId, gobjTransitioner] of layerMemory) {
+          if (gobjTransitioner.hasTransitions()) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  clearEndedTransitions(timeNow) {
+    for (let layer of this.layers) {
+      if (layer.show_transitions) {
+        const layerId = layer._l_id;
+        const layerMemory = this.mapLayers.get(layerId);
+        for (let [gobjId, gobjTransitioner] of layerMemory) {
+          gobjTransitioner.clearEndedTransitions(timeNow);
+        }
+      }
+    }
+  }
+
+  updateAndDrawGameBoard() {
+    const timeNow = performance.now();
+    // On enlève les transitions passées.
+    this.clearEndedTransitions(timeNow);
+    // On dessine l'état actuel.
+    this.drawCurrentGameBoardState(timeNow);
+    // On regarde si il y a encore des transitions en cours.
+    // Si oui, on balance un autre setTimeout.
+    if (this.hasAnyTransition()) {
+      window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
+      /*setTimeout(() => {
+        this.updateAndDrawGameBoard();
+      }, 100); WIP
+
+
+      136102
+      136963
+
+
+      */
+    }
+  }
+
+
+  // TODO : et je le vois venir qu'il me faudra une classe layer...
+  // Comme ça on peut gérer pour chacun si ils ont des transitions.
+  // Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
 
   // Les méthodes ci-dessous sont privées.
   // Il est possible de l'indiquer "officiellement", avec la syntaxe #private :
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties
   // Sauf que c'est pas supporté par tous les navigateurs, alors je prends pas le risque.
+  drawLayerWithTransitions(layer, layerMemory, timeNow) {
+    for (let [gobjId, gobjTransitioner] of layerMemory) {
+      const gobjState = gobjTransitioner.getCurrentState(timeNow);
+      const [coordImgX, coordImgY] = this.img_coords[gobjState.img];
+      this.ctx_canvas_buffer.drawImage(
+        this.tile_atlas,
+        coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
+        gobjState.x * this.tile_canvas_width, gobjState.y * this.tile_canvas_height,
+        this.tile_canvas_width, this.tile_canvas_height,
+      );
+    }
+  }
+
+  drawLayerNoTransitions(layer) {
+    let canvasX = 0;
+    let canvasY = 0;
+    for (let y = 0; y < this.nb_tile_height; y += 1) {
+      for (let x = 0; x < this.nb_tile_width; x += 1) {
+        const gameObjects = layer.tiles[y][x].game_objects;
+        for (let gameObj of gameObjects) {
+          // Pour récupérer la classe et un identifiant unique : gameObj.toString()
+          // Ça renvoit un truc comme ça : "<GameObject object at 0x9e81e8>".
+          // Mais ça me semble hasardeux. Je gérerais l'unicité avec la fonction id du python.
+          console.log(gameObj.toString());
+          // Pour récupérer la classe, on peut faire ça : gameObj.__class__.toString()
+          // On récupère ceci : "<class 'GameObject'>". Et ça me semble pas trop dégueux.
+          console.log(gameObj.__class__.toString());
+          const [coordImgX, coordImgY] = this.img_coords[gameObj.img];
+          this.ctx_canvas_buffer.drawImage(
+            this.tile_atlas,
+            coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
+            canvasX, canvasY, this.tile_canvas_width, this.tile_canvas_height,
+          );
+        }
+        canvasX += this.tile_canvas_width;
+      }
+      canvasX = 0;
+      canvasY += this.tile_canvas_height;
+    }
+  }
 
   runPython(pythonCode, codeLabel) {
     let resultPython = null;

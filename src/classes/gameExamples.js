@@ -1159,9 +1159,10 @@ class CallBack():
 class GameModel(GameModelBase):
     def on_start(self):
         dest_tile = self.main_layer.get_tile(1, 1)
+        self.gamobj_gem = GameObject(dest_tile, "gem_green")
         dest_tile.game_objects.append(
             # TODO : re-référence dégueu à dest_tile.
-            GameObject(dest_tile, "gem_green")
+            self.gamobj_gem
         )
 
     def on_click(self, x, y):
@@ -1181,7 +1182,15 @@ class GameModel(GameModelBase):
         return event_result
 
     def on_game_event(self, event_name):
-        print("on event", event_name)
+        # print("on event", event_name)
+        x_gem = self.gamobj_gem.tile_owner.coord.x
+        # print(x_gem)
+        current_tile = self.main_layer.get_tile(x_gem, 1)
+        current_tile.game_objects.remove(self.gamobj_gem)
+        x_gem += 1
+        dest_tile = self.main_layer.get_tile(x_gem, 1)
+        self.gamobj_gem.tile_owner = dest_tile
+        dest_tile.game_objects.append(self.gamobj_gem)
 
     def my_callback(self):
         print("my callback")
