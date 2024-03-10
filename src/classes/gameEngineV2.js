@@ -78,14 +78,14 @@ class GameObjectTransitioner {
     let somethingChanged = false;
     if (this.gobjState.x != x) {
       // console.log("x is different. ", gameObject.img, " prev: ", this.gobjState.x, "new: ", x);
-      // arbtrairement, une demi-seconde de transition. On fera mieux plus tard.
-      const transition = new StateTransition("x", timeNow, timeNow + 500, this.gobjState.x, x);
+      // arbtrairement, 300 ms de transition. On fera mieux plus tard.
+      const transition = new StateTransition("x", timeNow, timeNow + 300, this.gobjState.x, x);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
       // console.log("y is different. ", gameObject.img, " prev: ", this.gobjState.y, "new: ", y);
-      const transition = new StateTransition("y", timeNow, timeNow + 500, this.gobjState.y, y);
+      const transition = new StateTransition("y", timeNow, timeNow + 300, this.gobjState.y, y);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
@@ -329,11 +329,14 @@ export default class GameEngineV2 {
       // TODO: si c'est un layer sparse, c'est pas géré pareil.
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
       if (layer.show_transitions) {
+        const timeNowLayerBefore = performance.now();
         // TODO: un truc générique pour itérer sur les gameobjects, que ce soit un layer ou un layer sparse.
-        // FUTURE: Et en plus c'est lent. Je sais pas pourquoi.
-        for (let y = 0; y < this.nb_tile_height; y += 1) {
-          for (let x = 0; x < this.nb_tile_width; x += 1) {
-            const gameObjects = layer.tiles[y][x].game_objects;
+        let y = 0;
+        let x;
+        for (let line of layer.tiles) {
+          x = 0;
+          for (let tile of line) {
+            const gameObjects = tile.game_objects;
             for (let gameObj of gameObjects) {
               const gobjId = gameObj._go_id;
               let gobjTransitioner;
@@ -347,8 +350,13 @@ export default class GameEngineV2 {
               }
               // TODO: gérer les suppression d'objets.
             }
+            x += 1;
           }
+          y += 1;
         }
+        const timeNowLayerAfter = performance.now();
+        console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
+
       } else {
         layerMemory.clear();
       }
@@ -361,14 +369,9 @@ export default class GameEngineV2 {
     console.log("times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw);
 
     // On regarde si il y a encore des transitions en cours.
-    // Si oui, on balance un setTimeout ou je-sais-pas-quoi.
+    // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
     if (this.hasAnyTransition()) {
-      //window.requestAnimationFrame(() => { console.log("paf") });
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
-      //setTimeout(() => {
-      //  this.updateAndDrawGameBoard();
-      //}, 100);
-      // WIP
     }
   }
 
@@ -422,22 +425,11 @@ export default class GameEngineV2 {
     // On dessine l'état actuel.
     this.drawCurrentGameBoardState(timeNow);
     // On regarde si il y a encore des transitions en cours.
-    // Si oui, on balance un autre setTimeout.
+    // Si oui, on redemande un affichage pour plus tard.
     if (this.hasAnyTransition()) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
-      /*setTimeout(() => {
-        this.updateAndDrawGameBoard();
-      }, 100); WIP
-
-
-      136102
-      136963
-
-
-      */
     }
   }
-
 
   // TODO : et je le vois venir qu'il me faudra une classe layer...
   // Comme ça on peut gérer pour chacun si ils ont des transitions.
@@ -543,7 +535,6 @@ export default class GameEngineV2 {
 
   processDelayedAction(timeOutIdProcessing, gameCallback) {
     this.delayed_actions = this.delayed_actions.filter((eventId) => eventId !== timeOutIdProcessing);
-    // WIP crap. this.sendGameEvent(eventName);
     this.execGameCallback(gameCallback);
   }
 
