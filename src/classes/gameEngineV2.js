@@ -1,3 +1,5 @@
+import { Direction } from './gameEngineV1.js';
+
 // TODO : faut un truc un peu plus élaboré pour les events.
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 const defaultTileSize = 32;
@@ -161,6 +163,12 @@ export default class GameEngineV2 {
     this.has_click_handling = false;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
+    this.pythonDirFromJsDir = new Map();
+    this.pythonDirFromJsDir.set(Direction.Up, 'Direction.UP');
+    this.pythonDirFromJsDir.set(Direction.Right, 'Direction.RIGHT');
+    this.pythonDirFromJsDir.set(Direction.Down, 'Direction.DOWN');
+    this.pythonDirFromJsDir.set(Direction.Left, 'Direction.LEFT');
+
     // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
     // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
     // J'ai pas trop compris le principe, et ça me semble un peu overkill.
@@ -233,6 +241,26 @@ export default class GameEngineV2 {
     );
   }
 
+  onButtonDirection(direction) {
+    if (this.isPlayerLocked()) {
+      return;
+    }
+    const pythonDir = this.pythonDirFromJsDir.get(direction);
+    const eventResultRaw = this.runPython(
+      `game_model.on_button_direction(${pythonDir})`,
+      `Exécution d'un événement ${pythonDir}`,
+    );
+    let mustRedraw = true;
+    if (!this.isNonePython(eventResultRaw)) {
+      mustRedraw = this.processGameEventResult(eventResultRaw);
+    }
+    if (mustRedraw) {
+      this.drawRect();
+    }
+    this.onAfterGameEvent();
+  }
+
+  // WIP: ça deviendra inutile bientôt.
   sendGameEvent(eventName) {
     if (this.isPlayerLocked() && actionsFromPlayer.includes(eventName)) {
       return;
@@ -419,6 +447,10 @@ export default class GameEngineV2 {
   }
 
   updateAndDrawGameBoard() {
+    // TODO : c'est un peu bourrin de redessiner à chaque requestAnimationFrame.
+    // On pourrait définir un FPS ou une période de refresh, avec un truc comme ça :
+    // https://blog.michaelkaren.dev/how-to-get-started-with-canvas-animations-in-javascript
+
     const timeNow = performance.now();
     // On enlève les transitions passées.
     this.clearEndedTransitions(timeNow);

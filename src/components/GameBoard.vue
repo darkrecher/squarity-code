@@ -124,7 +124,7 @@ import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
-import GameEngineV1 from "../classes/gameEngineV1.js";
+import GameEngineV1, { Direction } from "../classes/gameEngineV1.js";
 import GameEngineV2 from "../classes/gameEngineV2.js";
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
@@ -136,18 +136,6 @@ function loadImage(src) {
     img.onerror = reject;
     img.src = src;
   });
-}
-
-function isNonePython(val) {
-  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
-
-  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
-  // La manière de vérifier si une variable est "undefined" en javascript est
-  // vraiment dégueulasse, mais tout le monde fait comme ça.
-  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
-  // il faut passer par un typeof et une comparaison de chaîne de caractères.
-  // Tu te fous vraiment de ma gueule, javascript.
-  return typeof val === 'undefined';
 }
 
 const eventNameFromButton = {
@@ -318,19 +306,19 @@ export default {
     },
 
     go_up() {
-      this.send_game_event('U');
+      this.game_engine.onButtonDirection(Direction.Up);
     },
 
     go_right() {
-      this.send_game_event('R');
+      this.game_engine.onButtonDirection(Direction.Right);
     },
 
     go_down() {
-      this.send_game_event('D');
+      this.game_engine.onButtonDirection(Direction.Down);
     },
 
     go_left() {
-      this.send_game_event('L');
+      this.game_engine.onButtonDirection(Direction.Left);
     },
 
     action_1() {

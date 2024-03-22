@@ -3,6 +3,17 @@ const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
+export const Direction = {
+  Up: 0,
+  UpRight: 1,
+  Right: 2,
+  DownRight: 3,
+  Down: 4,
+  DownLeft: 5,
+  Left: 6,
+  UpLeft: 7,
+};
+
 export default class GameEngineV1 {
 
   constructor(
@@ -26,6 +37,12 @@ export default class GameEngineV1 {
     this.ctx_canvas_buffer.fillStyle = '#000000';
     // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
     this.ctx_canvas_buffer.imageSmoothingEnabled = false;
+
+    this.eventNameFromJsDir = new Map();
+    this.eventNameFromJsDir.set(Direction.Up, 'U');
+    this.eventNameFromJsDir.set(Direction.Right, 'R');
+    this.eventNameFromJsDir.set(Direction.Down, 'D');
+    this.eventNameFromJsDir.set(Direction.Left, 'L');
 
     this.delayed_actions = [];
     this.has_click_handling = false;
@@ -97,6 +114,14 @@ export default class GameEngineV1 {
       'hasattr(game_model, "on_click")',
       'Vérification de la présence de on_click',
     );
+  }
+
+  onButtonDirection(direction) {
+      if (this.isPlayerLocked()) {
+        return;
+      }
+      const eventName = this.eventNameFromJsDir.get(direction);
+      this.sendGameEvent(eventName);
   }
 
   sendGameEvent(eventName) {

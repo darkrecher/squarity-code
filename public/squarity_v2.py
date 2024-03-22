@@ -78,6 +78,17 @@ class Direction():
         UP_LEFT: (-1, -1),
     }
 
+    STR_FROM_DIR = {
+        UP: "up",
+        UP_RIGHT: "up_right",
+        RIGHT: "right",
+        DOWN_RIGHT: "down_right",
+        DOWN: "down",
+        DOWN_LEFT: "down_left",
+        LEFT: "left",
+        UP_LEFT: "up_left",
+    }
+
     @staticmethod
     def opposite(direc):
         return (direc + 4) % 8
@@ -89,6 +100,11 @@ class Direction():
     @staticmethod
     def turn_ccw(direc, n=2):
         return (direc - n) % 8
+
+    @staticmethod
+    def to_string(direc):
+        return STR_FROM_DIR[direc]
+
 
 # Alias
 Dir = Direction
@@ -145,7 +161,7 @@ class GameObject(GameObjectBase):
         super().__init__()
         self.tile_owner = tile_owner
         self.img = img
-        # FUTURE: on gérera tout ça plus tard.
+        # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
         self.offset_x = 0.0
         self.offset_y = 0.0
@@ -156,7 +172,11 @@ class GameObject(GameObjectBase):
         self.visible = True
         # Not sure if we will implement this.
         self.color_factor = (1.0, 1.0, 1.0)
-        # TODO: set_coords, move, etc.
+
+    # TODO: set_coords, move, etc.
+    # TODO : move_to(coord, delay_ms, callback)
+    # TODO : move(coord_offset, delay_ms, callback)
+    # TODO : set_default(move_delay_ms, move_callback)
 
 
 class Tile():
@@ -221,5 +241,8 @@ class GameModelBase():
         self.main_layer = self.layers[0]
 
     def on_start(self):
+        pass
+
+    def on_button_direction(self, direction):
         pass
 

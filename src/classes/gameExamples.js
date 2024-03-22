@@ -1195,11 +1195,17 @@ class GameModel(GameModelBase):
         return event_result
 
     def on_game_event(self, event_name):
+
         # print("on event", event_name)
+        if event_name == "action_1":
+            offset = +1
+        elif event_name == "action_2":
+            offset = -1
+
         x_gem = self.gamobj_gem_green.tile_owner.coord.x
         current_tile = self.main_layer.get_tile(x_gem, 1)
         current_tile.game_objects.remove(self.gamobj_gem_green)
-        x_gem += 1
+        x_gem += offset
         dest_tile = self.main_layer.get_tile(x_gem, 1)
         self.gamobj_gem_green.tile_owner = dest_tile
         dest_tile.game_objects.append(self.gamobj_gem_green)
@@ -1207,11 +1213,13 @@ class GameModel(GameModelBase):
         x_gem = self.gamobj_gem_violet.tile_owner.coord.x
         current_tile = self.main_layer.get_tile(x_gem, 1)
         current_tile.game_objects.remove(self.gamobj_gem_violet)
-        x_gem -= 1
+        x_gem -= offset
         dest_tile = self.main_layer.get_tile(x_gem, 1)
         self.gamobj_gem_violet.tile_owner = dest_tile
         dest_tile.game_objects.append(self.gamobj_gem_violet)
 
+    def on_button_direction(self, direction):
+        print(Direction.to_string(direction))
 
     def my_callback(self):
         print("my callback")
