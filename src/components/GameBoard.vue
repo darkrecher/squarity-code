@@ -138,17 +138,6 @@ function loadImage(src) {
   });
 }
 
-const eventNameFromButton = {
-  ArrowUp: 'U',
-  ArrowRight: 'R',
-  ArrowDown: 'D',
-  ArrowLeft: 'L',
-  Digit1: 'action_1',
-  Digit2: 'action_2',
-  Numpad1: 'action_1',
-  Numpad2: 'action_2',
-};
-
 export default {
   name: 'GameBoard',
   components: {
@@ -204,6 +193,17 @@ export default {
     // Tellement génial le javascript.
     this.$refs.dev_zone.fetch_game_spec_from_loc_hash();
     window.addEventListener('resize', this.handleResize);
+
+    this.functionFromButton = {
+      ArrowUp: this.go_up,
+      ArrowRight: this.go_right,
+      ArrowDown: this.go_down,
+      ArrowLeft: this.go_left,
+      Digit1: this.action_1,
+      Digit2: this.action_2,
+      Numpad1: this.action_1,
+      Numpad2: this.action_2,
+    };
   },
 
   updated() {
@@ -287,16 +287,12 @@ export default {
       this.$refs.game_canvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
     },
 
-    send_game_event(eventName) {
-      this.game_engine.sendGameEvent(eventName);
-    },
-
     on_key_down(e) {
       // https://hacks.mozilla.org/2017/03/internationalize-your-keyboard-controls/
       // C'est quand même un peu le bazar la gestion des touches dans les navigateurs.
-      if (e.code in eventNameFromButton) {
-        const eventName = eventNameFromButton[e.code];
-        this.send_game_event(eventName);
+      if (e.code in this.functionFromButton) {
+        const eventFunction = this.functionFromButton[e.code];
+        eventFunction();
         e.preventDefault();
       }
     },
@@ -322,11 +318,11 @@ export default {
     },
 
     action_1() {
-      this.send_game_event('action_1');
+      this.game_engine.onButtonAction('action_1');
     },
 
     action_2() {
-      this.send_game_event('action_2');
+      this.game_engine.onButtonAction('action_2');
     },
 
     async on_update_game_spec(urlTileset, jsonConf, gameCode) {

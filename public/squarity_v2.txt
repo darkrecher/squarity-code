@@ -20,94 +20,54 @@ sys.stdout = MyOutput()
 
 
 class Direction():
-    # C'est dans l'ordre du sens des aiguilles d'une montre, en commençant par le haut.
-    # Classic
-    UP = 0
-    UP_RIGHT = 1
-    RIGHT = 2
-    DOWN_RIGHT = 3
-    DOWN = 4
-    DOWN_LEFT = 5
-    LEFT = 6
-    UP_LEFT = 7
-    # Classic abbr.
-    U = 0
-    UR = 1
-    R = 2
-    DR = 3
-    D = 4
-    DL = 5
-    L = 6
-    UL = 7
-    # Cardinal
-    NORTH = 0
-    NORTH_EAST = 1
-    EAST = 2
-    SOUTH_EAST = 3
-    SOUTH = 4
-    SOUTH_WEST = 5
-    WEST = 6
-    NORTH_WEST = 7
-    # Cardinal abbr.
-    N = 0
-    NE = 1
-    E = 2
-    SE = 3
-    S = 4
-    SW = 5
-    W = 6
-    NW = 7
-    # Numeric pad.
-    PAD_8 = 0
-    PAD_9 = 1
-    PAD_6 = 2
-    PAD_3 = 3
-    PAD_2 = 4
-    PAD_1 = 5
-    PAD_4 = 6
-    PAD_7 = 7
+    def __init__(self, int_dir, str_dir, vector):
+        self.int_dir = int_dir
+        self.str_dir = str_dir
+        self.vector = vector
+        self.turned_cw = [None] * 8
+        self.turned_ccw = [None] * 8
 
-    VECTOR_FROM_DIR = {
-        UP: (0, -1),
-        UP_RIGHT: (+1, -1),
-        RIGHT: (+1, 0),
-        DOWN_RIGHT: (+1, +1),
-        DOWN: (0, +1),
-        DOWN_LEFT: (-1, +1),
-        LEFT: (-1, 0),
-        UP_LEFT: (-1, -1),
-    }
+    def set_turned(self, turned_cw):
+        self.turned_cw = turned_cw
+        self.turned_ccw = self.turned_cw[::-1]
+        self.opposite = self.turned_cw[4]
 
-    STR_FROM_DIR = {
-        UP: "up",
-        UP_RIGHT: "up_right",
-        RIGHT: "right",
-        DOWN_RIGHT: "down_right",
-        DOWN: "down",
-        DOWN_LEFT: "down_left",
-        LEFT: "left",
-        UP_LEFT: "up_left",
-    }
+    def turn_cw(self, n=2):
+        return self.turned_cw[n % 8]
 
-    @staticmethod
-    def opposite(direc):
-        return (direc + 4) % 8
+    def turn_ccw(self, n=2):
+        return self.turned_ccw[n % 8]
 
-    @staticmethod
-    def turn_cw(direc, n=2):
-        return (direc + n) % 8
+    def __eq__(self, other):
+        return self.int_dir == other.int_dir
 
-    @staticmethod
-    def turn_ccw(direc, n=2):
-        return (direc - n) % 8
+    def __int__(self):
+        return self.int_dir
 
-    @staticmethod
-    def to_string(direc):
-        return Direction.STR_FROM_DIR[direc]
+    def __str__(self):
+        return self.str_dir
 
 
-# Alias
-Dir = Direction
+class Directions():
+    def __init__(self):
+        self.Up = Direction(0, "up", (0, -1))
+        self.UpRight = Direction(1, "up_right", (+1, -1))
+        self.Right = Direction(2, "right", (+1, 0))
+        self.DownRight = Direction(3, "down_right", (+1, +1))
+        self.Down = Direction(4, "down", (0, +1))
+        self.DownLeft = Direction(5, "down_left", (-1, +1))
+        self.Left = Direction(6, "left", (-1, 0))
+        self.UpLeft = Direction(7, "up_left", (-1, -1))
+        self.as_list = [
+            self.Up, self.UpRight, self.Right, self.DownRight,
+            self.Down, self.DownLeft, self.Left, self.UpLeft,
+        ]
+        turns = list(self.as_list)
+        for direc in self.as_list:
+            direc.set_turned(turns)
+            turns = turns[1:] + turns[:1]
+
+dirs = Directions()
 
 
 class Coord:
@@ -125,7 +85,7 @@ class Coord:
         return "<Coord {self.x}, {self.y} >"
 
     def move_dir(self, direction, dist=1):
-        mov_x, mov_y = Dir.VECTOR_FROM_DIR[direction]
+        mov_x, mov_y = direction.vector
         self.x += mov_x * dist
         self.y += mov_y * dist
 
@@ -243,6 +203,9 @@ class GameModelBase():
     def on_start(self):
         pass
 
+    # TODO: faut aussi donner l'offset. Ça peut aider.
     def on_button_direction(self, direction):
         pass
 
+    def on_button_action(self, action_name):
+        pass

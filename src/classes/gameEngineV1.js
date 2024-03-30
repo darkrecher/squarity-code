@@ -124,6 +124,13 @@ export default class GameEngineV1 {
       this.sendGameEvent(eventName);
   }
 
+  onButtonAction(actionName) {
+    if (this.isPlayerLocked()) {
+      return;
+    }
+    this.sendGameEvent(actionName);
+  }
+
   sendGameEvent(eventName) {
     if (this.isPlayerLocked() && actionsFromPlayer.includes(eventName)) {
       return;

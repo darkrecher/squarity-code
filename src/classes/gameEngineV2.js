@@ -1,7 +1,5 @@
 import { Direction } from './gameEngineV1.js';
 
-// TODO : faut un truc un peu plus élaboré pour les events.
-const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
@@ -164,10 +162,10 @@ export default class GameEngineV2 {
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
-    this.pythonDirFromJsDir.set(Direction.Up, 'Direction.UP');
-    this.pythonDirFromJsDir.set(Direction.Right, 'Direction.RIGHT');
-    this.pythonDirFromJsDir.set(Direction.Down, 'Direction.DOWN');
-    this.pythonDirFromJsDir.set(Direction.Left, 'Direction.LEFT');
+    this.pythonDirFromJsDir.set(Direction.Up, 'dirs.Up');
+    this.pythonDirFromJsDir.set(Direction.Right, 'dirs.Right');
+    this.pythonDirFromJsDir.set(Direction.Down, 'dirs.Down');
+    this.pythonDirFromJsDir.set(Direction.Left, 'dirs.Left');
 
     // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
     // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
@@ -248,7 +246,7 @@ export default class GameEngineV2 {
     const pythonDir = this.pythonDirFromJsDir.get(direction);
     const eventResultRaw = this.runPython(
       `game_model.on_button_direction(${pythonDir})`,
-      `Exécution d'un événement ${pythonDir}`,
+      `Événement de bouton de direction ${pythonDir}`,
     );
     let mustRedraw = true;
     if (!this.isNonePython(eventResultRaw)) {
@@ -260,15 +258,15 @@ export default class GameEngineV2 {
     this.onAfterGameEvent();
   }
 
-  // WIP: ça deviendra inutile bientôt.
-  sendGameEvent(eventName) {
-    if (this.isPlayerLocked() && actionsFromPlayer.includes(eventName)) {
+  onButtonAction(actionName) {
+    if (this.isPlayerLocked()) {
       return;
     }
     const eventResultRaw = this.runPython(
-      `game_model.on_game_event("${eventName}")`,
-      `Exécution d'un événement ${eventName}`,
+      `game_model.on_button_action("${actionName}")`,
+      `Exécution d'une action ${actionName}`,
     );
+    // TODO : c'est un peu du duplicate code avec la fonction au-dessus.
     let mustRedraw = true;
     if (!this.isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
