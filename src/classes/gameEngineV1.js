@@ -187,7 +187,10 @@ export default class GameEngineV1 {
   drawRect() {
     // J'ai tenté clearRect. Mais ça ne marche pas bien.
     // Mon bonhomme reste dessiné sur les cases noires. Osef.
-    this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
+    this.ctx_canvas_buffer.fillRect(
+      0, 0,
+      this.game_canvas.width, this.game_canvas.height
+    );
     let canvasX = 0;
     let canvasY = 0;
     const tilesData = this.runPython(

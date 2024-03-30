@@ -404,7 +404,10 @@ export default class GameEngineV2 {
   drawCurrentGameBoardState(timeNow) {
     // J'ai tenté clearRect. Mais ça ne marche pas bien.
     // Mon bonhomme reste dessiné sur les cases noires. Osef.
-    this.ctx_canvas_buffer.fillRect(0, 0, 640, 448);
+    this.ctx_canvas_buffer.fillRect(
+      0, 0,
+      this.game_canvas.width, this.game_canvas.height
+    );
     for (let layer of this.layers) {
       if (layer.show_transitions) {
         const layerId = layer._l_id;
@@ -608,10 +611,18 @@ export default class GameEngineV2 {
         }
       }
     }
-    // WIP TODO. undefined et false veulent pas dire la même chose.
-    //if ('redraw' in eventResultRaw) {
-    //  mustRedraw = eventResultRaw.redraw !== 0;
-    //}
+    if ('redraw' in eventResultRaw) {
+      // https://stackoverflow.com/questions/3390396/how-can-i-check-for-undefined-in-javascript
+      if (eventResultRaw.redraw !== undefined) {
+        if (!eventResultRaw.redraw) {
+          // redraw a été explicitement définie (donc pas "undefined"), à 0 ou à False.
+          // Si le code du jeu définit redraw à None, une liste vide, ou autre,
+          // le javascript va considérer que c'est True. Ce qui ne correspond pas à pensée pythonienne.
+          // En même temps, faudrait être tordu pour faire ça.
+          mustRedraw = false;
+        }
+      }
+    }
     return mustRedraw;
   }
 
