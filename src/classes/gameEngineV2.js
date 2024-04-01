@@ -1,135 +1,11 @@
 import { Direction } from './gameEngineV1.js';
+import GameObjectTransitioner from './gameEngine/GameObjectTransitioner.js';
+
 
 const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
-/*
-
-Pas de fonction compare mais une fonction addTransitionFromStates
-Cet objet contient une liste de transitions, avec time start et end, val start et end, et le field concerné.
-
-Fonction pour mettre à jour les champs en fonction des transitions en cours et d'un timer donné.
-La fonction supprime les transitions passées.
-
-Fonction indiquant si l'objet a des transitions en cours.
-
-
-pour commencer, on vire pas progressivement les transitions passées.
-Si y'en a plus, on vide le tableau. Sinon, on garde tout.
-Et on fera mieux plus tard.
-
-Et sinon, pour virer un élément, c'est splice.
- */
-
-class StateTransition {
-  constructor(fieldName, timeStart, timeEnd, valStart, valEnd) {
-    this.fieldName = fieldName;
-    this.timeStart = timeStart;
-    this.timeEnd = timeEnd;
-    this.valStart = valStart;
-    this.valEnd = valEnd;
-    this.valRange = valEnd - valStart;
-    this.timeRange = timeEnd - timeStart;
-  }
-
-  hasEnded(timeNow) {
-    return timeNow > this.timeEnd;
-  }
-
-  getCurrentVal(timeNow) {
-    // FUTURE: et bien sûr, il faudra des ease_in, ease_out, etc.
-    if (timeNow < this.timeStart) {
-      return this.valStart;
-    }
-    if (timeNow > this.timeEnd) {
-      return this.valEnd;
-    }
-    return this.valStart + this.valRange * (timeNow - this.timeStart) / this.timeRange;
-  }
-
-}
-
-class GobjState {
-  /*
-   * Cette classe contient toutes les caractéristiques pour dessiner un objet
-   * à un instant donné (en tenant compte des éventuelles transitions).
-   * Si il y a des fades, des rotations, des changements de couleurs, il faut les mettre là-dedans.
-   */
-  constructor(x, y, img) {
-    this.x = x;
-    this.y = y;
-    this.img = img;
-  }
-
-  clone() {
-    return new GobjState(this.x, this.y, this.img);
-  }
-}
-
-class GameObjectTransitioner {
-
-  constructor(x, y, gameObject) {
-    this.currentTransitions = [];
-    this.gobjState = new GobjState(x, y, gameObject.img);
-  }
-
-  addTransitions(x, y ,gameObject, timeNow) {
-    let somethingChanged = false;
-    if (this.gobjState.x != x) {
-      // console.log("x is different. ", gameObject.img, " prev: ", this.gobjState.x, "new: ", x);
-      // arbtrairement, 300 ms de transition. On fera mieux plus tard.
-      const transition = new StateTransition("x", timeNow, timeNow + 300, this.gobjState.x, x);
-      this.currentTransitions.push(transition);
-      somethingChanged = true;
-    }
-    if (this.gobjState.y != y) {
-      // console.log("y is different. ", gameObject.img, " prev: ", this.gobjState.y, "new: ", y);
-      const transition = new StateTransition("y", timeNow, timeNow + 300, this.gobjState.y, y);
-      this.currentTransitions.push(transition);
-      somethingChanged = true;
-    }
-    // Pas de transition pour img, mais on pourrait imaginer des espèces de fade ou une animation prédéfinie.
-    if (somethingChanged) {
-      this.gobjState = new GobjState(x, y, gameObject.img);
-    }
-  }
-
-  clearEndedTransitions(timeNow) {
-    // On vire pas progressivement les transitions passées.
-    // Si y'en a plus, on vide le tableau. Sinon, on garde tout. On fera mieux plus tard.
-    if (this.currentTransitions.length === 0) {
-      return;
-    }
-    let allEnded = true;
-    for (let transition of this.currentTransitions) {
-      if (!transition.hasEnded(timeNow)) {
-        allEnded = false;
-      }
-    }
-    if (allEnded) {
-      this.currentTransitions = [];
-    }
-  }
-
-  hasTransitions() {
-    return this.currentTransitions.length > 0;
-  }
-
-  getCurrentState(timeNow) {
-    if (this.currentTransitions.length === 0) {
-      return this.gobjState;
-    }
-    const gobjStateCurrent = this.gobjState.clone();
-    for (let transition of this.currentTransitions) {
-      if (!transition.hasEnded(timeNow)) {
-        gobjStateCurrent[transition.fieldName] = transition.getCurrentVal(timeNow);
-      }
-    }
-    return gobjStateCurrent;
-  }
-
-}
 
 export default class GameEngineV2 {
 
@@ -156,6 +32,11 @@ export default class GameEngineV2 {
     this.ctx_canvas_buffer.imageSmoothingEnabled = false;
 
     this.layers = null;
+    // mapLayers contient, pour chaque layer, un "layerMemory".
+    // Le layerMemory est un sous-Map qui contient, pour chaque objet du layer, un GameObjectTransitioner.
+    // Ce GameObjectTransitioner contient les transitions en cours pour l'objet, et l'état actuel de l'objet.
+    // (Il n'y a pas forcément de transition en cours, mais il faut au moins le GameObjectTransitioner
+    // pour l'afficher dans l'aire de jeu).
     this.mapLayers = new Map();
     this.delayed_actions = [];
     this.has_click_handling = false;
@@ -359,26 +240,42 @@ export default class GameEngineV2 {
         // TODO: un truc générique pour itérer sur les gameobjects, que ce soit un layer ou un layer sparse.
         let y = 0;
         let x;
+        let addedAnObject = false;
+        let idObjsPresent = new Set();
         for (let line of layer.tiles) {
           x = 0;
           for (let tile of line) {
             const gameObjects = tile.game_objects;
             for (let gameObj of gameObjects) {
               const gobjId = gameObj._go_id;
+              idObjsPresent.add(gobjId);
               let gobjTransitioner;
               if (!layerMemory.has(gobjId)) {
                 gobjTransitioner = new GameObjectTransitioner(x, y, gameObj);
                 layerMemory.set(gobjId, gobjTransitioner);
                 console.log("ajout de l'objet : ", gobjId);
+                addedAnObject = true;
               } else {
                 gobjTransitioner = layerMemory.get(gobjId);
                 gobjTransitioner.addTransitions(x, y, gameObj, timeNow);
               }
-              // TODO: gérer les suppression d'objets.
             }
             x += 1;
           }
           y += 1;
+        }
+        if (addedAnObject || (idObjsPresent.size !== layerMemory.size)) {
+          // On ne peut plus trop se fier au nombre d'objets précédent et au nombre d'objet courant.
+          // Ça veut dire qu'il faut peut-être enlever des objets.
+          // Il faut itérer sur les objets dans layerMemory.
+          // Si un objet n'est pas dans idObjsPresent, c'est qu'il a disparu.
+          const idObjsPrevious = layerMemory.keys();
+          for (let gobjId of idObjsPrevious) {
+            if (!idObjsPresent.has(gobjId)) {
+              console.log("On doit enlever l'objet : ", gobjId);
+              layerMemory.delete(gobjId);
+            }
+          }
         }
         const timeNowLayerAfter = performance.now();
         console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
@@ -448,10 +345,6 @@ export default class GameEngineV2 {
   }
 
   updateAndDrawGameBoard() {
-    // TODO : c'est un peu bourrin de redessiner à chaque requestAnimationFrame.
-    // On pourrait définir un FPS ou une période de refresh, avec un truc comme ça :
-    // https://blog.michaelkaren.dev/how-to-get-started-with-canvas-animations-in-javascript
-
     const timeNow = performance.now();
     // On enlève les transitions passées.
     this.clearEndedTransitions(timeNow);

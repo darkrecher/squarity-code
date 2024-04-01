@@ -1181,11 +1181,24 @@ class GameModel(GameModelBase):
     def on_click(self, x, y):
         print("on click", x, y)
         target_tile = self.main_layer.get_tile(x, y)
+
         if not target_tile.game_objects:
-            # TODO : re re-référence dégueu à dest_tile.
+            # TODO : re re-référence dégueu à target_tile.
             target_tile.game_objects.append(
                 GameObject(target_tile, "rock")
             )
+        else:
+            gobj_to_remove = None
+            for gobj in target_tile.game_objects:
+                if gobj.img == "rock":
+                    gobj_to_remove = gobj
+                    break
+                else:
+                    gobj.img = "gem_violet"
+            if gobj_to_remove:
+                print("suppr du rock")
+                target_tile.game_objects.remove(gobj_to_remove)
+
         event_result = EventResult()
         event_result.delayed_actions = []
         my_callback = CallBack()
