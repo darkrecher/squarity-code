@@ -1156,7 +1156,6 @@ une API mieux faite, et la possibilité d'afficher des mouvements de transitions
 quand on déplace un GameObject d'une tile à une autre.
 """
 
-
 class EventResult():
     pass
 
@@ -1165,39 +1164,38 @@ class CallBack():
 
 class GameModel(GameModelBase):
     def on_start(self):
-        dest_tile = self.main_layer.get_tile(4, 1)
-        self.gamobj_gem_green = GameObject(dest_tile, "gem_green")
-        dest_tile.game_objects.append(
-            # TODO : re-référence dégueu à dest_tile.
-            self.gamobj_gem_green
-        )
-        dest_tile = self.main_layer.get_tile(5, 1)
-        self.gamobj_gem_violet = GameObject(dest_tile, "gem_violet")
-        dest_tile.game_objects.append(
-            # TODO : re-référence dégueu à dest_tile.
-            self.gamobj_gem_violet
-        )
+        # Le layer_rock n'a pas de transition.
+        self.layer_rock = Layer(self, self.w, self.h, False)
+        self.layers.append(self.layer_rock)
+        coord = Coord(x=4, y=1)
+        dest_tile = self.main_layer.get_tile(coord)
+        self.gamobj_gem_green = GameObject(self.main_layer, coord, "gem_green")
+        # TODO : re-référence dégueu à dest_tile.
+        dest_tile.game_objects.append(self.gamobj_gem_green)
 
-    def on_click(self, x, y):
-        print("on click", x, y)
-        target_tile = self.main_layer.get_tile(x, y)
+        coord = Coord(x=5, y=1)
+        dest_tile = self.main_layer.get_tile(coord)
+        self.gamobj_gem_violet = GameObject(self.main_layer, coord, "gem_violet")
+        # TODO : re-référence dégueu à dest_tile.
+        dest_tile.game_objects.append(self.gamobj_gem_violet)
 
-        if not target_tile.game_objects:
-            # TODO : re re-référence dégueu à target_tile.
-            target_tile.game_objects.append(
-                GameObject(target_tile, "rock")
-            )
+    def on_click(self, coord):
+        print("on click", coord.x, coord.y)
+        target_tile_main = self.main_layer.get_tile(coord)
+
+        if target_tile_main.game_objects:
+            target_tile_main.game_objects[0].img = "gem_violet"
         else:
-            gobj_to_remove = None
-            for gobj in target_tile.game_objects:
-                if gobj.img == "rock":
-                    gobj_to_remove = gobj
-                    break
-                else:
-                    gobj.img = "gem_violet"
-            if gobj_to_remove:
+            target_tile_rock = self.layer_rock.get_tile(coord)
+            if not target_tile_rock.game_objects:
+                # TODO : re re-référence dégueu à target_tile.
+                target_tile_rock.game_objects.append(
+                    GameObject(self.layer_rock, Coord(coord), "rock")
+                )
+            else:
+                gobj_to_remove = target_tile_rock.game_objects[0]
                 print("suppr du rock")
-                target_tile.game_objects.remove(gobj_to_remove)
+                target_tile_rock.game_objects.remove(gobj_to_remove)
 
         event_result = EventResult()
         event_result.delayed_actions = []
@@ -1218,21 +1216,22 @@ class GameModel(GameModelBase):
         elif action_name == "action_2":
             offset = -1
 
-        x_gem = self.gamobj_gem_green.tile_owner.coord.x
-        current_tile = self.main_layer.get_tile(x_gem, 1)
+        coord = self.gamobj_gem_green.coord
+        current_tile = self.main_layer.get_tile(coord)
         current_tile.game_objects.remove(self.gamobj_gem_green)
-        x_gem += offset
-        dest_tile = self.main_layer.get_tile(x_gem, 1)
-        self.gamobj_gem_green.tile_owner = dest_tile
+        coord.move_by_vect(x=offset)
+        dest_tile = self.main_layer.get_tile(coord)
+        self.gamobj_gem_green.coord = Coord(coord)
         dest_tile.game_objects.append(self.gamobj_gem_green)
 
-        x_gem = self.gamobj_gem_violet.tile_owner.coord.x
-        current_tile = self.main_layer.get_tile(x_gem, 1)
+        coord = self.gamobj_gem_violet.coord
+        current_tile = self.main_layer.get_tile(coord)
         current_tile.game_objects.remove(self.gamobj_gem_violet)
-        x_gem -= offset
-        dest_tile = self.main_layer.get_tile(x_gem, 1)
-        self.gamobj_gem_violet.tile_owner = dest_tile
+        coord.move_by_vect(x=-offset)
+        dest_tile = self.main_layer.get_tile(coord)
+        self.gamobj_gem_violet.coord = Coord(coord)
         dest_tile.game_objects.append(self.gamobj_gem_violet)
+
 
     def my_callback(self):
         print("my callback")

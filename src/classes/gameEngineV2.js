@@ -1,5 +1,5 @@
 import { Direction } from './gameEngineV1.js';
-import GameObjectTransitioner from './gameEngine/GameObjectTransitioner.js';
+import Layer from './gameEngine/Layer.js';
 
 
 const defaultTileSize = 32;
@@ -32,12 +32,11 @@ export default class GameEngineV2 {
     this.ctx_canvas_buffer.imageSmoothingEnabled = false;
 
     this.layers = null;
-    // mapLayers contient, pour chaque layer, un "layerMemory".
-    // Le layerMemory est un sous-Map qui contient, pour chaque objet du layer, un GameObjectTransitioner.
-    // Ce GameObjectTransitioner contient les transitions en cours pour l'objet, et l'état actuel de l'objet.
-    // (Il n'y a pas forcément de transition en cours, mais il faut au moins le GameObjectTransitioner
-    // pour l'afficher dans l'aire de jeu).
+    // mapLayers contient des objets Layer.
     this.mapLayers = new Map();
+    // orderedLayers contient les Layers, dans l'ordre d'affichage.
+    // On a les mêmes objets dans les values de mapLayers et dans orderedLayers.
+    this.orderedLayers = [];
     this.delayed_actions = [];
     this.has_click_handling = false;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
@@ -203,7 +202,7 @@ export default class GameEngineV2 {
       return;
     }
     const eventResultRaw = this.runPython(
-      `game_model.on_click(${clicked_tile_x}, ${clicked_tile_y})`,
+      `game_model.on_click(Coord(x=${clicked_tile_x}, y=${clicked_tile_y}))`,
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
     let mustRedraw = true;
@@ -220,69 +219,32 @@ export default class GameEngineV2 {
     // TODO : faut pas du tout appeler ça drawRect.
 
     const timeNowStart = performance.now();
-    this.layers = this.runPython(
+    const python_layers = this.runPython(
       'game_model.layers',
       'Récupération des layers pour les dessiner',
     );
     const timeNow = performance.now();
 
-    // Pour les layers qui ont des transitions, on envoie les addTransitions aux objets que y'a dedans.
-    for (let layer of this.layers) {
-      const layerId = layer._l_id;
-      if (!this.mapLayers.has(layerId)) {
-        this.mapLayers.set(layerId, new Map());
-      }
-      const layerMemory = this.mapLayers.get(layerId);
-      // TODO: si c'est un layer sparse, c'est pas géré pareil.
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-      if (layer.show_transitions) {
-        const timeNowLayerBefore = performance.now();
-        // TODO: un truc générique pour itérer sur les gameobjects, que ce soit un layer ou un layer sparse.
-        let y = 0;
-        let x;
-        let addedAnObject = false;
-        let idObjsPresent = new Set();
-        for (let line of layer.tiles) {
-          x = 0;
-          for (let tile of line) {
-            const gameObjects = tile.game_objects;
-            for (let gameObj of gameObjects) {
-              const gobjId = gameObj._go_id;
-              idObjsPresent.add(gobjId);
-              let gobjTransitioner;
-              if (!layerMemory.has(gobjId)) {
-                gobjTransitioner = new GameObjectTransitioner(x, y, gameObj);
-                layerMemory.set(gobjId, gobjTransitioner);
-                console.log("ajout de l'objet : ", gobjId);
-                addedAnObject = true;
-              } else {
-                gobjTransitioner = layerMemory.get(gobjId);
-                gobjTransitioner.addTransitions(x, y, gameObj, timeNow);
-              }
-            }
-            x += 1;
-          }
-          y += 1;
-        }
-        if (addedAnObject || (idObjsPresent.size !== layerMemory.size)) {
-          // On ne peut plus trop se fier au nombre d'objets précédent et au nombre d'objet courant.
-          // Ça veut dire qu'il faut peut-être enlever des objets.
-          // Il faut itérer sur les objets dans layerMemory.
-          // Si un objet n'est pas dans idObjsPresent, c'est qu'il a disparu.
-          const idObjsPrevious = layerMemory.keys();
-          for (let gobjId of idObjsPrevious) {
-            if (!idObjsPresent.has(gobjId)) {
-              console.log("On doit enlever l'objet : ", gobjId);
-              layerMemory.delete(gobjId);
-            }
-          }
-        }
-        const timeNowLayerAfter = performance.now();
-        console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
 
-      } else {
-        layerMemory.clear();
+    this.orderedLayers = []
+    for (let python_layer of python_layers) {
+      const layerId = python_layer._l_id;
+      if (!this.mapLayers.has(layerId)) {
+        const newLayer = new Layer(
+          python_layer,
+          this.img_coords,
+          this.ctx_canvas_buffer,
+          this.tile_atlas,
+          this.tile_img_width, this.tile_img_height,
+          this.tile_canvas_width, this.tile_canvas_height,
+        );
+        this.mapLayers.set(layerId, newLayer);
       }
+      const layer = this.mapLayers.get(layerId);
+      this.orderedLayers.push(layer);
+    }
+    for (let layer of this.orderedLayers) {
+      layer.updateWithPythonLayer(timeNow);
     }
 
     const timeNowAfterAnalysis = performance.now();
@@ -305,42 +267,24 @@ export default class GameEngineV2 {
       0, 0,
       this.game_canvas.width, this.game_canvas.height
     );
-    for (let layer of this.layers) {
-      if (layer.show_transitions) {
-        const layerId = layer._l_id;
-        const layerMemory = this.mapLayers.get(layerId);
-        this.drawLayerWithTransitions(layer, layerMemory, timeNow);
-      } else {
-        this.drawLayerNoTransitions(layer);
-      }
+    for (let layer of this.orderedLayers) {
+      layer.drawLayer(timeNow);
     }
     this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
   }
 
   hasAnyTransition() {
-    for (let layer of this.layers) {
-      if (layer.show_transitions) {
-        const layerId = layer._l_id;
-        const layerMemory = this.mapLayers.get(layerId);
-        for (let [gobjId, gobjTransitioner] of layerMemory) {
-          if (gobjTransitioner.hasTransitions()) {
-            return true;
-          }
-        }
+    for (let layer of this.orderedLayers) {
+      if (layer.hasAnyTransition()) {
+        return true;
       }
     }
     return false;
   }
 
   clearEndedTransitions(timeNow) {
-    for (let layer of this.layers) {
-      if (layer.show_transitions) {
-        const layerId = layer._l_id;
-        const layerMemory = this.mapLayers.get(layerId);
-        for (let [gobjId, gobjTransitioner] of layerMemory) {
-          gobjTransitioner.clearEndedTransitions(timeNow);
-        }
-      }
+    for (let layer of this.orderedLayers) {
+      layer.clearEndedTransitions(timeNow);
     }
   }
 
@@ -359,52 +303,12 @@ export default class GameEngineV2 {
 
   // TODO : et je le vois venir qu'il me faudra une classe layer...
   // Comme ça on peut gérer pour chacun si ils ont des transitions.
-  // Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
+  // TODO : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
 
   // Les méthodes ci-dessous sont privées.
   // Il est possible de l'indiquer "officiellement", avec la syntaxe #private :
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties
   // Sauf que c'est pas supporté par tous les navigateurs, alors je prends pas le risque.
-  drawLayerWithTransitions(layer, layerMemory, timeNow) {
-    for (let [gobjId, gobjTransitioner] of layerMemory) {
-      const gobjState = gobjTransitioner.getCurrentState(timeNow);
-      const [coordImgX, coordImgY] = this.img_coords[gobjState.img];
-      this.ctx_canvas_buffer.drawImage(
-        this.tile_atlas,
-        coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-        gobjState.x * this.tile_canvas_width, gobjState.y * this.tile_canvas_height,
-        this.tile_canvas_width, this.tile_canvas_height,
-      );
-    }
-  }
-
-  drawLayerNoTransitions(layer) {
-    let canvasX = 0;
-    let canvasY = 0;
-    for (let y = 0; y < this.nb_tile_height; y += 1) {
-      for (let x = 0; x < this.nb_tile_width; x += 1) {
-        const gameObjects = layer.tiles[y][x].game_objects;
-        for (let gameObj of gameObjects) {
-          // Pour récupérer la classe et un identifiant unique : gameObj.toString()
-          // Ça renvoit un truc comme ça : "<GameObject object at 0x9e81e8>".
-          // Mais ça me semble hasardeux. Je gérerais l'unicité avec la fonction id du python.
-          console.log(gameObj.toString());
-          // Pour récupérer la classe, on peut faire ça : gameObj.__class__.toString()
-          // On récupère ceci : "<class 'GameObject'>". Et ça me semble pas trop dégueux.
-          console.log(gameObj.__class__.toString());
-          const [coordImgX, coordImgY] = this.img_coords[gameObj.img];
-          this.ctx_canvas_buffer.drawImage(
-            this.tile_atlas,
-            coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-            canvasX, canvasY, this.tile_canvas_width, this.tile_canvas_height,
-          );
-        }
-        canvasX += this.tile_canvas_width;
-      }
-      canvasX = 0;
-      canvasY += this.tile_canvas_height;
-    }
-  }
 
   runPython(pythonCode, codeLabel) {
     let resultPython = null;
@@ -465,8 +369,8 @@ export default class GameEngineV2 {
   }
 
   processGameEventResult(eventResultRaw) {
-    console.log("eventResultRaw");
-    console.log(eventResultRaw);
+    //console.log("eventResultRaw");
+    //console.log(eventResultRaw);
     let mustRedraw = true;
     if (eventResultRaw.delayed_actions) {
       for (let newDelayedAction of eventResultRaw.delayed_actions) {

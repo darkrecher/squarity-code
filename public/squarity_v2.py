@@ -72,27 +72,28 @@ dirs = Directions()
 
 class Coord:
 
-    def __init__(self, x=None, y=None, coord=None):
-        self.x = x
-        self.y = y
+    def __init__(self, coord=None, x=None, y=None):
         if coord is not None:
             self.x = coord.x
             self.y = coord.y
+        else:
+            self.x = x
+            self.y = y
         if self.x is None or self.y is None:
             raise ValueError("Coord must be initialized with x and y or coord.")
 
     def __str__(self):
         return "<Coord {self.x}, {self.y} >"
 
-    def move_dir(self, direction, dist=1):
+    def move_to_dir(self, direction, dist=1):
         mov_x, mov_y = direction.vector
         self.x += mov_x * dist
         self.y += mov_y * dist
 
-    def move_add(self, x=None, y=None, coord=None):
-        if coord is not None:
-            self.x += coord.x
-            self.y += coord.y
+    def move_by_vect(self, vector=None, x=None, y=None):
+        if vector is not None:
+            self.x += vector.x
+            self.y += vector.y
         if x is not None:
             self.x += x
         if y is not None:
@@ -117,9 +118,10 @@ class GameObjectBase():
 
 class GameObject(GameObjectBase):
 
-    def __init__(self, tile_owner, img):
+    def __init__(self, layer_owner, coord, img):
         super().__init__()
-        self.tile_owner = tile_owner
+        self.layer_owner = layer_owner
+        self.coord = coord
         self.img = img
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
@@ -133,7 +135,7 @@ class GameObject(GameObjectBase):
         # Not sure if we will implement this.
         self.color_factor = (1.0, 1.0, 1.0)
 
-    # TODO: set_coords, move, etc.
+    # TODO : set_coords, move, etc.
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
     # TODO : set_default(move_delay_ms, move_callback)
@@ -160,7 +162,17 @@ class LayerBase():
         self._l_id = id(self)
         self.visible = True
 
-    def get_game_objects(self, x=None, y=None, coord=None):
+    def get_game_objects(self, coord=None, x=None, y=None):
+        raise NotImplementedError
+
+    def iter_game_objects(self, iter_xs=None, iter_ys=None, by_line=True):
+        # FUTURE. On verra plus tard.
+        raise NotImplementedError
+
+    def iter_all_game_objects(self):
+        """
+        The order is not guaranteed.
+        """
         raise NotImplementedError
 
 
@@ -171,24 +183,48 @@ class Layer(LayerBase):
         self.show_transitions = show_transitions
         self.tiles = [
             [
-                Tile(self, Coord(x, y)) for x in range(w)
+                Tile(self, Coord(x=x, y=y)) for x in range(w)
             ]
             for y in range(h)
         ]
         # TODO: adjacencies
 
-    def get_tile(self, x=None, y=None, coord=None):
+    def get_game_objects(self, coord=None, x=None, y=None):
+        return self.get_tile(x, y, coord).game_objects
+
+    def iter_all_game_objects(self):
+        for line in self.tiles:
+            for tile in line:
+                for gobj in tile.game_objects:
+                    yield gobj
+
+    def get_tile(self, coord=None, x=None, y=None):
         if coord is not None:
             x = coord.x
             y = coord.y
         return self.tiles[y][x]
 
-    def get_game_objects(self, x=None, y=None, coord=None):
-        tile = self.get_tile(x, y, coord)
-        return tile.game_objects
 
+class LayerSparse(LayerBase):
 
-# TODO: LayerSparse
+    def __init__(self, game_owner, w, h, show_transitions=True):
+        super().__init__(game_owner)
+        self.show_transitions = show_transitions
+        self.game_objects = []
+
+    def get_game_objects(self, coord=None, x=None, y=None):
+        if coord is None:
+            coord = Coord(x=x, y=y)
+        return [
+            gobj for gobj
+            in self.game_objects
+            if gobj.coord == coord
+        ]
+
+    def iter_all_game_objects(self):
+        for gobj in self.game_objects:
+            yield gobj
+
 
 class GameModelBase():
 
@@ -203,7 +239,10 @@ class GameModelBase():
     def on_start(self):
         pass
 
-    # TODO: faut aussi donner l'offset. Ça peut aider.
+    def on_click(self, coord):
+        pass
+
+    # TODO: faut aussi donner le vector. Ça peut aider.
     def on_button_direction(self, direction):
         pass
 
