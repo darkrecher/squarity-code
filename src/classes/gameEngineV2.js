@@ -1,5 +1,5 @@
 import { Direction } from './gameEngineV1.js';
-import Layer from './gameEngine/Layer.js';
+import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
 
 
 const defaultTileSize = 32;
@@ -47,15 +47,25 @@ export default class GameEngineV2 {
     this.pythonDirFromJsDir.set(Direction.Down, 'dirs.Down');
     this.pythonDirFromJsDir.set(Direction.Left, 'dirs.Left');
 
-    // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
-    // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
-    // J'ai pas trop compris le principe, et ça me semble un peu overkill.
-    // Alors j'y vais à la bourrin : je charge tout le code dans une string
-    // et je la balance ensuite directement à la fonction runPython.
-    this.runPython(
-        libSquarityCode,
-        'Interprétation de la lib python squarity',
-      );
+    // Pour pouvoir importer un module python, il faut créer un fichier,
+    // puis l'importer. En vrai, ça fait pas un fichier, ça écrit dans
+    // un espèce d'espace virtuel du navigateur, mais ça va très bien comme ça.
+    // Par contre: ne pas oublier de faire sys.path.append(".")
+    // Sinon, l'import ne marche pas. Pyodide n'acceptera pas de récupérer le fichier.
+    // Et ça, c'est pas dit dans leur doc, et c'est un peu relou.
+    // Extraitr doc de pyodide:
+    // https://pyodide.org/en/stable/usage/loading-custom-python-code.html
+    // https://pyodide.org/en/stable/usage/loading-packages.html
+    document.lib_squarity_code = libSquarityCode;
+     this.runPython('' +
+        'import js\n' +
+        'with open("squarity.py", "w", encoding="utf-8") as f:\n' +
+        '    f.write(js.document.lib_squarity_code)\n' +
+        'import sys\n' +
+        'sys.path.append(".")\n',
+      'Création du fichier contenant la lib squarity',
+    );
+
   }
 
   isPlayerLocked() {
@@ -230,21 +240,33 @@ export default class GameEngineV2 {
     for (let python_layer of python_layers) {
       const layerId = python_layer._l_id;
       if (!this.mapLayers.has(layerId)) {
-        const newLayer = new Layer(
-          python_layer,
-          this.img_coords,
-          this.ctx_canvas_buffer,
-          this.tile_atlas,
-          this.tile_img_width, this.tile_img_height,
-          this.tile_canvas_width, this.tile_canvas_height,
-        );
+        let newLayer;
+        if (python_layer.show_transitions) {
+          newLayer = new LayerWithTransition(
+            python_layer,
+            this.img_coords,
+            this.ctx_canvas_buffer,
+            this.tile_atlas,
+            this.tile_img_width, this.tile_img_height,
+            this.tile_canvas_width, this.tile_canvas_height,
+          );
+        } else {
+          newLayer = new LayerNoTransition(
+            python_layer,
+            this.img_coords,
+            this.ctx_canvas_buffer,
+            this.tile_atlas,
+            this.tile_img_width, this.tile_img_height,
+            this.tile_canvas_width, this.tile_canvas_height,
+          );
+        }
         this.mapLayers.set(layerId, newLayer);
       }
       const layer = this.mapLayers.get(layerId);
       this.orderedLayers.push(layer);
     }
     for (let layer of this.orderedLayers) {
-      layer.updateWithPythonLayer(timeNow);
+      layer.updateWithGameSituation(timeNow);
     }
 
     const timeNowAfterAnalysis = performance.now();
@@ -268,7 +290,7 @@ export default class GameEngineV2 {
       this.game_canvas.width, this.game_canvas.height
     );
     for (let layer of this.orderedLayers) {
-      layer.drawLayer(timeNow);
+      layer.draw(timeNow);
     }
     this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
   }
@@ -300,10 +322,6 @@ export default class GameEngineV2 {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
     }
   }
-
-  // TODO : et je le vois venir qu'il me faudra une classe layer...
-  // Comme ça on peut gérer pour chacun si ils ont des transitions.
-  // TODO : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
 
   // Les méthodes ci-dessous sont privées.
   // Il est possible de l'indiquer "officiellement", avec la syntaxe #private :
