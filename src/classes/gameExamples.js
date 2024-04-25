@@ -1155,6 +1155,7 @@ class GameModel():
   une API mieux faite, et la possibilité d'afficher des mouvements de transitions
   quand on déplace un GameObject d'une tile à une autre.
 """
+import json
 import squarity
 Coord = squarity.Coord
 GameObject = squarity.GameObject
@@ -1167,6 +1168,9 @@ class CallBack():
 
 class GameModel(squarity.GameModelBase):
       def on_start(self):
+          json_conf = json.loads(self.str_game_conf_json)
+          for gobj_name in json_conf["img_coords"].keys():
+              print(gobj_name)
           # Le layer_rock n'a pas de transition.
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)

@@ -144,7 +144,7 @@ export default class GameEngineV1 {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
     if (mustRedraw) {
-      this.drawRect();
+      this.updateFromPythonData();
     }
     this.onAfterGameEvent();
   }
@@ -179,12 +179,12 @@ export default class GameEngineV1 {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
     if (mustRedraw) {
-      this.drawRect();
+      this.updateFromPythonData();
     }
     this.onAfterGameEvent();
   }
 
-  drawRect() {
+  updateFromPythonData() {
     // J'ai tenté clearRect. Mais ça ne marche pas bien.
     // Mon bonhomme reste dessiné sur les cases noires. Osef.
     this.ctx_canvas_buffer.fillRect(

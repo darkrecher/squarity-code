@@ -42,10 +42,10 @@ export default class GameEngineV2 {
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
-    this.pythonDirFromJsDir.set(Direction.Up, 'dirs.Up');
-    this.pythonDirFromJsDir.set(Direction.Right, 'dirs.Right');
-    this.pythonDirFromJsDir.set(Direction.Down, 'dirs.Down');
-    this.pythonDirFromJsDir.set(Direction.Left, 'dirs.Left');
+    this.pythonDirFromJsDir.set(Direction.Up, 'squarity.dirs.Up');
+    this.pythonDirFromJsDir.set(Direction.Right, 'squarity.dirs.Right');
+    this.pythonDirFromJsDir.set(Direction.Down, 'squarity.dirs.Down');
+    this.pythonDirFromJsDir.set(Direction.Left, 'squarity.dirs.Left');
 
     // Pour pouvoir importer un module python, il faut créer un fichier,
     // puis l'importer. En vrai, ça fait pas un fichier, ça écrit dans
@@ -114,8 +114,9 @@ export default class GameEngineV2 {
       gameCode,
       'Interprétation du gameCode.',
     );
+    document.json_conf = JSON.stringify(json_conf);
     this.runPython(
-      `game_model = GameModel(${areaWidth}, ${areaHeight}, "TODO:json_conf")`,
+      `game_model = GameModel(${areaWidth}, ${areaHeight}, js.document.json_conf)`,
       'Instanciation du GameModel',
     );
     this.runPython(
@@ -138,14 +139,7 @@ export default class GameEngineV2 {
       `game_model.on_button_direction(${pythonDir})`,
       `Événement de bouton de direction ${pythonDir}`,
     );
-    let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
-      mustRedraw = this.processGameEventResult(eventResultRaw);
-    }
-    if (mustRedraw) {
-      this.drawRect();
-    }
-    this.onAfterGameEvent();
+    this.afterGameEvent(eventResultRaw);
   }
 
   onButtonAction(actionName) {
@@ -156,19 +150,10 @@ export default class GameEngineV2 {
       `game_model.on_button_action("${actionName}")`,
       `Exécution d'une action ${actionName}`,
     );
-    // TODO : c'est un peu du duplicate code avec la fonction au-dessus.
-    let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
-      mustRedraw = this.processGameEventResult(eventResultRaw);
-    }
-    if (mustRedraw) {
-      this.drawRect();
-    }
-    this.onAfterGameEvent();
+    this.afterGameEvent(eventResultRaw);
   }
 
   execGameCallback(gameCallback) {
-    // TODO : c'est un peu du duplicate code.
     let eventResultRaw;
     try {
       // resultPython = this.pyodide.runPython(pythonCode);
@@ -180,14 +165,7 @@ export default class GameEngineV2 {
       // vaut mieux pas essayer de faire d'autres choses après.
       throw err;
     }
-    let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
-      mustRedraw = this.processGameEventResult(eventResultRaw);
-    }
-    if (mustRedraw) {
-      this.drawRect();
-    }
-    this.onAfterGameEvent();
+    this.afterGameEvent(eventResultRaw);
   }
 
   onGameClick(e) {
@@ -215,18 +193,10 @@ export default class GameEngineV2 {
       `game_model.on_click(Coord(x=${clicked_tile_x}, y=${clicked_tile_y}))`,
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
-    let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
-      mustRedraw = this.processGameEventResult(eventResultRaw);
-    }
-    if (mustRedraw) {
-      this.drawRect();
-    }
-    this.onAfterGameEvent();
+    this.afterGameEvent(eventResultRaw);
   }
 
-  drawRect() {
-    // TODO : faut pas du tout appeler ça drawRect.
+  updateFromPythonData() {
 
     const timeNowStart = performance.now();
     const python_layers = this.runPython(
@@ -234,7 +204,6 @@ export default class GameEngineV2 {
       'Récupération des layers pour les dessiner',
     );
     const timeNow = performance.now();
-
 
     this.orderedLayers = []
     for (let python_layer of python_layers) {
@@ -384,6 +353,17 @@ export default class GameEngineV2 {
   processDelayedAction(timeOutIdProcessing, gameCallback) {
     this.delayed_actions = this.delayed_actions.filter((eventId) => eventId !== timeOutIdProcessing);
     this.execGameCallback(gameCallback);
+  }
+
+  afterGameEvent(eventResultRaw) {
+    let mustRedraw = true;
+    if (!this.isNonePython(eventResultRaw)) {
+      mustRedraw = this.processGameEventResult(eventResultRaw);
+    }
+    if (mustRedraw) {
+      this.updateFromPythonData();
+    }
+    this.onAfterGameEvent();
   }
 
   processGameEventResult(eventResultRaw) {

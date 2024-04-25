@@ -327,6 +327,7 @@ export default {
 
     async on_update_game_spec(urlTileset, jsonConf, gameCode) {
 
+      this.$refs.python_console.textContent = '';
       const json_conf = JSON.parse(jsonConf);
       let useV2 = true;
       if (Object.prototype.hasOwnProperty.call(json_conf, 'version')) {
@@ -335,15 +336,25 @@ export default {
         } else if (json_conf.version[0] == '2') {
           useV2 = true;
         } else {
-          const msg = `Version du moteur inconnue. (${json_conf.version})`;
-          this.$refs.python_console.textContent = msg;
-          return
+          useV2 = false;
+          const msg = `Version du moteur inconnue. (${json_conf.version}). On prend la V1 par défaut.\n`;
+          this.$refs.python_console.textContent += msg;
         }
       } else {
-        // TODO: inférence dégueu selon que le code comporte le texte
-        // "class GameModel():" ou "class GameModel(GameModelBase):"
-        console.log("Il manque la version");
-        return
+        const INFER_V1 = 'GameModel()';
+        const INFER_V2 = 'GameModel(squarity.GameModelBase)';
+        let msg = "";
+        if (gameCode.includes(INFER_V1)) {
+          useV2 = false;
+          msg = 'Warning: ajoutez: "version": "1.0.0" dans la config json.\n';
+        } else if (gameCode.includes(INFER_V2)) {
+          useV2 = true;
+          msg = 'Warning: ajoutez: "version": "2.0.0" dans la config json.\n';
+        } else {
+          useV2 = false;
+          msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
+        }
+        this.$refs.python_console.textContent += msg;
       }
 
       // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
@@ -358,8 +369,8 @@ export default {
           this.canvasBuffer,
           libSquarityCodeV2
         );
-      }
-      else {
+      } else {
+        console.log("v 1 !!")
         this.game_engine = new GameEngineV1(
           this.$refs.python_console,
           window.pyodide,
@@ -377,7 +388,6 @@ export default {
       }
 
       this.show_progress('Compilation de la compote.');
-      this.$refs.python_console.textContent = '';
 
       // https://caniuse.com/?search=operator%3A%20in - 97%
       if ('name' in json_conf) {
@@ -388,7 +398,7 @@ export default {
       this.game_engine.updateGameSpec(this.tile_atlas, json_conf, gameCode);
 
       this.handleResize();
-      this.game_engine.drawRect();
+      this.game_engine.updateFromPythonData();
       this.is_player_locked = false;
       this.$refs.game_interface.focus();
       this.show_progress('C\'est parti !');
