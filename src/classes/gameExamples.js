@@ -1158,13 +1158,6 @@ class GameModel():
 import json
 import squarity
 Coord = squarity.Coord
-GameObject = squarity.GameObject
-
-class EventResult():
-      pass
-
-class CallBack():
-      pass
 
 class GameModel(squarity.GameModelBase):
       def on_start(self):
@@ -1174,39 +1167,34 @@ class GameModel(squarity.GameModelBase):
           # Le layer_rock n'a pas de transition.
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)
-          coord = Coord(x=4, y=1)
-          dest_tile = self.main_layer.get_tile(coord)
-          self.gamobj_gem_green = GameObject(self.main_layer, coord, "gem_green")
-          # TODO : re-référence dégueu à dest_tile.
-          dest_tile.game_objects.append(self.gamobj_gem_green)
 
-          coord = Coord(x=5, y=1)
-          dest_tile = self.main_layer.get_tile(coord)
-          self.gamobj_gem_violet = GameObject(self.main_layer, coord, "gem_violet")
-          # TODO : re-référence dégueu à dest_tile.
-          dest_tile.game_objects.append(self.gamobj_gem_violet)
+          self.gamobj_gem_green = self.main_layer.create_game_object(
+              Coord(x=4, y=1),
+              "gem_green",
+          )
+
+          self.gamobj_gem_violet = self.main_layer.create_game_object(
+              Coord(x=5, y=1),
+              "gem_violet",
+          )
 
       def on_click(self, coord):
           print("on click", coord.x, coord.y)
           target_tile_main = self.main_layer.get_tile(coord)
 
           if target_tile_main.game_objects:
-              target_tile_main.game_objects[0].img = "gem_violet"
+              target_tile_main.game_objects[0].sprite_name = "gem_violet"
           else:
-              gobj_on_target = self.layer_rock.get_game_objects(coord)
-              if not gobj_on_target:
-                  # TODO : re re-référence dégueu à layer_rock.
-                  self.layer_rock.game_objects.append(
-                      GameObject(self.layer_rock, Coord(coord), "rock")
-                  )
+              gobj_rocks = self.layer_rock.get_game_objects(coord)
+              if not gobj_rocks:
+                  self.layer_rock.create_game_object(coord, "rock")
               else:
-                  gobj_to_remove = gobj_on_target[0]
-                  print("suppr du rock")
-                  self.layer_rock.game_objects.remove(gobj_to_remove)
+                  print("suppression du rock")
+                  self.layer_rock.remove_game_object(gobj_rocks[0])
 
-          event_result = EventResult()
+          event_result = squarity.EventResult()
           event_result.delayed_actions = []
-          my_callback = CallBack()
+          my_callback = squarity.CallBack()
           my_callback.delay_ms = 100
           my_callback.callback = self.my_callback
           event_result.delayed_actions.append(my_callback)
@@ -1216,29 +1204,10 @@ class GameModel(squarity.GameModelBase):
           print(direction, int(direction))
 
       def on_button_action(self, action_name):
-
           # print("on event", action_name)
-          if action_name == "action_1":
-              offset = +1
-          elif action_name == "action_2":
-              offset = -1
-
-          coord = self.gamobj_gem_green.coord
-          current_tile = self.main_layer.get_tile(coord)
-          current_tile.game_objects.remove(self.gamobj_gem_green)
-          coord.move_by_vect(x=offset)
-          dest_tile = self.main_layer.get_tile(coord)
-          self.gamobj_gem_green.coord = Coord(coord)
-          dest_tile.game_objects.append(self.gamobj_gem_green)
-
-          coord = self.gamobj_gem_violet.coord
-          current_tile = self.main_layer.get_tile(coord)
-          current_tile.game_objects.remove(self.gamobj_gem_violet)
-          coord.move_by_vect(x=-offset)
-          dest_tile = self.main_layer.get_tile(coord)
-          self.gamobj_gem_violet.coord = Coord(coord)
-          dest_tile.game_objects.append(self.gamobj_gem_violet)
-
+          offset = +1 if action_name == "action_1" else -1
+          self.gamobj_gem_green.move(Coord(x=offset, y=0))
+          self.gamobj_gem_violet.move(Coord(x=-offset, y=0))
 
       def my_callback(self):
           print("my callback")

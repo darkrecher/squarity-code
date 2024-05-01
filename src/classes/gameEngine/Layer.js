@@ -150,7 +150,7 @@ export class LayerWithTransition extends LayerBase {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
       const gobjState = gobjTransitioner.getCurrentState(timeNow);
-      const [coordImgX, coordImgY] = this.img_coords[gobjState.img];
+      const [coordImgX, coordImgY] = this.img_coords[gobjState.sprite_name];
       this.ctx_canvas_buffer.drawImage(
         this.tile_atlas,
         coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
@@ -211,7 +211,7 @@ export class LayerNoTransition extends LayerBase{
       this.tile_canvas_width, this.tile_canvas_height
     )) {
       const [coordImgX, coordImgY] = this.img_coords[
-        coordAndGameObj.gameObj.img
+        coordAndGameObj.gameObj.sprite_name
       ];
       this.ctx_canvas_buffer.drawImage(
         this.tile_atlas,

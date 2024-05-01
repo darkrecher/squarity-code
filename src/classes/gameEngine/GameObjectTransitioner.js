@@ -11,7 +11,7 @@ export default class GameObjectTransitioner {
 
   constructor(x, y, gameObject) {
     this.currentTransitions = [];
-    this.gobjState = new GobjState(x, y, gameObject.img);
+    this.gobjState = new GobjState(x, y, gameObject.sprite_name);
   }
 
   addTransitions(x, y ,gameObject, timeNow) {
@@ -27,13 +27,13 @@ export default class GameObjectTransitioner {
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
-    if (this.gobjState.img != gameObject.img) {
-      // FUTURE: Pas de transition pour le champ img,
+    if (this.gobjState.sprite_name != gameObject.sprite_name) {
+      // FUTURE: Pas de transition pour le champ sprite_name,
       // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
       somethingChanged = true;
     }
     if (somethingChanged) {
-      this.gobjState = new GobjState(x, y, gameObject.img);
+      this.gobjState = new GobjState(x, y, gameObject.sprite_name);
     }
   }
 

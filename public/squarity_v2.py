@@ -114,11 +114,11 @@ class GameObjectBase():
 
 class GameObject(GameObjectBase):
 
-    def __init__(self, layer_owner, coord, img):
+    def __init__(self, layer_owner, coord, sprite_name):
         super().__init__()
         self.layer_owner = layer_owner
-        self.coord = coord
-        self.img = img
+        self.coord = Coord(coord)
+        self.sprite_name = sprite_name
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
         self.offset_x = 0.0
@@ -131,10 +131,22 @@ class GameObject(GameObjectBase):
         # Not sure if we will implement this.
         self.color_factor = (1.0, 1.0, 1.0)
 
-    # TODO : set_coords, move, etc.
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
+    # TODO : move_dir(direction, distance, delay_ms, callback)
     # TODO : set_default(move_delay_ms, move_callback)
+
+    def move_to(self, dest_coord):
+        self.layer_owner.move_game_object(self, dest_coord)
+
+    # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors de l'aire de jeu.
+    def move(self, coord_offset):
+        # J'utilise pas Coord.move_by_vect, parce que cette fonction va être beaucoup utilisée,
+        # donc ça peut être bien de l'optimiser en hardcodant un peu.
+        self.layer_owner.move_game_object(
+            self,
+            Coord(None, self.coord.x + coord_offset.x, self.coord.y + coord_offset.y),
+        )
 
 
 class Tile():
@@ -171,6 +183,18 @@ class LayerBase():
         """
         raise NotImplementedError
 
+    def add_game_object(self, gobj):
+        raise NotImplementedError
+
+    def create_game_object(self, coord, sprite_name):
+        raise NotImplementedError
+
+    def remove_game_object(self, gobj):
+        raise NotImplementedError
+
+    def move_game_object(self, gobj, dest_coord):
+        raise NotImplementedError
+
 
 class Layer(LayerBase):
 
@@ -186,7 +210,7 @@ class Layer(LayerBase):
         # TODO: adjacencies
 
     def get_game_objects(self, coord=None, x=None, y=None):
-        return self.get_tile(x, y, coord).game_objects
+        return self.get_tile(coord, x, y).game_objects
 
     def iter_all_game_objects(self):
         for line in self.tiles:
@@ -199,6 +223,28 @@ class Layer(LayerBase):
             x = coord.x
             y = coord.y
         return self.tiles[y][x]
+
+    def add_game_object(self, gobj):
+        tile = self.get_tile(gobj.coord)
+        tile.game_objects.append(gobj)
+
+    def create_game_object(self, coord, sprite_name):
+        gobj = GameObject(self, Coord(coord), sprite_name)
+        tile = self.get_tile(coord)
+        tile.game_objects.append(gobj)
+        return gobj
+
+    def remove_game_object(self, gobj):
+        tile = self.get_tile(gobj.coord)
+        tile.remove(gobj)
+
+    def move_game_object(self, gobj, dest_coord):
+        tile_src = self.get_tile(gobj.coord)
+        tile_src.game_objects.remove(gobj)
+        gobj.coord.x = dest_coord.x
+        gobj.coord.y = dest_coord.y
+        tile_dest = self.get_tile(dest_coord)
+        tile_dest.game_objects.append(gobj)
 
 
 class LayerSparse(LayerBase):
@@ -220,6 +266,26 @@ class LayerSparse(LayerBase):
     def iter_all_game_objects(self):
         for gobj in self.game_objects:
             yield gobj
+
+    def add_game_object(self, gobj):
+        self.game_objects.append(gobj)
+
+    def create_game_object(self, coord, sprite_name):
+        gobj = GameObject(self, Coord(coord), sprite_name)
+        self.game_objects.append(gobj)
+        return gobj
+
+    def remove_game_object(self, gobj):
+        self.game_objects.remove(gobj)
+
+    def move_game_object(self, gobj, dest_coord):
+        gobj.coord.x = dest_coord.x
+        gobj.coord.y = dest_coord.y
+
+
+# TODO: faut ajouter quelques fonctions là-dedans, pour faciliter leur création.
+class EventResult():pass
+class CallBack():pass
 
 
 class GameModelBase():
