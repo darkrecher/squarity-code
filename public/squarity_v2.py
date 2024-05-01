@@ -1,6 +1,34 @@
 import js
 import sys
 
+"""
+# il faut définir, pour chaque game_object (et chaque layer), le mode de transition.
+
+le mode répond à la question: on fait quoi quand une nouvelle transition s'ajoute à un objet qui est toujours en train d'en faire une ?
+
+ - block UI (visible)
+ - block UI (hidden)
+ - ajouter après les autres
+ - annuler les transitions existantes
+
+Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
+
+Et il faut aussi pouvoir chaîner explicitement.
+
+et annuler toutes les transitions en cours.
+
+et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
+
+on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
+Avec le transitioner, on y arrivera.
+
+X On commence par gérer les callbacks de fin de transition. (done)
+
+Après: le chaînage de transitions.
+
+Après: on verra.
+"""
+
 # Technique pour rediriger les prints. Emprunté à Brython, mais ça marche aussi avec pyodide.
 # https://stackoverflow.com/questions/61348313/how-can-i-redirect-all-brython-output-to-a-textarea-element
 class MyOutput:
@@ -72,6 +100,7 @@ dirs = Directions()
 
 class Coord:
 
+    # TODO : c'est relou ce truc. Faut le mettre dans l'autre sens.
     def __init__(self, coord=None, x=None, y=None):
         if coord is not None:
             self.x = coord.x
@@ -130,6 +159,8 @@ class GameObject(GameObjectBase):
         self.visible = True
         # Not sure if we will implement this.
         self.color_factor = (1.0, 1.0, 1.0)
+        self.transitioner = None
+        self.callback_end_transi = None
 
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
@@ -229,7 +260,7 @@ class Layer(LayerBase):
         tile.game_objects.append(gobj)
 
     def create_game_object(self, coord, sprite_name):
-        gobj = GameObject(self, Coord(coord), sprite_name)
+        gobj = GameObject(self, coord, sprite_name)
         tile = self.get_tile(coord)
         tile.game_objects.append(gobj)
         return gobj
@@ -271,7 +302,7 @@ class LayerSparse(LayerBase):
         self.game_objects.append(gobj)
 
     def create_game_object(self, coord, sprite_name):
-        gobj = GameObject(self, Coord(coord), sprite_name)
+        gobj = GameObject(self, coord, sprite_name)
         self.game_objects.append(gobj)
         return gobj
 

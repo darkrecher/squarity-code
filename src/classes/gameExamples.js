@@ -1172,6 +1172,7 @@ class GameModel(squarity.GameModelBase):
               Coord(x=4, y=1),
               "gem_green",
           )
+          self.gamobj_gem_green.callback_end_transi = self.another_callback
 
           self.gamobj_gem_violet = self.main_layer.create_game_object(
               Coord(x=5, y=1),
@@ -1208,9 +1209,19 @@ class GameModel(squarity.GameModelBase):
           offset = +1 if action_name == "action_1" else -1
           self.gamobj_gem_green.move(Coord(x=offset, y=0))
           self.gamobj_gem_violet.move(Coord(x=-offset, y=0))
+          #if self.gamobj_gem_violet.transitioner is not None:
+          #      print("go !!")
+          #      print(self.gamobj_gem_violet.transitioner.currentTransitions)
+          #      print(len(self.gamobj_gem_violet.transitioner.currentTransitions))
+
 
       def my_callback(self):
           print("my callback")
+
+      def another_callback(self):
+          print("another callback")
+          self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+
   `
 
 });

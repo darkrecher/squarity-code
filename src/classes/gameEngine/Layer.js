@@ -8,6 +8,8 @@ class CoordAndGameObject {
   }
 }
 
+// TODO: tout ça dans un autre fichier.
+
 class GameObjectIterator {
   constructor(python_layer) {
     this.python_layer = python_layer;
@@ -50,6 +52,19 @@ class GameObjectIteratorSparse extends GameObjectIterator {
       );
     }
   }
+}
+
+// TODO : factoriser et foutre dans un autre fichier.
+function isNonePython(val) {
+  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
+
+  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
+  // La manière de vérifier si une variable est "undefined" en javascript est
+  // vraiment dégueulasse, mais tout le monde fait comme ça.
+  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
+  // il faut passer par un typeof et une comparaison de chaîne de caractères.
+  // Tu te fous vraiment de ma gueule, javascript.
+  return typeof val === 'undefined';
 }
 
 
@@ -119,6 +134,7 @@ export class LayerWithTransition extends LayerBase {
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         console.log("ajout de l'objet : ", gobjId);
+        gameObj.transitioner = gobjTransitioner; // WIP TODO. interesting...
         addedAnObject = true;
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
@@ -172,9 +188,18 @@ export class LayerWithTransition extends LayerBase {
 
 
   clearEndedTransitions(timeNow) {
+    const callbackEndTransiToCall = [];
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
-      gobjTransitioner.clearEndedTransitions(timeNow);
+      // TODO WIP. ici, on détecte si y'a des callbacks de fin de transition à appeler.
+      // Et on les met dans une liste, pour dire au game engine de les appeler.
+      if (gobjTransitioner.clearEndedTransitions(timeNow)) {
+        // TODO : mettre tout ceci dans une fonction du gobjTransitioner
+        if (!isNonePython(gobjTransitioner.gameObject.callback_end_transi)) {
+          callbackEndTransiToCall.push(gobjTransitioner.gameObject.callback_end_transi);
+        }
+      }
     }
+    return callbackEndTransiToCall;
   }
 
 }

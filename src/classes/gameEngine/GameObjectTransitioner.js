@@ -11,6 +11,7 @@ export default class GameObjectTransitioner {
 
   constructor(x, y, gameObject) {
     this.currentTransitions = [];
+    this.gameObject = gameObject;
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
   }
 
@@ -38,12 +39,16 @@ export default class GameObjectTransitioner {
   }
 
   clearEndedTransitions(timeNow) {
+    /* Renvoie true si on vient de supprimer toutes les transitions
+     * et qu'il n'y en a plus pour cet objet.
+     * Si aucune transition dès le départ, ou si encore des transitions, renvoie false.
+     */
     // On vire pas progressivement les transitions passées.
     // Si y'en a plus, on vide le tableau. Sinon, on garde tout.
-    // FUTURE: On fera mieux plus tard.
+    // TODO : On fera mieux plus tard.
     // Pour info: pour supprimer un élément dans un tableau, c'est splice.
     if (this.currentTransitions.length === 0) {
-      return;
+      return false;
     }
     let allEnded = true;
     for (let transition of this.currentTransitions) {
@@ -53,6 +58,9 @@ export default class GameObjectTransitioner {
     }
     if (allEnded) {
       this.currentTransitions = [];
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -63,14 +71,14 @@ export default class GameObjectTransitioner {
 
   getCurrentState(timeNow) {
     /* Renvoie un gobjState avec les champs à jour,
-     * en fonction des transitions en cours et d'une time donné.
+     * en fonction des transitions en cours et d'un time donné.
      */
     if (this.currentTransitions.length === 0) {
       return this.gobjState;
     }
     const gobjStateCurrent = this.gobjState.clone();
     for (let transition of this.currentTransitions) {
-      if (!transition.hasEnded(timeNow)) {
+      if (transition.isInside(timeNow)) {
         gobjStateCurrent[transition.fieldName] = transition.getCurrentVal(timeNow);
       }
     }

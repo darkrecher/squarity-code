@@ -240,6 +240,8 @@ export default class GameEngineV2 {
 
     const timeNowAfterAnalysis = performance.now();
     // on dessine l'état actuel. Faut tout redessiner.
+      // TODO : en même temps qu'on fait ça, on regarde si il y a encore des transitions en cours.
+      // Ça évitera d'appeler hasAnyTransition juste après, et de faire une deuxième boucle.
     this.drawCurrentGameBoardState(timeNow)
     const timeNowAfterDraw = performance.now();
     console.log("times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw);
@@ -274,17 +276,26 @@ export default class GameEngineV2 {
   }
 
   clearEndedTransitions(timeNow) {
+    const callbackEndTransiToCall = [];
     for (let layer of this.orderedLayers) {
-      layer.clearEndedTransitions(timeNow);
+      const callbacksToAdd = layer.clearEndedTransitions(timeNow);
+      // js wtf, comme d'hab : https://stackoverflow.com/questions/4842993/javascript-push-an-entire-list
+      callbackEndTransiToCall.push.apply(callbackEndTransiToCall, callbacksToAdd);
     }
+    return callbackEndTransiToCall;
   }
 
   updateAndDrawGameBoard() {
     const timeNow = performance.now();
     // On enlève les transitions passées.
-    this.clearEndedTransitions(timeNow);
+    const callbackEndTransiToCall = this.clearEndedTransitions(timeNow);
     // On dessine l'état actuel.
+    // TODO : en même temps qu'on fait ça, on regarde si il y a encore des transitions en cours.
+    // Ça évitera d'appeler hasAnyTransition juste après, et de faire une deuxième boucle.
     this.drawCurrentGameBoardState(timeNow);
+    for (let gameCallback of callbackEndTransiToCall) {
+      this.execGameCallback(gameCallback);
+    }
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on redemande un affichage pour plus tard.
     if (this.hasAnyTransition()) {
@@ -420,5 +431,9 @@ export default class GameEngineV2 {
     }
     return mustRedraw;
   }
+
+  // TODO : bug a tracer dans trello. Les callbacks sont pas annulées quand on recharge un jeu.
+  // lancer une boule de feu avec le jeu du sorcier, puis cliquer sur le jeu des diamants.
+  // Ça fait un message d'erreur.
 
 }

@@ -10,8 +10,12 @@ export default class StateTransition {
     this.timeRange = timeEnd - timeStart;
   }
 
+  isInside(timeNow) {
+    return this.timeStart <= timeNow && timeNow < this.timeEnd;
+  }
+
   hasEnded(timeNow) {
-    return timeNow > this.timeEnd;
+    return timeNow >= this.timeEnd;
   }
 
   getCurrentVal(timeNow) {
@@ -19,7 +23,7 @@ export default class StateTransition {
     if (timeNow < this.timeStart) {
     return this.valStart;
     }
-    if (timeNow > this.timeEnd) {
+    if (timeNow >= this.timeEnd) {
     return this.valEnd;
     }
     return this.valStart + this.valRange * (timeNow - this.timeStart) / this.timeRange;
