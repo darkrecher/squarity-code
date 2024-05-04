@@ -39,6 +39,7 @@ export default class GameEngineV2 {
     this.orderedLayers = [];
     this.delayed_actions = [];
     this.has_click_handling = false;
+    this.showing_transition = false;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
@@ -190,7 +191,7 @@ export default class GameEngineV2 {
       return;
     }
     const eventResultRaw = this.runPython(
-      `game_model.on_click(Coord(x=${clicked_tile_x}, y=${clicked_tile_y}))`,
+      `game_model.on_click(Coord(${clicked_tile_x}, ${clicked_tile_y}))`,
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
     this.afterGameEvent(eventResultRaw);
@@ -249,7 +250,14 @@ export default class GameEngineV2 {
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
     if (this.hasAnyTransition()) {
-      window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
+      // Mais avant de demander un nouvel affichage, on vérifie qu'on n'est pas déjà en train
+      // de faire des transitions, et donc d'afficher périodiquement l'état du jeu.
+      // Si c'est le cas, pas la peine de redemander un affichage en plus.
+      if (!this.showing_transition) {
+        window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
+        this.showing_transition = true;
+      }
+
     }
   }
 
@@ -289,6 +297,12 @@ export default class GameEngineV2 {
     const timeNow = performance.now();
     // On enlève les transitions passées.
     const callbackEndTransiToCall = this.clearEndedTransitions(timeNow);
+    // TODO: à cet endroit là, il faut appliquer les modifs de field pour les transitions qu'on vient de démarrer.
+    // Et faut le faire pour chaque layer. Donc on va encore boucler sur les layers, mais on n'est plus à ça près.
+    // Et faut fusionner les modifs de field pour x et y. Sinon on va appeler deux fois move_to, et c'est moche.
+    // Pour optimiser, on peut essayer de tout mettre dans une même boucle:
+    // la récup des callbacks, le clearEndedTransitions, et le hasAnyTransi. Ça fera vachement moins de boucles.
+
     // On dessine l'état actuel.
     // TODO : en même temps qu'on fait ça, on regarde si il y a encore des transitions en cours.
     // Ça évitera d'appeler hasAnyTransition juste après, et de faire une deuxième boucle.
@@ -300,6 +314,8 @@ export default class GameEngineV2 {
     // Si oui, on redemande un affichage pour plus tard.
     if (this.hasAnyTransition()) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
+    } else {
+      this.showing_transition = false;
     }
   }
 

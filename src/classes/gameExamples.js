@@ -1219,7 +1219,7 @@ class GameModel(squarity.GameModelBase):
           print("my callback")
 
       def another_callback(self):
-          print("another callback")
+          print("another callback", self.gamobj_gem_green.coord)
           self.gamobj_gem_green.move_to(Coord(x=4, y=4))
 
   `

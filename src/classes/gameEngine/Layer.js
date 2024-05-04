@@ -118,7 +118,7 @@ export class LayerWithTransition extends LayerBase {
 
 
   updateWithGameSituation(timeNow) {
-    // On envoie les addTransitions aux objets que y'a dans le layer.
+    // On envoie les addTransitionFromNewState aux objets que y'a dans le layer.
     const timeNowLayerBefore = performance.now();
     let addedAnObject = false;
     let idObjsPresent = new Set();
@@ -134,11 +134,11 @@ export class LayerWithTransition extends LayerBase {
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         console.log("ajout de l'objet : ", gobjId);
-        gameObj.transitioner = gobjTransitioner; // WIP TODO. interesting...
+        gameObj._transitioner = gobjTransitioner; // WIP TODO. interesting...
         addedAnObject = true;
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
-        gobjTransitioner.addTransitions(
+        gobjTransitioner.addTransitionsFromNewState(
           coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
         );
       }
@@ -190,9 +190,9 @@ export class LayerWithTransition extends LayerBase {
   clearEndedTransitions(timeNow) {
     const callbackEndTransiToCall = [];
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
-      // TODO WIP. ici, on détecte si y'a des callbacks de fin de transition à appeler.
+      // On détecte si y'a des callbacks de fin de transition à appeler.
       // Et on les met dans une liste, pour dire au game engine de les appeler.
-      if (gobjTransitioner.clearEndedTransitions(timeNow)) {
+      if (gobjTransitioner.clearDoneTransitions(timeNow)) {
         // TODO : mettre tout ceci dans une fonction du gobjTransitioner
         if (!isNonePython(gobjTransitioner.gameObject.callback_end_transi)) {
           callbackEndTransiToCall.push(gobjTransitioner.gameObject.callback_end_transi);

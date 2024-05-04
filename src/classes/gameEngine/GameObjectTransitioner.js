@@ -15,16 +15,16 @@ export default class GameObjectTransitioner {
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
   }
 
-  addTransitions(x, y ,gameObject, timeNow) {
+  addTransitionsFromNewState(x, y ,gameObject, timeNow) {
     let somethingChanged = false;
     if (this.gobjState.x != x) {
       // arbtrairement, 300 ms de transition. On fera mieux plus tard.
-      const transition = new StateTransition("x", timeNow, timeNow + 300, this.gobjState.x, x);
+      const transition = new StateTransition("x", timeNow, timeNow + 300, this.gobjState.x, x, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
-      const transition = new StateTransition("y", timeNow, timeNow + 300, this.gobjState.y, y);
+      const transition = new StateTransition("y", timeNow, timeNow + 300, this.gobjState.y, y, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
@@ -34,11 +34,16 @@ export default class GameObjectTransitioner {
       somethingChanged = true;
     }
     if (somethingChanged) {
+      this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
       this.gobjState = new GobjState(x, y, gameObject.sprite_name);
+      // TODO WIP log
+      for (let transition of this.currentTransitions) {
+        console.log(transition.fieldName, transition.timeStart);
+      }
     }
   }
 
-  clearEndedTransitions(timeNow) {
+  clearDoneTransitions(timeNow) {
     /* Renvoie true si on vient de supprimer toutes les transitions
      * et qu'il n'y en a plus pour cet objet.
      * Si aucune transition dès le départ, ou si encore des transitions, renvoie false.
@@ -52,7 +57,7 @@ export default class GameObjectTransitioner {
     }
     let allEnded = true;
     for (let transition of this.currentTransitions) {
-      if (!transition.hasEnded(timeNow)) {
+      if (!transition.isDone) {
         allEnded = false;
       }
     }
@@ -78,8 +83,9 @@ export default class GameObjectTransitioner {
     }
     const gobjStateCurrent = this.gobjState.clone();
     for (let transition of this.currentTransitions) {
-      if (transition.isInside(timeNow)) {
+      if ((!transition.isDone) && transition.hasStarted(timeNow)) {
         gobjStateCurrent[transition.fieldName] = transition.getCurrentVal(timeNow);
+        transition.setDoneIfEnded(timeNow);
       }
     }
     return gobjStateCurrent;

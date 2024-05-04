@@ -10,6 +10,7 @@ le mode répond à la question: on fait quoi quand une nouvelle transition s'ajo
  - block UI (hidden)
  - ajouter après les autres
  - annuler les transitions existantes
+ - interdire l'ajout de nouvelle transition.
 
 Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
 
@@ -27,6 +28,10 @@ X On commence par gérer les callbacks de fin de transition. (done)
 Après: le chaînage de transitions.
 
 Après: on verra.
+
+
+Comment on fait le chaînage de transitions ?
+
 """
 
 # Technique pour rediriger les prints. Emprunté à Brython, mais ça marche aussi avec pyodide.
@@ -72,7 +77,7 @@ class Direction():
     def __int__(self):
         return self.int_dir
 
-    def __str__(self):
+    def __repr__(self):
         return self.str_dir
 
 
@@ -100,8 +105,7 @@ dirs = Directions()
 
 class Coord:
 
-    # TODO : c'est relou ce truc. Faut le mettre dans l'autre sens.
-    def __init__(self, coord=None, x=None, y=None):
+    def __init__(self, x=None, y=None, coord=None):
         if coord is not None:
             self.x = coord.x
             self.y = coord.y
@@ -111,8 +115,8 @@ class Coord:
         if self.x is None or self.y is None:
             raise ValueError("Coord must be initialized with x and y or coord.")
 
-    def __str__(self):
-        return "<Coord {self.x}, {self.y} >"
+    def __repr__(self):
+        return f"<Coord {self.x}, {self.y} >"
 
     def move_to_dir(self, direction, dist=1):
         mov_x, mov_y = direction.vector
@@ -135,6 +139,23 @@ class Coord:
         return hash((self.x, self.y))
 
 
+class TransitionPoint():
+    """
+    Chaque point de transition contient:
+        - date de l'élément de transition
+          (la date zéro étant la date actuelle, au moment où cette fonction est appelée)
+        - champ concernée: coordonnées, sprite_name, rotation, ...
+        - valeur du champ à cette date.
+    ou bien (TODO):
+        - date de l'élément de transition
+        - une callback à appeler.
+    """
+    def __init__(self, delay, field_name, value):
+        self.delay = delay
+        self.field_name = field_name
+        self.value = value
+
+
 class GameObjectBase():
 
     def __init__(self):
@@ -146,7 +167,7 @@ class GameObject(GameObjectBase):
     def __init__(self, layer_owner, coord, sprite_name):
         super().__init__()
         self.layer_owner = layer_owner
-        self.coord = Coord(coord)
+        self.coord = Coord(coord=coord)
         self.sprite_name = sprite_name
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
@@ -157,10 +178,11 @@ class GameObject(GameObjectBase):
         self.scale_y = 1.0
         self.opacity = 1.0
         self.visible = True
-        # Not sure if we will implement this.
+        # Not sure if we will implement the color_factor.
         self.color_factor = (1.0, 1.0, 1.0)
-        self.transitioner = None
         self.callback_end_transi = None
+        self._transitioner = None
+        self._transitions_to_record = []
 
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
@@ -176,8 +198,18 @@ class GameObject(GameObjectBase):
         # donc ça peut être bien de l'optimiser en hardcodant un peu.
         self.layer_owner.move_game_object(
             self,
-            Coord(None, self.coord.x + coord_offset.x, self.coord.y + coord_offset.y),
+            Coord(
+                self.coord.x + coord_offset.x,
+                self.coord.y + coord_offset.y,
+            ),
         )
+
+    def add_transitions(self, transition_points):
+        # Au fur et à mesure qu'on applique ces transitions, il faut modifier les valeurs dans le jeu.
+        # Ça veut dire que c'est le javascript qui appelle la fonction move_to du game_object,
+        # qui change le sprite_name, et éventuellement d'autres trucs.
+        # (On applique les valeurs d'une transition lorsqu'on la démarre)
+        self._transitions_to_record.extend(transition_points)
 
 
 class Tile():
@@ -234,7 +266,7 @@ class Layer(LayerBase):
         self.show_transitions = show_transitions
         self.tiles = [
             [
-                Tile(self, Coord(x=x, y=y)) for x in range(w)
+                Tile(self, Coord(x, y)) for x in range(w)
             ]
             for y in range(h)
         ]
@@ -256,6 +288,7 @@ class Layer(LayerBase):
         return self.tiles[y][x]
 
     def add_game_object(self, gobj):
+        gobj.layer_owner = self
         tile = self.get_tile(gobj.coord)
         tile.game_objects.append(gobj)
 
@@ -287,7 +320,7 @@ class LayerSparse(LayerBase):
 
     def get_game_objects(self, coord=None, x=None, y=None):
         if coord is None:
-            coord = Coord(x=x, y=y)
+            coord = Coord(x, y)
         return [
             gobj for gobj
             in self.game_objects
@@ -299,6 +332,7 @@ class LayerSparse(LayerBase):
             yield gobj
 
     def add_game_object(self, gobj):
+        gobj.layer_owner = self
         self.game_objects.append(gobj)
 
     def create_game_object(self, coord, sprite_name):
