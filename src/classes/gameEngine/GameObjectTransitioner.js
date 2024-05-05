@@ -1,4 +1,4 @@
-import StateTransition from './StateTransition.js';
+import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
 import TransitionUpdateResult from './TransitionUpdateResult.js'
 
@@ -35,12 +35,12 @@ export default class GameObjectTransitioner {
     let somethingChanged = false;
     if (this.gobjState.x != x) {
       // arbtrairement, 300 ms de transition. On fera mieux plus tard.
-      const transition = new StateTransition("x", timeNow, timeNow + 300, this.gobjState.x, x, true);
+      const transition = new StateTransitionProgressive("x", timeNow, timeNow + 300, this.gobjState.x, x, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
-      const transition = new StateTransition("y", timeNow, timeNow + 300, this.gobjState.y, y, true);
+      const transition = new StateTransitionProgressive("y", timeNow, timeNow + 300, this.gobjState.y, y, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
@@ -62,30 +62,37 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromRecords(timeNow) {
-    let currentTime = timeNow;
-    let currentGobjState = this.gobjState.clone()
     for (let transitionSteps of this.gameObject._transitions_to_record) {
+      let currentTime = timeNow;
+      let currentGobjState = this.gobjState.clone()
       console.log("recording", transitionSteps.field_name);
       if (transitionSteps.field_name === "coord") {
         for (let step of transitionSteps.steps) {
           let [delay, value] = step;
-          const transitionX = new StateTransition("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
+          const transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
           this.currentTransitions.push(transitionX);
           currentGobjState.x = value.x;
-          const transitionY = new StateTransition("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
+          const transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
           this.currentTransitions.push(transitionY);
           currentGobjState.y = value.y;
           currentTime += delay;
         }
+      } else if (transitionSteps.field_name === "sprite_name") {
+        for (let step of transitionSteps.steps) {
+          let [delay, value] = step;
+          const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
+          this.currentTransitions.push(transitionImg);
+          currentGobjState.sprite_name = value;
+          currentTime += delay;
+        }
       }
-      // TODO: les autres fields.
     }
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
     this.gameObject.cancel_transitions();
     // TODO WIP log
     console.log("log transition from records");
     for (let transition of this.currentTransitions) {
-      console.log(transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd);
+      console.log(transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd, transition.val);
     }
   }
 
@@ -101,16 +108,20 @@ export default class GameObjectTransitioner {
         if (!transition.isAppliedInGame) {
           this.applyTransitionInGame(transition);
         }
-        // TODO : c'est ici qu'on chopera les callback inside transi, si c'en est une.
-        if (timeNow >= transition.timeEnd) {
+        // TODO : c'est ici qu'on chopera les callback inside transi, si y'en a.
+        if (transition.isTimeEnded(timeNow)) {
+          console.log("ended", transition.fieldName, transition.timeStart)
           transition.isDone = true;
           hasDoneAtLeastOneTransition = true;
         } else {
           endedAllTransition = false;
         }
+      } else {
+        endedAllTransition = false;
       }
     }
     if (endedAllTransition) {
+      console.log("endedAllTransition timeNow", timeNow);
       // On enlève toutes les transitions et on indique qu'il faudra appeler la callback de end des transitions.
       this.currentTransitions = [];
       const transiUpdateResult = new TransitionUpdateResult();
@@ -163,15 +174,16 @@ export default class GameObjectTransitioner {
     // un peu bof, tous ces if.
     // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
     // TODO: fusionner l'application en x et en y, of course.
+    const finalVal = transition.getFinalVal();
     if (transition.fieldName == "x") {
-      this.gameObject.move_to_xy(transition.valEnd, this.gameObject.coord.y);
-      this.gobjState.x = transition.valEnd;
+      this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
+      this.gobjState.x = finalVal;
     } else if (transition.fieldName == "y") {
-      this.gameObject.move_to_xy(this.gameObject.coord.x, transition.valEnd);
-      this.gobjState.y = transition.valEnd;
+      this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
+      this.gobjState.y = finalVal;
     } else if (transition.fieldName == "sprite_name") {
-      this.gameObject.sprite_name = transition.valEnd;
-      this.gobjState.sprite_name = transition.valEnd;
+      this.gameObject.sprite_name = finalVal;
+      this.gobjState.sprite_name = finalVal;
     }
     transition.isAppliedInGame = true;
   }

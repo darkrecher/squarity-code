@@ -1208,7 +1208,38 @@ class GameModel(squarity.GameModelBase):
                   "coord",
                   (
                       (400, Coord(1, 5)),
-                      (600, Coord(7, 3)),
+                      (400, Coord(5, 8)),
+                      (400, Coord(8, 4)),
+                      (400, Coord(4, 1)),
+                  )
+              )
+          )
+          self.gamobj_gem_green.add_transition(
+              squarity.TransitionSteps(
+                  "sprite_name",
+                  (
+                      (0, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                      (200, "gem_violet"),
+                      (200, "gem_green"),
+                  )
+              )
+          )
+          self.gamobj_gem_violet.add_transition(
+              squarity.TransitionSteps(
+                  "coord",
+                  (
+                      (2000, Coord(8, 1)),
                   )
               )
           )
@@ -1230,7 +1261,7 @@ class GameModel(squarity.GameModelBase):
 
       def another_callback(self):
           print("another callback", self.gamobj_gem_green.coord)
-          self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+          # self.gamobj_gem_green.move_to(Coord(x=4, y=4))
 
   `
 

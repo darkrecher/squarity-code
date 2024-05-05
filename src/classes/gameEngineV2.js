@@ -435,4 +435,9 @@ export default class GameEngineV2 {
   // lancer une boule de feu avec le jeu du sorcier, puis cliquer sur le jeu des diamants.
   // Ça fait un message d'erreur.
 
+  // TODO : si on clique sur Exécuter alors que y'a des transitions en cours,
+  // ça continue d'afficher les images d'avant.
+  // À cause de ce qu'on a balancé dans requestAnimationFrame, et qui est toujours là.
+  // faudra exécuter ça : https://developer.mozilla.org/fr/docs/Web/API/Window/cancelAnimationFrame
+
 }

@@ -1,15 +1,35 @@
-export default class StateTransition {
+class StateTransition  {
+
+  constructor(timeStart, isAppliedInGame) {
+    this.timeStart = timeStart;
+    this.isAppliedInGame = isAppliedInGame;
+    this.isDone = false;
+  }
+
+  getCurrentVal(timeNow) {}
+
+  getFinalVal() {}
+
+  isTimeEnded() {}
+
+}
+
+
+export class StateTransitionProgressive extends StateTransition {
 
   constructor(fieldName, timeStart, timeEnd, valStart, valEnd, isAppliedInGame) {
+    super(timeStart, isAppliedInGame);
     this.fieldName = fieldName;
-    this.timeStart = timeStart;
     this.timeEnd = timeEnd;
     this.valStart = valStart;
     this.valEnd = valEnd;
     this.valRange = valEnd - valStart;
     this.timeRange = timeEnd - timeStart;
-    this.isAppliedInGame = isAppliedInGame;
-    this.isDone = false;
+  }
+
+
+  isTimeEnded(timeNow) {
+    return timeNow >= this.timeEnd
   }
 
 
@@ -22,6 +42,37 @@ export default class StateTransition {
       return this.valEnd;
     }
     return this.valStart + this.valRange * (timeNow - this.timeStart) / this.timeRange;
+  }
+
+
+  getFinalVal() {
+    return this.valEnd;
+  }
+
+}
+
+
+export class StateTransitionImmediate extends StateTransition {
+
+  constructor(fieldName, timeStart, val, isAppliedInGame) {
+    super(timeStart, isAppliedInGame);
+    this.fieldName = fieldName;
+    this.val = val;
+  }
+
+
+  isTimeEnded(timeNow) {
+    return timeNow >= this.timeStart
+  }
+
+
+  getCurrentVal(timeNow) {
+    return this.val;
+  }
+
+
+  getFinalVal() {
+    return this.val;
   }
 
 }
