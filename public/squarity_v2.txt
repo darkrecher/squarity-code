@@ -139,21 +139,15 @@ class Coord:
         return hash((self.x, self.y))
 
 
-class TransitionPoint():
+class TransitionSteps():
     """
-    Chaque point de transition contient:
-        - date de l'élément de transition
-          (la date zéro étant la date actuelle, au moment où cette fonction est appelée)
-        - champ concernée: coordonnées, sprite_name, rotation, ...
-        - valeur du champ à cette date.
-    ou bien (TODO):
-        - date de l'élément de transition
-        - une callback à appeler.
+    La variable field_name peut être "coord", "sprite_name" ou "callback" (TODO)
+    Ensuite, on indique une liste de tuples (delay, valeur).
+    Quand c'est des callbacks, les valeurs sont des fonctions appelables.
     """
-    def __init__(self, delay, field_name, value):
-        self.delay = delay
+    def __init__(self, field_name, steps):
         self.field_name = field_name
-        self.value = value
+        self.steps = steps
 
 
 class GameObjectBase():
@@ -192,6 +186,9 @@ class GameObject(GameObjectBase):
     def move_to(self, dest_coord):
         self.layer_owner.move_game_object(self, dest_coord)
 
+    def move_to_xy(self, x, y):
+        self.layer_owner.move_game_object(self, Coord(x, y))
+
     # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors de l'aire de jeu.
     def move(self, coord_offset):
         # J'utilise pas Coord.move_by_vect, parce que cette fonction va être beaucoup utilisée,
@@ -204,12 +201,15 @@ class GameObject(GameObjectBase):
             ),
         )
 
-    def add_transitions(self, transition_points):
+    def add_transition(self, transition_steps):
         # Au fur et à mesure qu'on applique ces transitions, il faut modifier les valeurs dans le jeu.
         # Ça veut dire que c'est le javascript qui appelle la fonction move_to du game_object,
         # qui change le sprite_name, et éventuellement d'autres trucs.
         # (On applique les valeurs d'une transition lorsqu'on la démarre)
-        self._transitions_to_record.extend(transition_points)
+        self._transitions_to_record.append(transition_steps)
+
+    def cancel_transitions(self):
+        self._transitions_to_record[:] = []
 
 
 class Tile():

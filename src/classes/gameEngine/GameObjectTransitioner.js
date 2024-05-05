@@ -1,5 +1,20 @@
 import StateTransition from './StateTransition.js';
 import GobjState from './GobjState.js';
+import TransitionUpdateResult from './TransitionUpdateResult.js'
+
+
+// TODO : factoriser et foutre dans un autre fichier.
+function isNonePython(val) {
+  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
+
+  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
+  // La manière de vérifier si une variable est "undefined" en javascript est
+  // vraiment dégueulasse, mais tout le monde fait comme ça.
+  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
+  // il faut passer par un typeof et une comparaison de chaîne de caractères.
+  // Tu te fous vraiment de ma gueule, javascript.
+  return typeof val === 'undefined';
+}
 
 
 export default class GameObjectTransitioner {
@@ -14,6 +29,7 @@ export default class GameObjectTransitioner {
     this.gameObject = gameObject;
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
   }
+
 
   addTransitionsFromNewState(x, y ,gameObject, timeNow) {
     let somethingChanged = false;
@@ -38,41 +54,92 @@ export default class GameObjectTransitioner {
       this.gobjState = new GobjState(x, y, gameObject.sprite_name);
       // TODO WIP log
       for (let transition of this.currentTransitions) {
-        console.log(transition.fieldName, transition.timeStart);
+        console.log("change from new state", transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd);
       }
     }
+    return (this.currentTransitions.length > 0);
   }
 
-  clearDoneTransitions(timeNow) {
-    /* Renvoie true si on vient de supprimer toutes les transitions
-     * et qu'il n'y en a plus pour cet objet.
-     * Si aucune transition dès le départ, ou si encore des transitions, renvoie false.
-     */
-    // On vire pas progressivement les transitions passées.
-    // Si y'en a plus, on vide le tableau. Sinon, on garde tout.
-    // TODO : On fera mieux plus tard.
-    // Pour info: pour supprimer un élément dans un tableau, c'est splice.
-    if (this.currentTransitions.length === 0) {
-      return false;
+
+  addTransitionsFromRecords(timeNow) {
+    let currentTime = timeNow;
+    let currentGobjState = this.gobjState.clone()
+    for (let transitionSteps of this.gameObject._transitions_to_record) {
+      console.log("recording", transitionSteps.field_name);
+      if (transitionSteps.field_name === "coord") {
+        for (let step of transitionSteps.steps) {
+          let [delay, value] = step;
+          const transitionX = new StateTransition("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
+          this.currentTransitions.push(transitionX);
+          currentGobjState.x = value.x;
+          const transitionY = new StateTransition("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
+          this.currentTransitions.push(transitionY);
+          currentGobjState.y = value.y;
+          currentTime += delay;
+        }
+      }
+      // TODO: les autres fields.
     }
-    let allEnded = true;
+    this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
+    this.gameObject.cancel_transitions();
+    // TODO WIP log
+    console.log("log transition from records");
     for (let transition of this.currentTransitions) {
-      if (!transition.isDone) {
-        allEnded = false;
-      }
-    }
-    if (allEnded) {
-      this.currentTransitions = [];
-      return true;
-    } else {
-      return false;
+      console.log(transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd);
     }
   }
 
-  hasTransitions() {
-    /* Indique si l'objet a des transitions en cours. */
-    return this.currentTransitions.length > 0;
+
+  updateTransitions(timeNow) {
+    if (this.currentTransitions.length === 0) {
+      return null;
+    }
+    let endedAllTransition = true;
+    let hasDoneAtLeastOneTransition = false;
+    for (let transition of this.currentTransitions) {
+      if (timeNow >= transition.timeStart) {
+        if (!transition.isAppliedInGame) {
+          this.applyTransitionInGame(transition);
+        }
+        // TODO : c'est ici qu'on chopera les callback inside transi, si c'en est une.
+        if (timeNow >= transition.timeEnd) {
+          transition.isDone = true;
+          hasDoneAtLeastOneTransition = true;
+        } else {
+          endedAllTransition = false;
+        }
+      }
+    }
+    if (endedAllTransition) {
+      // On enlève toutes les transitions et on indique qu'il faudra appeler la callback de end des transitions.
+      this.currentTransitions = [];
+      const transiUpdateResult = new TransitionUpdateResult();
+      // On détecte si y'a une callback de fin de transition à appeler.
+      // Et on la met dans le result, pour dire au game engine de les appeler.
+      if (!isNonePython(this.gameObject.callback_end_transi)) {
+        transiUpdateResult.callbackEndTransi.push(this.gameObject.callback_end_transi);
+      }
+      return transiUpdateResult;
+    } else {
+      if (hasDoneAtLeastOneTransition) {
+        // On enlève seulement les transitions qui sont finies.
+        // TODO : c'est un peu dégueu de reconstruire une liste juste pour filtrer des trucs.
+        // Si le JS peut faire mieux, je suis preneur.
+        // Pour info: pour supprimer un élément dans un tableau, c'est splice.
+        const newCurrentTransitions = [];
+        for (let transition of this.currentTransitions) {
+          if (!transition.isDone) {
+            newCurrentTransitions.push(transition);
+          }
+        }
+        this.currentTransitions = newCurrentTransitions;
+      }
+      const transiUpdateResult = new TransitionUpdateResult();
+      transiUpdateResult.hasAnyTransition = true;
+      return transiUpdateResult;
+    }
   }
+
 
   getCurrentState(timeNow) {
     /* Renvoie un gobjState avec les champs à jour,
@@ -83,12 +150,30 @@ export default class GameObjectTransitioner {
     }
     const gobjStateCurrent = this.gobjState.clone();
     for (let transition of this.currentTransitions) {
-      if ((!transition.isDone) && transition.hasStarted(timeNow)) {
+      if (timeNow >= transition.timeStart) {
         gobjStateCurrent[transition.fieldName] = transition.getCurrentVal(timeNow);
-        transition.setDoneIfEnded(timeNow);
       }
     }
     return gobjStateCurrent;
+  }
+
+
+  // private
+  applyTransitionInGame(transition) {
+    // un peu bof, tous ces if.
+    // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
+    // TODO: fusionner l'application en x et en y, of course.
+    if (transition.fieldName == "x") {
+      this.gameObject.move_to_xy(transition.valEnd, this.gameObject.coord.y);
+      this.gobjState.x = transition.valEnd;
+    } else if (transition.fieldName == "y") {
+      this.gameObject.move_to_xy(this.gameObject.coord.x, transition.valEnd);
+      this.gobjState.y = transition.valEnd;
+    } else if (transition.fieldName == "sprite_name") {
+      this.gameObject.sprite_name = transition.valEnd;
+      this.gobjState.sprite_name = transition.valEnd;
+    }
+    transition.isAppliedInGame = true;
   }
 
 }

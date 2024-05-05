@@ -1,4 +1,5 @@
 import GameObjectTransitioner from './GameObjectTransitioner.js';
+import TransitionUpdateResult from './TransitionUpdateResult.js'
 
 class CoordAndGameObject {
   constructor(x, y, gameObj) {
@@ -54,19 +55,6 @@ class GameObjectIteratorSparse extends GameObjectIterator {
   }
 }
 
-// TODO : factoriser et foutre dans un autre fichier.
-function isNonePython(val) {
-  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
-
-  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
-  // La manière de vérifier si une variable est "undefined" en javascript est
-  // vraiment dégueulasse, mais tout le monde fait comme ça.
-  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
-  // il faut passer par un typeof et une comparaison de chaîne de caractères.
-  // Tu te fous vraiment de ma gueule, javascript.
-  return typeof val === 'undefined';
-}
-
 
 class LayerBase {
 
@@ -84,9 +72,8 @@ class LayerBase {
   }
 
   updateWithGameSituation(timeNow) {}
+  updateTransitions(timeNow) {}
   draw(timeNow) {}
-  hasAnyTransition() {}
-  clearEndedTransitions(timeNow) {}
 
 }
 
@@ -122,6 +109,7 @@ export class LayerWithTransition extends LayerBase {
     const timeNowLayerBefore = performance.now();
     let addedAnObject = false;
     let idObjsPresent = new Set();
+    let hasAnyTransition = false;
 
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(1, 1)) {
       const gameObj = coordAndGameObj.gameObj;
@@ -138,9 +126,15 @@ export class LayerWithTransition extends LayerBase {
         addedAnObject = true;
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
-        gobjTransitioner.addTransitionsFromNewState(
+        const hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
+          // TODO : plus besoin de passer gameObj en param.
           coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
         );
+        hasAnyTransition |= hasNewTransition;
+      }
+      if (gameObj._transitions_to_record.length) {
+        gobjTransitioner.addTransitionsFromRecords(timeNow);
+        hasAnyTransition = true;
       }
     }
 
@@ -159,6 +153,19 @@ export class LayerWithTransition extends LayerBase {
     }
     const timeNowLayerAfter = performance.now();
     //console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
+    return hasAnyTransition;
+  }
+
+
+  updateTransitions(timeNow) {
+    const mergedTransitionUpdateResult = new TransitionUpdateResult();
+    for (let [gobjId, gobjTransitioner] of this.layerMemory) {
+      const transitionUpdateResult = gobjTransitioner.updateTransitions(timeNow);
+      if (transitionUpdateResult !== null) {
+        mergedTransitionUpdateResult.merge(transitionUpdateResult);
+      }
+    }
+    return mergedTransitionUpdateResult;
   }
 
 
@@ -176,35 +183,7 @@ export class LayerWithTransition extends LayerBase {
     }
   }
 
-
-  hasAnyTransition() {
-    for (let [gobjId, gobjTransitioner] of this.layerMemory) {
-      if (gobjTransitioner.hasTransitions()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  clearEndedTransitions(timeNow) {
-    const callbackEndTransiToCall = [];
-    for (let [gobjId, gobjTransitioner] of this.layerMemory) {
-      // On détecte si y'a des callbacks de fin de transition à appeler.
-      // Et on les met dans une liste, pour dire au game engine de les appeler.
-      if (gobjTransitioner.clearDoneTransitions(timeNow)) {
-        // TODO : mettre tout ceci dans une fonction du gobjTransitioner
-        if (!isNonePython(gobjTransitioner.gameObject.callback_end_transi)) {
-          callbackEndTransiToCall.push(gobjTransitioner.gameObject.callback_end_transi);
-        }
-      }
-    }
-    return callbackEndTransiToCall;
-  }
-
 }
-
-
 
 
 export class LayerNoTransition extends LayerBase{
@@ -231,6 +210,11 @@ export class LayerNoTransition extends LayerBase{
   updateWithGameSituation(timeNow) {}
 
 
+  updateTransitions(timeNow) {
+    return null;
+  }
+
+
   draw(timeNow) {
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(
       this.tile_canvas_width, this.tile_canvas_height
@@ -245,13 +229,5 @@ export class LayerNoTransition extends LayerBase{
       );
     }
   }
-
-
-  hasAnyTransition() {
-    return false;
-  }
-
-
-  clearEndedTransitions(timeNow) {}
 
 }

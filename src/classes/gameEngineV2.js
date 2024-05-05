@@ -1,5 +1,6 @@
 import { Direction } from './gameEngineV1.js';
 import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
+import TransitionUpdateResult from './gameEngine/TransitionUpdateResult.js'
 
 
 const defaultTileSize = 32;
@@ -235,21 +236,20 @@ export default class GameEngineV2 {
       const layer = this.mapLayers.get(layerId);
       this.orderedLayers.push(layer);
     }
+    let hasAnyTransition = false;
     for (let layer of this.orderedLayers) {
-      layer.updateWithGameSituation(timeNow);
+      hasAnyTransition |= layer.updateWithGameSituation(timeNow);
     }
 
     const timeNowAfterAnalysis = performance.now();
     // on dessine l'état actuel. Faut tout redessiner.
-      // TODO : en même temps qu'on fait ça, on regarde si il y a encore des transitions en cours.
-      // Ça évitera d'appeler hasAnyTransition juste après, et de faire une deuxième boucle.
     this.drawCurrentGameBoardState(timeNow)
     const timeNowAfterDraw = performance.now();
     console.log("times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw);
 
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
-    if (this.hasAnyTransition()) {
+    if (hasAnyTransition) {
       // Mais avant de demander un nouvel affichage, on vérifie qu'on n'est pas déjà en train
       // de faire des transitions, et donc d'afficher périodiquement l'état du jeu.
       // Si c'est le cas, pas la peine de redemander un affichage en plus.
@@ -274,49 +274,32 @@ export default class GameEngineV2 {
     this.ctx_canvas.drawImage(this.canvas_buffer, 0, 0);
   }
 
-  hasAnyTransition() {
-    for (let layer of this.orderedLayers) {
-      if (layer.hasAnyTransition()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  clearEndedTransitions(timeNow) {
-    const callbackEndTransiToCall = [];
-    for (let layer of this.orderedLayers) {
-      const callbacksToAdd = layer.clearEndedTransitions(timeNow);
-      // js wtf, comme d'hab : https://stackoverflow.com/questions/4842993/javascript-push-an-entire-list
-      callbackEndTransiToCall.push.apply(callbackEndTransiToCall, callbacksToAdd);
-    }
-    return callbackEndTransiToCall;
-  }
 
   updateAndDrawGameBoard() {
     const timeNow = performance.now();
-    // On enlève les transitions passées.
-    const callbackEndTransiToCall = this.clearEndedTransitions(timeNow);
-    // TODO: à cet endroit là, il faut appliquer les modifs de field pour les transitions qu'on vient de démarrer.
-    // Et faut le faire pour chaque layer. Donc on va encore boucler sur les layers, mais on n'est plus à ça près.
-    // Et faut fusionner les modifs de field pour x et y. Sinon on va appeler deux fois move_to, et c'est moche.
-    // Pour optimiser, on peut essayer de tout mettre dans une même boucle:
-    // la récup des callbacks, le clearEndedTransitions, et le hasAnyTransi. Ça fera vachement moins de boucles.
+
+    const mergedTransitionUpdateResult = new TransitionUpdateResult();
+    for (let layer of this.orderedLayers) {
+      const transitionUpdateResult = layer.updateTransitions(timeNow);
+      if (transitionUpdateResult !== null) {
+        mergedTransitionUpdateResult.merge(transitionUpdateResult);
+      }
+    }
 
     // On dessine l'état actuel.
-    // TODO : en même temps qu'on fait ça, on regarde si il y a encore des transitions en cours.
-    // Ça évitera d'appeler hasAnyTransition juste après, et de faire une deuxième boucle.
     this.drawCurrentGameBoardState(timeNow);
-    for (let gameCallback of callbackEndTransiToCall) {
-      this.execGameCallback(gameCallback);
-    }
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on redemande un affichage pour plus tard.
-    if (this.hasAnyTransition()) {
+    if (mergedTransitionUpdateResult.hasAnyTransition) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
     } else {
       this.showing_transition = false;
     }
+    // On appelle les callbacks de fin de transitions, si il y en a eu.
+    for (let gameCallback of mergedTransitionUpdateResult.callbackEndTransi) {
+      this.execGameCallback(gameCallback);
+    }
+
   }
 
   // Les méthodes ci-dessous sont privées.

@@ -12,23 +12,6 @@ export default class StateTransition {
     this.isDone = false;
   }
 
-  isInside(timeNow) {
-    return this.timeStart <= timeNow && timeNow < this.timeEnd;
-  }
-
-  hasStarted(timeNow) {
-    return timeNow >= this.timeStart;
-  }
-
-  hasEnded(timeNow) {
-    return timeNow >= this.timeEnd;
-  }
-
-  setDoneIfEnded(timeNow) {
-    if (timeNow >= this.timeEnd) {
-      this.isDone = true;
-    }
-  }
 
   getCurrentVal(timeNow) {
     // FUTURE: et bien sûr, il faudra des ease_in, ease_out, etc.

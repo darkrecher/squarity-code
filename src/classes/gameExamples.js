@@ -1203,6 +1203,16 @@ class GameModel(squarity.GameModelBase):
 
       def on_button_direction(self, direction):
           print(direction, int(direction))
+          self.gamobj_gem_green.add_transition(
+              squarity.TransitionSteps(
+                  "coord",
+                  (
+                      (400, Coord(1, 5)),
+                      (600, Coord(7, 3)),
+                  )
+              )
+          )
+
 
       def on_button_action(self, action_name):
           # print("on event", action_name)
