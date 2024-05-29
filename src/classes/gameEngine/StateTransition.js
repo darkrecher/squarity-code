@@ -17,6 +17,8 @@ class StateTransition  {
 
 export class StateTransitionProgressive extends StateTransition {
 
+  // TODO: isAppliedInGame n'a peut-être pas besoin d'être défini en paramètre.
+  // À priori, c'est False tout le temps, au départ.
   constructor(fieldName, timeStart, timeEnd, valStart, valEnd, isAppliedInGame) {
     super(timeStart, isAppliedInGame);
     this.fieldName = fieldName;

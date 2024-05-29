@@ -295,6 +295,10 @@ export default class GameEngineV2 {
     } else {
       this.showing_transition = false;
     }
+    // On appelle les callbacks qui ont eu lieu dans les transitions.
+    for (let gameCallback of mergedTransitionUpdateResult.callbackInsideTransi) {
+      this.execGameCallback(gameCallback);
+    }
     // On appelle les callbacks de fin de transitions, si il y en a eu.
     for (let gameCallback of mergedTransitionUpdateResult.callbackEndTransi) {
       this.execGameCallback(gameCallback);

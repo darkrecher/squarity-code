@@ -1214,6 +1214,12 @@ class GameModel(squarity.GameModelBase):
                   )
               )
           )
+
+          my_other_callback = squarity.CallBack()
+          my_other_callback.delay_ms = 150
+          my_other_callback.callback = self.my_callback
+          self.gamobj_gem_green.add_transition(my_other_callback)
+
           self.gamobj_gem_green.add_transition(
               squarity.TransitionSteps(
                   "sprite_name",

@@ -62,29 +62,37 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromRecords(timeNow) {
-    for (let transitionSteps of this.gameObject._transitions_to_record) {
+    for (let transi of this.gameObject._transitions_to_record) {
       let currentTime = timeNow;
       let currentGobjState = this.gobjState.clone()
-      console.log("recording", transitionSteps.field_name);
-      if (transitionSteps.field_name === "coord") {
-        for (let step of transitionSteps.steps) {
-          let [delay, value] = step;
-          const transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
-          this.currentTransitions.push(transitionX);
-          currentGobjState.x = value.x;
-          const transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
-          this.currentTransitions.push(transitionY);
-          currentGobjState.y = value.y;
-          currentTime += delay;
+      // FUTURE: je suis pas fan de ce truc, qui va être exécuté plein de fois et qui est un peu lent.
+      // (rechercher une chaîne dans une autre chaîne).
+      if (transi.__class__.toString().includes("TransitionSteps")) {
+        console.log("recording", transi.field_name);
+        if (transi.field_name === "coord") {
+          for (let step of transi.steps) {
+            let [delay, value] = step;
+            const transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
+            this.currentTransitions.push(transitionX);
+            currentGobjState.x = value.x;
+            const transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
+            this.currentTransitions.push(transitionY);
+            currentGobjState.y = value.y;
+            currentTime += delay;
+          }
+        } else if (transi.field_name === "sprite_name") {
+          for (let step of transi.steps) {
+            let [delay, value] = step;
+            const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
+            this.currentTransitions.push(transitionImg);
+            currentGobjState.sprite_name = value;
+            currentTime += delay;
+          }
         }
-      } else if (transitionSteps.field_name === "sprite_name") {
-        for (let step of transitionSteps.steps) {
-          let [delay, value] = step;
-          const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
-          this.currentTransitions.push(transitionImg);
-          currentGobjState.sprite_name = value;
-          currentTime += delay;
-        }
+      } else {
+        console.log("callback, with the delay: ", transi.delay_ms);
+        const transitionCallback = new StateTransitionImmediate("callback", currentTime + transi.delay_ms, transi.callback, false);
+        this.currentTransitions.push(transitionCallback);
       }
     }
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
@@ -101,6 +109,7 @@ export default class GameObjectTransitioner {
     if (this.currentTransitions.length === 0) {
       return null;
     }
+    const transiUpdateResult = new TransitionUpdateResult();
     let endedAllTransition = true;
     let hasDoneAtLeastOneTransition = false;
     for (let transition of this.currentTransitions) {
@@ -108,9 +117,12 @@ export default class GameObjectTransitioner {
         if (!transition.isAppliedInGame) {
           this.applyTransitionInGame(transition);
         }
-        // TODO : c'est ici qu'on chopera les callback inside transi, si y'en a.
         if (transition.isTimeEnded(timeNow)) {
           console.log("ended", transition.fieldName, transition.timeStart)
+          if (transition.fieldName === "callback") {
+            // C'est une transition de callback. On récupère cette callback.
+            transiUpdateResult.callbackInsideTransi.push(transition.getFinalVal());
+          }
           transition.isDone = true;
           hasDoneAtLeastOneTransition = true;
         } else {
@@ -124,13 +136,11 @@ export default class GameObjectTransitioner {
       console.log("endedAllTransition timeNow", timeNow);
       // On enlève toutes les transitions et on indique qu'il faudra appeler la callback de end des transitions.
       this.currentTransitions = [];
-      const transiUpdateResult = new TransitionUpdateResult();
       // On détecte si y'a une callback de fin de transition à appeler.
       // Et on la met dans le result, pour dire au game engine de les appeler.
       if (!isNonePython(this.gameObject.callback_end_transi)) {
         transiUpdateResult.callbackEndTransi.push(this.gameObject.callback_end_transi);
       }
-      return transiUpdateResult;
     } else {
       if (hasDoneAtLeastOneTransition) {
         // On enlève seulement les transitions qui sont finies.
@@ -145,10 +155,9 @@ export default class GameObjectTransitioner {
         }
         this.currentTransitions = newCurrentTransitions;
       }
-      const transiUpdateResult = new TransitionUpdateResult();
       transiUpdateResult.hasAnyTransition = true;
-      return transiUpdateResult;
     }
+    return transiUpdateResult;
   }
 
 
@@ -175,13 +184,13 @@ export default class GameObjectTransitioner {
     // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
     // TODO: fusionner l'application en x et en y, of course.
     const finalVal = transition.getFinalVal();
-    if (transition.fieldName == "x") {
+    if (transition.fieldName === "x") {
       this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
       this.gobjState.x = finalVal;
-    } else if (transition.fieldName == "y") {
+    } else if (transition.fieldName === "y") {
       this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
       this.gobjState.y = finalVal;
-    } else if (transition.fieldName == "sprite_name") {
+    } else if (transition.fieldName === "sprite_name") {
       this.gameObject.sprite_name = finalVal;
       this.gobjState.sprite_name = finalVal;
     }
