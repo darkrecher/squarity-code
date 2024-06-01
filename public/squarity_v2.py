@@ -8,8 +8,8 @@ le mode répond à la question: on fait quoi quand une nouvelle transition s'ajo
 
  - block UI (visible)
  - block UI (hidden)
- - ajouter après les autres
- x annuler les transitions existantes (ou pas, parce que c'est zarbi)
+ X ajouter après les autres (done)
+ x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
  - interdire l'ajout de nouvelle transition.
 
 X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
@@ -175,6 +175,7 @@ class GameObject(GameObjectBase):
         self.callback_end_transi = None
         self._transitioner = None
         self._transitions_to_record = []
+        self._must_clear_transitions = False
 
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
@@ -210,8 +211,11 @@ class GameObject(GameObjectBase):
         # (On applique les valeurs d'une transition lorsqu'on la démarre)
         self._transitions_to_record.append(transition)
 
-    def cancel_transitions(self):
+    def clear_new_transitions(self):
         self._transitions_to_record[:] = []
+
+    def clear_recorded_transitions(self):
+        self._must_clear_transitions = True
 
 
 class Tile():

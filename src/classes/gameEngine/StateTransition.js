@@ -12,6 +12,8 @@ class StateTransition  {
 
   isTimeEnded() {}
 
+  getTimeEnd() {}
+
 }
 
 
@@ -51,6 +53,11 @@ export class StateTransitionProgressive extends StateTransition {
     return this.valEnd;
   }
 
+
+  getTimeEnd() {
+    return this.timeEnd;
+  }
+
 }
 
 
@@ -75,6 +82,11 @@ export class StateTransitionImmediate extends StateTransition {
 
   getFinalVal() {
     return this.val;
+  }
+
+
+  getTimeEnd() {
+    return this.timeStart;
   }
 
 }

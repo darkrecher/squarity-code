@@ -8,29 +8,27 @@ le mode répond à la question: on fait quoi quand une nouvelle transition s'ajo
 
  - block UI (visible)
  - block UI (hidden)
- - ajouter après les autres
- - annuler les transitions existantes
+ X ajouter après les autres (done)
+ x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
  - interdire l'ajout de nouvelle transition.
 
-Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
+X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
 
-Et il faut aussi pouvoir chaîner explicitement.
+X Et il faut aussi pouvoir chaîner explicitement.
 
 et annuler toutes les transitions en cours.
 
-et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
+X et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
 
 on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
 Avec le transitioner, on y arrivera.
 
 X On commence par gérer les callbacks de fin de transition. (done)
 
-Après: le chaînage de transitions.
+X Après: le chaînage de transitions, avec les callbacks dedans.
 
 Après: on verra.
 
-
-Comment on fait le chaînage de transitions ?
 
 """
 
@@ -177,6 +175,7 @@ class GameObject(GameObjectBase):
         self.callback_end_transi = None
         self._transitioner = None
         self._transitions_to_record = []
+        self._must_clear_transitions = False
 
     # TODO : move_to(coord, delay_ms, callback)
     # TODO : move(coord_offset, delay_ms, callback)
@@ -201,15 +200,22 @@ class GameObject(GameObjectBase):
             ),
         )
 
-    def add_transition(self, transition_steps):
+    def add_transition(self, transition):
+        """
+        Le paramètre transition peut être une instance de Callback,
+        ou une instance de TransitionSteps.
+        """
         # Au fur et à mesure qu'on applique ces transitions, il faut modifier les valeurs dans le jeu.
         # Ça veut dire que c'est le javascript qui appelle la fonction move_to du game_object,
         # qui change le sprite_name, et éventuellement d'autres trucs.
         # (On applique les valeurs d'une transition lorsqu'on la démarre)
-        self._transitions_to_record.append(transition_steps)
+        self._transitions_to_record.append(transition)
 
-    def cancel_transitions(self):
+    def clear_new_transitions(self):
         self._transitions_to_record[:] = []
+
+    def clear_recorded_transitions(self):
+        self._must_clear_transitions = True
 
 
 class Tile():

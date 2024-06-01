@@ -1202,7 +1202,13 @@ class GameModel(squarity.GameModelBase):
           return event_result
 
       def on_button_direction(self, direction):
+
           print(direction, int(direction))
+          if direction == squarity.dirs.Left:
+              print("clear transitions")
+              self.gamobj_gem_green.clear_recorded_transitions()
+              return
+
           self.gamobj_gem_green.add_transition(
               squarity.TransitionSteps(
                   "coord",
@@ -1241,6 +1247,7 @@ class GameModel(squarity.GameModelBase):
                   )
               )
           )
+          """
           self.gamobj_gem_violet.add_transition(
               squarity.TransitionSteps(
                   "coord",
@@ -1249,6 +1256,7 @@ class GameModel(squarity.GameModelBase):
                   )
               )
           )
+          """
 
 
       def on_button_action(self, action_name):
@@ -1256,10 +1264,6 @@ class GameModel(squarity.GameModelBase):
           offset = +1 if action_name == "action_1" else -1
           self.gamobj_gem_green.move(Coord(x=offset, y=0))
           self.gamobj_gem_violet.move(Coord(x=-offset, y=0))
-          #if self.gamobj_gem_violet.transitioner is not None:
-          #      print("go !!")
-          #      print(self.gamobj_gem_violet.transitioner.currentTransitions)
-          #      print(len(self.gamobj_gem_violet.transitioner.currentTransitions))
 
 
       def my_callback(self):

@@ -32,15 +32,30 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromNewState(x, y ,gameObject, timeNow) {
+
     let somethingChanged = false;
+    if (this.gameObject._must_clear_transitions) {
+      // On vire toutes les transitions en cours. Boum !!
+      this.currentTransitions = [];
+      this.gameObject._must_clear_transitions = false;
+      somethingChanged = true;
+    }
+
+    let currentTimeStart;
+    if (this.currentTransitions.length === 0) {
+      currentTimeStart = timeNow;
+    } else {
+      currentTimeStart = this.getEndTransitionTime(timeNow);
+    }
+
     if (this.gobjState.x != x) {
-      // arbtrairement, 300 ms de transition. On fera mieux plus tard.
-      const transition = new StateTransitionProgressive("x", timeNow, timeNow + 300, this.gobjState.x, x, true);
+      // arbitrairement, 300 ms de transition. On fera mieux plus tard.
+      const transition = new StateTransitionProgressive("x", currentTimeStart, currentTimeStart + 300, this.gobjState.x, x, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
-      const transition = new StateTransitionProgressive("y", timeNow, timeNow + 300, this.gobjState.y, y, true);
+      const transition = new StateTransitionProgressive("y", currentTimeStart, currentTimeStart + 300, this.gobjState.y, y, true);
       this.currentTransitions.push(transition);
       somethingChanged = true;
     }
@@ -62,9 +77,22 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromRecords(timeNow) {
+    let currentTimeStart;
+    let currentGobjStateStart;
+    if (this.currentTransitions.length === 0) {
+      currentTimeStart = timeNow;
+      currentGobjStateStart = this.gobjState;
+    } else {
+      currentTimeStart = this.getEndTransitionTime(timeNow);
+      currentGobjStateStart = this.gobjState.clone();
+      for (let transition of this.currentTransitions) {
+        this.applyTransition(transition, currentGobjStateStart, false);
+      }
+    }
+
     for (let transi of this.gameObject._transitions_to_record) {
-      let currentTime = timeNow;
-      let currentGobjState = this.gobjState.clone()
+      let currentTime = currentTimeStart;
+      let currentGobjState = currentGobjStateStart.clone()
       // FUTURE: je suis pas fan de ce truc, qui va être exécuté plein de fois et qui est un peu lent.
       // (rechercher une chaîne dans une autre chaîne).
       if (transi.__class__.toString().includes("TransitionSteps")) {
@@ -96,12 +124,13 @@ export default class GameObjectTransitioner {
       }
     }
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-    this.gameObject.cancel_transitions();
+    this.gameObject.clear_new_transitions();
     // TODO WIP log
     console.log("log transition from records");
     for (let transition of this.currentTransitions) {
       console.log(transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd, transition.val);
     }
+    console.log("log transition from records (end)");
   }
 
 
@@ -115,7 +144,8 @@ export default class GameObjectTransitioner {
     for (let transition of this.currentTransitions) {
       if (timeNow >= transition.timeStart) {
         if (!transition.isAppliedInGame) {
-          this.applyTransitionInGame(transition);
+          console.log("applyTransition", timeNow);
+          this.applyTransition(transition, this.gobjState, true);
         }
         if (transition.isTimeEnded(timeNow)) {
           console.log("ended", transition.fieldName, transition.timeStart)
@@ -179,22 +209,43 @@ export default class GameObjectTransitioner {
 
 
   // private
-  applyTransitionInGame(transition) {
+  applyTransition(transition, gobjStateDest, applyInGame) {
     // un peu bof, tous ces if.
     // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
     // TODO: fusionner l'application en x et en y, of course.
     const finalVal = transition.getFinalVal();
-    if (transition.fieldName === "x") {
-      this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
-      this.gobjState.x = finalVal;
-    } else if (transition.fieldName === "y") {
-      this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
-      this.gobjState.y = finalVal;
-    } else if (transition.fieldName === "sprite_name") {
-      this.gameObject.sprite_name = finalVal;
-      this.gobjState.sprite_name = finalVal;
+    if (applyInGame) {
+      console.log("applyTransition in game", transition.fieldName, transition.getFinalVal());
     }
-    transition.isAppliedInGame = true;
+    if (transition.fieldName === "x") {
+      if (applyInGame) {
+        this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
+      }
+      gobjStateDest.x = finalVal;
+    } else if (transition.fieldName === "y") {
+      if (applyInGame) {
+        this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
+      }
+      gobjStateDest.y = finalVal;
+    } else if (transition.fieldName === "sprite_name") {
+      if (applyInGame) {
+        this.gameObject.sprite_name = finalVal;
+      }
+      gobjStateDest.sprite_name = finalVal;
+    }
+    if (applyInGame) {
+      transition.isAppliedInGame = true;
+    }
+  }
+
+  // private
+  getEndTransitionTime(timeNow) {
+    let endTransitionTimes = [timeNow];
+    for (let transition of this.currentTransitions) {
+      endTransitionTimes.push(transition.getTimeEnd())
+    }
+    console.log("max: ", Math.max(...endTransitionTimes));
+    return Math.max(...endTransitionTimes);
   }
 
 }
