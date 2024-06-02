@@ -31,16 +31,18 @@ export default class GameObjectTransitioner {
   }
 
 
+  clearRecordedTransitions() {
+    console.log("this.gameObject", this.gameObject);
+    console.log("this.gameObject._must_clear_transitions", this.gameObject._must_clear_transitions);
+    // On vire toutes les transitions en cours. Boum !!
+    this.currentTransitions = [];
+    this.gameObject.ack_recorded_transitions_cleared();
+  }
+
+
   addTransitionsFromNewState(x, y ,gameObject, timeNow) {
 
     let somethingChanged = false;
-    if (this.gameObject._must_clear_transitions) {
-      // On vire toutes les transitions en cours. Boum !!
-      this.currentTransitions = [];
-      this.gameObject._must_clear_transitions = false;
-      somethingChanged = true;
-    }
-
     let currentTimeStart;
     if (this.currentTransitions.length === 0) {
       currentTimeStart = timeNow;

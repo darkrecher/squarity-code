@@ -16,7 +16,7 @@ X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y
 
 X Et il faut aussi pouvoir chaîner explicitement.
 
-et annuler toutes les transitions en cours.
+X et annuler toutes les transitions en cours.
 
 X et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
 
@@ -216,6 +216,15 @@ class GameObject(GameObjectBase):
 
     def clear_recorded_transitions(self):
         self._must_clear_transitions = True
+
+    def ack_recorded_transitions_cleared(self):
+        self._must_clear_transitions = False
+
+    def get_nb_undone_transitions(self):
+        if self._transitioner is None:
+            return 0
+        else:
+            return len(self._transitioner.currentTransitions)
 
 
 class Tile():

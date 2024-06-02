@@ -10,18 +10,18 @@ le mode répond à la question: on fait quoi quand une nouvelle transition s'ajo
  - block UI (hidden)
  X ajouter après les autres (done)
  x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
- - interdire l'ajout de nouvelle transition.
+ x interdire l'ajout de nouvelle transition. (ou pas, on peut le gérer depuis le python, avec get_nb_undone_transitions)
 
 X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
 
 X Et il faut aussi pouvoir chaîner explicitement.
 
-et annuler toutes les transitions en cours.
+X et annuler toutes les transitions en cours.
 
 X et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
 
-on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
-Avec le transitioner, on y arrivera.
+X on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
+X Avec le transitioner, c'est possible.
 
 X On commence par gérer les callbacks de fin de transition. (done)
 
@@ -216,6 +216,15 @@ class GameObject(GameObjectBase):
 
     def clear_recorded_transitions(self):
         self._must_clear_transitions = True
+
+    def ack_recorded_transitions_cleared(self):
+        self._must_clear_transitions = False
+
+    def get_nb_undone_transitions(self):
+        if self._transitioner is None:
+            return 0
+        else:
+            return len(self._transitioner.currentTransitions)
 
 
 class Tile():

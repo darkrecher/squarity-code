@@ -126,6 +126,9 @@ export class LayerWithTransition extends LayerBase {
         addedAnObject = true;
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
+        if (gameObj._must_clear_transitions) {
+          gobjTransitioner.clearRecordedTransitions();
+        }
         const hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
           // TODO : plus besoin de passer gameObj en param.
           coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow

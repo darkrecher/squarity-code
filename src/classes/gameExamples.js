@@ -1180,7 +1180,7 @@ class GameModel(squarity.GameModelBase):
           )
 
       def on_click(self, coord):
-          print("on click", coord.x, coord.y)
+          # print("on click", coord.x, coord.y)
           target_tile_main = self.main_layer.get_tile(coord)
 
           if target_tile_main.game_objects:
@@ -1190,7 +1190,7 @@ class GameModel(squarity.GameModelBase):
               if not gobj_rocks:
                   self.layer_rock.create_game_object(coord, "rock")
               else:
-                  print("suppression du rock")
+                  # print("suppression du rock")
                   self.layer_rock.remove_game_object(gobj_rocks[0])
 
           event_result = squarity.EventResult()
@@ -1199,6 +1199,7 @@ class GameModel(squarity.GameModelBase):
           my_callback.delay_ms = 100
           my_callback.callback = self.my_callback
           event_result.delayed_actions.append(my_callback)
+          print("nb transition of green diam:", self.gamobj_gem_green.get_nb_undone_transitions())
           return event_result
 
       def on_button_direction(self, direction):
@@ -1208,6 +1209,10 @@ class GameModel(squarity.GameModelBase):
               print("clear transitions")
               self.gamobj_gem_green.clear_recorded_transitions()
               return
+
+          if direction == squarity.dirs.Down:
+              print("clear transitions, but add more")
+              self.gamobj_gem_green.clear_recorded_transitions()
 
           self.gamobj_gem_green.add_transition(
               squarity.TransitionSteps(
@@ -1247,7 +1252,6 @@ class GameModel(squarity.GameModelBase):
                   )
               )
           )
-          """
           self.gamobj_gem_violet.add_transition(
               squarity.TransitionSteps(
                   "coord",
@@ -1256,18 +1260,19 @@ class GameModel(squarity.GameModelBase):
                   )
               )
           )
-          """
 
 
       def on_button_action(self, action_name):
           # print("on event", action_name)
+          # self.gamobj_gem_green.clear_recorded_transitions()
           offset = +1 if action_name == "action_1" else -1
           self.gamobj_gem_green.move(Coord(x=offset, y=0))
           self.gamobj_gem_violet.move(Coord(x=-offset, y=0))
 
 
       def my_callback(self):
-          print("my callback")
+          pass
+          # print("my callback")
 
       def another_callback(self):
           print("another callback", self.gamobj_gem_green.coord)
