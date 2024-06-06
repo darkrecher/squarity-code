@@ -10,7 +10,7 @@ le mode répond à la question: on fait quoi quand une nouvelle transition s'ajo
  - block UI (hidden)
  X ajouter après les autres (done)
  x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
- - interdire l'ajout de nouvelle transition.
+ x interdire l'ajout de nouvelle transition. (ou pas, on peut le gérer depuis le python, avec get_nb_undone_transitions)
 
 X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
 
@@ -20,8 +20,8 @@ X et annuler toutes les transitions en cours.
 
 X et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
 
-on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
-Avec le transitioner, on y arrivera.
+X on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
+X Avec le transitioner, c'est possible.
 
 X On commence par gérer les callbacks de fin de transition. (done)
 
@@ -44,10 +44,6 @@ class MyOutput:
         self.python_console.scrollTop = self.python_console.scrollHeight
 
 sys.stdout = MyOutput()
-
-
-# Ci-dessous, tout le bazar spécifique au code du jeu,
-# utilisable par les gens qui créent des jeux.
 
 
 class Direction():
@@ -148,8 +144,15 @@ class TransitionSteps():
         self.steps = steps
 
 
-class GameObjectBase():
+class UIBlockTypes():
+    NO_BLOCK = 0
+    BLOCK = 1
+    INVISIBLE_BLOCK = 2
 
+ui_block_types = UIBlockTypes()
+
+
+class GameObjectBase():
     def __init__(self):
         self._go_id = id(self)
 
@@ -161,6 +164,7 @@ class GameObject(GameObjectBase):
         self.layer_owner = layer_owner
         self.coord = Coord(coord=coord)
         self.sprite_name = sprite_name
+        self.ui_block_type = ui_block_types.NO_BLOCK
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
         self.offset_x = 0.0

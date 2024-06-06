@@ -1,5 +1,5 @@
 import GameObjectTransitioner from './GameObjectTransitioner.js';
-import TransitionUpdateResult from './TransitionUpdateResult.js'
+import GameUpdateResult from './GameUpdateResult.js'
 
 class CoordAndGameObject {
   constructor(x, y, gameObj) {
@@ -109,35 +109,43 @@ export class LayerWithTransition extends LayerBase {
     const timeNowLayerBefore = performance.now();
     let addedAnObject = false;
     let idObjsPresent = new Set();
-    let hasAnyTransition = false;
+    let gameUpdateResult = new GameUpdateResult();
 
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(1, 1)) {
       const gameObj = coordAndGameObj.gameObj;
       const gobjId = gameObj._go_id;
       idObjsPresent.add(gobjId);
       let gobjTransitioner;
+      let hasNewTransition = false;
       if (!this.layerMemory.has(gobjId)) {
         gobjTransitioner = new GameObjectTransitioner(
           coordAndGameObj.x, coordAndGameObj.y, gameObj
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         console.log("ajout de l'objet : ", gobjId);
-        gameObj._transitioner = gobjTransitioner; // WIP TODO. interesting...
+        gameObj._transitioner = gobjTransitioner;
         addedAnObject = true;
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
         if (gameObj._must_clear_transitions) {
           gobjTransitioner.clearRecordedTransitions();
         }
-        const hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
+        hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
           // TODO : plus besoin de passer gameObj en param.
           coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
         );
-        hasAnyTransition |= hasNewTransition;
       }
       if (gameObj._transitions_to_record.length) {
         gobjTransitioner.addTransitionsFromRecords(timeNow);
-        hasAnyTransition = true;
+        hasNewTransition = true;
+      }
+      if (hasNewTransition) {
+        gameUpdateResult.hasAnyTransition = true;
+        if (gameUpdateResult.uiBlock < gameObj.ui_block_type) {
+          gameUpdateResult.uiBlock = gameObj.ui_block_type;
+        }
+
+        // TODO WIP : check blocking.
       }
     }
 
@@ -156,19 +164,19 @@ export class LayerWithTransition extends LayerBase {
     }
     const timeNowLayerAfter = performance.now();
     //console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
-    return hasAnyTransition;
+    return gameUpdateResult;
   }
 
 
   updateTransitions(timeNow) {
-    const mergedTransitionUpdateResult = new TransitionUpdateResult();
+    const mergedGameUpdateResult = new GameUpdateResult();
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
-      const transitionUpdateResult = gobjTransitioner.updateTransitions(timeNow);
-      if (transitionUpdateResult !== null) {
-        mergedTransitionUpdateResult.merge(transitionUpdateResult);
+      const gameUpdateResult = gobjTransitioner.updateTransitions(timeNow);
+      if (gameUpdateResult !== null) {
+        mergedGameUpdateResult.merge(gameUpdateResult);
       }
     }
-    return mergedTransitionUpdateResult;
+    return mergedGameUpdateResult;
   }
 
 
@@ -210,7 +218,9 @@ export class LayerNoTransition extends LayerBase{
   }
 
 
-  updateWithGameSituation(timeNow) {}
+  updateWithGameSituation(timeNow) {
+    return null;
+  }
 
 
   updateTransitions(timeNow) {

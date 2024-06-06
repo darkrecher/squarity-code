@@ -1,6 +1,6 @@
 import { Direction } from './gameEngineV1.js';
 import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
-import TransitionUpdateResult from './gameEngine/TransitionUpdateResult.js'
+import GameUpdateResult from './gameEngine/GameUpdateResult.js'
 
 
 const defaultTileSize = 32;
@@ -236,20 +236,29 @@ export default class GameEngineV2 {
       const layer = this.mapLayers.get(layerId);
       this.orderedLayers.push(layer);
     }
-    let hasAnyTransition = false;
+    const gameUpdateResult = new GameUpdateResult();
     for (let layer of this.orderedLayers) {
-      hasAnyTransition |= layer.updateWithGameSituation(timeNow);
+      const gameUpdateResultNew = layer.updateWithGameSituation(timeNow);
+      if (gameUpdateResultNew != null) {
+        gameUpdateResult.merge(gameUpdateResultNew);
+      }
     }
+    // Il n'est pas censé y avoir de callback enregistrée dans gameUpdateResult.
+    // Ces callbacks ne peuvent arriver que quand on update des transitions
+    // (et aussi avec le eventresultraw, mais ça c'est autre chose).
 
     const timeNowAfterAnalysis = performance.now();
     // on dessine l'état actuel. Faut tout redessiner.
     this.drawCurrentGameBoardState(timeNow)
     const timeNowAfterDraw = performance.now();
-    console.log("times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw);
+    console.log(
+      "times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw,
+      " uiBlock ", gameUpdateResult.uiBlock
+    );
 
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
-    if (hasAnyTransition) {
+    if (gameUpdateResult.hasAnyTransition) {
       // Mais avant de demander un nouvel affichage, on vérifie qu'on n'est pas déjà en train
       // de faire des transitions, et donc d'afficher périodiquement l'état du jeu.
       // Si c'est le cas, pas la peine de redemander un affichage en plus.
@@ -257,7 +266,6 @@ export default class GameEngineV2 {
         window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
         this.showing_transition = true;
       }
-
     }
   }
 
@@ -278,11 +286,11 @@ export default class GameEngineV2 {
   updateAndDrawGameBoard() {
     const timeNow = performance.now();
 
-    const mergedTransitionUpdateResult = new TransitionUpdateResult();
+    const mergedGameUpdateResult = new GameUpdateResult();
     for (let layer of this.orderedLayers) {
-      const transitionUpdateResult = layer.updateTransitions(timeNow);
-      if (transitionUpdateResult !== null) {
-        mergedTransitionUpdateResult.merge(transitionUpdateResult);
+      const gameUpdateResult = layer.updateTransitions(timeNow);
+      if (gameUpdateResult !== null) {
+        mergedGameUpdateResult.merge(gameUpdateResult);
       }
     }
 
@@ -290,17 +298,19 @@ export default class GameEngineV2 {
     this.drawCurrentGameBoardState(timeNow);
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on redemande un affichage pour plus tard.
-    if (mergedTransitionUpdateResult.hasAnyTransition) {
+    if (mergedGameUpdateResult.hasAnyTransition) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
     } else {
       this.showing_transition = false;
     }
+    console.log("updateAndDrawGameBoard result uiBlock ", mergedGameUpdateResult.uiBlock);
+
     // On appelle les callbacks qui ont eu lieu dans les transitions.
-    for (let gameCallback of mergedTransitionUpdateResult.callbackInsideTransi) {
+    for (let gameCallback of mergedGameUpdateResult.callbackInsideTransi) {
       this.execGameCallback(gameCallback);
     }
     // On appelle les callbacks de fin de transitions, si il y en a eu.
-    for (let gameCallback of mergedTransitionUpdateResult.callbackEndTransi) {
+    for (let gameCallback of mergedGameUpdateResult.callbackEndTransi) {
       this.execGameCallback(gameCallback);
     }
 

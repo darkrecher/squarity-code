@@ -1172,12 +1172,14 @@ class GameModel(squarity.GameModelBase):
               Coord(x=4, y=1),
               "gem_green",
           )
+          self.gamobj_gem_green.ui_block_type = squarity.ui_block_types.BLOCK
           self.gamobj_gem_green.callback_end_transi = self.another_callback
 
           self.gamobj_gem_violet = self.main_layer.create_game_object(
               Coord(x=5, y=1),
               "gem_violet",
           )
+          self.gamobj_gem_violet.ui_block_type = squarity.ui_block_types.INVISIBLE_BLOCK
 
       def on_click(self, coord):
           # print("on click", coord.x, coord.y)

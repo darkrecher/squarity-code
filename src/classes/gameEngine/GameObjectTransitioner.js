@@ -1,6 +1,6 @@
 import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
-import TransitionUpdateResult from './TransitionUpdateResult.js'
+import GameUpdateResult from './GameUpdateResult.js'
 
 
 // TODO : factoriser et foutre dans un autre fichier.
@@ -140,7 +140,7 @@ export default class GameObjectTransitioner {
     if (this.currentTransitions.length === 0) {
       return null;
     }
-    const transiUpdateResult = new TransitionUpdateResult();
+    const gameUpdateResult = new GameUpdateResult();
     let endedAllTransition = true;
     let hasDoneAtLeastOneTransition = false;
     for (let transition of this.currentTransitions) {
@@ -153,7 +153,7 @@ export default class GameObjectTransitioner {
           console.log("ended", transition.fieldName, transition.timeStart)
           if (transition.fieldName === "callback") {
             // C'est une transition de callback. On récupère cette callback.
-            transiUpdateResult.callbackInsideTransi.push(transition.getFinalVal());
+            gameUpdateResult.callbackInsideTransi.push(transition.getFinalVal());
           }
           transition.isDone = true;
           hasDoneAtLeastOneTransition = true;
@@ -171,7 +171,7 @@ export default class GameObjectTransitioner {
       // On détecte si y'a une callback de fin de transition à appeler.
       // Et on la met dans le result, pour dire au game engine de les appeler.
       if (!isNonePython(this.gameObject.callback_end_transi)) {
-        transiUpdateResult.callbackEndTransi.push(this.gameObject.callback_end_transi);
+        gameUpdateResult.callbackEndTransi.push(this.gameObject.callback_end_transi);
       }
     } else {
       if (hasDoneAtLeastOneTransition) {
@@ -187,9 +187,10 @@ export default class GameObjectTransitioner {
         }
         this.currentTransitions = newCurrentTransitions;
       }
-      transiUpdateResult.hasAnyTransition = true;
+      gameUpdateResult.hasAnyTransition = true;
+      gameUpdateResult.uiBlock = this.gameObject.ui_block_type;
     }
-    return transiUpdateResult;
+    return gameUpdateResult;
   }
 
 

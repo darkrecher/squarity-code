@@ -46,10 +46,6 @@ class MyOutput:
 sys.stdout = MyOutput()
 
 
-# Ci-dessous, tout le bazar spécifique au code du jeu,
-# utilisable par les gens qui créent des jeux.
-
-
 class Direction():
     def __init__(self, int_dir, str_dir, vector):
         self.int_dir = int_dir
@@ -148,8 +144,15 @@ class TransitionSteps():
         self.steps = steps
 
 
-class GameObjectBase():
+class UIBlockTypes():
+    NO_BLOCK = 0
+    BLOCK = 1
+    INVISIBLE_BLOCK = 2
 
+ui_block_types = UIBlockTypes()
+
+
+class GameObjectBase():
     def __init__(self):
         self._go_id = id(self)
 
@@ -161,6 +164,7 @@ class GameObject(GameObjectBase):
         self.layer_owner = layer_owner
         self.coord = Coord(coord=coord)
         self.sprite_name = sprite_name
+        self.ui_block_type = ui_block_types.NO_BLOCK
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et si ça se trouve, on mettra tout ça dans un dict.
         self.offset_x = 0.0
