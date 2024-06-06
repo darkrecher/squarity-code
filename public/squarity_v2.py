@@ -146,8 +146,8 @@ class TransitionSteps():
 
 class UIBlockTypes():
     NO_BLOCK = 0
-    BLOCK = 1
-    INVISIBLE_BLOCK = 2
+    INVISIBLE_BLOCK = 1
+    BLOCK = 2
 
 ui_block_types = UIBlockTypes()
 

@@ -13,7 +13,7 @@ export default class GameEngineV2 {
   constructor(
     python_console,
     pyodide,
-    onAfterGameEvent,
+    refreshUiLockType,
     game_canvas,
     canvas_buffer,
     libSquarityCode
@@ -21,7 +21,7 @@ export default class GameEngineV2 {
     this.version = "2.0.0";
     this.python_console = python_console;
     this.pyodide = pyodide;
-    this.onAfterGameEvent = onAfterGameEvent;
+    this.refreshUiLockType = refreshUiLockType;
     this.game_canvas = game_canvas;
     this.canvas_buffer = canvas_buffer;
     this.ctx_canvas = this.game_canvas.getContext('2d');
@@ -41,6 +41,8 @@ export default class GameEngineV2 {
     this.delayed_actions = [];
     this.has_click_handling = false;
     this.showing_transition = false;
+    this.player_locks = [];
+    this.currentLockType = GameUpdateResult.UI_NO_BLOCK;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
@@ -70,8 +72,24 @@ export default class GameEngineV2 {
 
   }
 
-  isPlayerLocked() {
-    return (this.player_locks.length !== 0);
+  hasUiLockTypeChanged(newUiTransiLock) {
+    let newLockType = 0;
+    if (newUiTransiLock == GameUpdateResult.UI_INVISIBLE_BLOCK) {
+      newLockType = GameUpdateResult.UI_INVISIBLE_BLOCK;
+    } else if ((this.player_locks.length !== 0) || (newUiTransiLock === GameUpdateResult.UI_BLOCK)) {
+      newLockType = GameUpdateResult.UI_BLOCK;
+    }
+    if (this.currentLockType !== newLockType) {
+      console.log("Changement de block type !", this.currentLockType, " => ", newLockType);
+      this.currentLockType = newLockType;
+      return true
+    } else {
+      return false;
+    }
+  }
+
+  getLockType() {
+    return this.currentLockType;
   }
 
   getRatioFromWidthToHeight() {
@@ -110,6 +128,7 @@ export default class GameEngineV2 {
       clearTimeout(timeoutId);
     }
     this.player_locks = [];
+    this.currentLockType = GameUpdateResult.UI_NO_BLOCK;
     this.delayed_actions = [];
 
     this.runPython(
@@ -133,7 +152,7 @@ export default class GameEngineV2 {
   }
 
   onButtonDirection(direction) {
-    if (this.isPlayerLocked()) {
+    if (this.currentLockType) {
       return;
     }
     const pythonDir = this.pythonDirFromJsDir.get(direction);
@@ -145,7 +164,7 @@ export default class GameEngineV2 {
   }
 
   onButtonAction(actionName) {
-    if (this.isPlayerLocked()) {
+    if (this.currentLockType) {
       return;
     }
     const eventResultRaw = this.runPython(
@@ -174,7 +193,7 @@ export default class GameEngineV2 {
     if (!this.has_click_handling) {
       return;
     }
-    if (this.isPlayerLocked()) {
+    if (this.currentLockType) {
       return;
     }
     // https://thewebdev.info/2021/03/21/how-to-get-the-coordinates-of-a-mouse-click-on-a-canvas-element/
@@ -267,6 +286,9 @@ export default class GameEngineV2 {
         this.showing_transition = true;
       }
     }
+    if (this.hasUiLockTypeChanged(gameUpdateResult.uiBlock)) {
+      this.refreshUiLockType();
+    }
   }
 
   drawCurrentGameBoardState(timeNow) {
@@ -303,7 +325,6 @@ export default class GameEngineV2 {
     } else {
       this.showing_transition = false;
     }
-    console.log("updateAndDrawGameBoard result uiBlock ", mergedGameUpdateResult.uiBlock);
 
     // On appelle les callbacks qui ont eu lieu dans les transitions.
     for (let gameCallback of mergedGameUpdateResult.callbackInsideTransi) {
@@ -313,7 +334,9 @@ export default class GameEngineV2 {
     for (let gameCallback of mergedGameUpdateResult.callbackEndTransi) {
       this.execGameCallback(gameCallback);
     }
-
+    if (this.hasUiLockTypeChanged(mergedGameUpdateResult.uiBlock)) {
+      this.refreshUiLockType();
+    }
   }
 
   // Les méthodes ci-dessous sont privées.
@@ -384,10 +407,11 @@ export default class GameEngineV2 {
     if (!this.isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
+    // TODO : faut exécuter la fonction dans tous les cas.
+    // et le mustRedraw, c'est pas là qu'on doit s'en servir.
     if (mustRedraw) {
       this.updateFromPythonData();
     }
-    this.onAfterGameEvent();
   }
 
   processGameEventResult(eventResultRaw) {

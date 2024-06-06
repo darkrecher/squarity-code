@@ -236,18 +236,17 @@ export default {
       }
     },
 
-    onAfterGameEvent() {
-      // Fonction de callback un peu mal foutue, que je dois transmettre à GameEngine.
-      // Comme ça, si un événement de jeu a un effet sur le DOM
-      // (en particulier, le lock des boutons du jeu), je peux le gérer ici.
-      // Comme les événements de jeu peuvent être déclenchés tout seul
-      // (avec delayed_event), il faut bien une callback.
-      const playerLocsNew = this.game_engine.isPlayerLocked();
-      if (this.is_player_locked !== playerLocsNew) {
-        this.is_player_locked = playerLocsNew;
-        if (!this.is_player_locked) {
-          this.$refs.game_interface.focus();
-        }
+    refreshUiLockType() {
+      // Fonction de callback à transmettre au GameEngine. Si un événement du jeu
+      // a un effet sur le lock des boutons du jeu, on le prend en compte ici.
+      // Les locks/unlocks peuvent être déclenchés tout seul (delayed_event, callbacks, ...),
+      // donc il faut que cette fonction soit aussi une callback.
+      const UiLockType = this.game_engine.getLockType();
+      if (UiLockType == 2) { // TODO : ça correspond à GameUpdateResult.UI_BLOCK. Faut mettre ça dans un truc commun.
+        this.is_player_locked = true;
+      } else {
+        this.is_player_locked = false;
+        this.$refs.game_interface.focus();
       }
     },
 
@@ -364,7 +363,7 @@ export default {
         this.game_engine = new GameEngineV2(
           this.$refs.python_console,
           window.pyodide,
-          this.onAfterGameEvent,
+          this.refreshUiLockType,
           canvasElem,
           this.canvasBuffer,
           libSquarityCodeV2
@@ -374,7 +373,7 @@ export default {
         this.game_engine = new GameEngineV1(
           this.$refs.python_console,
           window.pyodide,
-          this.onAfterGameEvent,
+          this.refreshUiLockType,
           canvasElem,
           this.canvasBuffer,
           libSquarityCodeV1

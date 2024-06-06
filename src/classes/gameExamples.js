@@ -1238,19 +1238,19 @@ class GameModel(squarity.GameModelBase):
                   "sprite_name",
                   (
                       (0, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
-                      (200, "gem_violet"),
-                      (200, "gem_green"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
+                      (100, "gem_violet"),
+                      (100, "gem_green"),
                   )
               )
           )
@@ -1258,7 +1258,7 @@ class GameModel(squarity.GameModelBase):
               squarity.TransitionSteps(
                   "coord",
                   (
-                      (2000, Coord(8, 1)),
+                      (3000, Coord(8, 1)),
                   )
               )
           )

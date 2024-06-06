@@ -8,12 +8,11 @@ export default class GameUpdateResult {
    */
   constructor() {
     this.hasAnyTransition = false;
+    // TODO : Tout renommer en "lock" et pas "block". Sinon on confond avec des blocs de jeux.
     this.uiBlock = GameUpdateResult.UI_NO_BLOCK;
     this.isBlockingTransitionInvisible = false;
     this.callbackInsideTransi = []
     this.callbackEndTransi = []
-
-    //const UI_NO_BLOCK = 0;
   }
 
   merge(other) {
@@ -27,6 +26,7 @@ export default class GameUpdateResult {
 
 }
 
+// TODO : Et peut-être que ça devrait aller dans un truc méga-générique. Parce que même le GameBoard s'en sert, de ce truc.
 // https://stackoverflow.com/questions/32647215/declaring-static-constants-in-es6-classes
 Object.defineProperty(GameUpdateResult, 'UI_NO_BLOCK', {
   value: 0,
@@ -34,13 +34,13 @@ Object.defineProperty(GameUpdateResult, 'UI_NO_BLOCK', {
   enumerable : false,
   configurable : false
 });
-Object.defineProperty(GameUpdateResult, 'UI_BLOCK', {
+Object.defineProperty(GameUpdateResult, 'UI_INVISIBLE_BLOCK', {
   value: 1,
   writable : false,
   enumerable : false,
   configurable : false
 });
-Object.defineProperty(GameUpdateResult, 'UI_INVISIBLE_BLOCK', {
+Object.defineProperty(GameUpdateResult, 'UI_BLOCK', {
   value: 2,
   writable : false,
   enumerable : false,
