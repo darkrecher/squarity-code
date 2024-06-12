@@ -144,8 +144,6 @@ export class LayerWithTransition extends LayerBase {
         if (gameUpdateResult.uiBlock < gameObj.ui_block_type) {
           gameUpdateResult.uiBlock = gameObj.ui_block_type;
         }
-
-        // TODO WIP : check blocking.
       }
     }
 

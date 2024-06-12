@@ -50,17 +50,25 @@ export default class GameObjectTransitioner {
       currentTimeStart = this.getEndTransitionTime(timeNow);
     }
 
+    let transitionX = null;
+    let transitionY = null;
     if (this.gobjState.x != x) {
       // arbitrairement, 300 ms de transition. On fera mieux plus tard.
-      const transition = new StateTransitionProgressive("x", currentTimeStart, currentTimeStart + 300, this.gobjState.x, x, true);
-      this.currentTransitions.push(transition);
+      transitionX = new StateTransitionProgressive("x", currentTimeStart, currentTimeStart + 300, this.gobjState.x, x, true);
+      this.currentTransitions.push(transitionX);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
-      const transition = new StateTransitionProgressive("y", currentTimeStart, currentTimeStart + 300, this.gobjState.y, y, true);
-      this.currentTransitions.push(transition);
+      transitionY = new StateTransitionProgressive("y", currentTimeStart, currentTimeStart + 300, this.gobjState.y, y, true);
+      this.currentTransitions.push(transitionY);
       somethingChanged = true;
     }
+    if ((transitionX != null) && (transitionY != null)) {
+      console.log("linking ! x y")
+      transitionY.setLinkedTransition(transitionX);
+      transitionX.setLinkedTransition(transitionY);
+    }
+
     if (this.gobjState.sprite_name != gameObject.sprite_name) {
       // FUTURE: Pas de transition pour le champ sprite_name,
       // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
@@ -69,10 +77,6 @@ export default class GameObjectTransitioner {
     if (somethingChanged) {
       this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
       this.gobjState = new GobjState(x, y, gameObject.sprite_name);
-      // TODO WIP log
-      for (let transition of this.currentTransitions) {
-        console.log("change from new state", transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd);
-      }
     }
     return (this.currentTransitions.length > 0);
   }
@@ -102,12 +106,22 @@ export default class GameObjectTransitioner {
         if (transi.field_name === "coord") {
           for (let step of transi.steps) {
             let [delay, value] = step;
-            const transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
-            this.currentTransitions.push(transitionX);
-            currentGobjState.x = value.x;
-            const transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
-            this.currentTransitions.push(transitionY);
-            currentGobjState.y = value.y;
+            let transitionX = null;
+            let transitionY = null;
+            if (currentGobjState.x != value.x) {
+              transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
+              this.currentTransitions.push(transitionX);
+              currentGobjState.x = value.x;
+            }
+            if (currentGobjState.y != value.y) {
+              transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
+              this.currentTransitions.push(transitionY);
+              currentGobjState.y = value.y;
+            }
+            if ((transitionX != null) && (transitionY != null)) {
+              transitionY.setLinkedTransition(transitionX);
+              transitionX.setLinkedTransition(transitionY);
+            }
             currentTime += delay;
           }
         } else if (transi.field_name === "sprite_name") {
@@ -127,12 +141,6 @@ export default class GameObjectTransitioner {
     }
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
     this.gameObject.clear_new_transitions();
-    // TODO WIP log
-    console.log("log transition from records");
-    for (let transition of this.currentTransitions) {
-      console.log(transition.fieldName, transition.timeStart, transition.timeEnd, transition.valStart, transition.valEnd, transition.val);
-    }
-    console.log("log transition from records (end)");
   }
 
 
@@ -215,31 +223,69 @@ export default class GameObjectTransitioner {
   applyTransition(transition, gobjStateDest, applyInGame) {
     // un peu bof, tous ces if.
     // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
-    // TODO: fusionner l'application en x et en y, of course.
-    const finalVal = transition.getFinalVal();
     if (applyInGame) {
       console.log("applyTransition in game", transition.fieldName, transition.getFinalVal());
     }
-    if (transition.fieldName === "x") {
+    if (this.tryApplyTransitionXY(transition, gobjStateDest, applyInGame)) {
+      return;
+    }
+
+    const finalVal = transition.getFinalVal();
+    if (transition.fieldName == "x") {
       if (applyInGame) {
         this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
+        transition.isAppliedInGame = true;
       }
       gobjStateDest.x = finalVal;
-    } else if (transition.fieldName === "y") {
+    } else if (transition.fieldName == "y") {
       if (applyInGame) {
         this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
+        transition.isAppliedInGame = true;
       }
       gobjStateDest.y = finalVal;
-    } else if (transition.fieldName === "sprite_name") {
+    } else if (transition.fieldName == "sprite_name") {
       if (applyInGame) {
         this.gameObject.sprite_name = finalVal;
+        transition.isAppliedInGame = true;
       }
       gobjStateDest.sprite_name = finalVal;
     }
-    if (applyInGame) {
-      transition.isAppliedInGame = true;
-    }
   }
+
+
+  tryApplyTransitionXY(transition, gobjStateDest, applyInGame) {
+    // Fusionner l'application en x et en y.
+    console.log("move auieauie");
+    if (transition.linkedTransition == null) {
+      return false;
+    }
+    const linkedTransition = transition.linkedTransition;
+    if (!((transition.fieldName == "x") ^ (linkedTransition.fieldName == "x"))) {
+      return false;
+    }
+    if (!((transition.fieldName == "y") ^ (linkedTransition.fieldName == "y"))) {
+      return false;
+    }
+    let finalValX;
+    let finalValY;
+    if (transition.fieldName == "x") {
+      finalValX = transition.getFinalVal();
+      finalValY = linkedTransition.getFinalVal();
+    } else {
+      finalValX = linkedTransition.getFinalVal();
+      finalValY = transition.getFinalVal();
+    }
+    if (applyInGame) {
+      console.log("move x and y", finalValX, finalValY);
+      this.gameObject.move_to_xy(finalValX, finalValY);
+      transition.isAppliedInGame = true;
+      linkedTransition.isAppliedInGame = true;
+    }
+    gobjStateDest.x = finalValX;
+    gobjStateDest.y = finalValY;
+    return true;
+  }
+
 
   // private
   getEndTransitionTime(timeNow) {
