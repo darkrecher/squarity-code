@@ -58,8 +58,9 @@ class GameObjectIteratorSparse extends GameObjectIterator {
 
 class LayerBase {
 
-  constructor(python_layer) {
+  constructor(python_layer, gameModel) {
     this.python_layer = python_layer;
+    this.gameModel = gameModel;
     const layerClassName = this.python_layer.__class__.toString();
     if (layerClassName.includes("LayerSparse")) {
       this.isLayerSparse = true;
@@ -81,13 +82,14 @@ export class LayerWithTransition extends LayerBase {
 
   constructor(
     python_layer,
+    gameModel,
     img_coords,
     ctx_canvas_buffer,
     tile_atlas,
     tile_img_width, tile_img_height,
     tile_canvas_width, tile_canvas_height,
   ) {
-    super(python_layer);
+    super(python_layer, gameModel);
     this.img_coords = img_coords;
     this.ctx_canvas_buffer = ctx_canvas_buffer;
     this.tile_atlas = tile_atlas;
@@ -119,7 +121,7 @@ export class LayerWithTransition extends LayerBase {
       let hasNewTransition = false;
       if (!this.layerMemory.has(gobjId)) {
         gobjTransitioner = new GameObjectTransitioner(
-          coordAndGameObj.x, coordAndGameObj.y, gameObj
+          this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         console.log("ajout de l'objet : ", gobjId);
@@ -199,13 +201,14 @@ export class LayerNoTransition extends LayerBase{
 
   constructor(
     python_layer,
+    gameModel,
     img_coords,
     ctx_canvas_buffer,
     tile_atlas,
     tile_img_width, tile_img_height,
     tile_canvas_width, tile_canvas_height,
   ) {
-    super(python_layer);
+    super(python_layer, gameModel);
     this.img_coords = img_coords;
     this.ctx_canvas_buffer = ctx_canvas_buffer;
     this.tile_atlas = tile_atlas;

@@ -24,7 +24,13 @@ export default class GameObjectTransitioner {
    * il faudra les mettre là-dedans.
    */
 
-  constructor(x, y, gameObject) {
+  constructor(gameModel, x, y, gameObject) {
+    // On a besoin du gameModel uniquement pour récupérer la valeur transition_delay.
+    // C'est pas génial. On a trimbalé ce gros truc depuis le game engine jusqu'ici,
+    // en passant par les layers, tout ça pour récupérer un nombre.
+    // J'ai pas de meilleur méthode, car il faut pouvoir prendre en compte une modif de ce nombre.
+    // Si jamais le gameCode modifie transition_delay, on doit le prendre en compte ici.
+    this.gameModel = gameModel;
     this.currentTransitions = [];
     this.gameObject = gameObject;
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
@@ -50,16 +56,35 @@ export default class GameObjectTransitioner {
       currentTimeStart = this.getEndTransitionTime(timeNow);
     }
 
+    const transitionDelay = this.getCurrentTransitionDelay();
+    let oneShotCallback = this.gameObject._one_shot_callback;
+    if (!isNonePython(oneShotCallback)) {
+      this.gameObject.reset_one_shot_callback();
+    } else {
+      oneShotCallback = null;
+    }
+
     let transitionX = null;
     let transitionY = null;
     if (this.gobjState.x != x) {
-      // arbitrairement, 300 ms de transition. On fera mieux plus tard.
-      transitionX = new StateTransitionProgressive("x", currentTimeStart, currentTimeStart + 300, this.gobjState.x, x, true);
+      // TODO: arbitrairement, "this.gameModel.transition_delay" ms de transition. On fera mieux plus tard.
+      // TODO: on doit aussi pouvoir dire qu'on ne veut pas de transition (en mettant un délai de 0).
+      transitionX = new StateTransitionProgressive(
+        "x",
+        currentTimeStart, currentTimeStart + transitionDelay,
+        this.gobjState.x, x,
+        true
+      );
       this.currentTransitions.push(transitionX);
       somethingChanged = true;
     }
     if (this.gobjState.y != y) {
-      transitionY = new StateTransitionProgressive("y", currentTimeStart, currentTimeStart + 300, this.gobjState.y, y, true);
+      transitionY = new StateTransitionProgressive(
+        "y",
+        currentTimeStart, currentTimeStart + transitionDelay,
+        this.gobjState.y, y,
+        true
+      );
       this.currentTransitions.push(transitionY);
       somethingChanged = true;
     }
@@ -73,6 +98,15 @@ export default class GameObjectTransitioner {
       // FUTURE: Pas de transition pour le champ sprite_name,
       // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
       somethingChanged = true;
+    }
+    if (oneShotCallback != null) {
+      const transitionCallback = new StateTransitionImmediate(
+        "callback",
+        currentTimeStart + transitionDelay,
+        oneShotCallback,
+        false
+      );
+      this.currentTransitions.push(transitionCallback);
     }
     if (somethingChanged) {
       this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
@@ -178,8 +212,8 @@ export default class GameObjectTransitioner {
       this.currentTransitions = [];
       // On détecte si y'a une callback de fin de transition à appeler.
       // Et on la met dans le result, pour dire au game engine de les appeler.
-      if (!isNonePython(this.gameObject.callback_end_transi)) {
-        gameUpdateResult.callbackEndTransi.push(this.gameObject.callback_end_transi);
+      if (!isNonePython(this.gameObject._callback_end_transi)) {
+        gameUpdateResult.callbackEndTransi.push(this.gameObject._callback_end_transi);
       }
     } else {
       if (hasDoneAtLeastOneTransition) {
@@ -219,6 +253,20 @@ export default class GameObjectTransitioner {
   }
 
 
+  getCurrentTransitionDelay() {
+    let transitionDelay = this.gameObject._one_shot_transition_delay
+    if (!isNonePython(transitionDelay)) {
+      this.gameObject.reset_one_shot_transition_delay();
+      return transitionDelay;
+    }
+    transitionDelay = this.gameObject._transition_delay
+    if (!isNonePython(transitionDelay)) {
+      return transitionDelay;
+    }
+    return this.gameModel.transition_delay;
+  }
+
+
   // private
   applyTransition(transition, gobjStateDest, applyInGame) {
     // un peu bof, tous ces if.
@@ -253,8 +301,9 @@ export default class GameObjectTransitioner {
   }
 
 
+  // private
   tryApplyTransitionXY(transition, gobjStateDest, applyInGame) {
-    // Fusionner l'application en x et en y.
+    // On fusionne l'application en x et en y, si c'est possible.
     console.log("move auieauie");
     if (transition.linkedTransition == null) {
       return false;

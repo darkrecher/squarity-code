@@ -1161,6 +1161,7 @@ Coord = squarity.Coord
 
 class GameModel(squarity.GameModelBase):
       def on_start(self):
+          self.transition_delay = 50
           json_conf = json.loads(self.str_game_conf_json)
           for gobj_name in json_conf["img_coords"].keys():
               print(gobj_name)
@@ -1173,7 +1174,8 @@ class GameModel(squarity.GameModelBase):
               "gem_green",
           )
           self.gamobj_gem_green.ui_block_type = squarity.ui_block_types.BLOCK
-          self.gamobj_gem_green.callback_end_transi = self.another_callback
+          self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
+          self.gamobj_gem_green.set_transition_delay(500)
 
           self.gamobj_gem_violet = self.main_layer.create_game_object(
               Coord(x=5, y=1),
@@ -1268,8 +1270,9 @@ class GameModel(squarity.GameModelBase):
           # print("on event", action_name)
           # self.gamobj_gem_green.clear_recorded_transitions()
           offset = +1 if action_name == "action_1" else -1
+          transi_violet = None if action_name == "action_1" else 300
           self.gamobj_gem_green.move(Coord(x=offset, y=0))
-          self.gamobj_gem_violet.move(Coord(x=-offset, y=0))
+          self.gamobj_gem_violet.move(Coord(x=-offset, y=0), transi_violet, self.another_another_callback)
 
 
       def my_callback(self):
@@ -1279,6 +1282,11 @@ class GameModel(squarity.GameModelBase):
       def another_callback(self):
           print("another callback", self.gamobj_gem_green.coord)
           # self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+
+      def another_another_callback(self):
+          print("another another callback", self.gamobj_gem_green.coord)
+          # self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+
 
   `
 

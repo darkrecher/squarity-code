@@ -69,6 +69,8 @@ export default class GameEngineV2 {
         'sys.path.append(".")\n',
       'Création du fichier contenant la lib squarity',
     );
+    // Correspond à game_model dans le code python.
+    this.gameModel = null;
 
   }
 
@@ -140,6 +142,11 @@ export default class GameEngineV2 {
       `game_model = GameModel(${areaWidth}, ${areaHeight}, js.document.json_conf)`,
       'Instanciation du GameModel',
     );
+    this.gameModel = this.runPython(
+      `game_model`,
+      'Récupération du game_model',
+    );
+    // TODO: appeler directement on_start, et catcher les exceptions comme pour l'exécution de callbacks.
     this.runPython(
       `game_model.on_start()`,
       'Exécution de game_model.on_start',
@@ -220,10 +227,7 @@ export default class GameEngineV2 {
   updateFromPythonData() {
 
     const timeNowStart = performance.now();
-    const python_layers = this.runPython(
-      'game_model.layers',
-      'Récupération des layers pour les dessiner',
-    );
+    const python_layers = this.gameModel.layers;
     const timeNow = performance.now();
 
     this.orderedLayers = []
@@ -234,6 +238,7 @@ export default class GameEngineV2 {
         if (python_layer.show_transitions) {
           newLayer = new LayerWithTransition(
             python_layer,
+            this.gameModel,
             this.img_coords,
             this.ctx_canvas_buffer,
             this.tile_atlas,
@@ -243,6 +248,7 @@ export default class GameEngineV2 {
         } else {
           newLayer = new LayerNoTransition(
             python_layer,
+            this.gameModel,
             this.img_coords,
             this.ctx_canvas_buffer,
             this.tile_atlas,
@@ -460,7 +466,7 @@ export default class GameEngineV2 {
         if (!eventResultRaw.redraw) {
           // redraw a été explicitement définie (donc pas "undefined"), à 0 ou à False.
           // Si le code du jeu définit redraw à None, une liste vide, ou autre,
-          // le javascript va considérer que c'est True. Ce qui ne correspond pas à pensée pythonienne.
+          // le javascript va considérer que c'est True. Ce qui ne correspond pas à la pensée pythonienne.
           // En même temps, faudrait être tordu pour faire ça.
           mustRedraw = false;
         }
@@ -477,5 +483,8 @@ export default class GameEngineV2 {
   // ça continue d'afficher les images d'avant.
   // À cause de ce qu'on a balancé dans requestAnimationFrame, et qui est toujours là.
   // faudra exécuter ça : https://developer.mozilla.org/fr/docs/Web/API/Window/cancelAnimationFrame
+
+  // TODO : plein de variables nommées en snake case à remettre en camel,
+  // à cause des conventions dégueux du javascript de mes fesses.
 
 }

@@ -159,41 +159,61 @@ class GameObjectBase():
 
 class GameObject(GameObjectBase):
 
+    # FUTURE: on ajoutera deux booléens: isTransitionable, isVisualEffectable.
+    # Selon ces deux valeurs, il y a, ou pas, des composants pour gérer les transitions et les effets visuels.
+    # Ce sera moins dégueux qu'actuellement, où y'a des variables de partout.
+    # On ne pourra pas changer ces deux booléens après instanciation.
+    # Si on veut un objet qui se transitionne, on détruit l'ancien et on recrée un transitionable,
+    # et puis c'est tout.
+    # (Trouver un autre nom que "isVisualEffectable").
     def __init__(self, layer_owner, coord, sprite_name):
         super().__init__()
         self.layer_owner = layer_owner
         self.coord = Coord(coord=coord)
         self.sprite_name = sprite_name
         self.ui_block_type = ui_block_types.NO_BLOCK
+        # FUTURE: pour plus tard.
+        # self.visible = True
+
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
-        # Et si ça se trouve, on mettra tout ça dans un dict.
-        self.offset_x = 0.0
-        self.offset_y = 0.0
-        self.angle = 0.0
-        self.scale_x = 1.0
-        self.scale_y = 1.0
-        self.opacity = 1.0
-        self.visible = True
+        # Et ce sera dans un composant. Pas là-dedans paf.
+        # self.offset_x = 0.0
+        # self.offset_y = 0.0
+        # self.angle = 0.0
+        # self.scale_x = 1.0
+        # self.scale_y = 1.0
+        # self.opacity = 1.0
         # Not sure if we will implement the color_factor.
-        self.color_factor = (1.0, 1.0, 1.0)
-        self.callback_end_transi = None
+        # self.color_factor = (1.0, 1.0, 1.0)
+
         self._transitioner = None
         self._transitions_to_record = []
         self._must_clear_transitions = False
+        self._transition_delay = None
+        self._callback_end_transi = None
+        self._one_shot_transition_delay = None
+        self._one_shot_callback = None
 
-    # TODO : move_to(coord, delay_ms, callback)
-    # TODO : move(coord_offset, delay_ms, callback)
     # TODO : move_dir(direction, distance, delay_ms, callback)
-    # TODO : set_default(move_delay_ms, move_callback)
 
-    def move_to(self, dest_coord):
+    # FUTURE : gérer une valeur de speed. transition = speed * distance à parcourir.
+
+    def move_to(self, dest_coord, transition_delay=None, callback=None):
         self.layer_owner.move_game_object(self, dest_coord)
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
 
-    def move_to_xy(self, x, y):
+    def move_to_xy(self, x, y, transition_delay=None, callback=None):
         self.layer_owner.move_game_object(self, Coord(x, y))
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
 
     # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors de l'aire de jeu.
-    def move(self, coord_offset):
+    def move(self, coord_offset, transition_delay=None, callback=None):
         # J'utilise pas Coord.move_by_vect, parce que cette fonction va être beaucoup utilisée,
         # donc ça peut être bien de l'optimiser en hardcodant un peu.
         self.layer_owner.move_game_object(
@@ -203,6 +223,10 @@ class GameObject(GameObjectBase):
                 self.coord.y + coord_offset.y,
             ),
         )
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
 
     def add_transition(self, transition):
         """
@@ -229,6 +253,18 @@ class GameObject(GameObjectBase):
             return 0
         else:
             return len(self._transitioner.currentTransitions)
+
+    def set_callback_end_transi(self, callback_end_transi):
+        self._callback_end_transi = callback_end_transi
+
+    def set_transition_delay(self, transition_delay):
+        self._transition_delay = transition_delay
+
+    def reset_one_shot_transition_delay(self):
+        self._one_shot_transition_delay = None
+
+    def reset_one_shot_callback(self):
+        self._one_shot_callback = None
 
 
 class Tile():
@@ -381,6 +417,8 @@ class GameModelBase():
         self.layers = []
         self.layers.append(Layer(self, w, h))
         self.main_layer = self.layers[0]
+        # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
+        self.transition_delay = 200
 
     def on_start(self):
         pass
