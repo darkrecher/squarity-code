@@ -64,41 +64,45 @@ export default class GameObjectTransitioner {
       oneShotCallback = null;
     }
 
-    let transitionX = null;
-    let transitionY = null;
-    if (this.gobjState.x != x) {
-      // TODO: arbitrairement, "this.gameModel.transition_delay" ms de transition. On fera mieux plus tard.
-      // TODO: on doit aussi pouvoir dire qu'on ne veut pas de transition (en mettant un délai de 0).
-      transitionX = new StateTransitionProgressive(
-        "x",
-        currentTimeStart, currentTimeStart + transitionDelay,
-        this.gobjState.x, x,
-        true
-      );
-      this.currentTransitions.push(transitionX);
-      somethingChanged = true;
-    }
-    if (this.gobjState.y != y) {
-      transitionY = new StateTransitionProgressive(
-        "y",
-        currentTimeStart, currentTimeStart + transitionDelay,
-        this.gobjState.y, y,
-        true
-      );
-      this.currentTransitions.push(transitionY);
-      somethingChanged = true;
-    }
-    if ((transitionX != null) && (transitionY != null)) {
-      console.log("linking ! x y")
-      transitionY.setLinkedTransition(transitionX);
-      transitionX.setLinkedTransition(transitionY);
+    if (!transitionDelay) {
+      // Le délai de transition est 0. On applique tout de suite les changements,
+      // on enregistre rien dans currentTransitions.
+      this.gobjState = new GobjState(x, y, gameObject.sprite_name);
+    } else {
+      let transitionX = null;
+      let transitionY = null;
+      if (this.gobjState.x != x) {
+        transitionX = new StateTransitionProgressive(
+          "x",
+          currentTimeStart, currentTimeStart + transitionDelay,
+          this.gobjState.x, x,
+          true
+        );
+        this.currentTransitions.push(transitionX);
+        somethingChanged = true;
+      }
+      if (this.gobjState.y != y) {
+        transitionY = new StateTransitionProgressive(
+          "y",
+          currentTimeStart, currentTimeStart + transitionDelay,
+          this.gobjState.y, y,
+          true
+        );
+        this.currentTransitions.push(transitionY);
+        somethingChanged = true;
+      }
+      if ((transitionX != null) && (transitionY != null)) {
+        console.log("linking ! x y")
+        transitionY.setLinkedTransition(transitionX);
+        transitionX.setLinkedTransition(transitionY);
+      }
+      if (this.gobjState.sprite_name != gameObject.sprite_name) {
+        // FUTURE: Pas de transition pour le champ sprite_name,
+        // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
+        somethingChanged = true;
+      }
     }
 
-    if (this.gobjState.sprite_name != gameObject.sprite_name) {
-      // FUTURE: Pas de transition pour le champ sprite_name,
-      // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
-      somethingChanged = true;
-    }
     if (oneShotCallback != null) {
       const transitionCallback = new StateTransitionImmediate(
         "callback",

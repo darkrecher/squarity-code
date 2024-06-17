@@ -397,7 +397,7 @@ export default {
       this.game_engine.updateGameSpec(this.tile_atlas, json_conf, gameCode);
 
       this.handleResize();
-      this.game_engine.updateFromPythonData();
+      this.game_engine.updateFromPythonData(true);
       this.is_player_locked = false;
       this.$refs.game_interface.focus();
       this.show_progress('C\'est parti !');

@@ -224,7 +224,7 @@ export default class GameEngineV2 {
     this.afterGameEvent(eventResultRaw);
   }
 
-  updateFromPythonData() {
+  updateFromPythonData(mustRedraw) {
 
     const timeNowStart = performance.now();
     const python_layers = this.gameModel.layers;
@@ -273,8 +273,10 @@ export default class GameEngineV2 {
     // (et aussi avec le eventresultraw, mais ça c'est autre chose).
 
     const timeNowAfterAnalysis = performance.now();
-    // on dessine l'état actuel. Faut tout redessiner.
-    this.drawCurrentGameBoardState(timeNow)
+    if (mustRedraw) {
+      // On dessine l'état actuel. Faut tout redessiner.
+      this.drawCurrentGameBoardState(timeNow)
+    }
     const timeNowAfterDraw = performance.now();
     console.log(
       "times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw,
@@ -413,11 +415,7 @@ export default class GameEngineV2 {
     if (!this.isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
-    // TODO : faut exécuter la fonction dans tous les cas.
-    // et le mustRedraw, c'est pas là qu'on doit s'en servir.
-    if (mustRedraw) {
-      this.updateFromPythonData();
-    }
+    this.updateFromPythonData(mustRedraw);
   }
 
   processGameEventResult(eventResultRaw) {
