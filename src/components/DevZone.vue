@@ -1,6 +1,6 @@
 <template>
-  <div ref="dev_zone" class="dev_zone">
-    <div class="links_and_exemples">
+  <div ref="devZone" class="dev-zone">
+    <div class="links-and-exemples">
       <div>
         <a href="https://discord.gg/D5SYnk8u3j" target="_blank">
           <img class="discord" src="../assets/discord.svg" alt="Logo discord">
@@ -11,34 +11,34 @@
           <img class="mastodon" src="../assets/mastodon.svg" alt="Logo mastodon">
         </a>
       </div>
-      <div class="game_examples">
+      <div class="game-examples">
         <div>
           Exemples de jeu :
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
-          <img src="../assets/magicien_icon.png" @click="example_magician">
-          <img src="../assets/h2o_icon.png" @click="example_h2o">
-          <img src="../assets/tunnel_match_icon.png" @click="example_tunnel_match">
+          <img src="../assets/magicien_icon.png" @click="exampleMagician">
+          <img src="../assets/h2o_icon.png" @click="exampleH2o">
+          <img src="../assets/tunnel_match_icon.png" @click="exampleTunnelMatch">
         </div>
       </div>
     </div>
-    <div class="dev_field_url">
+    <div class="dev-field-url">
       Url de l'image :
-      <input ref="url_tileset" type="text">
-      <button @click="send_game_spec">
+      <input ref="urlTileset" type="text">
+      <button @click="sendGameSpec">
         Exécuter &#x25B6;
       </button>
     </div>
-    <div class="dev_field_label">
+    <div class="dev-field-label">
       Config du jeu (en JSON).
     </div>
-    <div class="dev_field_json">
-      <textarea ref="json_conf" spellcheck="false" />
+    <div class="dev-field-json">
+      <textarea ref="jsonConf" spellcheck="false" />
     </div>
-    <div class="dev_field_label">
+    <div class="dev-field-label">
       Le code du jeu (en python).
     </div>
-    <div class="dev_field_python">
-      <textarea ref="game_code" spellcheck="false" />
+    <div class="dev-field-python">
+      <textarea ref="gameCode" spellcheck="false" />
     </div>
   </div>
 </template>
@@ -58,96 +58,96 @@ export default {
   },
 
   mounted() {
-    this.$refs.dev_zone.addEventListener('keydown', this.on_key_down);
+    this.$refs.devZone.addEventListener('keydown', this.onKeyDown);
   },
 
   unmounted() {
-    const elemDevZone = this.$refs.dev_zone;
+    const elemDevZone = this.$refs.devZone;
     if (elemDevZone) {
-      elemDevZone.removeEventListener('keydown', this.on_key_down);
+      elemDevZone.removeEventListener('keydown', this.onKeyDown);
     }
   },
 
   methods: {
 
-    activate_current_game_spec() {
+    activateCurrentGameSpec() {
       // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/
       // 6535686-emit-events-to-parent-components
       this.$emit(
-        'update_game_spec',
-        this.$refs.url_tileset.value,
-        this.$refs.json_conf.value,
-        this.$refs.game_code.value,
+        'updateGameSpec',
+        this.$refs.urlTileset.value,
+        this.$refs.jsonConf.value,
+        this.$refs.gameCode.value,
       );
     },
 
-    send_game_spec() {
-      this.activate_current_game_spec();
+    sendGameSpec() {
+      this.activateCurrentGameSpec();
     },
 
-    example_magician() {
-      this.$refs.url_tileset.value = MAGICIAN_URL_TILESET;
-      this.$refs.json_conf.value = gameExamples.MAGICIAN_JSON_CONF;
-      this.$refs.game_code.value = gameExamples.MAGICIAN_GAME_CODE;
-      this.activate_current_game_spec();
+    exampleMagician() {
+      this.$refs.urlTileset.value = MAGICIAN_URL_TILESET;
+      this.$refs.jsonConf.value = gameExamples.MAGICIAN_JSON_CONF;
+      this.$refs.gameCode.value = gameExamples.MAGICIAN_GAME_CODE;
+      this.activateCurrentGameSpec();
     },
 
-    example_h2o() {
-      this.$refs.url_tileset.value = H2O_URL_TILESET;
-      this.$refs.json_conf.value = gameExamples.H2O_JSON_CONF;
-      this.$refs.game_code.value = gameExamples.H2O_GAME_CODE;
-      this.activate_current_game_spec();
+    exampleH2o() {
+      this.$refs.urlTileset.value = H2O_URL_TILESET;
+      this.$refs.jsonConf.value = gameExamples.H2O_JSON_CONF;
+      this.$refs.gameCode.value = gameExamples.H2O_GAME_CODE;
+      this.activateCurrentGameSpec();
     },
 
-    example_tunnel_match() {
-      this.$refs.url_tileset.value = TUNNEL_MATCH_URL_TILESET;
-      this.$refs.json_conf.value = gameExamples.TUNNEL_MATCH_JSON_CONF;
-      this.$refs.game_code.value = gameExamples.TUNNEL_MATCH_GAME_CODE;
-      this.activate_current_game_spec();
+    exampleTunnelMatch() {
+      this.$refs.urlTileset.value = TUNNEL_MATCH_URL_TILESET;
+      this.$refs.jsonConf.value = gameExamples.TUNNEL_MATCH_JSON_CONF;
+      this.$refs.gameCode.value = gameExamples.TUNNEL_MATCH_GAME_CODE;
+      this.activateCurrentGameSpec();
     },
 
-    async fetch_game_spec_from_loc_hash() {
+    async fetchGameSpecFromLocHash() {
       // Pour tester :
       // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
         // TODO WIP bleuargh.
-        //this.example_magician();
-        this.example_tunnel_match();
+        //this.exampleMagician();
+        this.exampleTunnelMatch();
         return;
       }
       if (locHash === '#fetchez_example_h2o') {
-        this.example_h2o();
+        this.exampleH2o();
         return;
       }
       if (locHash === '#fetchez_example_tunnel_match') {
-        this.example_tunnel_match();
+        this.exampleTunnelMatch();
         return;
       }
-      const urlGameSpec = gameSpecLoader.url_game_spec_from_loc_hash(locHash);
+      const urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);
       if (urlGameSpec === null) {
         console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
       } else {
-        const gameSpec = await gameSpecLoader.fetch_game_spec(urlGameSpec);
+        const gameSpec = await gameSpecLoader.fetchGameSpec(urlGameSpec);
         if (gameSpec === null) {
           console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
         } else {
-          this.$refs.url_tileset.value = gameSpec.url_tileset;
-          this.$refs.json_conf.value = gameSpec.json_conf;
-          this.$refs.game_code.value = gameSpec.game_code;
-          this.activate_current_game_spec();
+          this.$refs.urlTileset.value = gameSpec.urlTileset;
+          this.$refs.jsonConf.value = gameSpec.jsonConf;
+          this.$refs.gameCode.value = gameSpec.gameCode;
+          this.activateCurrentGameSpec();
         }
       }
     },
 
-    on_key_down(e) {
+    onKeyDown(e) {
       // L'événement sera déclenché plusieurs fois si on reste appuyé sur les touches Ctrl+Entrée.
       // C'est pourri. Mais osef.
       // (Quand même pas de ma faute si le javascript a une gestion d'appuis de touches de prolo).
       //
       // https://stackoverflow.com/questions/905222/enter-key-press-event-in-javascript
       if (e.ctrlKey && e.key === 'Enter') {
-        this.activate_current_game_spec();
+        this.activateCurrentGameSpec();
         e.preventDefault();
       }
     },
@@ -157,7 +157,7 @@ export default {
 </script>
 
 <style scoped>
-.dev_zone {
+.dev-zone {
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -165,14 +165,14 @@ export default {
   padding-right: 2em;
 }
 
-.links_and_exemples {
+.links-and-exemples {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
 }
 
-.links_and_exemples img {
+.links-and-exemples img {
   padding-left: 0.3em;
   padding-right: 0.3em;
 }
@@ -186,16 +186,16 @@ img.mastodon {
   height: 2em;
 }
 
-.game_examples {
+.game-examples {
   padding-bottom: 0.8em;
 }
 
-.game_examples div {
+.game-examples div {
   display: flex;
   align-items: center;
 }
 
-.game_examples img {
+.game-examples img {
   background-color: #505050;
   border: 1px solid #A0A0A0;
   height: 3em;
@@ -205,17 +205,17 @@ img.mastodon {
   cursor: pointer;
 }
 
-.game_examples img:hover {
+.game-examples img:hover {
   background-color: #909090;
 }
 
-.dev_field_url {
+.dev-field-url {
   display: flex;
   border-top: 2px solid #C0C0C0;
   padding-top: 0.6em;
 }
 
-.dev_field_url input {
+.dev-field-url input {
   background-color: #202020;
   color: #C0C0C0;
   font-family: monospace;
@@ -224,16 +224,16 @@ img.mastodon {
   margin-right: 0.6em;
 }
 
-.dev_field_label {
+.dev-field-label {
   text-align: left;
   margin-top: 0.6em;
 }
 
-.dev_field_python {
+.dev-field-python {
   flex: 3 1 auto;
 }
 
-.dev_field_json {
+.dev-field-json {
   flex: 1 1 auto;
 }
 

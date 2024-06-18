@@ -1200,7 +1200,7 @@ class GameModel(squarity.GameModelBase):
           event_result = squarity.EventResult()
           event_result.delayed_actions = []
           my_callback = squarity.CallBack()
-          my_callback.delay_ms = 100
+          my_callback.delay = 100
           my_callback.callback = self.my_callback
           event_result.delayed_actions.append(my_callback)
           print("nb transition of green diam:", self.gamobj_gem_green.get_nb_undone_transitions())
@@ -1231,7 +1231,7 @@ class GameModel(squarity.GameModelBase):
           )
 
           my_other_callback = squarity.CallBack()
-          my_other_callback.delay_ms = 150
+          my_other_callback.delay = 150
           my_other_callback.callback = self.my_callback
           self.gamobj_gem_green.add_transition(my_other_callback)
 

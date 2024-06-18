@@ -12,8 +12,8 @@ class CoordAndGameObject {
 // TODO: tout ça dans un autre fichier.
 
 class GameObjectIterator {
-  constructor(python_layer) {
-    this.python_layer = python_layer;
+  constructor(pythonLayer) {
+    this.pythonLayer = pythonLayer;
   }
   // Syntaxe dégueue avec une étoile, pour dire qu'on veut faire un itérateur.
   // https://stackoverflow.com/questions/39197811/how-can-i-write-a-generator-in-a-javascript-class
@@ -21,13 +21,13 @@ class GameObjectIterator {
 }
 
 class GameObjectIteratorDense extends GameObjectIterator {
-  constructor(python_layer) {
-    super(python_layer);
+  constructor(pythonLayer) {
+    super(pythonLayer);
   }
   * iterOnGameObjects(multiplicatorX, multiplicatorY) {
     let currentX = 0;
     let currentY = 0;
-    for (let lineTile of this.python_layer.tiles) {
+    for (let lineTile of this.pythonLayer.tiles) {
       for (let tile of lineTile) {
         for (let gameObj of tile.game_objects) {
           yield new CoordAndGameObject(currentX, currentY, gameObj);
@@ -41,11 +41,11 @@ class GameObjectIteratorDense extends GameObjectIterator {
 }
 
 class GameObjectIteratorSparse extends GameObjectIterator {
-  constructor(python_layer) {
-    super(python_layer);
+  constructor(pythonLayer) {
+    super(pythonLayer);
   }
   * iterOnGameObjects(multiplicatorX, multiplicatorY) {
-    for (let gameObj of this.python_layer.game_objects) {
+    for (let gameObj of this.pythonLayer.game_objects) {
       yield new CoordAndGameObject(
         gameObj.coord.x * multiplicatorX,
         gameObj.coord.y * multiplicatorY,
@@ -58,16 +58,16 @@ class GameObjectIteratorSparse extends GameObjectIterator {
 
 class LayerBase {
 
-  constructor(python_layer, gameModel) {
-    this.python_layer = python_layer;
+  constructor(pythonLayer, gameModel) {
+    this.pythonLayer = pythonLayer;
     this.gameModel = gameModel;
-    const layerClassName = this.python_layer.__class__.toString();
+    const layerClassName = this.pythonLayer.__class__.toString();
     if (layerClassName.includes("LayerSparse")) {
       this.isLayerSparse = true;
-      this.gameObjectIterator = new GameObjectIteratorSparse(this.python_layer);
+      this.gameObjectIterator = new GameObjectIteratorSparse(this.pythonLayer);
     } else {
       this.isLayerSparse = false;
-      this.gameObjectIterator = new GameObjectIteratorDense(this.python_layer);
+      this.gameObjectIterator = new GameObjectIteratorDense(this.pythonLayer);
     }
   }
 
@@ -80,22 +80,22 @@ class LayerBase {
 export class LayerWithTransition extends LayerBase {
 
   constructor(
-    python_layer,
+    pythonLayer,
     gameModel,
-    img_coords,
-    ctx_canvas_buffer,
-    tile_atlas,
-    tile_img_width, tile_img_height,
-    tile_canvas_width, tile_canvas_height,
+    imgCoords,
+    ctxCanvasBuffer,
+    tileAtlas,
+    tileImgWidth, tileImgHeight,
+    tileCanvasWidth, tileCanvasHeight,
   ) {
-    super(python_layer, gameModel);
-    this.img_coords = img_coords;
-    this.ctx_canvas_buffer = ctx_canvas_buffer;
-    this.tile_atlas = tile_atlas;
-    this.tile_img_width = tile_img_width;
-    this.tile_img_height = tile_img_height;
-    this.tile_canvas_width = tile_canvas_width;
-    this.tile_canvas_height = tile_canvas_height;
+    super(pythonLayer, gameModel);
+    this.imgCoords = imgCoords;
+    this.ctxCanvasBuffer = ctxCanvasBuffer;
+    this.tileAtlas = tileAtlas;
+    this.tileImgWidth = tileImgWidth;
+    this.tileImgHeight = tileImgHeight;
+    this.tileCanvasWidth = tileCanvasWidth;
+    this.tileCanvasHeight = tileCanvasHeight;
     // Le layerMemory est un Map qui contient, pour chaque objet du layer, un GameObjectTransitioner.
     // Ce GameObjectTransitioner contient les transitions en cours pour l'objet, et l'état actuel de l'objet.
     // (Il n'y a pas forcément de transition en cours, mais il faut au moins le GameObjectTransitioner
@@ -180,12 +180,12 @@ export class LayerWithTransition extends LayerBase {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
       const gobjState = gobjTransitioner.getCurrentState(timeNow);
-      const [coordImgX, coordImgY] = this.img_coords[gobjState.sprite_name];
-      this.ctx_canvas_buffer.drawImage(
-        this.tile_atlas,
-        coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-        gobjState.x * this.tile_canvas_width, gobjState.y * this.tile_canvas_height,
-        this.tile_canvas_width, this.tile_canvas_height,
+      const [coordImgX, coordImgY] = this.imgCoords[gobjState.spriteName];
+      this.ctxCanvasBuffer.drawImage(
+        this.tileAtlas,
+        coordImgX, coordImgY, this.tileImgWidth, this.tileImgHeight,
+        gobjState.x * this.tileCanvasWidth, gobjState.y * this.tileCanvasHeight,
+        this.tileCanvasWidth, this.tileCanvasHeight,
       );
     }
   }
@@ -196,22 +196,22 @@ export class LayerWithTransition extends LayerBase {
 export class LayerNoTransition extends LayerBase{
 
   constructor(
-    python_layer,
+    pythonLayer,
     gameModel,
-    img_coords,
-    ctx_canvas_buffer,
-    tile_atlas,
-    tile_img_width, tile_img_height,
-    tile_canvas_width, tile_canvas_height,
+    imgCoords,
+    ctxCanvasBuffer,
+    tileAtlas,
+    tileImgWidth, tileImgHeight,
+    tileCanvasWidth, tileCanvasHeight,
   ) {
-    super(python_layer, gameModel);
-    this.img_coords = img_coords;
-    this.ctx_canvas_buffer = ctx_canvas_buffer;
-    this.tile_atlas = tile_atlas;
-    this.tile_img_width = tile_img_width;
-    this.tile_img_height = tile_img_height;
-    this.tile_canvas_width = tile_canvas_width;
-    this.tile_canvas_height = tile_canvas_height;
+    super(pythonLayer, gameModel);
+    this.imgCoords = imgCoords;
+    this.ctxCanvasBuffer = ctxCanvasBuffer;
+    this.tileAtlas = tileAtlas;
+    this.tileImgWidth = tileImgWidth;
+    this.tileImgHeight = tileImgHeight;
+    this.tileCanvasWidth = tileCanvasWidth;
+    this.tileCanvasHeight = tileCanvasHeight;
   }
 
 
@@ -227,15 +227,15 @@ export class LayerNoTransition extends LayerBase{
 
   draw(timeNow) {
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(
-      this.tile_canvas_width, this.tile_canvas_height
+      this.tileCanvasWidth, this.tileCanvasHeight
     )) {
-      const [coordImgX, coordImgY] = this.img_coords[
+      const [coordImgX, coordImgY] = this.imgCoords[
         coordAndGameObj.gameObj.sprite_name
       ];
-      this.ctx_canvas_buffer.drawImage(
-        this.tile_atlas,
-        coordImgX, coordImgY, this.tile_img_width, this.tile_img_height,
-        coordAndGameObj.x, coordAndGameObj.y, this.tile_canvas_width, this.tile_canvas_height,
+      this.ctxCanvasBuffer.drawImage(
+        this.tileAtlas,
+        coordImgX, coordImgY, this.tileImgWidth, this.tileImgHeight,
+        coordAndGameObj.x, coordAndGameObj.y, this.tileCanvasWidth, this.tileCanvasHeight,
       );
     }
   }

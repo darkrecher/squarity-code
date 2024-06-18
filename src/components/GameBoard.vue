@@ -1,15 +1,15 @@
 <template>
-  <div class="game_board"><v-container fluid>
+  <div class="game-board"><v-container fluid>
     <!--
       https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
     -->
     <v-row class="h-100 no-gutters">
-      <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hide_code }">
+      <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hideCode }">
         <div class="flex-column h-100">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
-          <div class="dev_notice">
+          <div class="dev-notice">
             Fonctionne grâce à Pyodide.
             <a href="https://github.com/darkrecher/squarity-code" target="_blank">
               Code source
@@ -29,75 +29,76 @@
               Mais attention, faut pas écrire "v-bind". https://eslint.vuejs.org/rules/v-bind-style.html
             -->
             <div class="h-100">
-              <DevZone ref="dev_zone" @update_game_spec="on_update_game_spec" />
+              <DevZone ref="devZone" @updateGameSpec="onUpdateGameSpec" />
             </div>
           </div>
         </div>
       </v-col>
-      <v-col sm="12" :md="hide_code ? 12 : 6" order="1" order-sm="1" order-md="2">
+      <v-col sm="12" :md="hideCode ? 12 : 6" order="1" order-sm="1" order-md="2">
         <!--
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
         -->
-        <div ref="game_interface" class="game_interface flex-column" tabindex="0">
-          <div ref="title_container" class="d-block d-sm-block d-md-none">
-            <div :class="{ hidden: hide_code }">
+        <div ref="gameInterface" class="game-interface flex-column" tabindex="0">
+          <div ref="titleContainer" class="d-block d-sm-block d-md-none">
+            <div :class="{ hidden: hideCode }">
               <MainTitle />
             </div>
           </div>
-          <div ref="toggle_button" class="flex-grow-no full-screen-button">
-            <button @click="toggle_dev_zone_display">
+          <div ref="toggleButton" class="flex-grow-no full-screen-button">
+            <button @click="toggleDevZoneDisplay">
               Jeu en plein écran
             </button>
           </div>
+          <!-- TODO: the_canvas is useless ?-->
           <div class="the_canvas flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <canvas v-show="loading_done" ref="game_canvas" @click="on_game_click"/>
-                <ProgressIndicator v-if="!loading_done" ref="progress_indicator" />
+                <canvas v-show="loadingDone" ref="gameCanvas" @click="onGameClick"/>
+                <ProgressIndicator v-if="!loadingDone" ref="progressIndicator" />
               </div>
             </div>
           </div>
-          <div ref="game_footer" class="game_footer flex-grow-no">
+          <div ref="gameFooter" class="game-footer flex-grow-no">
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
             <div>
               <div class="flex-grow-2">
-                <textarea id="python_console" ref="python_console" readonly />
+                <textarea id="pythonConsole" ref="pythonConsole" readonly />
               </div>
               <!-- https://www.w3schools.com/charsets/ref_utf_arrows.asp -->
               <!--
-                C'est dégueu de devoir répéter "disabled = is_player_locked" à chaque bouton.
+                C'est dégueu de devoir répéter "disabled = isPlayerLocked" à chaque bouton.
                 Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
                 tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
                 Si un jour on a une solution tant mieux. Sinon, osef.
               -->
-              <div class="flex-grow game_buttons">
+              <div class="flex-grow game-buttons">
                 <div>
                   <div class="flex-grow" />
                   <div>
-                    <button :disabled="is_player_locked" @click="go_left">
+                    <button :disabled="isPlayerLocked" @click="goLeft">
                       &#x21e6;
                     </button>
                   </div>
                   <div class="flex-column">
-                    <button :disabled="is_player_locked" @click="go_up">
+                    <button :disabled="isPlayerLocked" @click="goUp">
                       &#x21e7;
                     </button>
-                    <button :disabled="is_player_locked" @click="go_down">
+                    <button :disabled="isPlayerLocked" @click="goDown">
                       &#x21e9;
                     </button>
                   </div>
                   <div>
-                    <button :disabled="is_player_locked" @click="go_right">
+                    <button :disabled="isPlayerLocked" @click="goRight">
                       &#x21e8;
                     </button>
                   </div>
                   <div class="flex-grow-04" />
                   <div class="flex-column">
-                    <button :disabled="is_player_locked" @click="action_1">
+                    <button :disabled="isPlayerLocked" @click="action1">
                       1
                     </button>
-                    <button :disabled="is_player_locked" @click="action_2">
+                    <button :disabled="isPlayerLocked" @click="action2">
                       2
                     </button>
                   </div>
@@ -150,9 +151,9 @@ export default {
 
   data() {
     return {
-      loading_done: false,
-      hide_code: false,
-      is_player_locked: false,
+      loadingDone: false,
+      hideCode: false,
+      isPlayerLocked: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
   },
@@ -160,17 +161,17 @@ export default {
   async mounted() {
 
     this.canvasBuffer = document.createElement('canvas');
-    this.current_url_tileset = '';
-    this.tile_atlas = null;
+    this.currentUrlTileset = '';
+    this.tileAtlas = null;
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
-    const elemGameInterface = this.$refs.game_interface;
-    elemGameInterface.addEventListener('keydown', this.on_key_down);
+    const elemGameInterface = this.$refs.gameInterface;
+    elemGameInterface.addEventListener('keydown', this.onKeyDown);
 
     window.languagePluginUrl = '/pyodide/v0.15.0/';
-    this.show_progress('Téléchargement du téléchargeur.');
+    this.showProgress('Téléchargement du téléchargeur.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     // Et aussi à ce plugin, avec la doc qui va bien. Et qui est compatible Vue 3.
@@ -184,25 +185,25 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
     await loadScript('pyodide.js');
-    this.show_progress('Iodification du python géant.');
+    this.showProgress('Iodification du python géant.');
     await window.languagePluginLoader;
-    this.show_progress('Déballage de la cartouche du jeu.');
+    this.showProgress('Déballage de la cartouche du jeu.');
 
     // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
     // le message "update-game-spec" pour activer le jeu par défaut.
     // Tellement génial le javascript.
-    this.$refs.dev_zone.fetch_game_spec_from_loc_hash();
+    this.$refs.devZone.fetchGameSpecFromLocHash();
     window.addEventListener('resize', this.handleResize);
 
     this.functionFromButton = {
-      ArrowUp: this.go_up,
-      ArrowRight: this.go_right,
-      ArrowDown: this.go_down,
-      ArrowLeft: this.go_left,
-      Digit1: this.action_1,
-      Digit2: this.action_2,
-      Numpad1: this.action_1,
-      Numpad2: this.action_2,
+      ArrowUp: this.goUp,
+      ArrowRight: this.goRight,
+      ArrowDown: this.goDown,
+      ArrowLeft: this.goLeft,
+      Digit1: this.action1,
+      Digit2: this.action2,
+      Numpad1: this.action1,
+      Numpad2: this.action2,
     };
   },
 
@@ -215,7 +216,7 @@ export default {
   },
 
   unmounted() {
-    const elemGameInterface = this.$refs.game_interface;
+    const elemGameInterface = this.$refs.gameInterface;
     // Je dois vérifier que elemGameInterface n'est pas Null.
     // Quand je recharge ma page, pas de problème.
     // Quand je modifie le code et que npm me recharge automatiquement la page
@@ -223,16 +224,16 @@ export default {
     // Ça me fait une erreur. Je sais pas pourquoi.
     // Osef, y'a qu'à checker.
     if (elemGameInterface) {
-      elemGameInterface.removeEventListener('keydown', this.on_key_down);
+      elemGameInterface.removeEventListener('keydown', this.onKeyDown);
     }
     window.removeEventListener('resize', this.handleResize);
   },
 
   methods: {
 
-    show_progress(msg) {
-      if (!this.loading_done) {
-        this.$refs.progress_indicator.add_progress_message(msg);
+    showProgress(msg) {
+      if (!this.loadingDone) {
+        this.$refs.progressIndicator.addProgressMessage(msg);
       }
     },
 
@@ -241,12 +242,12 @@ export default {
       // a un effet sur le lock des boutons du jeu, on le prend en compte ici.
       // Les locks/unlocks peuvent être déclenchés tout seul (delayed_event, callbacks, ...),
       // donc il faut que cette fonction soit aussi une callback.
-      const UiLockType = this.game_engine.getLockType();
+      const UiLockType = this.gameEngine.getLockType();
       if (UiLockType == 2) { // TODO : ça correspond à GameUpdateResult.UI_BLOCK. Faut mettre ça dans un truc commun.
-        this.is_player_locked = true;
+        this.isPlayerLocked = true;
       } else {
-        this.is_player_locked = false;
-        this.$refs.game_interface.focus();
+        this.isPlayerLocked = false;
+        this.$refs.gameInterface.focus();
       }
     },
 
@@ -257,18 +258,18 @@ export default {
       // Ça me pétait à la gueule à chaque fois.
       // Je hais le design de page web, je hais le CSS, putain de langage de zouzou !!
 
-      const ratioFromWidthToHeight = this.game_engine.getRatioFromWidthToHeight();
+      const ratioFromWidthToHeight = this.gameEngine.getRatioFromWidthToHeight();
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       const Hscreen = window.innerHeight * (96 / 100);
-      const Hfooter = this.$refs.game_footer.clientHeight;
-      const Htitle = this.$refs.title_container.clientHeight;
-      const HtoggleButton = this.$refs.toggle_button.clientHeight;
+      const Hfooter = this.$refs.gameFooter.clientHeight;
+      const Htitle = this.$refs.titleContainer.clientHeight;
+      const HtoggleButton = this.$refs.toggleButton.clientHeight;
       const Hmargin = 10;
 
       let authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
       // La taille autorisée, on peut la récupérer directement.
       // (J'espère que ça marche comme ça sur à peu près tous les navigateurs)
-      let authorizedWidth = this.$refs.game_interface.clientWidth;
+      let authorizedWidth = this.$refs.gameInterface.clientWidth;
 
       const correspHeight = authorizedWidth * ratioFromWidthToHeight;
       let finalHeight = 0;
@@ -283,10 +284,10 @@ export default {
         finalWidth = Math.floor(authorizedHeight / ratioFromWidthToHeight);
       }
 
-      this.$refs.game_canvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
+      this.$refs.gameCanvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
     },
 
-    on_key_down(e) {
+    onKeyDown(e) {
       // https://hacks.mozilla.org/2017/03/internationalize-your-keyboard-controls/
       // C'est quand même un peu le bazar la gestion des touches dans les navigateurs.
       if (e.code in this.functionFromButton) {
@@ -296,48 +297,49 @@ export default {
       }
     },
 
-    on_game_click(e) {
-      this.game_engine.onGameClick(e);
+    onGameClick(e) {
+      this.gameEngine.onGameClick(e);
     },
 
-    go_up() {
-      this.game_engine.onButtonDirection(Direction.Up);
+    goUp() {
+      this.gameEngine.onButtonDirection(Direction.Up);
     },
 
-    go_right() {
-      this.game_engine.onButtonDirection(Direction.Right);
+    goRight() {
+      this.gameEngine.onButtonDirection(Direction.Right);
     },
 
-    go_down() {
-      this.game_engine.onButtonDirection(Direction.Down);
+    goDown() {
+      this.gameEngine.onButtonDirection(Direction.Down);
     },
 
-    go_left() {
-      this.game_engine.onButtonDirection(Direction.Left);
+    goLeft() {
+      this.gameEngine.onButtonDirection(Direction.Left);
     },
 
-    action_1() {
-      this.game_engine.onButtonAction('action_1');
+    action1() {
+      this.gameEngine.onButtonAction('action_1');
     },
 
-    action_2() {
-      this.game_engine.onButtonAction('action_2');
+    action2() {
+      this.gameEngine.onButtonAction('action_2');
     },
 
-    async on_update_game_spec(urlTileset, jsonConf, gameCode) {
+    async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
 
-      this.$refs.python_console.textContent = '';
-      const json_conf = JSON.parse(jsonConf);
+      this.$refs.pythonConsole.textContent = '';
+      jsonConf = JSON.parse(jsonConf);
       let useV2 = true;
-      if (Object.prototype.hasOwnProperty.call(json_conf, 'version')) {
-        if (json_conf.version[0] == '1') {
+      // TODO: machin in truc ??
+      if (Object.prototype.hasOwnProperty.call(jsonConf, 'version')) {
+        if (jsonConf.version[0] == '1') {
           useV2 = false;
-        } else if (json_conf.version[0] == '2') {
+        } else if (jsonConf.version[0] == '2') {
           useV2 = true;
         } else {
           useV2 = false;
-          const msg = `Version du moteur inconnue. (${json_conf.version}). On prend la V1 par défaut.\n`;
-          this.$refs.python_console.textContent += msg;
+          const msg = `Version du moteur inconnue. (${jsonConf.version}). On prend la V1 par défaut.\n`;
+          this.$refs.pythonConsole.textContent += msg;
         }
       } else {
         // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
@@ -355,15 +357,15 @@ export default {
           useV2 = false;
           msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
         }
-        this.$refs.python_console.textContent += msg;
+        this.$refs.pythonConsole.textContent += msg;
       }
 
       // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
       // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
-      const canvasElem = this.$refs.game_canvas;
+      const canvasElem = this.$refs.gameCanvas;
       if (useV2) {
-        this.game_engine = new GameEngineV2(
-          this.$refs.python_console,
+        this.gameEngine = new GameEngineV2(
+          this.$refs.pythonConsole,
           window.pyodide,
           this.refreshUiLockType,
           canvasElem,
@@ -371,8 +373,8 @@ export default {
           libSquarityCodeV2
         );
       } else {
-        this.game_engine = new GameEngineV1(
-          this.$refs.python_console,
+        this.gameEngine = new GameEngineV1(
+          this.$refs.pythonConsole,
           window.pyodide,
           this.refreshUiLockType,
           canvasElem,
@@ -381,32 +383,32 @@ export default {
         );
       }
 
-      this.show_progress('Gloubiboulgatisation des pixels.');
-      if (this.current_url_tileset !== urlTileset) {
-        this.tile_atlas = await loadImage(urlTileset);
-        this.current_url_tileset = urlTileset;
+      this.showProgress('Gloubiboulgatisation des pixels.');
+      if (this.currentUrlTileset !== urlTileset) {
+        this.tileAtlas = await loadImage(urlTileset);
+        this.currentUrlTileset = urlTileset;
       }
 
-      this.show_progress('Compilation de la compote.');
+      this.showProgress('Compilation de la compote.');
 
       // https://caniuse.com/?search=operator%3A%20in - 97%
-      if ('name' in json_conf) {
-        document.title = `Squarity - ${json_conf.name}`;
+      if ('name' in jsonConf) {
+        document.title = `Squarity - ${jsonConf.name}`;
       } else {
         document.title = 'Squarity';
       }
-      this.game_engine.updateGameSpec(this.tile_atlas, json_conf, gameCode);
+      this.gameEngine.updateGameSpec(this.tileAtlas, jsonConf, gameCode);
 
       this.handleResize();
-      this.game_engine.updateFromPythonData(true);
-      this.is_player_locked = false;
-      this.$refs.game_interface.focus();
-      this.show_progress('C\'est parti !');
-      this.loading_done = true;
+      this.gameEngine.updateFromPythonData(true);
+      this.isPlayerLocked = false;
+      this.$refs.gameInterface.focus();
+      this.showProgress('C\'est parti !');
+      this.loadingDone = true;
     },
 
-    toggle_dev_zone_display() {
-      this.hide_code = !this.hide_code;
+    toggleDevZoneDisplay() {
+      this.hideCode = !this.hideCode;
       // Si j'appelle handleResize tout de suite, ça marche pas car les valeurs clientWidth
       // des components n'ont pas été mises à jour.
       // Il faut déclencher un appel à la callback "updated".
@@ -474,26 +476,26 @@ a {
 }
 
 @media only screen and (max-width: 768px) {
-  .game_footer button {
+  .game-footer button {
     height: 2em;
     width: 2em;
     font-size: 1.5em;
   }
 
-  .dev_notice {
+  .dev-notice {
     margin-top: 1em;
   }
 }
 
 @media only screen and (min-width: 768px) {
-  .game_footer button {
+  .game-footer button {
     height: 2em;
     width: 2em;
     font-size: 2em;
   }
 }
 
-.game_interface {
+.game-interface {
   /*  Faut jamais mettre 100vh. Au moindre pixel de trop,
       ça fait une scroll bar verticale de merde.
       hashtag-vive_les_magic_number_et_fuck_le_css
@@ -503,16 +505,16 @@ a {
   outline: none;
 }
 
-.game_footer {
+.game-footer {
   margin-top: 5px;
 }
 
-.game_footer>div {
+.game-footer>div {
   display: flex;
   flex-wrap: wrap-reverse;
 }
 
-.game_footer button {
+.game-footer button {
   background-color: #707070;
   font-weight: bold;
   border: 0;
@@ -521,35 +523,35 @@ a {
 }
 
 /* https://stackoverflow.com/questions/12591966/html-disabled-button-getting-active-css-pseudo-class */
-.game_footer button:enabled:hover {
+.game-footer button:enabled:hover {
   background-color: #909090;
 }
 
-.game_footer button:enabled:active {
+.game-footer button:enabled:active {
   background-color: #B0B0B0;
 }
 
-.game_footer button:disabled {
+.game-footer button:disabled {
   background-color: #505050;
   color: #303030;
 }
 
 /* https://www.a11yproject.com/posts/2013-01-25-never-remove-css-outlines/ */
-.game_footer button:focus {
+.game-footer button:focus {
   outline: thin dotted;
 }
 
-div.game_buttons {
+div.game-buttons {
   min-width: 10em;
 }
 
-div.game_buttons>div {
+div.game-buttons>div {
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
-div.game_buttons button {
+div.game-buttons button {
   color: black;
 }
 
@@ -563,7 +565,7 @@ div.hidden {
   display: none;
 }
 
-#python_console {
+#pythonConsole {
   width: 100%;
   height: 100%;
   border: 1px solid #808080;
@@ -576,7 +578,7 @@ textarea {
   font-family: monospace;
 }
 
-.dev_notice {
+.dev-notice {
   font-size: 0.8em;
 }
 

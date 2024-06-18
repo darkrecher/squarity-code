@@ -6,18 +6,18 @@
     Licence MIT.
   -->
 
-  <div class="progress_indicator">
+  <div class="progress-indicator">
     <div>
-      <div class="sk_cube_grid">
-        <div class="sk_cube sk_cube1" />
-        <div class="sk_cube sk_cube2" />
-        <div class="sk_cube sk_cube3" />
-        <div class="sk_cube sk_cube4" />
-        <div class="sk_cube sk_cube5" />
-        <div class="sk_cube sk_cube6" />
-        <div class="sk_cube sk_cube7" />
-        <div class="sk_cube sk_cube8" />
-        <div class="sk_cube sk_cube9" />
+      <div class="sk-cube-grid">
+        <div class="sk-cube sk-cube1" />
+        <div class="sk-cube sk-cube2" />
+        <div class="sk-cube sk-cube3" />
+        <div class="sk-cube sk-cube4" />
+        <div class="sk-cube sk-cube5" />
+        <div class="sk-cube sk-cube6" />
+        <div class="sk-cube sk-cube7" />
+        <div class="sk-cube sk-cube8" />
+        <div class="sk-cube sk-cube9" />
       </div>
 
       Please wait / Veuillez patienter...
@@ -57,7 +57,7 @@ export default {
 
   methods: {
 
-    add_progress_message(msg) {
+    addProgressMessage(msg) {
       // On met à vide le message d'avant.
       // Sinon ça fait trop de texte à lire juste pour une barre de progress.
       this.messages[this.messages.length - 1] = ' ';
@@ -68,7 +68,7 @@ export default {
 </script>
 
 <style scoped>
-.progress_indicator {
+.progress-indicator {
   background-color: #303030;
   color: #C0C0C0;
   padding: 1em;
@@ -85,7 +85,7 @@ ul li:before {
   content: "\2713\0020 ";
 }
 
-.sk_cube_grid {
+.sk-cube-grid {
   width: 40px;
   height: 40px;
   margin: 1em auto;
@@ -96,7 +96,7 @@ ul li:before {
     d'autres fois, certains sont noirs au lieu d'être gris.
     Osef. Je vais pas me prendre la tête pour du CSS de zouzou à paillettes.
 */
-.sk_cube_grid .sk_cube {
+.sk-cube-grid .sk-cube {
   width: 33%;
   height: 33%;
   background-color: #CCC;
@@ -104,57 +104,57 @@ ul li:before {
   float: left;
   -webkit-transform: scale(0.1, 0.1);
   transform: scale(0.1, 0.1);
-  -webkit-animation: sk_cubeGridScaleDelay 1.6s infinite ease-in-out;
-  animation: sk_cubeGridScaleDelay 1.6s infinite ease-in-out;
+  -webkit-animation: skCubeGridScaleDelay 1.6s infinite ease-in-out;
+  animation: skCubeGridScaleDelay 1.6s infinite ease-in-out;
 }
 
-.sk_cube_grid .sk_cube1 {
+.sk-cube-grid .sk-cube1 {
   -webkit-animation-delay: 0.2s;
   animation-delay: 0.2s;
 }
 
-.sk_cube_grid .sk_cube2 {
+.sk-cube-grid .sk-cube2 {
   -webkit-animation-delay: 0.4s;
   animation-delay: 0.4s;
 }
 
-.sk_cube_grid .sk_cube3 {
+.sk-cube-grid .sk-cube3 {
   -webkit-animation-delay: 0.6s;
   animation-delay: 0.6s;
 }
 
-.sk_cube_grid .sk_cube4 {
+.sk-cube-grid .sk-cube4 {
   -webkit-animation-delay: 1.6s;
   animation-delay: 1.6s;
 }
 
-.sk_cube_grid .sk_cube5 {
+.sk-cube-grid .sk-cube5 {
   background-color: transparent;
   -webkit-animation: none;
   animation: none;
 }
 
-.sk_cube_grid .sk_cube6 {
+.sk-cube-grid .sk-cube6 {
   -webkit-animation-delay: 0.8s;
   animation-delay: 0.8s;
 }
 
-.sk_cube_grid .sk_cube7 {
+.sk-cube-grid .sk-cube7 {
   -webkit-animation-delay: 1.4s;
   animation-delay: 1.4s;
 }
 
-.sk_cube_grid .sk_cube8 {
+.sk-cube-grid .sk-cube8 {
   -webkit-animation-delay: 1.2s;
   animation-delay: 1.2s;
 }
 
-.sk_cube_grid .sk_cube9 {
+.sk-cube-grid .sk-cube9 {
   -webkit-animation-delay: 1.0s;
   animation-delay: 1.0s;
 }
 
-@-webkit-keyframes sk_cubeGridScaleDelay {
+@-webkit-keyframes skCubeGridScaleDelay {
 
   0%,
   50%,
@@ -169,7 +169,7 @@ ul li:before {
   }
 }
 
-@keyframes sk_cubeGridScaleDelay {
+@keyframes skCubeGridScaleDelay {
 
   0%,
   50%,

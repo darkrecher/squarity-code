@@ -37,7 +37,7 @@ Après: on verra.
 class MyOutput:
     def __init__(self):
         # https://pyodide.readthedocs.io/en/latest/using_pyodide_from_javascript.html
-        self.python_console = js.document.getElementById("python_console")
+        self.python_console = js.document.getElementById("pythonConsole")
 
     def write(self, text):
         self.python_console.textContent += text

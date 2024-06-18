@@ -93,7 +93,7 @@ export default class GameObjectTransitioner {
         transitionY.setLinkedTransition(transitionX);
         transitionX.setLinkedTransition(transitionY);
       }
-      if (this.gobjState.sprite_name != gameObject.sprite_name) {
+      if (this.gobjState.spriteName != gameObject.sprite_name) {
         // FUTURE: Pas de transition pour le champ sprite_name,
         // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
         somethingChanged = true;
@@ -163,12 +163,12 @@ export default class GameObjectTransitioner {
             let [delay, value] = step;
             const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
             this.currentTransitions.push(transitionImg);
-            currentGobjState.sprite_name = value;
+            currentGobjState.spriteName = value;
             currentTime += delay;
           }
         }
       } else {
-        const transitionCallback = new StateTransitionImmediate("callback", currentTime + transi.delay_ms, transi.callback, false);
+        const transitionCallback = new StateTransitionImmediate("callback", currentTime + transi.delay, transi.callback, false);
         this.currentTransitions.push(transitionCallback);
       }
     }
@@ -286,10 +286,10 @@ export default class GameObjectTransitioner {
       gobjStateDest.y = finalVal;
     } else if (transition.fieldName == "sprite_name") {
       if (applyInGame) {
-        this.gameObject.sprite_name = finalVal;
+        this.gameObject.spriteName = finalVal;
         transition.isAppliedInGame = true;
       }
-      gobjStateDest.sprite_name = finalVal;
+      gobjStateDest.spriteName = finalVal;
     }
   }
 

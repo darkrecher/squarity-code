@@ -6,17 +6,17 @@
     </router-link>
     <br>
 
-    <div ref="tooltipWindow" class="tooltip-window" @click="hide_tooltip">
-      {{ tooltip_window.text }}
+    <div ref="tooltipWindow" class="tooltip-window" @click="hideTooltip">
+      {{ tooltipWindow.text }}
       <br>
-      <template v-if="tooltip_window.link_enabled">
-        <a :href="tooltip_window.link_url" target="_blank">
-          {{ tooltip_window.link_text }}
+      <template v-if="tooltipWindow.linkEnabled">
+        <a :href="tooltipWindow.linkUrl" target="_blank">
+          {{ tooltipWindow.linkText }}
         </a>
       </template>
     </div>
 
-    <div class="modal-wrapper" @click="hide_modal">
+    <div class="modal-wrapper" @click="hideModal">
       <div class="my-modal">
         <div class="my-modal-content">
           <img class="object-fit-contain gif-vision">
@@ -25,23 +25,23 @@
     </div>
 
     <div class="grid-container">
-      <template v-for="item in road_squares">
+      <template v-for="item in roadSquares">
         <!--
           Je me pète les rouleaux à écrire `:key="item.key"` dans ce foutu code,
           parce que si je le met pas, je me fais jeter par Vue et/ou le linter.
           Tout ça pour ne pas avoir l'attribut key dans le DOM, et du coup je suis obligé de
-          rajouter l'attribut my_key avec la même valeur dedans. Merci !!
+          rajouter l'attribut myKey avec la même valeur dedans. Merci !!
         -->
-        <div v-if="item.rank === 'origin'" ref="road_map_origin" :key="item.key" :my_key="item.key"
-          :class="item.html_class" @click="toggle_tooltip">
+        <div v-if="item.rank === 'origin'" ref="roadMapOrigin" :key="item.key" :myKey="item.key"
+          :class="item.html_class" @click="toggleTooltip">
           <p>
             Cliquez sur les carrés
           </p>
           <img class="squarex" src="../assets/squarex.png">
           <img class="click-me" src="../assets/icon_click_me.png">
         </div>
-        <div v-if="item.rank === 'superior'" :key="item.key" :my_key="item.key" :class="item.html_class"
-          :gif_vision="item.gif_vision" @click="show_modal">
+        <div v-if="item.rank === 'superior'" :key="item.key" :myKey="item.key" :class="item.html_class"
+          :gifVision="item.gif_vision" @click="showModal">
           <div>
             <p>
               <span>
@@ -50,14 +50,14 @@
             </p>
           </div>
         </div>
-        <div v-if="item.rank === 'vision'" :key="item.key" :my_key="item.key" :class="item.html_class"
-          :gif_vision="item.gif_vision" @click="show_modal">
+        <div v-if="item.rank === 'vision'" :key="item.key" :myKey="item.key" :class="item.html_class"
+          :gifVision="item.gif_vision" @click="showModal">
           <p class="vision">
             {{ item.title }}
           </p>
         </div>
-        <div v-if="item.rank === 'normal'" :key="item.key" :my_key="item.key" :class="item.html_class"
-          @click="toggle_tooltip">
+        <div v-if="item.rank === 'normal'" :key="item.key" :myKey="item.key" :class="item.html_class"
+          @click="toggleTooltip">
           <p>{{ item.title }}</p>
         </div>
         <div v-if="item.rank === 'empty'" :key="item.key" :class="item.html_class" />
@@ -95,22 +95,22 @@ const URL_GIF_FROM_RM_DATA = {
 
 export default {
   name: 'RoadMap',
-  made_first_update: false,
+  madeFirstUpdate: false,
 
   props: {},
 
   data() {
     return {
-      is_tooltip_visible: false,
-      square_x_tooltip: null,
-      square_y_tooltip: null,
-      road_squares: [],
-      dict_square_descriptions: {},
-      tooltip_window: {
+      isTooltipVisible: false,
+      squareXTooltip: null,
+      squareYTooltip: null,
+      roadSquares: [],
+      dictSquareDescriptions: {},
+      tooltipWindow: {
         text: 'coucou',
-        link_enabled: false,
-        link_url: '',
-        link_text: '',
+        linkEnabled: false,
+        linkUrl: '',
+        linkText: '',
       },
     };
   },
@@ -124,11 +124,11 @@ export default {
     // Cette fonction s'exécute après le mounted, quand tout le DOM a été mis à jour.
     // Elle s'exécute à chaque fois que le contenu de data est modifié.
     // Du coup, je met une condition à la con pour déclencher ça que à la première arrivée sur la page.
-    if (!this.made_first_update) {
-      this.made_first_update = true;
+    if (!this.madeFirstUpdate) {
+      this.madeFirstUpdate = true;
 
-      if (this.$refs.road_map_origin.length === 1) {
-        const elemRoadMapOrigin = this.$refs.road_map_origin[0];
+      if (this.$refs.roadMapOrigin.length === 1) {
+        const elemRoadMapOrigin = this.$refs.roadMapOrigin[0];
         // scrollIntoView permet de scroller vers un élément particulier.
         elemRoadMapOrigin.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
       }
@@ -178,20 +178,21 @@ export default {
       const dictSquareDescriptions = {};
       // C'est vraiment une syntaxe de merde, ces forEach.
       // Je peux pas faire de "for ... of" à cause de ce crétin de linter.
+      // TODO: si on peut. à corriger.
       roadSquares.forEach((square) => {
         const oneSquareDescrip = {};
         oneSquareDescrip.description = square.description;
         if (('link_url' in square) && ('link_text' in square)) {
-          oneSquareDescrip.link_url = square.link_url;
-          oneSquareDescrip.link_text = square.link_text;
+          oneSquareDescrip.linkUrl = square.link_url;
+          oneSquareDescrip.linkText = square.link_text;
         }
         dictSquareDescriptions[square.key] = oneSquareDescrip;
       });
-      this.road_squares = roadSquares;
-      this.dict_square_descriptions = dictSquareDescriptions;
+      this.roadSquares = roadSquares;
+      this.dictSquareDescriptions = dictSquareDescriptions;
     },
 
-    toggle_tooltip(event) {
+    toggleTooltip(event) {
       // https://thewebdev.info/2022/03/11/how-to-fix-click-event-target-
       // gives-element-or-its-child-and-not-parent-element-with-vue-js/
       const container = event.currentTarget.parentNode;
@@ -201,9 +202,9 @@ export default {
       const newSquareX = indexRoadSquare % GRID_LENGTH_IN_SQUARE;
 
       if (
-        (this.square_x_tooltip === null)
-        || (this.square_x_tooltip !== newSquareX)
-        || (this.square_y_tooltip !== newSquareY)
+        (this.squareXTooltip === null)
+        || (this.squareXTooltip !== newSquareX)
+        || (this.squareYTooltip !== newSquareY)
       ) {
         // Positionnement de la fenêtre de tooltip
         const styleTopEm = newSquareY * SQUARE_SIZE_IN_EM + SQUARE_SIZE_IN_EM + 3;
@@ -217,44 +218,44 @@ export default {
         }
         const styleLeftEm = newSquareX * SQUARE_SIZE_IN_EM - SQUARE_SIZE_IN_EM + 2 + offsetX;
 
-        this.is_tooltip_visible = true;
+        this.isTooltipVisible = true;
         this.$refs.tooltipWindow.style.display = 'block';
-        this.square_x_tooltip = newSquareX;
-        this.square_y_tooltip = newSquareY;
+        this.squareXTooltip = newSquareX;
+        this.squareYTooltip = newSquareY;
         this.$refs.tooltipWindow.style.top = `${styleTopEm.toString()}em`;
         this.$refs.tooltipWindow.style.left = `${styleLeftEm.toString()}em`;
-        const squareKey = event.currentTarget.getAttribute('my_key');
-        const squareDescription = this.dict_square_descriptions[squareKey];
-        this.tooltip_window.text = squareDescription.description;
+        const squareKey = event.currentTarget.getAttribute('myKey');
+        const squareDescription = this.dictSquareDescriptions[squareKey];
+        this.tooltipWindow.text = squareDescription.description;
 
-        if (('link_url' in squareDescription) && ('link_text' in squareDescription)) {
-          this.tooltip_window.link_enabled = true;
-          this.tooltip_window.link_text = squareDescription.link_text;
-          this.tooltip_window.link_url = squareDescription.link_url;
+        if (('linkUrl' in squareDescription) && ('linkText' in squareDescription)) {
+          this.tooltipWindow.linkEnabled = true;
+          this.tooltipWindow.linkText = squareDescription.linkText;
+          this.tooltipWindow.linkUrl = squareDescription.linkUrl;
         } else {
-          this.tooltip_window.link_enabled = false;
+          this.tooltipWindow.linkEnabled = false;
         }
       } else {
-        this.hide_tooltip();
+        this.hideTooltip();
       }
     },
 
-    hide_tooltip() {
-      this.is_tooltip_visible = false;
+    hideTooltip() {
+      this.isTooltipVisible = false;
       this.$refs.tooltipWindow.style.display = 'none';
-      this.square_x_tooltip = null;
-      this.square_y_tooltip = null;
+      this.squareXTooltip = null;
+      this.squareYTooltip = null;
     },
 
-    show_modal(event) {
+    showModal(event) {
       const modal = document.querySelector('.modal-wrapper');
       modal.style.display = 'block';
       const gifImgInModal = modal.querySelector('.gif-vision');
-      const imgSource = event.currentTarget.getAttribute('gif_vision');
+      const imgSource = event.currentTarget.getAttribute('gifVision');
       gifImgInModal.src = URL_GIF_FROM_RM_DATA[imgSource];
     },
 
-    hide_modal() {
+    hideModal() {
       const modal = document.querySelector('.modal-wrapper');
       modal.style.display = 'none';
     },

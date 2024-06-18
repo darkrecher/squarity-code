@@ -4,7 +4,7 @@ export default Object.freeze({
   URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
 
-  url_game_spec_from_loc_hash(locHash) {
+  urlGameSpecFromLocHash(locHash) {
     const locHashSplitted = locHash.split('_');
     if (locHashSplitted.length !== 3) {
       return null;
@@ -32,7 +32,7 @@ export default Object.freeze({
     return urlPattern.replace('{externalId}', externalId);
   },
 
-  async fetch_game_spec(url) {
+  async fetchGameSpec(url) {
     // https://stackoverflow.com/questions/57411402/using-fetch-to-display-plain-text-in-a-web-page
     let response = '';
     try {
@@ -60,9 +60,9 @@ export default Object.freeze({
     const jsonConf = gameSpecElems[1];
     const gameCode = gameSpecElems[2];
     return {
-      url_tileset: urlTileset,
-      json_conf: jsonConf,
-      game_code: gameCode,
+      urlTileset: urlTileset,
+      jsonConf: jsonConf,
+      gameCode: gameCode,
     };
   },
 

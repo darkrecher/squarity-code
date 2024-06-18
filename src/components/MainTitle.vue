@@ -1,5 +1,5 @@
 <template>
-  <div class="main_title">
+  <div class="main-title">
     <h1>Squarity</h1>
     <div>un moteur de jeux 2D, en python</div>
   </div>

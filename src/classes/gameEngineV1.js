@@ -1,3 +1,5 @@
+import GameUpdateResult from './gameEngine/GameUpdateResult.js'
+
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
@@ -61,6 +63,14 @@ export default class GameEngineV1 {
 
   isPlayerLocked() {
     return (this.player_locks.length !== 0);
+  }
+
+  getLockType() {
+    if (this.isPlayerLocked()) {
+      return GameUpdateResult.UI_BLOCK;
+    } else {
+      return GameUpdateResult.UI_NO_BLOCK;
+    }
   }
 
   getRatioFromWidthToHeight() {
