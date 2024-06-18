@@ -340,6 +340,8 @@ export default {
           this.$refs.python_console.textContent += msg;
         }
       } else {
+        // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
+        // si la version est pas indiquée.
         const INFER_V1 = 'GameModel()';
         const INFER_V2 = 'GameModel(squarity.GameModelBase)';
         let msg = "";
@@ -369,7 +371,6 @@ export default {
           libSquarityCodeV2
         );
       } else {
-        console.log("v 1 !!")
         this.game_engine = new GameEngineV1(
           this.$refs.python_console,
           window.pyodide,

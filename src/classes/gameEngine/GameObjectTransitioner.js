@@ -38,8 +38,6 @@ export default class GameObjectTransitioner {
 
 
   clearRecordedTransitions() {
-    console.log("this.gameObject", this.gameObject);
-    console.log("this.gameObject._must_clear_transitions", this.gameObject._must_clear_transitions);
     // On vire toutes les transitions en cours. Boum !!
     this.currentTransitions = [];
     this.gameObject.ack_recorded_transitions_cleared();
@@ -92,7 +90,6 @@ export default class GameObjectTransitioner {
         somethingChanged = true;
       }
       if ((transitionX != null) && (transitionY != null)) {
-        console.log("linking ! x y")
         transitionY.setLinkedTransition(transitionX);
         transitionX.setLinkedTransition(transitionY);
       }
@@ -140,7 +137,6 @@ export default class GameObjectTransitioner {
       // FUTURE: je suis pas fan de ce truc, qui va être exécuté plein de fois et qui est un peu lent.
       // (rechercher une chaîne dans une autre chaîne).
       if (transi.__class__.toString().includes("TransitionSteps")) {
-        console.log("recording", transi.field_name);
         if (transi.field_name === "coord") {
           for (let step of transi.steps) {
             let [delay, value] = step;
@@ -172,7 +168,6 @@ export default class GameObjectTransitioner {
           }
         }
       } else {
-        console.log("callback, with the delay: ", transi.delay_ms);
         const transitionCallback = new StateTransitionImmediate("callback", currentTime + transi.delay_ms, transi.callback, false);
         this.currentTransitions.push(transitionCallback);
       }
@@ -192,11 +187,9 @@ export default class GameObjectTransitioner {
     for (let transition of this.currentTransitions) {
       if (timeNow >= transition.timeStart) {
         if (!transition.isAppliedInGame) {
-          console.log("applyTransition", timeNow);
           this.applyTransition(transition, this.gobjState, true);
         }
         if (transition.isTimeEnded(timeNow)) {
-          console.log("ended", transition.fieldName, transition.timeStart)
           if (transition.fieldName === "callback") {
             // C'est une transition de callback. On récupère cette callback.
             gameUpdateResult.callbackInsideTransi.push(transition.getFinalVal());
@@ -211,7 +204,6 @@ export default class GameObjectTransitioner {
       }
     }
     if (endedAllTransition) {
-      console.log("endedAllTransition timeNow", timeNow);
       // On enlève toutes les transitions et on indique qu'il faudra appeler la callback de end des transitions.
       this.currentTransitions = [];
       // On détecte si y'a une callback de fin de transition à appeler.
@@ -275,9 +267,6 @@ export default class GameObjectTransitioner {
   applyTransition(transition, gobjStateDest, applyInGame) {
     // un peu bof, tous ces if.
     // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
-    if (applyInGame) {
-      console.log("applyTransition in game", transition.fieldName, transition.getFinalVal());
-    }
     if (this.tryApplyTransitionXY(transition, gobjStateDest, applyInGame)) {
       return;
     }
@@ -308,7 +297,6 @@ export default class GameObjectTransitioner {
   // private
   tryApplyTransitionXY(transition, gobjStateDest, applyInGame) {
     // On fusionne l'application en x et en y, si c'est possible.
-    console.log("move auieauie");
     if (transition.linkedTransition == null) {
       return false;
     }
@@ -329,7 +317,6 @@ export default class GameObjectTransitioner {
       finalValY = transition.getFinalVal();
     }
     if (applyInGame) {
-      console.log("move x and y", finalValX, finalValY);
       this.gameObject.move_to_xy(finalValX, finalValY);
       transition.isAppliedInGame = true;
       linkedTransition.isAppliedInGame = true;
@@ -346,7 +333,6 @@ export default class GameObjectTransitioner {
     for (let transition of this.currentTransitions) {
       endTransitionTimes.push(transition.getTimeEnd())
     }
-    console.log("max: ", Math.max(...endTransitionTimes));
     return Math.max(...endTransitionTimes);
   }
 

@@ -69,7 +69,6 @@ class LayerBase {
       this.isLayerSparse = false;
       this.gameObjectIterator = new GameObjectIteratorDense(this.python_layer);
     }
-    console.log("sparse", this.isLayerSparse);
   }
 
   updateWithGameSituation(timeNow) {}
@@ -124,7 +123,6 @@ export class LayerWithTransition extends LayerBase {
           this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
-        console.log("ajout de l'objet : ", gobjId);
         gameObj._transitioner = gobjTransitioner;
         addedAnObject = true;
       } else {
@@ -157,13 +155,11 @@ export class LayerWithTransition extends LayerBase {
       const idObjsPrevious = this.layerMemory.keys();
       for (let gobjId of idObjsPrevious) {
         if (!idObjsPresent.has(gobjId)) {
-          console.log("On doit enlever l'objet : ", gobjId);
           this.layerMemory.delete(gobjId);
         }
       }
     }
     const timeNowLayerAfter = performance.now();
-    //console.log("layer analysis z ", timeNowLayerBefore, " ", timeNowLayerAfter);
     return gameUpdateResult;
   }
 

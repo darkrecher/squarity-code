@@ -82,7 +82,6 @@ export default class GameEngineV2 {
       newLockType = GameUpdateResult.UI_BLOCK;
     }
     if (this.currentLockType !== newLockType) {
-      console.log("Changement de block type !", this.currentLockType, " => ", newLockType);
       this.currentLockType = newLockType;
       return true
     } else {
@@ -142,15 +141,20 @@ export default class GameEngineV2 {
       `game_model = GameModel(${areaWidth}, ${areaHeight}, js.document.json_conf)`,
       'Instanciation du GameModel',
     );
+    // FUTURE: meuh... Y'a pas plus simple pour récupérer ce truc ?
     this.gameModel = this.runPython(
       `game_model`,
       'Récupération du game_model',
     );
-    // TODO: appeler directement on_start, et catcher les exceptions comme pour l'exécution de callbacks.
-    this.runPython(
-      `game_model.on_start()`,
-      'Exécution de game_model.on_start',
-    );
+    try {
+      this.gameModel.on_start();
+    } catch (err) {
+      const errMessage = err.message;
+      this.printGameConsole(`Erreur python durant l'exécution de game_model.on_start\n${errMessage}`);
+      // Je rethrow l'exception, parce que si le code python déconne,
+      // vaut mieux pas essayer de faire d'autres choses après.
+      throw err;
+    }
     // Vérification si ce game code a une fonction qui gère les clics.
     this.has_click_handling = this.runPython(
       'hasattr(game_model, "on_click")',
@@ -174,23 +178,24 @@ export default class GameEngineV2 {
     if (this.currentLockType) {
       return;
     }
-    const eventResultRaw = this.runPython(
-      `game_model.on_button_action("${actionName}")`,
-      `Exécution d'une action ${actionName}`,
-    );
+    let eventResultRaw;
+    try {
+      eventResultRaw = this.gameModel.on_button_action(actionName);
+    } catch (err) {
+      const errMessage = err.message;
+      this.printGameConsole(`Erreur python durant l'exécution de '${actionName}'.\n${errMessage}`);
+      throw err;
+    }
     this.afterGameEvent(eventResultRaw);
   }
 
   execGameCallback(gameCallback) {
     let eventResultRaw;
     try {
-      // resultPython = this.pyodide.runPython(pythonCode);
       eventResultRaw = gameCallback();
     } catch (err) {
       const errMessage = err.message;
       this.printGameConsole(`Erreur python durant l'exécution d'une callback\n${errMessage}`);
-      // Je rethrow l'exception, parce que si le code python déconne,
-      // vaut mieux pas essayer de faire d'autres choses après.
       throw err;
     }
     this.afterGameEvent(eventResultRaw);
@@ -217,6 +222,8 @@ export default class GameEngineV2 {
     ) {
       return;
     }
+    // FUTURE: si je pouvais récupérer Coord,
+    // j'aurais pas besoin d'exécuter ça avec une string pourrie.
     const eventResultRaw = this.runPython(
       `game_model.on_click(Coord(${clicked_tile_x}, ${clicked_tile_y}))`,
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
@@ -226,7 +233,6 @@ export default class GameEngineV2 {
 
   updateFromPythonData(mustRedraw) {
 
-    const timeNowStart = performance.now();
     const python_layers = this.gameModel.layers;
     const timeNow = performance.now();
 
@@ -272,17 +278,10 @@ export default class GameEngineV2 {
     // Ces callbacks ne peuvent arriver que quand on update des transitions
     // (et aussi avec le eventresultraw, mais ça c'est autre chose).
 
-    const timeNowAfterAnalysis = performance.now();
     if (mustRedraw) {
       // On dessine l'état actuel. Faut tout redessiner.
       this.drawCurrentGameBoardState(timeNow)
     }
-    const timeNowAfterDraw = performance.now();
-    console.log(
-      "times. start", timeNowStart, " after python", timeNow, " after analysis ", timeNowAfterAnalysis, " after first draw ", timeNowAfterDraw,
-      " uiBlock ", gameUpdateResult.uiBlock
-    );
-
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
     if (gameUpdateResult.hasAnyTransition) {
@@ -419,8 +418,6 @@ export default class GameEngineV2 {
   }
 
   processGameEventResult(eventResultRaw) {
-    //console.log("eventResultRaw");
-    //console.log(eventResultRaw);
     let mustRedraw = true;
     if (eventResultRaw.delayed_actions) {
       for (let newDelayedAction of eventResultRaw.delayed_actions) {
@@ -433,8 +430,6 @@ export default class GameEngineV2 {
           // à l'intérieur de la fonction callback du setTimeout.
           // Ça a l'air complètement fumé mais ça marche ... Magie JavaScript !!!
           // https://stackoverflow.com/questions/17280375/in-javascript-how-can-i-access-the-id-of-settimeout-setinterval-call-from-insid
-          console.log("on balance une callback t", delayTime);
-          console.log("on balance une callback c", newDelayedAction.callback);
           const timeOutId = setTimeout(() => {
             this.processDelayedAction(timeOutId, newDelayedAction.callback);
           }, delayTime);
@@ -472,15 +467,6 @@ export default class GameEngineV2 {
     }
     return mustRedraw;
   }
-
-  // TODO : bug a tracer dans trello. Les callbacks sont pas annulées quand on recharge un jeu.
-  // lancer une boule de feu avec le jeu du sorcier, puis cliquer sur le jeu des diamants.
-  // Ça fait un message d'erreur.
-
-  // TODO : si on clique sur Exécuter alors que y'a des transitions en cours,
-  // ça continue d'afficher les images d'avant.
-  // À cause de ce qu'on a balancé dans requestAnimationFrame, et qui est toujours là.
-  // faudra exécuter ça : https://developer.mozilla.org/fr/docs/Web/API/Window/cancelAnimationFrame
 
   // TODO : plein de variables nommées en snake case à remettre en camel,
   // à cause des conventions dégueux du javascript de mes fesses.

@@ -1271,7 +1271,8 @@ class GameModel(squarity.GameModelBase):
           # self.gamobj_gem_green.clear_recorded_transitions()
           offset = +1 if action_name == "action_1" else -1
           transi_violet = None if action_name == "action_1" else 300
-          self.gamobj_gem_green.move(Coord(x=offset, y=0))
+          direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left
+          self.gamobj_gem_green.move_dir(direc)
           self.gamobj_gem_violet.move(Coord(x=-offset, y=0), transi_violet, self.another_another_callback)
 
 

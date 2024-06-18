@@ -194,23 +194,15 @@ class GameObject(GameObjectBase):
         self._one_shot_transition_delay = None
         self._one_shot_callback = None
 
-    # TODO : move_dir(direction, distance, delay_ms, callback)
-
     # FUTURE : gérer une valeur de speed. transition = speed * distance à parcourir.
 
     def move_to(self, dest_coord, transition_delay=None, callback=None):
         self.layer_owner.move_game_object(self, dest_coord)
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
+        self._set_transi_callback(transition_delay, callback)
 
     def move_to_xy(self, x, y, transition_delay=None, callback=None):
         self.layer_owner.move_game_object(self, Coord(x, y))
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
+        self._set_transi_callback(transition_delay, callback)
 
     # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors de l'aire de jeu.
     def move(self, coord_offset, transition_delay=None, callback=None):
@@ -223,10 +215,18 @@ class GameObject(GameObjectBase):
                 self.coord.y + coord_offset.y,
             ),
         )
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
+        self._set_transi_callback(transition_delay, callback)
+
+    def move_dir(self, direction, distance=1, transition_delay=None, callback=None):
+        unary_vect_x, unary_vect_y = direction.vector
+        self.layer_owner.move_game_object(
+            self,
+            Coord(
+                self.coord.x + unary_vect_x * distance,
+                self.coord.y + unary_vect_y * distance,
+            ),
+        )
+        self._set_transi_callback(transition_delay, callback)
 
     def add_transition(self, transition):
         """
@@ -265,6 +265,12 @@ class GameObject(GameObjectBase):
 
     def reset_one_shot_callback(self):
         self._one_shot_callback = None
+
+    def _set_transi_callback(self, transition_delay=None, callback=None):
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
 
 
 class Tile():
@@ -426,8 +432,10 @@ class GameModelBase():
     def on_click(self, coord):
         pass
 
-    # TODO: faut aussi donner le vector. Ça peut aider.
     def on_button_direction(self, direction):
+        """
+        Utilisez direction.vector pour avoir le tuple (dx, dy) du bouton de direction.
+        """
         pass
 
     def on_button_action(self, action_name):
