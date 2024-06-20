@@ -1173,7 +1173,7 @@ class GameModel(squarity.GameModelBase):
               Coord(x=4, y=1),
               "gem_green",
           )
-          self.gamobj_gem_green.ui_block_type = squarity.ui_block_types.BLOCK
+          self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
@@ -1181,7 +1181,7 @@ class GameModel(squarity.GameModelBase):
               Coord(x=5, y=1),
               "gem_violet",
           )
-          self.gamobj_gem_violet.ui_block_type = squarity.ui_block_types.INVISIBLE_BLOCK
+          self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
 
       def on_click(self, coord):
           # print("on click", coord.x, coord.y)
@@ -1275,6 +1275,21 @@ class GameModel(squarity.GameModelBase):
           self.gamobj_gem_green.move_dir(direc)
           self.gamobj_gem_violet.move(Coord(x=-offset, y=0), transi_violet, self.another_another_callback)
 
+          event_result = squarity.EventResult()
+          event_result.plocks_custom = ["blabla"]
+          event_result.delayed_actions = []
+          callback_unlock_custom = squarity.CallBack()
+          callback_unlock_custom.delay = 2000
+          callback_unlock_custom.callback = self.callback_unlock_custom
+          event_result.delayed_actions.append(callback_unlock_custom)
+          return event_result
+
+      def callback_unlock_custom(self):
+          print("unlock custom")
+          event_result = squarity.EventResult()
+          event_result.delayed_actions = []
+          event_result.punlocks_custom = ["*"]
+          return event_result
 
       def my_callback(self):
           pass

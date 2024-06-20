@@ -13,7 +13,7 @@ export default class GameEngineV2 {
   constructor(
     pythonConsole,
     pyodide,
-    refreshUiLockType,
+    refreshPlock,
     gameCanvas,
     canvasBuffer,
     libSquarityCode
@@ -21,7 +21,7 @@ export default class GameEngineV2 {
     this.version = "2.0.0";
     this.pythonConsole = pythonConsole;
     this.pyodide = pyodide;
-    this.refreshUiLockType = refreshUiLockType;
+    this.refreshPlock = refreshPlock;
     this.gameCanvas = gameCanvas;
     this.canvasBuffer = canvasBuffer;
     this.ctxCanvas = this.gameCanvas.getContext('2d');
@@ -41,9 +41,8 @@ export default class GameEngineV2 {
     this.delayedActions = [];
     this.hasClickHandling = false;
     this.showingTransition = false;
-    // TODO: or donc, trouver un autre nom pour ça. Parce que "player locks", c'est pas clair.
-    this.player_locks = [];
-    this.currentLockType = GameUpdateResult.UI_NO_BLOCK;
+    this.plocksCustom = [];
+    this.currentPlock = GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
@@ -75,23 +74,24 @@ export default class GameEngineV2 {
 
   }
 
-  hasUiLockTypeChanged(newUiTransiLock) {
-    let newLockType = 0;
-    if (newUiTransiLock == GameUpdateResult.UI_INVISIBLE_BLOCK) {
-      newLockType = GameUpdateResult.UI_INVISIBLE_BLOCK;
-    } else if ((this.player_locks.length !== 0) || (newUiTransiLock === GameUpdateResult.UI_BLOCK)) {
-      newLockType = GameUpdateResult.UI_BLOCK;
+  hasPlockChanged(newPlockTransi) {
+    let newPlock = 0;
+    if (newPlockTransi == GameUpdateResult.PLOCK_TRANSI_INVISIBLE) {
+      newPlock = GameUpdateResult.PLOCK_TRANSI_INVISIBLE;
+    } else if ((this.plocksCustom.length !== 0) || (newPlockTransi === GameUpdateResult.PLOCK_TRANSI_LOCK)) {
+      newPlock = GameUpdateResult.PLOCK_TRANSI_LOCK;
     }
-    if (this.currentLockType !== newLockType) {
-      this.currentLockType = newLockType;
+    if (this.currentPlock !== newPlock) {
+      this.currentPlock = newPlock;
       return true
     } else {
       return false;
     }
   }
 
-  getLockType() {
-    return this.currentLockType;
+  getPlock() {
+    console.log("getPlock", this.currentPlock, performance.now());
+    return this.currentPlock;
   }
 
   getRatioFromWidthToHeight() {
@@ -129,8 +129,8 @@ export default class GameEngineV2 {
     for (let timeoutId of this.delayedActions) {
       clearTimeout(timeoutId);
     }
-    this.player_locks = [];
-    this.currentLockType = GameUpdateResult.UI_NO_BLOCK;
+    this.plocksCustom = [];
+    this.currentPlock = GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
     this.delayedActions = [];
 
     this.runPython(
@@ -164,7 +164,7 @@ export default class GameEngineV2 {
   }
 
   onButtonDirection(direction) {
-    if (this.currentLockType) {
+    if (this.currentPlock) {
       return;
     }
     const pythonDir = this.pythonDirFromJsDir.get(direction);
@@ -176,7 +176,7 @@ export default class GameEngineV2 {
   }
 
   onButtonAction(actionName) {
-    if (this.currentLockType) {
+    if (this.currentPlock) {
       return;
     }
     let eventResultRaw;
@@ -206,7 +206,7 @@ export default class GameEngineV2 {
     if (!this.hasClickHandling) {
       return;
     }
-    if (this.currentLockType) {
+    if (this.currentPlock) {
       return;
     }
     // https://thewebdev.info/2021/03/21/how-to-get-the-coordinates-of-a-mouse-click-on-a-canvas-element/
@@ -293,8 +293,8 @@ export default class GameEngineV2 {
         this.showingTransition = true;
       }
     }
-    if (this.hasUiLockTypeChanged(gameUpdateResult.uiBlock)) {
-      this.refreshUiLockType();
+    if (this.hasPlockChanged(gameUpdateResult.PlockTransi)) {
+      this.refreshPlock();
     }
   }
 
@@ -341,8 +341,8 @@ export default class GameEngineV2 {
     for (let gameCallback of mergedGameUpdateResult.callbackEndTransi) {
       this.execGameCallback(gameCallback);
     }
-    if (this.hasUiLockTypeChanged(mergedGameUpdateResult.uiBlock)) {
-      this.refreshUiLockType();
+    if (this.hasPlockChanged(mergedGameUpdateResult.PlockTransi)) {
+      this.refreshPlock();
     }
   }
 
@@ -435,19 +435,20 @@ export default class GameEngineV2 {
         this.delayedActions.push(timeOutId);
       }
     }
-    if (eventResultRaw.player_locks) {
-      for (let lockName of eventResultRaw.player_locks) {
-        if (!this.player_locks.includes(lockName)) {
-          this.player_locks.push(lockName);
+    if (eventResultRaw.plocks_custom) {
+      for (let plockCustomName of eventResultRaw.plocks_custom) {
+        if (!this.plocksCustom.includes(plockCustomName)) {
+          this.plocksCustom.push(plockCustomName);
         }
       }
     }
-    if (eventResultRaw.player_unlocks) {
-      for (let unlockName of eventResultRaw.player_unlocks) {
-        if (unlockName === '*') {
-          this.player_locks = [];
+    if (eventResultRaw.punlocks_custom) {
+      for (let punlockCustomName of eventResultRaw.punlocks_custom) {
+        console.log("punlockCustomName", punlockCustomName);
+        if (punlockCustomName === '*') {
+          this.plocksCustom = [];
         } else {
-          this.player_locks = this.player_locks.filter((lockLoop) => lockLoop !== unlockName);
+          this.plocksCustom = this.plocksCustom.filter((plockLoop) => plockLoop !== punlockCustomName);
         }
       }
     }

@@ -237,13 +237,13 @@ export default {
       }
     },
 
-    refreshUiLockType() {
+    refreshPlock() {
       // Fonction de callback à transmettre au GameEngine. Si un événement du jeu
       // a un effet sur le lock des boutons du jeu, on le prend en compte ici.
       // Les locks/unlocks peuvent être déclenchés tout seul (delayed_event, callbacks, ...),
       // donc il faut que cette fonction soit aussi une callback.
-      const UiLockType = this.gameEngine.getLockType();
-      if (UiLockType == 2) { // TODO : ça correspond à GameUpdateResult.UI_BLOCK. Faut mettre ça dans un truc commun.
+      const Plock = this.gameEngine.getPlock();
+      if (Plock == 2) { // TODO : ça correspond à GameUpdateResult.PLOCK_TRANSI_LOCK. Faut mettre ça dans un truc commun.
         this.isPlayerLocked = true;
       } else {
         this.isPlayerLocked = false;
@@ -367,7 +367,7 @@ export default {
         this.gameEngine = new GameEngineV2(
           this.$refs.pythonConsole,
           window.pyodide,
-          this.refreshUiLockType,
+          this.refreshPlock,
           canvasElem,
           this.canvasBuffer,
           libSquarityCodeV2
@@ -376,7 +376,7 @@ export default {
         this.gameEngine = new GameEngineV1(
           this.$refs.pythonConsole,
           window.pyodide,
-          this.refreshUiLockType,
+          this.refreshPlock,
           canvasElem,
           this.canvasBuffer,
           libSquarityCodeV1

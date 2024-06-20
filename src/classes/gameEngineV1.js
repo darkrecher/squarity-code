@@ -65,11 +65,11 @@ export default class GameEngineV1 {
     return (this.player_locks.length !== 0);
   }
 
-  getLockType() {
+  getPlock() {
     if (this.isPlayerLocked()) {
-      return GameUpdateResult.UI_BLOCK;
+      return GameUpdateResult.PLOCK_TRANSI_LOCK;
     } else {
-      return GameUpdateResult.UI_NO_BLOCK;
+      return GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
     }
   }
 

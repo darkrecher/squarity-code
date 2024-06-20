@@ -226,7 +226,7 @@ export default class GameObjectTransitioner {
         this.currentTransitions = newCurrentTransitions;
       }
       gameUpdateResult.hasAnyTransition = true;
-      gameUpdateResult.uiBlock = this.gameObject.ui_block_type;
+      gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
     }
     return gameUpdateResult;
   }

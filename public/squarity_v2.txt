@@ -6,8 +6,8 @@ import sys
 
 le mode répond à la question: on fait quoi quand une nouvelle transition s'ajoute à un objet qui est toujours en train d'en faire une ?
 
- - block UI (visible)
- - block UI (hidden)
+ X player lock (visible)
+ X player lock (hidden)
  X ajouter après les autres (done)
  x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
  x interdire l'ajout de nouvelle transition. (ou pas, on peut le gérer depuis le python, avec get_nb_undone_transitions)
@@ -144,12 +144,10 @@ class TransitionSteps():
         self.steps = steps
 
 
-class UIBlockTypes():
-    NO_BLOCK = 0
-    INVISIBLE_BLOCK = 1
-    BLOCK = 2
-
-ui_block_types = UIBlockTypes()
+class PlayerLockTransi():
+    NO_LOCK = 0
+    INVISIBLE = 1
+    LOCK = 2
 
 
 class GameObjectBase():
@@ -171,7 +169,7 @@ class GameObject(GameObjectBase):
         self.layer_owner = layer_owner
         self.coord = Coord(coord=coord)
         self.sprite_name = sprite_name
-        self.ui_block_type = ui_block_types.NO_BLOCK
+        self.plock_transi = PlayerLockTransi.NO_LOCK
         # FUTURE: pour plus tard.
         # self.visible = True
 
