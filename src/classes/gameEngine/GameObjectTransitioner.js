@@ -1,20 +1,7 @@
+import { isNonePython } from '../common/SimpleFunctions.js';
 import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
 import GameUpdateResult from './GameUpdateResult.js'
-
-
-// TODO : factoriser et foutre dans un autre fichier.
-function isNonePython(val) {
-  // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
-
-  // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
-  // La manière de vérifier si une variable est "undefined" en javascript est
-  // vraiment dégueulasse, mais tout le monde fait comme ça.
-  // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
-  // il faut passer par un typeof et une comparaison de chaîne de caractères.
-  // Tu te fous vraiment de ma gueule, javascript.
-  return typeof val === 'undefined';
-}
 
 
 export default class GameObjectTransitioner {
@@ -217,6 +204,7 @@ export default class GameObjectTransitioner {
         // TODO : c'est un peu dégueu de reconstruire une liste juste pour filtrer des trucs.
         // Si le JS peut faire mieux, je suis preneur.
         // Pour info: pour supprimer un élément dans un tableau, c'est splice.
+        // osef ! filter !
         const newCurrentTransitions = [];
         for (let transition of this.currentTransitions) {
           if (!transition.isDone) {

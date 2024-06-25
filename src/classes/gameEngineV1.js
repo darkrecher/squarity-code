@@ -1,20 +1,12 @@
-import GameUpdateResult from './gameEngine/GameUpdateResult.js'
+import { Direction, PlayerLockTransi } from './common/Constants.js';
+import { isNonePython } from './common/SimpleFunctions.js';
+
 
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
 const defaultTileSize = 32;
 const defaultNbTileWidth = 20;
 const defaultNbTileHeight = 14;
 
-export const Direction = {
-  Up: 0,
-  UpRight: 1,
-  Right: 2,
-  DownRight: 3,
-  Down: 4,
-  DownLeft: 5,
-  Left: 6,
-  UpLeft: 7,
-};
 
 export default class GameEngineV1 {
 
@@ -67,9 +59,9 @@ export default class GameEngineV1 {
 
   getPlock() {
     if (this.isPlayerLocked()) {
-      return GameUpdateResult.PLOCK_TRANSI_LOCK;
+      return PlayerLockTransi.Lock;
     } else {
-      return GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
+      return PlayerLockTransi.NoLock;
     }
   }
 
@@ -150,7 +142,7 @@ export default class GameEngineV1 {
       `Exécution d'un événement ${eventName}`,
     );
     let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
+    if (!isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
     this.updateFromPythonData(mustRedraw);
@@ -183,7 +175,7 @@ export default class GameEngineV1 {
       `Exécution de on_click sur (${clicked_tile_x}, ${clicked_tile_x})`,
     );
     let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
+    if (!isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
     this.updateFromPythonData(mustRedraw);
@@ -265,18 +257,6 @@ export default class GameEngineV1 {
     this.game_canvas.height = canvasHeight;
     this.canvas_buffer.width = canvasWidth;
     this.canvas_buffer.height = canvasHeight;
-  }
-
-  isNonePython(val) {
-    // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
-
-    // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
-    // La manière de vérifier si une variable est "undefined" en javascript est
-    // vraiment dégueulasse, mais tout le monde fait comme ça.
-    // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
-    // il faut passer par un typeof et une comparaison de chaîne de caractères.
-    // Tu te fous vraiment de ma gueule, javascript.
-    return typeof val === 'undefined';
   }
 
   printGameConsole(msg) {

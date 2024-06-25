@@ -1,4 +1,6 @@
-import { Direction } from './gameEngineV1.js';
+// TODO : c'est quoi la convention de nommage des fichiers dans ce langage à la con ?
+import { isNonePython } from './common/SimpleFunctions.js';
+import { Direction, PlayerLockTransi } from './common/Constants.js';
 import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
 import GameUpdateResult from './gameEngine/GameUpdateResult.js'
 
@@ -42,7 +44,7 @@ export default class GameEngineV2 {
     this.hasClickHandling = false;
     this.showingTransition = false;
     this.plocksCustom = [];
-    this.currentPlock = GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
+    this.currentPlock = PlayerLockTransi.NoLock;
     this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
@@ -76,10 +78,10 @@ export default class GameEngineV2 {
 
   hasPlockChanged(newPlockTransi) {
     let newPlock = 0;
-    if (newPlockTransi == GameUpdateResult.PLOCK_TRANSI_INVISIBLE) {
-      newPlock = GameUpdateResult.PLOCK_TRANSI_INVISIBLE;
-    } else if ((this.plocksCustom.length !== 0) || (newPlockTransi === GameUpdateResult.PLOCK_TRANSI_LOCK)) {
-      newPlock = GameUpdateResult.PLOCK_TRANSI_LOCK;
+    if (newPlockTransi == PlayerLockTransi.Invisible) {
+      newPlock = PlayerLockTransi.Invisible;
+    } else if ((this.plocksCustom.length !== 0) || (newPlockTransi === PlayerLockTransi.Lock)) {
+      newPlock = PlayerLockTransi.Lock;
     }
     if (this.currentPlock !== newPlock) {
       this.currentPlock = newPlock;
@@ -130,7 +132,7 @@ export default class GameEngineV2 {
       clearTimeout(timeoutId);
     }
     this.plocksCustom = [];
-    this.currentPlock = GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
+    this.currentPlock = PlayerLockTransi.NoLock;
     this.delayedActions = [];
 
     this.runPython(
@@ -386,18 +388,6 @@ export default class GameEngineV2 {
     this.canvasBuffer.height = canvasHeight;
   }
 
-  isNonePython(val) {
-    // Quand du code python renvoie None, la variable javascript prend la valeur "undefined"
-
-    // https://www.tutorialrepublic.com/faq/how-to-determine-if-variable-is-undefined-or-null-in-javascript.php
-    // La manière de vérifier si une variable est "undefined" en javascript est
-    // vraiment dégueulasse, mais tout le monde fait comme ça.
-    // "undefined" est un mot-clé de base du javascript, mais pour tester cette valeur,
-    // il faut passer par un typeof et une comparaison de chaîne de caractères.
-    // Tu te fous vraiment de ma gueule, javascript.
-    return typeof val === 'undefined';
-  }
-
   printGameConsole(msg) {
     const pythonConsole = this.pythonConsole;
     pythonConsole.textContent += msg;
@@ -411,7 +401,7 @@ export default class GameEngineV2 {
 
   afterGameEvent(eventResultRaw) {
     let mustRedraw = true;
-    if (!this.isNonePython(eventResultRaw)) {
+    if (!isNonePython(eventResultRaw)) {
       mustRedraw = this.processGameEventResult(eventResultRaw);
     }
     this.updateFromPythonData(mustRedraw);

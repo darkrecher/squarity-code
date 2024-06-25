@@ -1,3 +1,5 @@
+import { PlayerLockTransi } from '../common/Constants.js';
+
 export default class GameUpdateResult {
 
   /*
@@ -8,7 +10,7 @@ export default class GameUpdateResult {
    */
   constructor() {
     this.hasAnyTransition = false;
-    this.PlockTransi = GameUpdateResult.PLOCK_TRANSI_NO_LOCK;
+    this.PlockTransi = PlayerLockTransi.NoLock
     this.callbackInsideTransi = []
     this.callbackEndTransi = []
   }
@@ -24,23 +26,3 @@ export default class GameUpdateResult {
 
 }
 
-// TODO : Et peut-être que ça devrait aller dans un truc méga-générique. Parce que même le GameBoard s'en sert, de ce truc.
-// https://stackoverflow.com/questions/32647215/declaring-static-constants-in-es6-classes
-Object.defineProperty(GameUpdateResult, 'PLOCK_TRANSI_NO_LOCK', {
-  value: 0,
-  writable : false,
-  enumerable : false,
-  configurable : false
-});
-Object.defineProperty(GameUpdateResult, 'PLOCK_TRANSI_INVISIBLE', {
-  value: 1,
-  writable : false,
-  enumerable : false,
-  configurable : false
-});
-Object.defineProperty(GameUpdateResult, 'PLOCK_TRANSI_LOCK', {
-  value: 2,
-  writable : false,
-  enumerable : false,
-  configurable : false
-});

@@ -125,7 +125,8 @@ import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
-import GameEngineV1, { Direction } from "../classes/gameEngineV1.js";
+import { Direction, PlayerLockTransi } from '../classes/common/Constants.js';
+import GameEngineV1 from "../classes/gameEngineV1.js";
 import GameEngineV2 from "../classes/gameEngineV2.js";
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
@@ -243,7 +244,7 @@ export default {
       // Les locks/unlocks peuvent être déclenchés tout seul (delayed_event, callbacks, ...),
       // donc il faut que cette fonction soit aussi une callback.
       const Plock = this.gameEngine.getPlock();
-      if (Plock == 2) { // TODO : ça correspond à GameUpdateResult.PLOCK_TRANSI_LOCK. Faut mettre ça dans un truc commun.
+      if (Plock == PlayerLockTransi.Lock) {
         this.isPlayerLocked = true;
       } else {
         this.isPlayerLocked = false;
