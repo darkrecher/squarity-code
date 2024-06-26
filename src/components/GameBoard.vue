@@ -126,8 +126,8 @@ import ProgressIndicator from './ProgressIndicator.vue';
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
 import { Direction, PlayerLockTransi } from '../classes/common/Constants.js';
-import GameEngineV1 from "../classes/gameEngineV1.js";
-import GameEngineV2 from "../classes/gameEngineV2.js";
+import GameEngineV1 from "../classes/GameEngineV1.js";
+import GameEngineV2 from "../classes/GameEngineV2.js";
 
 // https://stackoverflow.com/questions/46399223/async-await-in-image-loading
 // https://openclassrooms.com/fr/courses/5543061-ecrivez-du-javascript-pour-le-web/5577676-gerez-du-code-asynchrone

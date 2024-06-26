@@ -45,8 +45,8 @@
 
 <script>
 
-import gameExamples from '../classes/gameExamples';
-import gameSpecLoader from '../classes/gameSpecLoader';
+import gameExamples from '../classes/GameExamples';
+import gameSpecLoader from '../classes/GameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
 import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
 import TUNNEL_MATCH_URL_TILESET from '../assets/tunnel_match_tileset.png';

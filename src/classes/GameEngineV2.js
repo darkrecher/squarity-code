@@ -1,4 +1,3 @@
-// TODO : c'est quoi la convention de nommage des fichiers dans ce langage à la con ?
 import { isNonePython } from './common/SimpleFunctions.js';
 import { Direction, PlayerLockTransi } from './common/Constants.js';
 import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
