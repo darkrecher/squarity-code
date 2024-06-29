@@ -176,10 +176,7 @@ export default {
       });
 
       const dictSquareDescriptions = {};
-      // C'est vraiment une syntaxe de merde, ces forEach.
-      // Je peux pas faire de "for ... of" à cause de ce crétin de linter.
-      // TODO: si on peut. à corriger.
-      roadSquares.forEach((square) => {
+      for (let square of roadSquares) {
         const oneSquareDescrip = {};
         oneSquareDescrip.description = square.description;
         if (('link_url' in square) && ('link_text' in square)) {
@@ -187,7 +184,7 @@ export default {
           oneSquareDescrip.linkText = square.link_text;
         }
         dictSquareDescriptions[square.key] = oneSquareDescrip;
-      });
+      }
       this.roadSquares = roadSquares;
       this.dictSquareDescriptions = dictSquareDescriptions;
     },

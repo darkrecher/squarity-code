@@ -31,7 +31,7 @@ export default class GameObjectTransitioner {
   }
 
 
-  addTransitionsFromNewState(x, y ,gameObject, timeNow) {
+  addTransitionsFromNewState(x, y, timeNow) {
 
     let somethingChanged = false;
     let currentTimeStart;
@@ -52,7 +52,7 @@ export default class GameObjectTransitioner {
     if (!transitionDelay) {
       // Le délai de transition est 0. On applique tout de suite les changements,
       // on enregistre rien dans currentTransitions.
-      this.gobjState = new GobjState(x, y, gameObject.sprite_name);
+      this.gobjState = new GobjState(x, y, this.gameObject.sprite_name);
     } else {
       let transitionX = null;
       let transitionY = null;
@@ -80,7 +80,7 @@ export default class GameObjectTransitioner {
         transitionY.setLinkedTransition(transitionX);
         transitionX.setLinkedTransition(transitionY);
       }
-      if (this.gobjState.spriteName != gameObject.sprite_name) {
+      if (this.gobjState.spriteName != this.gameObject.sprite_name) {
         // FUTURE: Pas de transition pour le champ sprite_name,
         // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
         somethingChanged = true;
@@ -98,7 +98,7 @@ export default class GameObjectTransitioner {
     }
     if (somethingChanged) {
       this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-      this.gobjState = new GobjState(x, y, gameObject.sprite_name);
+      this.gobjState = new GobjState(x, y, this.gameObject.sprite_name);
     }
     return (this.currentTransitions.length > 0);
   }
@@ -201,17 +201,10 @@ export default class GameObjectTransitioner {
     } else {
       if (hasDoneAtLeastOneTransition) {
         // On enlève seulement les transitions qui sont finies.
-        // TODO : c'est un peu dégueu de reconstruire une liste juste pour filtrer des trucs.
-        // Si le JS peut faire mieux, je suis preneur.
-        // Pour info: pour supprimer un élément dans un tableau, c'est splice.
-        // osef ! filter !
-        const newCurrentTransitions = [];
-        for (let transition of this.currentTransitions) {
-          if (!transition.isDone) {
-            newCurrentTransitions.push(transition);
-          }
-        }
-        this.currentTransitions = newCurrentTransitions;
+        this.currentTransitions = this.currentTransitions.filter(
+          (transition) => (!transition.isDone)
+        );
+        console.log("this.currentTransitions.length", this.currentTransitions.length);
       }
       gameUpdateResult.hasAnyTransition = true;
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;

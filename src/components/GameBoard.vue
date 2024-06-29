@@ -50,8 +50,7 @@
               Jeu en plein écran
             </button>
           </div>
-          <!-- TODO: the_canvas is useless ?-->
-          <div class="the_canvas flex-grow">
+          <div class="flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
                 <canvas v-show="loadingDone" ref="gameCanvas" @click="onGameClick"/>
@@ -331,8 +330,7 @@ export default {
       this.$refs.pythonConsole.textContent = '';
       jsonConf = JSON.parse(jsonConf);
       let useV2 = true;
-      // TODO: machin in truc ??
-      if (Object.prototype.hasOwnProperty.call(jsonConf, 'version')) {
+      if ('version' in jsonConf) {
         if (jsonConf.version[0] == '1') {
           useV2 = false;
         } else if (jsonConf.version[0] == '2') {

@@ -1,59 +1,6 @@
 import GameObjectTransitioner from './GameObjectTransitioner.js';
 import GameUpdateResult from './GameUpdateResult.js'
-
-class CoordAndGameObject {
-  constructor(x, y, gameObj) {
-    this.x = x;
-    this.y = y;
-    this.gameObj = gameObj;
-  }
-}
-
-// TODO: tout ça dans un autre fichier.
-
-class GameObjectIterator {
-  constructor(pythonLayer) {
-    this.pythonLayer = pythonLayer;
-  }
-  // Syntaxe dégueue avec une étoile, pour dire qu'on veut faire un itérateur.
-  // https://stackoverflow.com/questions/39197811/how-can-i-write-a-generator-in-a-javascript-class
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {}
-}
-
-class GameObjectIteratorDense extends GameObjectIterator {
-  constructor(pythonLayer) {
-    super(pythonLayer);
-  }
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {
-    let currentX = 0;
-    let currentY = 0;
-    for (let lineTile of this.pythonLayer.tiles) {
-      for (let tile of lineTile) {
-        for (let gameObj of tile.game_objects) {
-          yield new CoordAndGameObject(currentX, currentY, gameObj);
-        }
-        currentX += multiplicatorX;
-      }
-      currentX = 0;
-      currentY += multiplicatorY;
-    }
-  }
-}
-
-class GameObjectIteratorSparse extends GameObjectIterator {
-  constructor(pythonLayer) {
-    super(pythonLayer);
-  }
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {
-    for (let gameObj of this.pythonLayer.game_objects) {
-      yield new CoordAndGameObject(
-        gameObj.coord.x * multiplicatorX,
-        gameObj.coord.y * multiplicatorY,
-        gameObj
-      );
-    }
-  }
-}
+import { GameObjectIteratorDense, GameObjectIteratorSparse } from './GameObjectIterator.js'
 
 
 class LayerBase {
@@ -76,6 +23,7 @@ class LayerBase {
   draw(timeNow) {}
 
 }
+
 
 export class LayerWithTransition extends LayerBase {
 
@@ -104,7 +52,6 @@ export class LayerWithTransition extends LayerBase {
     this.layerMemory = new Map();
   }
 
-
   updateWithGameSituation(timeNow) {
     // On envoie les addTransitionFromNewState aux objets que y'a dans le layer.
     const timeNowLayerBefore = performance.now();
@@ -131,8 +78,7 @@ export class LayerWithTransition extends LayerBase {
           gobjTransitioner.clearRecordedTransitions();
         }
         hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
-          // TODO : plus besoin de passer gameObj en param.
-          coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
+          coordAndGameObj.x, coordAndGameObj.y, timeNow
         );
       }
       if (gameObj._transitions_to_record.length) {
@@ -166,7 +112,6 @@ export class LayerWithTransition extends LayerBase {
     return gameUpdateResult;
   }
 
-
   updateTransitions(timeNow) {
     const mergedGameUpdateResult = new GameUpdateResult();
     for (let [gobjId, gobjTransitioner] of this.layerMemory) {
@@ -177,7 +122,6 @@ export class LayerWithTransition extends LayerBase {
     }
     return mergedGameUpdateResult;
   }
-
 
   draw(timeNow) {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
@@ -217,16 +161,13 @@ export class LayerNoTransition extends LayerBase{
     this.tileCanvasHeight = tileCanvasHeight;
   }
 
-
   updateWithGameSituation(timeNow) {
     return null;
   }
 
-
   updateTransitions(timeNow) {
     return null;
   }
-
 
   draw(timeNow) {
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(

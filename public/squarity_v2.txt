@@ -135,9 +135,9 @@ class Coord:
 
 class TransitionSteps():
     """
-    La variable field_name peut être "coord", "sprite_name" ou "callback" (TODO)
+    La variable field_name peut être "coord" ou "sprite_name"
     Ensuite, on indique une liste de tuples (delay, valeur).
-    Quand c'est des callbacks, les valeurs sont des fonctions appelables.
+    Pour indiquer une callback, il faut mettre un objet squarity.Callback
     """
     def __init__(self, field_name, steps):
         self.field_name = field_name
@@ -408,8 +408,10 @@ class LayerSparse(LayerBase):
 
 
 # TODO: faut ajouter quelques fonctions là-dedans, pour faciliter leur création.
+# TODO: faut renommer delayed_actions en delayed_callbacks.
+# et l'initialiser à une liste vide, sinon ça fait plantay le javascript.
 class EventResult():pass
-class CallBack():pass
+class DelayedCallBack():pass
 
 
 class GameModelBase():

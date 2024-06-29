@@ -1199,7 +1199,7 @@ class GameModel(squarity.GameModelBase):
 
           event_result = squarity.EventResult()
           event_result.delayed_actions = []
-          my_callback = squarity.CallBack()
+          my_callback = squarity.DelayedCallBack()
           my_callback.delay = 100
           my_callback.callback = self.my_callback
           event_result.delayed_actions.append(my_callback)
@@ -1230,7 +1230,7 @@ class GameModel(squarity.GameModelBase):
               )
           )
 
-          my_other_callback = squarity.CallBack()
+          my_other_callback = squarity.DelayedCallBack()
           my_other_callback.delay = 150
           my_other_callback.callback = self.my_callback
           self.gamobj_gem_green.add_transition(my_other_callback)
@@ -1277,11 +1277,11 @@ class GameModel(squarity.GameModelBase):
 
           event_result = squarity.EventResult()
           event_result.plocks_custom = ["blabla"]
-          event_result.delayed_actions = []
-          callback_unlock_custom = squarity.CallBack()
+          # event_result.delayed_actions = []
+          callback_unlock_custom = squarity.DelayedCallBack()
           callback_unlock_custom.delay = 2000
           callback_unlock_custom.callback = self.callback_unlock_custom
-          event_result.delayed_actions.append(callback_unlock_custom)
+          # event_result.delayed_actions.append(callback_unlock_custom)
           return event_result
 
       def callback_unlock_custom(self):
