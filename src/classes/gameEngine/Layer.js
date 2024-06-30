@@ -54,7 +54,6 @@ export class LayerWithTransition extends LayerBase {
 
   updateWithGameSituation(timeNow) {
     // On envoie les addTransitionFromNewState aux objets que y'a dans le layer.
-    const timeNowLayerBefore = performance.now();
     let addedAnObject = false;
     let idObjsPresent = new Set();
     let gameUpdateResult = new GameUpdateResult();
@@ -105,13 +104,12 @@ export class LayerWithTransition extends LayerBase {
         }
       }
     }
-    const timeNowLayerAfter = performance.now();
     return gameUpdateResult;
   }
 
   updateTransitions(timeNow) {
     const mergedGameUpdateResult = new GameUpdateResult();
-    for (let [gobjId, gobjTransitioner] of this.layerMemory) {
+    for (let gobjTransitioner of this.layerMemory.values()) {
       const gameUpdateResult = gobjTransitioner.updateTransitions(timeNow);
       if (gameUpdateResult !== null) {
         mergedGameUpdateResult.merge(gameUpdateResult);
@@ -122,7 +120,7 @@ export class LayerWithTransition extends LayerBase {
 
   draw(timeNow) {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
-    for (let [gobjId, gobjTransitioner] of this.layerMemory) {
+    for (let gobjTransitioner of this.layerMemory.values()) {
       const gobjState = gobjTransitioner.getCurrentState(timeNow);
       const [coordImgX, coordImgY] = this.imgCoords[gobjState.spriteName];
       this.ctxCanvasBuffer.drawImage(
