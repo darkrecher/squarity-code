@@ -1,36 +1,6 @@
 import js
 import sys
 
-"""
-# il faut définir, pour chaque game_object (et chaque layer), le mode de transition.
-
-le mode répond à la question: on fait quoi quand une nouvelle transition s'ajoute à un objet qui est toujours en train d'en faire une ?
-
- X player lock (visible)
- X player lock (hidden)
- X ajouter après les autres (done)
- x annuler les transitions existantes (on fait pas, parce que c'est zarbi)
- x interdire l'ajout de nouvelle transition. (ou pas, on peut le gérer depuis le python, avec get_nb_undone_transitions)
-
-X Et il faut aussi les callbacks. une callback générique qui s'appelle quand y'a plus aucune transition dans un objet. On peut pas faire mieux. On va pas faire une callback sur les coords, une sur la rotation, une pour papa, une pour maman, ...
-
-X Et il faut aussi pouvoir chaîner explicitement.
-
-X et annuler toutes les transitions en cours.
-
-X et comment on fait pour les transitions sur différents champs ? On est en train de se déplacer et en même temps on veut tourner ? réponse: c'est indépendant.
-
-X on a aussi besoin d'une communication dans l'autre sens. du moteur vers le code python. au moment où du code python est exécuté, on a envie de savoir où on en est dans les transitions d'objets. argh...
-X Avec le transitioner, c'est possible.
-
-X On commence par gérer les callbacks de fin de transition. (done)
-
-X Après: le chaînage de transitions, avec les callbacks dedans.
-
-Après: on verra.
-
-
-"""
 
 # Technique pour rediriger les prints. Emprunté à Brython, mais ça marche aussi avec pyodide.
 # https://stackoverflow.com/questions/61348313/how-can-i-redirect-all-brython-output-to-a-textarea-element
@@ -164,15 +134,15 @@ class GameObject(GameObjectBase):
     # Si on veut un objet qui se transitionne, on détruit l'ancien et on recrée un transitionable,
     # et puis c'est tout.
     # (Trouver un autre nom que "isVisualEffectable").
-    def __init__(self, layer_owner, coord, sprite_name):
+    def __init__(self, coord, sprite_name, layer_owner=None):
         super().__init__()
-        self.layer_owner = layer_owner
-        self.coord = Coord(coord=coord)
+        self._coord = Coord(coord=coord)
         self.sprite_name = sprite_name
+        self.layer_owner = layer_owner
         self.plock_transi = PlayerLockTransi.NO_LOCK
+
         # FUTURE: pour plus tard.
         # self.visible = True
-
         # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
         # Et ce sera dans un composant. Pas là-dedans paf.
         # self.offset_x = 0.0
@@ -192,39 +162,45 @@ class GameObject(GameObjectBase):
         self._one_shot_transition_delay = None
         self._one_shot_callback = None
 
-    # FUTURE : gérer une valeur de speed. transition = speed * distance à parcourir.
+    def get_coord(self):
+        return Coord(coord=self._coord)
 
-    def move_to(self, dest_coord, transition_delay=None, callback=None):
-        self.layer_owner.move_game_object(self, dest_coord)
-        self._set_transi_callback(transition_delay, callback)
+    # FUTURE : gérer une valeur de speed. transition = speed * distance à parcourir.
+    # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors du jeu.
+    # ou pas, car ça nécessite des vérifs qui vont faire ralentir...
 
     def move_to_xy(self, x, y, transition_delay=None, callback=None):
-        self.layer_owner.move_game_object(self, Coord(x, y))
-        self._set_transi_callback(transition_delay, callback)
+        self.layer_owner.move_game_object_xy(self, self._coord.x, self._coord.y, x, y)
+        self._coord.x = x
+        self._coord.y = y
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
 
-    # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors de l'aire de jeu.
+    def move_to(self, dest_coord, transition_delay=None, callback=None):
+        # Code dupliqué avec le code de move_to_xy.
+        # Je ne factorise pas, car ces deux fonctions vont être beaucoup utilisées.
+        # (y compris par le javascript). Ça permet d'optimiser un peu
+        # les performances, en évitant d'avoir une fonction qui appelle l'autre.
+        self.layer_owner.move_game_object(self, self._coord, dest_coord)
+        self._coord.x = dest_coord.x
+        self._coord.y = dest_coord.y
+        if transition_delay is not None:
+            self._one_shot_transition_delay = transition_delay
+        if callback is not None:
+            self._one_shot_callback = callback
+
     def move(self, coord_offset, transition_delay=None, callback=None):
-        # J'utilise pas Coord.move_by_vect, parce que cette fonction va être beaucoup utilisée,
-        # donc ça peut être bien de l'optimiser en hardcodant un peu.
-        self.layer_owner.move_game_object(
-            self,
-            Coord(
-                self.coord.x + coord_offset.x,
-                self.coord.y + coord_offset.y,
-            ),
-        )
-        self._set_transi_callback(transition_delay, callback)
+        dest_x = self._coord.x + coord_offset.x
+        dest_y = self._coord.y + coord_offset.y
+        self.move_to_xy(dest_x, dest_y, transition_delay, callback)
 
     def move_dir(self, direction, distance=1, transition_delay=None, callback=None):
         unary_vect_x, unary_vect_y = direction.vector
-        self.layer_owner.move_game_object(
-            self,
-            Coord(
-                self.coord.x + unary_vect_x * distance,
-                self.coord.y + unary_vect_y * distance,
-            ),
-        )
-        self._set_transi_callback(transition_delay, callback)
+        dest_x = self._coord.x + unary_vect_x * distance
+        dest_y = self._coord.y + unary_vect_y * distance
+        self.move_to_xy(dest_x, dest_y, transition_delay, callback)
 
     def add_transition(self, transition):
         """
@@ -232,7 +208,7 @@ class GameObject(GameObjectBase):
         ou une instance de TransitionSteps.
         """
         # Au fur et à mesure qu'on applique ces transitions, il faut modifier les valeurs dans le jeu.
-        # Ça veut dire que c'est le javascript qui appelle la fonction move_to du game_object,
+        # Ça veut dire que c'est le javascript qui appelle la fonction move_to_xy du game_object,
         # qui change le sprite_name, et éventuellement d'autres trucs.
         # (On applique les valeurs d'une transition lorsqu'on la démarre)
         self._transitions_to_record.append(transition)
@@ -264,25 +240,20 @@ class GameObject(GameObjectBase):
     def reset_one_shot_callback(self):
         self._one_shot_callback = None
 
-    def _set_transi_callback(self, transition_delay=None, callback=None):
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
-
 
 class Tile():
 
     def __init__(self, layer_owner, coord):
         self.layer_owner = layer_owner
-        # TODO: on n'est pas censé modifier self.coord après l'initialisation.
-        # Alors je nommerais bien cette variable _coord, mais j'en aurais
-        # peut-être besoin en lecture seule depuis l'extérieur. On verra bien.
-        self.coord = coord
+        self._coord = coord
         self.game_objects = []
-        # Les 8 adjacences, définies de la même manière que Direction
+        # Cette variable contiendra un tuple de 8 éléments, qui sera les tiles adjacentes,
+        # diagonales comprises, ordonnées de la même manière que Direction.
         # (en partant du haut et dans le sens des aiguilles d'une montre).
-        self.adjacencies = [None] * 8
+        self.adjacencies = None
+
+    def get_coord(self):
+        return Coord(coord=self._coord)
 
 
 class LayerBase():
@@ -292,7 +263,7 @@ class LayerBase():
         self._l_id = id(self)
         self.visible = True
 
-    def get_game_objects(self, coord=None, x=None, y=None):
+    def get_game_objects(self, coord):
         raise NotImplementedError
 
     def iter_game_objects(self, iter_xs=None, iter_ys=None, by_line=True):
@@ -308,13 +279,21 @@ class LayerBase():
     def add_game_object(self, gobj):
         raise NotImplementedError
 
-    def create_game_object(self, coord, sprite_name):
-        raise NotImplementedError
-
     def remove_game_object(self, gobj):
         raise NotImplementedError
 
-    def move_game_object(self, gobj, dest_coord):
+    def move_game_object(self, gobj, src_coord, dest_coord):
+        """
+        You should not directly call this function.
+        Just call gobj.move_to, gobj.move_to_xy, gobj.move or gobj.move_dir.
+        """
+        raise NotImplementedError
+
+    def move_game_object_xy(self, gobj, src_x, src_y, dest_x, dest_y):
+        """
+        You should not directly call this function.
+        Just call gobj.move_to, gobj.move_to_xy, gobj.move or gobj.move_dir.
+        """
         raise NotImplementedError
 
 
@@ -322,6 +301,8 @@ class Layer(LayerBase):
 
     def __init__(self, game_owner, w, h, show_transitions=True):
         super().__init__(game_owner)
+        self.w = w
+        self.h = h
         self.show_transitions = show_transitions
         self.tiles = [
             [
@@ -329,10 +310,29 @@ class Layer(LayerBase):
             ]
             for y in range(h)
         ]
-        # TODO: adjacencies
+        for y in range(h):
+            for x in range(w):
+                self.tiles[y][x].adjacencies = self._make_adjacencies(x, y)
 
-    def get_game_objects(self, coord=None, x=None, y=None):
-        return self.get_tile(coord, x, y).game_objects
+    def _make_adjacencies(self, x, y):
+        """
+        Returns a tuple of 8 elements containing the adjacent tiles.
+        Some of the elements can be None, if the x and y are at a border.
+        """
+        adjacencies = (
+            self.tiles[y - 1][x] if 0 <= y - 1 else None,
+            self.tiles[y - 1][x + 1] if 0 <= y - 1 and x + 1 < self.w else None,
+            self.tiles[y][x + 1] if x + 1 < self.w else None,
+            self.tiles[y + 1][x + 1] if y + 1 < self.h and x + 1 < self.w else None,
+            self.tiles[y + 1][x] if y + 1 < self.h else None,
+            self.tiles[y + 1][x - 1] if y + 1 < self.h and 0 <= x - 1 else None,
+            self.tiles[y][x - 1] if 0 <= x - 1 else None,
+            self.tiles[y - 1][x - 1] if 0 <= y - 1 and 0 <= x - 1 else None,
+        )
+        return adjacencies
+
+    def get_game_objects(self, coord):
+        return self.get_tile(coord).game_objects
 
     def iter_all_game_objects(self):
         for line in self.tiles:
@@ -340,34 +340,29 @@ class Layer(LayerBase):
                 for gobj in tile.game_objects:
                     yield gobj
 
-    def get_tile(self, coord=None, x=None, y=None):
-        if coord is not None:
-            x = coord.x
-            y = coord.y
+    def get_tile(self, coord):
+        return self.tiles[coord.y][coord.x]
+
+    def get_tile_xy(self, x, y):
         return self.tiles[y][x]
 
     def add_game_object(self, gobj):
         gobj.layer_owner = self
-        tile = self.get_tile(gobj.coord)
+        tile = self.get_tile(gobj._coord)
         tile.game_objects.append(gobj)
-
-    def create_game_object(self, coord, sprite_name):
-        gobj = GameObject(self, coord, sprite_name)
-        tile = self.get_tile(coord)
-        tile.game_objects.append(gobj)
-        return gobj
 
     def remove_game_object(self, gobj):
+        gobj.layer_owner = None
         tile = self.get_tile(gobj.coord)
         tile.remove(gobj)
 
-    def move_game_object(self, gobj, dest_coord):
-        tile_src = self.get_tile(gobj.coord)
-        tile_src.game_objects.remove(gobj)
-        gobj.coord.x = dest_coord.x
-        gobj.coord.y = dest_coord.y
-        tile_dest = self.get_tile(dest_coord)
-        tile_dest.game_objects.append(gobj)
+    def move_game_object(self, gobj, src_coord, dest_coord):
+        self.get_tile(src_coord).game_objects.remove(gobj)
+        self.get_tile(dest_coord).game_objects.append(gobj)
+
+    def move_game_object_xy(self, gobj, src_x, src_y, dest_x, dest_y):
+        self.get_tile_xy(src_x, src_y).game_objects.remove(gobj)
+        self.get_tile_xy(dest_x, dest_y).game_objects.append(gobj)
 
 
 class LayerSparse(LayerBase):
@@ -377,13 +372,11 @@ class LayerSparse(LayerBase):
         self.show_transitions = show_transitions
         self.game_objects = []
 
-    def get_game_objects(self, coord=None, x=None, y=None):
-        if coord is None:
-            coord = Coord(x, y)
+    def get_game_objects(self, coord):
         return [
             gobj for gobj
             in self.game_objects
-            if gobj.coord == coord
+            if gobj._coord == coord
         ]
 
     def iter_all_game_objects(self):
@@ -394,24 +387,40 @@ class LayerSparse(LayerBase):
         gobj.layer_owner = self
         self.game_objects.append(gobj)
 
-    def create_game_object(self, coord, sprite_name):
-        gobj = GameObject(self, coord, sprite_name)
-        self.game_objects.append(gobj)
-        return gobj
-
     def remove_game_object(self, gobj):
+        gobj.layer_owner = None
         self.game_objects.remove(gobj)
 
-    def move_game_object(self, gobj, dest_coord):
-        gobj.coord.x = dest_coord.x
-        gobj.coord.y = dest_coord.y
+    def move_game_object(self, gobj, src_coord, dest_coord):
+        # Les coordonnées ont déjà été modifiées dans le gameObject.
+        # On n'a rien à faire pour le LayerSparse lui-même,
+        # car il se contente de stocker une liste de gameObject.
+        pass
+
+    def move_game_object_xy(self, gobj, src_x, src_y, dest_x, dest_y):
+        # Pareil que move_game_object
+        pass
+
+class EventResult():
+
+    def __init__(self):
+        self.delayed_callbacks = []
+        self.plocks_custom = []
+        self.punlocks_custom = []
+
+    def add_delayed_callback(self, delayed_callback):
+        if not isinstance(delayed_callback, DelayedCallBack):
+            raise Exception(
+                "delayed_callback must be an instance of DelayedCallBack"
+            )
+        self.delayed_callbacks.append(delayed_callback)
 
 
-# TODO: faut ajouter quelques fonctions là-dedans, pour faciliter leur création.
-# TODO: faut renommer delayed_actions en delayed_callbacks.
-# et l'initialiser à une liste vide, sinon ça fait plantay le javascript.
-class EventResult():pass
-class DelayedCallBack():pass
+class DelayedCallBack():
+
+    def __init__(self, delay, callback):
+        self.delay = delay
+        self.callback = callback
 
 
 class GameModelBase():

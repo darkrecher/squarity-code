@@ -204,7 +204,6 @@ export default class GameObjectTransitioner {
         this.currentTransitions = this.currentTransitions.filter(
           (transition) => (!transition.isDone)
         );
-        console.log("this.currentTransitions.length", this.currentTransitions.length);
       }
       gameUpdateResult.hasAnyTransition = true;
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
@@ -255,13 +254,13 @@ export default class GameObjectTransitioner {
     const finalVal = transition.getFinalVal();
     if (transition.fieldName == "x") {
       if (applyInGame) {
-        this.gameObject.move_to_xy(finalVal, this.gameObject.coord.y);
+        this.gameObject.move_to_xy(finalVal, this.gameObject._coord.y);
         transition.isAppliedInGame = true;
       }
       gobjStateDest.x = finalVal;
     } else if (transition.fieldName == "y") {
       if (applyInGame) {
-        this.gameObject.move_to_xy(this.gameObject.coord.x, finalVal);
+        this.gameObject.move_to_xy(this.gameObject._coord.x, finalVal);
         transition.isAppliedInGame = true;
       }
       gobjStateDest.y = finalVal;

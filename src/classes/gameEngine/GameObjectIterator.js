@@ -45,8 +45,8 @@ export class GameObjectIteratorSparse extends GameObjectIterator {
   * iterOnGameObjects(multiplicatorX, multiplicatorY) {
     for (let gameObj of this.pythonLayer.game_objects) {
       yield new CoordAndGameObject(
-        gameObj.coord.x * multiplicatorX,
-        gameObj.coord.y * multiplicatorY,
+        gameObj._coord.x * multiplicatorX,
+        gameObj._coord.y * multiplicatorY,
         gameObj
       );
     }

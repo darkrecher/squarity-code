@@ -86,12 +86,9 @@ export class LayerWithTransition extends LayerBase {
         hasNewTransition = true;
       }
       if (hasNewTransition) {
-        console.log("plock_transi", gameObj.plock_transi);
         gameUpdateResult.hasAnyTransition = true;
         if (gameUpdateResult.PlockTransi < gameObj.plock_transi) {
-          console.log("gameUpdateResult.PlockTransi", gameUpdateResult.PlockTransi);
           gameUpdateResult.PlockTransi = gameObj.plock_transi;
-          console.log("gameUpdateResult.PlockTransi after", gameUpdateResult.PlockTransi);
         }
       }
     }

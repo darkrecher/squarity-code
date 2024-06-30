@@ -39,7 +39,7 @@ export default class GameEngineV2 {
     // orderedLayers contient les Layers, dans l'ordre d'affichage.
     // On a les mêmes objets dans les values de mapLayers et dans orderedLayers.
     this.orderedLayers = [];
-    this.delayedActions = [];
+    this.delayedCallbacks = [];
     this.hasClickHandling = false;
     this.showingTransition = false;
     this.plocksCustom = [];
@@ -91,7 +91,6 @@ export default class GameEngineV2 {
   }
 
   getPlock() {
-    console.log("getPlock", this.currentPlock, performance.now());
     return this.currentPlock;
   }
 
@@ -126,13 +125,13 @@ export default class GameEngineV2 {
     this.imgCoords = jsonConf.img_coords;
     this.tileAtlas = tileAtlas;
 
-    // On annule toutes les delayed actions du jeu précédent.
-    for (let timeoutId of this.delayedActions) {
+    // On annule toutes les delayed callbacks du jeu précédent.
+    for (let timeoutId of this.delayedCallbacks) {
       clearTimeout(timeoutId);
     }
     this.plocksCustom = [];
     this.currentPlock = PlayerLockTransi.NoLock;
-    this.delayedActions = [];
+    this.delayedCallbacks = [];
 
     this.runPython(
       gameCode,
@@ -358,7 +357,7 @@ export default class GameEngineV2 {
       resultPython = this.pyodide.runPython(pythonCode);
     } catch (err) {
       const errMessage = err.message;
-      this.printGameConsole(`Erreur python durant l'action : \n${codeLabel}\n${errMessage}`);
+      this.printGameConsole(`Erreur python durant : \n${codeLabel}\n${errMessage}`);
       // Je rethrow l'exception, parce que si le code python déconne,
       // vaut mieux pas essayer de faire d'autres choses après.
       throw err;
@@ -393,8 +392,8 @@ export default class GameEngineV2 {
     pythonConsole.scrollTop = pythonConsole.scrollHeight;
   }
 
-  processDelayedAction(timeOutIdProcessing, gameCallback) {
-    this.delayedActions = this.delayedActions.filter((eventId) => eventId !== timeOutIdProcessing);
+  processDelayedCallback(timeOutIdProcessing, gameCallback) {
+    this.delayedCallbacks = this.delayedCallbacks.filter((eventId) => eventId !== timeOutIdProcessing);
     this.execGameCallback(gameCallback);
   }
 
@@ -408,20 +407,20 @@ export default class GameEngineV2 {
 
   processGameEventResult(eventResultRaw) {
     let mustRedraw = true;
-    for (let newDelayedAction of eventResultRaw.delayed_actions) {
+    for (let newDelayedCallback of eventResultRaw.delayed_callbacks) {
       let delayTime = 0;
-      if (newDelayedAction.delay) {
-        delayTime = newDelayedAction.delay;
+      if (newDelayedCallback.delay) {
+        delayTime = newDelayedCallback.delay;
       }
-      if (newDelayedAction.callback) {
+      if (newDelayedCallback.callback) {
         // On peut utiliser l'identifiant renvoyé par setTimeout
         // à l'intérieur de la fonction callback du setTimeout.
         // Ça a l'air complètement fumé mais ça marche ... Magie JavaScript !!!
         // https://stackoverflow.com/questions/17280375/in-javascript-how-can-i-access-the-id-of-settimeout-setinterval-call-from-insid
         const timeOutId = setTimeout(() => {
-          this.processDelayedAction(timeOutId, newDelayedAction.callback);
+          this.processDelayedCallback(timeOutId, newDelayedCallback.callback);
         }, delayTime);
-        this.delayedActions.push(timeOutId);
+        this.delayedCallbacks.push(timeOutId);
       }
     }
     if (eventResultRaw.plocks_custom) {
@@ -433,7 +432,6 @@ export default class GameEngineV2 {
     }
     if (eventResultRaw.punlocks_custom) {
       for (let punlockCustomName of eventResultRaw.punlocks_custom) {
-        console.log("punlockCustomName", punlockCustomName);
         if (punlockCustomName === '*') {
           this.plocksCustom = [];
         } else {

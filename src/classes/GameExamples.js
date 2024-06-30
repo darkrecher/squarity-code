@@ -1154,7 +1154,10 @@ class GameModel():
   Test et démo des développements en cours, avec le nouveau moteur de jeu,
   une API mieux faite, et la possibilité d'afficher des mouvements de transitions
   quand on déplace un GameObject d'une tile à une autre.
+  Pour l'instant, rien n'est documenté.
+  À vous de découvrir par vous-même ce que vous pouvez faire !
 """
+
 import json
 import squarity
 Coord = squarity.Coord
@@ -1169,18 +1172,14 @@ class GameModel(squarity.GameModelBase):
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)
 
-          self.gamobj_gem_green = self.main_layer.create_game_object(
-              Coord(x=4, y=1),
-              "gem_green",
-          )
+          self.gamobj_gem_green = squarity.GameObject(Coord(4, 1), "gem_green")
+          self.main_layer.add_game_object(self.gamobj_gem_green)
           self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
-          self.gamobj_gem_violet = self.main_layer.create_game_object(
-              Coord(x=5, y=1),
-              "gem_violet",
-          )
+          self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
+          self.main_layer.add_game_object(self.gamobj_gem_violet)
           self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
 
       def on_click(self, coord):
@@ -1192,18 +1191,21 @@ class GameModel(squarity.GameModelBase):
           else:
               gobj_rocks = self.layer_rock.get_game_objects(coord)
               if not gobj_rocks:
-                  self.layer_rock.create_game_object(coord, "rock")
+                  self.layer_rock.add_game_object(squarity.GameObject(coord, "rock"))
               else:
                   # print("suppression du rock")
                   self.layer_rock.remove_game_object(gobj_rocks[0])
 
           event_result = squarity.EventResult()
-          event_result.delayed_actions = []
-          my_callback = squarity.DelayedCallBack()
-          my_callback.delay = 100
-          my_callback.callback = self.my_callback
-          event_result.delayed_actions.append(my_callback)
+          event_result.add_delayed_callback(
+              squarity.DelayedCallBack(100, self.my_callback)
+          )
           print("nb transition of green diam:", self.gamobj_gem_green.get_nb_undone_transitions())
+
+          tile_up_right = target_tile_main.adjacencies[int(squarity.dirs.UpRight)]
+          if tile_up_right is not None:
+              print("gobj up right: ", tile_up_right.game_objects)
+
           return event_result
 
       def on_button_direction(self, direction):
@@ -1230,9 +1232,7 @@ class GameModel(squarity.GameModelBase):
               )
           )
 
-          my_other_callback = squarity.DelayedCallBack()
-          my_other_callback.delay = 150
-          my_other_callback.callback = self.my_callback
+          my_other_callback = squarity.DelayedCallBack(150, self.my_callback)
           self.gamobj_gem_green.add_transition(my_other_callback)
 
           self.gamobj_gem_green.add_transition(
@@ -1273,21 +1273,18 @@ class GameModel(squarity.GameModelBase):
           transi_violet = None if action_name == "action_1" else 300
           direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left
           self.gamobj_gem_green.move_dir(direc)
-          self.gamobj_gem_violet.move(Coord(x=-offset, y=0), transi_violet, self.another_another_callback)
+          self.gamobj_gem_violet.move(Coord(-offset, 0), transi_violet, self.another_another_callback)
 
           event_result = squarity.EventResult()
           event_result.plocks_custom = ["blabla"]
-          # event_result.delayed_actions = []
-          callback_unlock_custom = squarity.DelayedCallBack()
-          callback_unlock_custom.delay = 2000
-          callback_unlock_custom.callback = self.callback_unlock_custom
-          # event_result.delayed_actions.append(callback_unlock_custom)
+          event_result.add_delayed_callback(
+              squarity.DelayedCallBack(2000, self.callback_unlock_custom)
+          )
           return event_result
 
       def callback_unlock_custom(self):
           print("unlock custom")
           event_result = squarity.EventResult()
-          event_result.delayed_actions = []
           event_result.punlocks_custom = ["*"]
           return event_result
 
@@ -1296,12 +1293,12 @@ class GameModel(squarity.GameModelBase):
           # print("my callback")
 
       def another_callback(self):
-          print("another callback", self.gamobj_gem_green.coord)
-          # self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+          print("another callback", self.gamobj_gem_green.get_coord())
+          # self.gamobj_gem_green.move_to(Coord(4, 4))
 
       def another_another_callback(self):
-          print("another another callback", self.gamobj_gem_green.coord)
-          # self.gamobj_gem_green.move_to(Coord(x=4, y=4))
+          print("another another callback", self.gamobj_gem_green.get_coord())
+          # self.gamobj_gem_green.move_to(Coord(4, 4))
 
 
   `

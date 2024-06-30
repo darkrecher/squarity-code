@@ -240,7 +240,7 @@ export default {
     refreshPlock() {
       // Fonction de callback à transmettre au GameEngine. Si un événement du jeu
       // a un effet sur le lock des boutons du jeu, on le prend en compte ici.
-      // Les locks/unlocks peuvent être déclenchés tout seul (delayed_event, callbacks, ...),
+      // Les locks/unlocks peuvent être déclenchés tout seul (delayed_callback, callback, ...),
       // donc il faut que cette fonction soit aussi une callback.
       const Plock = this.gameEngine.getPlock();
       if (Plock == PlayerLockTransi.Lock) {
