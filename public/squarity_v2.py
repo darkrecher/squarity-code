@@ -1,3 +1,4 @@
+"""
 import js
 import sys
 
@@ -14,7 +15,7 @@ class MyOutput:
         self.python_console.scrollTop = self.python_console.scrollHeight
 
 sys.stdout = MyOutput()
-
+"""
 
 class Direction():
     def __init__(self, int_dir, str_dir, vector):
@@ -79,13 +80,25 @@ class Coord:
         if self.x is None or self.y is None:
             raise ValueError("Coord must be initialized with x and y or coord.")
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def __repr__(self):
         return f"<Coord {self.x}, {self.y} >"
 
-    def move_to_dir(self, direction, dist=1):
+    def clone(self):
+        return Coord(coord=self)
+
+    def move_dir(self, direction, dist=1):
         mov_x, mov_y = direction.vector
         self.x += mov_x * dist
         self.y += mov_y * dist
+        # C'est étrange de renvoyer self, mais ça permet de chaîner les actions.
+        # Par exemple: my_coord.clone().move_dir(...)
+        return self
 
     def move_by_vect(self, vector=None, x=None, y=None):
         if vector is not None:
@@ -95,12 +108,17 @@ class Coord:
             self.x += x
         if y is not None:
             self.y += y
+        return self
 
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
 
-    def __hash__(self):
-        return hash((self.x, self.y))
+class Rect:
+
+    def __init__(self, x, y, w, h):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
 
 
 class TransitionSteps():
@@ -353,7 +371,7 @@ class Layer(LayerBase):
 
     def remove_game_object(self, gobj):
         gobj.layer_owner = None
-        tile = self.get_tile(gobj.coord)
+        tile = self.get_tile(gobj._coord)
         tile.remove(gobj)
 
     def move_game_object(self, gobj, src_coord, dest_coord):
@@ -369,6 +387,8 @@ class LayerSparse(LayerBase):
 
     def __init__(self, game_owner, w, h, show_transitions=True):
         super().__init__(game_owner)
+        self.w = w
+        self.h = h
         self.show_transitions = show_transitions
         self.game_objects = []
 
@@ -431,7 +451,7 @@ class GameModelBase():
         self.str_game_conf_json = str_game_conf_json
         self.layers = []
         self.layers.append(Layer(self, w, h))
-        self.main_layer = self.layers[0]
+        self.layer_main = self.layers[0]
         # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
         self.transition_delay = 200
 
@@ -449,3 +469,85 @@ class GameModelBase():
 
     def on_button_action(self, action_name):
         pass
+
+
+class SequencableIterator():
+
+    def set_iter_prec(self, iter_prec):
+        self.iter_prec = iter_prec
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise NotImplemented
+
+
+class RectIterator(SequencableIterator):
+
+    def __init__(self, rect, instanciate_coord=False):
+        self.rect = rect
+        self.instanciate_coord = instanciate_coord
+        self.current_coord = None
+
+    def __next__(self):
+        if self.current_coord is None:
+            self.current_coord = Coord(self.rect.x, self.rect.y)
+        else:
+            self.current_coord.x += 1
+            if self.current_coord.x >= self.rect.x + self.rect.w:
+                self.current_coord.x = self.rect.x
+                self.current_coord.y += 1
+                if self.current_coord.y >= self.rect.y + self.rect.h:
+                    raise StopIteration
+        if self.instanciate_coord:
+            return Coord(coord=self.current_coord)
+        else:
+            return self.current_coord
+
+
+class TrucIterator(SequencableIterator):
+
+    def __next__(self):
+        c = next(self.iter_prec)
+        return c.y * 10000 + c.x
+
+
+class StringAndFilterIterator(SequencableIterator):
+
+    def __next__(self):
+        while True:
+            n = next(self.iter_prec)
+            if n % 2 == 1:
+                return str(n) + " pouet"
+
+def iter_on_rect(rect, instanciate_coord=False):
+    return RectIterator(rect, instanciate_coord)
+
+def truc():
+    return TrucIterator()
+
+def string_and_filter():
+    return StringAndFilterIterator()
+
+def seq(*sequencable_iterators):
+    for seq_iter_prec, seq_iter in zip(sequencable_iterators, sequencable_iterators[1:]):
+        seq_iter.set_iter_prec(seq_iter_prec)
+    last_seq = sequencable_iterators[-1]
+    for elem in last_seq:
+        yield elem
+
+
+# TODO WIP: Just to test
+if __name__ == "__main__":
+    a = Rect(20, 40, 3, 4)
+    """
+    iter_rect = RectIterator(a)
+    iter_truc = TrucIterator(iter_rect)
+    iter_string = StringAndFilterIterator(iter_truc)
+    #for c in a.iter_on_coords():
+    for stuff in iter_string:
+        print(stuff)
+    """
+    for elem in seq(iter_on_rect(a), truc(), string_and_filter()):
+        print(elem)

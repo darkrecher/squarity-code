@@ -1161,6 +1161,7 @@ class GameModel():
 import json
 import squarity
 Coord = squarity.Coord
+d = squarity.dirs
 
 class GameModel(squarity.GameModelBase):
       def on_start(self):
@@ -1173,18 +1174,18 @@ class GameModel(squarity.GameModelBase):
           self.layers.append(self.layer_rock)
 
           self.gamobj_gem_green = squarity.GameObject(Coord(4, 1), "gem_green")
-          self.main_layer.add_game_object(self.gamobj_gem_green)
+          self.layer_main.add_game_object(self.gamobj_gem_green)
           self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
           self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
-          self.main_layer.add_game_object(self.gamobj_gem_violet)
+          self.layer_main.add_game_object(self.gamobj_gem_violet)
           self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
 
       def on_click(self, coord):
           # print("on click", coord.x, coord.y)
-          target_tile_main = self.main_layer.get_tile(coord)
+          target_tile_main = self.layer_main.get_tile(coord)
 
           if target_tile_main.game_objects:
               target_tile_main.game_objects[0].sprite_name = "gem_violet"
@@ -1205,6 +1206,10 @@ class GameModel(squarity.GameModelBase):
           tile_up_right = target_tile_main.adjacencies[int(squarity.dirs.UpRight)]
           if tile_up_right is not None:
               print("gobj up right: ", tile_up_right.game_objects)
+
+          cl = coord.clone().move_dir(d.Left, 3)
+          print(cl)
+          print(coord)
 
           return event_result
 

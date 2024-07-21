@@ -79,13 +79,23 @@ class Coord:
         if self.x is None or self.y is None:
             raise ValueError("Coord must be initialized with x and y or coord.")
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def __repr__(self):
         return f"<Coord {self.x}, {self.y} >"
 
-    def move_to_dir(self, direction, dist=1):
+    def clone(self):
+        return Coord(coord=self)
+
+    def move_dir(self, direction, dist=1):
         mov_x, mov_y = direction.vector
         self.x += mov_x * dist
         self.y += mov_y * dist
+        return self
 
     def move_by_vect(self, vector=None, x=None, y=None):
         if vector is not None:
@@ -95,12 +105,7 @@ class Coord:
             self.x += x
         if y is not None:
             self.y += y
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __hash__(self):
-        return hash((self.x, self.y))
+        return self
 
 
 class TransitionSteps():
@@ -369,6 +374,8 @@ class LayerSparse(LayerBase):
 
     def __init__(self, game_owner, w, h, show_transitions=True):
         super().__init__(game_owner)
+        self.w = w
+        self.h = h
         self.show_transitions = show_transitions
         self.game_objects = []
 
@@ -431,7 +438,7 @@ class GameModelBase():
         self.str_game_conf_json = str_game_conf_json
         self.layers = []
         self.layers.append(Layer(self, w, h))
-        self.main_layer = self.layers[0]
+        self.layer_main = self.layers[0]
         # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
         self.transition_delay = 200
 
