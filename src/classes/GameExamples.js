@@ -1162,6 +1162,7 @@ import json
 import squarity
 Coord = squarity.Coord
 d = squarity.dirs
+s = squarity.Sequencer
 
 class GameModel(squarity.GameModelBase):
       def on_start(self):
@@ -1210,6 +1211,14 @@ class GameModel(squarity.GameModelBase):
           cl = coord.clone().move_dir(d.Left, 3)
           print(cl)
           print(coord)
+
+          for gobj in s.seq(
+              s.iter_on_rect(squarity.Rect(0, 0, 10, 10)),
+              # s.gobj_on_layers([self.layer_main, self.layer_rock]),
+              s.gobj_on_layers_by_coords([self.layer_main, self.layer_rock]),
+              s.filter_sprites(["rock", "gem_violet"], True),
+          ):
+              print(";".join(map(str, gobj)))
 
           return event_result
 

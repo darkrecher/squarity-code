@@ -1,4 +1,3 @@
-"""
 import js
 import sys
 
@@ -15,7 +14,7 @@ class MyOutput:
         self.python_console.scrollTop = self.python_console.scrollHeight
 
 sys.stdout = MyOutput()
-"""
+
 
 class Direction():
     def __init__(self, int_dir, str_dir, vector):
@@ -182,6 +181,9 @@ class GameObject(GameObjectBase):
 
     def get_coord(self):
         return Coord(coord=self._coord)
+
+    def __str__(self):
+        return f"<Gobj ({self._coord.x},{self._coord.y}) {self.sprite_name}>"
 
     # FUTURE : gérer une valeur de speed. transition = speed * distance à parcourir.
     # FUTURE: message d'erreur plus explicite quand on déplace un objet en dehors du jeu.
@@ -471,7 +473,7 @@ class GameModelBase():
         pass
 
 
-class SequencableIterator():
+class SequenceableIterator():
 
     def set_iter_prec(self, iter_prec):
         self.iter_prec = iter_prec
@@ -483,7 +485,7 @@ class SequencableIterator():
         raise NotImplemented
 
 
-class RectIterator(SequencableIterator):
+class RectIterator(SequenceableIterator):
 
     def __init__(self, rect, instanciate_coord=False):
         self.rect = rect
@@ -506,14 +508,118 @@ class RectIterator(SequencableIterator):
             return self.current_coord
 
 
-class TrucIterator(SequencableIterator):
+class GameObjectIterator(SequenceableIterator):
+
+    def __init__(self, layers):
+        self.layers = layers
+        self.current_game_objects = []
+
+    def __next__(self):
+        while not self.current_game_objects:
+            coord = next(self.iter_prec)
+            for layer in self.layers:
+                self.current_game_objects.extend(
+                    layer.get_game_objects(coord)
+                )
+        gobj = self.current_game_objects.pop(0)
+        return gobj
+
+
+class GameObjectIteratorGroupByCoords(SequenceableIterator):
+
+    def __init__(self, layers):
+        self.layers = layers
+
+    def __next__(self):
+        current_game_objects = []
+        coord = next(self.iter_prec)
+        for layer in self.layers:
+            current_game_objects.extend(
+                layer.get_game_objects(coord)
+            )
+        return current_game_objects
+
+
+class FilterBySpriteName(SequenceableIterator):
+
+    def __init__(self, sprite_names, skip_empty_lists=False):
+        self.sprite_names = sprite_names
+        self.skip_empty_lists = skip_empty_lists
+
+    def set_iter_prec(self, iter_prec):
+        self.iter_prec = iter_prec
+        # Un peu bof ce "isinstance". Ça passe...
+        self.receive_gobj_lists = isinstance(
+            self.iter_prec, GameObjectIteratorGroupByCoords
+        )
+
+    def __next__(self):
+        if self.receive_gobj_lists:
+            while True:
+                game_objects = next(self.iter_prec)
+                game_objects = [
+                    gobj for gobj
+                    in game_objects
+                    if gobj.sprite_name in self.sprite_names
+                ]
+                if game_objects or not self.skip_empty_lists:
+                    return game_objects
+        else:
+            while True:
+                gobj = next(self.iter_prec)
+                if gobj.sprite_name in self.sprite_names:
+                    return gobj
+
+
+class Sequencer():
+
+    def iter_on_rect(rect, instanciate_coord=False):
+        return RectIterator(rect, instanciate_coord)
+
+    def gobj_on_layers(layers):
+        return GameObjectIterator(layers)
+
+    def gobj_on_layers_by_coords(layers):
+        return GameObjectIteratorGroupByCoords(layers)
+
+    def filter_sprites(sprite_names, skip_empty_lists=False):
+        return FilterBySpriteName(sprite_names, skip_empty_lists)
+
+    def seq(*sequenceable_iterators):
+        for seq_iter_prec, seq_iter in zip(sequenceable_iterators, sequenceable_iterators[1:]):
+            seq_iter.set_iter_prec(seq_iter_prec)
+        last_seq = sequenceable_iterators[-1]
+        for elem in last_seq:
+            yield elem
+
+
+# autres use cases:
+# group by coords ? ou alors c'est un paramètre du GameObjectIterator.
+# group by coords, mais on envoie aussi les coords ou c'est vide, avec une liste vide dedans.
+# différents ordre de parcours pour les coordonnées (par colonnes, de bas en haut, de droite à gauche, ...)
+# les cases deux par deux, genre les cases noires d'un échiquier.
+
+# Par exemple, pour la gravité.
+# Pour chaque colonne (itération normale avec un range)
+# on fait deux itérateurs de coords décalés, avec un zip. Le premier (case de destination) itère sur les coords,
+# le second (case de source) itère sur les objets par groupe.
+# À chaque itération, on déplace les objets. On breake quand on rencontre un truc qui arrête la gravité, genre un mur non déplaçable.
+# Ou alors, on itère sur toute la colonne, et on garde un petit booléen pour dire si ça tombe ou pas.
+# Selon qu'on trouve une case vide, une case avec un objet tombable, ou une case avec un mur, on change le booléen.
+
+# Est-ce qu'on peut faire un flood fill, basé sur certaines conditions de propagation ?
+# C'est plus compliqué. Le flood fill, on peut pas le faire avec des enchaînements d'itérateurs.
+# C'est un itérateur en entier avec tout dedans.
+
+"""
+class TrucIterator(SequenceableIterator):
 
     def __next__(self):
         c = next(self.iter_prec)
         return c.y * 10000 + c.x
 
 
-class StringAndFilterIterator(SequencableIterator):
+class StringAndFilterIterator(SequenceableIterator):
 
     def __next__(self):
         while True:
@@ -521,33 +627,28 @@ class StringAndFilterIterator(SequencableIterator):
             if n % 2 == 1:
                 return str(n) + " pouet"
 
-def iter_on_rect(rect, instanciate_coord=False):
-    return RectIterator(rect, instanciate_coord)
 
 def truc():
     return TrucIterator()
 
 def string_and_filter():
     return StringAndFilterIterator()
+"""
 
-def seq(*sequencable_iterators):
-    for seq_iter_prec, seq_iter in zip(sequencable_iterators, sequencable_iterators[1:]):
-        seq_iter.set_iter_prec(seq_iter_prec)
-    last_seq = sequencable_iterators[-1]
-    for elem in last_seq:
-        yield elem
+
 
 
 # TODO WIP: Just to test
+"""
 if __name__ == "__main__":
     a = Rect(20, 40, 3, 4)
-    """
+
     iter_rect = RectIterator(a)
     iter_truc = TrucIterator(iter_rect)
     iter_string = StringAndFilterIterator(iter_truc)
     #for c in a.iter_on_coords():
     for stuff in iter_string:
         print(stuff)
-    """
     for elem in seq(iter_on_rect(a), truc(), string_and_filter()):
         print(elem)
+"""
