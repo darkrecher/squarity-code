@@ -1292,7 +1292,7 @@ class GameModel(squarity.GameModelBase):
           event_result = squarity.EventResult()
           event_result.plocks_custom = ["blabla"]
           event_result.add_delayed_callback(
-              squarity.DelayedCallBack(2000, self.callback_unlock_custom)
+              squarity.DelayedCallBack(200, self.callback_unlock_custom)
           )
           return event_result
 

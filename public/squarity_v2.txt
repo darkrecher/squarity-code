@@ -118,6 +118,13 @@ class Rect:
         self.w = w
         self.h = h
 
+    def in_bounds(self, coord):
+        if not (self.x <= coord.x < self.w):
+            return False
+        if not (self.y <= coord.y < self.h):
+            return False
+        return True
+
 
 
 class TransitionSteps():
@@ -451,9 +458,10 @@ class GameModelBase():
         self.w = w
         self.h = h
         self.str_game_conf_json = str_game_conf_json
+        self.rect = Rect(0, 0, self.w, self.h)
         self.layers = []
-        self.layers.append(Layer(self, w, h))
-        self.layer_main = self.layers[0]
+        self.layer_main = Layer(self, w, h)
+        self.layers.append(self.layer_main)
         # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
         self.transition_delay = 200
 
@@ -585,13 +593,20 @@ class Sequencer():
     def filter_sprites(sprite_names, skip_empty_lists=False):
         return FilterBySpriteName(sprite_names, skip_empty_lists)
 
-    def seq(*sequenceable_iterators):
+    def seq_iter(*sequenceable_iterators):
         for seq_iter_prec, seq_iter in zip(sequenceable_iterators, sequenceable_iterators[1:]):
             seq_iter.set_iter_prec(seq_iter_prec)
         last_seq = sequenceable_iterators[-1]
         for elem in last_seq:
             yield elem
 
+    def seq_first(*sequenceable_iterators):
+        for seq_iter_prec, seq_iter in zip(sequenceable_iterators, sequenceable_iterators[1:]):
+            seq_iter.set_iter_prec(seq_iter_prec)
+        last_seq = sequenceable_iterators[-1]
+        for elem in last_seq:
+            return elem
+        return None
 
 # autres use cases:
 # group by coords ? ou alors c'est un paramètre du GameObjectIterator.
@@ -611,44 +626,3 @@ class Sequencer():
 # C'est plus compliqué. Le flood fill, on peut pas le faire avec des enchaînements d'itérateurs.
 # C'est un itérateur en entier avec tout dedans.
 
-"""
-class TrucIterator(SequenceableIterator):
-
-    def __next__(self):
-        c = next(self.iter_prec)
-        return c.y * 10000 + c.x
-
-
-class StringAndFilterIterator(SequenceableIterator):
-
-    def __next__(self):
-        while True:
-            n = next(self.iter_prec)
-            if n % 2 == 1:
-                return str(n) + " pouet"
-
-
-def truc():
-    return TrucIterator()
-
-def string_and_filter():
-    return StringAndFilterIterator()
-"""
-
-
-
-
-# TODO WIP: Just to test
-"""
-if __name__ == "__main__":
-    a = Rect(20, 40, 3, 4)
-
-    iter_rect = RectIterator(a)
-    iter_truc = TrucIterator(iter_rect)
-    iter_string = StringAndFilterIterator(iter_truc)
-    #for c in a.iter_on_coords():
-    for stuff in iter_string:
-        print(stuff)
-    for elem in seq(iter_on_rect(a), truc(), string_and_filter()):
-        print(elem)
-"""
