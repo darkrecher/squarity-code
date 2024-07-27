@@ -125,7 +125,8 @@ export class LayerWithTransition extends LayerBase {
       const [coordImgX, coordImgY] = this.imgCoords[gobjState.spriteName];
       this.ctxCanvasBuffer.drawImage(
         this.tileAtlas,
-        coordImgX, coordImgY, this.tileImgWidth, this.tileImgHeight,
+        coordImgX, coordImgY,
+        this.tileImgWidth, this.tileImgHeight,
         gobjState.x * this.tileCanvasWidth, gobjState.y * this.tileCanvasHeight,
         this.tileCanvasWidth, this.tileCanvasHeight,
       );

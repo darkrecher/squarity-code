@@ -147,8 +147,17 @@ export default class GameEngineV2 {
       `game_model`,
       'Récupération du game_model',
     );
+    // Vérification si ce game code a une fonction qui gère les clics.
+    this.hasClickHandling = this.runPython(
+      'hasattr(game_model, "on_click")',
+      'Vérification de la présence de on_click',
+    );
+  }
+
+  execStartCode() {
+    let eventResultRaw;
     try {
-      this.gameModel.on_start();
+      eventResultRaw = this.gameModel.on_start();
     } catch (err) {
       const errMessage = err.message;
       this.printGameConsole(`Erreur python durant l'exécution de game_model.on_start\n${errMessage}`);
@@ -156,11 +165,7 @@ export default class GameEngineV2 {
       // vaut mieux pas essayer de faire d'autres choses après.
       throw err;
     }
-    // Vérification si ce game code a une fonction qui gère les clics.
-    this.hasClickHandling = this.runPython(
-      'hasattr(game_model, "on_click")',
-      'Vérification de la présence de on_click',
-    );
+    this.afterGameEvent(eventResultRaw);
   }
 
   onButtonDirection(direction) {

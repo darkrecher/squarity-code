@@ -399,8 +399,8 @@ export default {
       this.gameEngine.updateGameSpec(this.tileAtlas, jsonConf, gameCode);
 
       this.handleResize();
-      this.gameEngine.updateFromPythonData(true);
       this.isPlayerLocked = false;
+      this.gameEngine.execStartCode();
       this.$refs.gameInterface.focus();
       this.showProgress('C\'est parti !');
       this.loadingDone = true;

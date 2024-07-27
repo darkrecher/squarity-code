@@ -118,6 +118,13 @@ export default class GameEngineV1 {
     );
   }
 
+  execStartCode() {
+    // La v1 ne peut pas définir de start code.
+    // Il faut tout mettre dans la fonction __init__.
+    // Alors on fait juste un update, et au revoir.
+    this.updateFromPythonData(true);
+  }
+
   onButtonDirection(direction) {
       if (this.isPlayerLocked()) {
         return;

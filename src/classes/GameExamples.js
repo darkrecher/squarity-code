@@ -1137,7 +1137,8 @@ class GameModel():
 
   TUNNEL_MATCH_JSON_CONF: `
   {
-    "version": "2.0.0",
+    "name": "Test du moteur V2",
+    "version": "2.0.1",
     "game_area": {
       "nb_tile_width": 22,
       "nb_tile_height": 15
@@ -1157,7 +1158,6 @@ class GameModel():
   Pour l'instant, rien n'est documenté.
   À vous de découvrir par vous-même ce que vous pouvez faire !
 """
-
 import json
 import squarity
 Coord = squarity.Coord
@@ -1176,13 +1176,20 @@ class GameModel(squarity.GameModelBase):
 
           self.gamobj_gem_green = squarity.GameObject(Coord(4, 1), "gem_green")
           self.layer_main.add_game_object(self.gamobj_gem_green)
-          self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
+          # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
           self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
           self.layer_main.add_game_object(self.gamobj_gem_violet)
-          self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+          # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+          self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
+
+          event_result = squarity.EventResult()
+          event_result.add_delayed_callback(
+              squarity.DelayedCallBack(100, self.another_callback)
+          )
+          return event_result
 
       def on_click(self, coord):
           # print("on click", coord.x, coord.y)
@@ -1212,7 +1219,7 @@ class GameModel(squarity.GameModelBase):
           print(cl)
           print(coord)
 
-          for gobj in s.seq(
+          for gobj in s.seq_iter(
               s.iter_on_rect(squarity.Rect(0, 0, 10, 10)),
               # s.gobj_on_layers([self.layer_main, self.layer_rock]),
               s.gobj_on_layers_by_coords([self.layer_main, self.layer_rock]),
@@ -1228,6 +1235,10 @@ class GameModel(squarity.GameModelBase):
           if direction == squarity.dirs.Left:
               print("clear transitions")
               self.gamobj_gem_green.clear_recorded_transitions()
+              print(self.get_first_gobj(
+                  Coord(1, 1),
+                  sprite_names=["gem_green", "rock"]
+              ))
               return
 
           if direction == squarity.dirs.Down:

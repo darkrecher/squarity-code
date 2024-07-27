@@ -200,10 +200,8 @@ class GameObject(GameObjectBase):
         self.layer_owner.move_game_object_xy(self, self._coord.x, self._coord.y, x, y)
         self._coord.x = x
         self._coord.y = y
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
+        self._one_shot_transition_delay = transition_delay
+        self._one_shot_callback = callback
 
     def move_to(self, dest_coord, transition_delay=None, callback=None):
         # Code dupliqué avec le code de move_to_xy.
@@ -213,10 +211,8 @@ class GameObject(GameObjectBase):
         self.layer_owner.move_game_object(self, self._coord, dest_coord)
         self._coord.x = dest_coord.x
         self._coord.y = dest_coord.y
-        if transition_delay is not None:
-            self._one_shot_transition_delay = transition_delay
-        if callback is not None:
-            self._one_shot_callback = callback
+        self._one_shot_transition_delay = transition_delay
+        self._one_shot_callback = callback
 
     def move(self, coord_offset, transition_delay=None, callback=None):
         dest_x = self._coord.x + coord_offset.x
@@ -309,6 +305,9 @@ class LayerBase():
     def remove_game_object(self, gobj):
         raise NotImplementedError
 
+    def remove_at_coord(self, coord):
+        raise NotImplementedError
+
     def move_game_object(self, gobj, src_coord, dest_coord):
         """
         You should not directly call this function.
@@ -383,6 +382,12 @@ class Layer(LayerBase):
         tile = self.get_tile(gobj._coord)
         tile.remove(gobj)
 
+    def remove_at_coord(self, coord):
+        tile = self.get_tile(coord)
+        for gobj in tile.game_objects:
+            gobj.layer_owner = None
+        tile.game_objects = []
+
     def move_game_object(self, gobj, src_coord, dest_coord):
         self.get_tile(src_coord).game_objects.remove(gobj)
         self.get_tile(dest_coord).game_objects.append(gobj)
@@ -420,6 +425,16 @@ class LayerSparse(LayerBase):
         gobj.layer_owner = None
         self.game_objects.remove(gobj)
 
+    def remove_at_coord(self, coord):
+        gobj_to_remove = [
+            gobj for gobj
+            in self.game_objects
+            if gobj._coord == coord
+        ]
+        for gobj in gobj_to_remove:
+            gobj.layer_owner = None
+            self.game_objects.remove(gobj)
+
     def move_game_object(self, gobj, src_coord, dest_coord):
         # Les coordonnées ont déjà été modifiées dans le gameObject.
         # On n'a rien à faire pour le LayerSparse lui-même,
@@ -450,35 +465,6 @@ class DelayedCallBack():
     def __init__(self, delay, callback):
         self.delay = delay
         self.callback = callback
-
-
-class GameModelBase():
-
-    def __init__(self, w, h, str_game_conf_json):
-        self.w = w
-        self.h = h
-        self.str_game_conf_json = str_game_conf_json
-        self.rect = Rect(0, 0, self.w, self.h)
-        self.layers = []
-        self.layer_main = Layer(self, w, h)
-        self.layers.append(self.layer_main)
-        # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
-        self.transition_delay = 200
-
-    def on_start(self):
-        pass
-
-    def on_click(self, coord):
-        pass
-
-    def on_button_direction(self, direction):
-        """
-        Utilisez direction.vector pour avoir le tuple (dx, dy) du bouton de direction.
-        """
-        pass
-
-    def on_button_action(self, action_name):
-        pass
 
 
 class SequenceableIterator():
@@ -626,3 +612,51 @@ class Sequencer():
 # C'est plus compliqué. Le flood fill, on peut pas le faire avec des enchaînements d'itérateurs.
 # C'est un itérateur en entier avec tout dedans.
 
+
+class GameModelBase():
+
+    def __init__(self, w, h, str_game_conf_json):
+        self.w = w
+        self.h = h
+        self.str_game_conf_json = str_game_conf_json
+        self.rect = Rect(0, 0, self.w, self.h)
+        self.layers = []
+        self.layer_main = Layer(self, w, h)
+        self.layers.append(self.layer_main)
+        # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
+        self.transition_delay = 200
+
+    def get_first_gobj(self, coord=None, sprite_names=None, layer=None):
+        if coord is None:
+            coord_iterator = Sequencer.iter_on_rect(self.rect)
+        elif isinstance(coord, Coord):
+            coord_iterator = iter([coord])
+        elif isinstance(coord, Rect):
+            coord_iterator = Sequencer.iter_on_rect(coord)
+        else:
+            coord_iterator = coord
+
+        if layer is None:
+            layers = self.layers
+        else:
+            layers = [layer]
+
+        iterators = [coord_iterator, Sequencer.gobj_on_layers(layers)]
+        if sprite_names is not None:
+            iterators.append(Sequencer.filter_sprites(sprite_names))
+        return Sequencer.seq_first(*iterators)
+
+    def on_start(self):
+        pass
+
+    def on_click(self, coord):
+        pass
+
+    def on_button_direction(self, direction):
+        """
+        Utilisez direction.vector pour avoir le tuple (dx, dy) du bouton de direction.
+        """
+        pass
+
+    def on_button_action(self, action_name):
+        pass
