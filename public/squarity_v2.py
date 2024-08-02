@@ -158,11 +158,18 @@ class GameObject(GameObjectBase):
     # Si on veut un objet qui se transitionne, on détruit l'ancien et on recrée un transitionable,
     # et puis c'est tout.
     # (Trouver un autre nom que "isVisualEffectable").
-    def __init__(self, coord, sprite_name, layer_owner=None):
+    def __init__(
+            self,
+            coord,
+            sprite_name,
+            layer_owner=None,
+            image_modifier=None,
+        ):
         super().__init__()
         self._coord = Coord(coord=coord)
         self.sprite_name = sprite_name
         self.layer_owner = layer_owner
+        self.image_modifier = image_modifier
         self.plock_transi = PlayerLockTransi.NO_LOCK
 
         # FUTURE: pour plus tard.
@@ -262,6 +269,25 @@ class GameObject(GameObjectBase):
 
     def reset_one_shot_callback(self):
         self._one_shot_callback = None
+
+
+class ComponentImageModifier():
+
+    def __init__(
+        self,
+        img_x=None, img_y=None,
+        img_size_x=None, img_size_y=None,
+        area_x=0.0, area_y=0.0,
+        area_scale_x=1.0, area_scale_y=1.0,
+    ):
+        self.img_x = img_x
+        self.img_y = img_y
+        self.img_size_x = img_size_x
+        self.img_size_y = img_size_y
+        self.area_x = area_x
+        self.area_y = area_y
+        self.area_scale_x = area_scale_x
+        self.area_scale_y = area_scale_y
 
 
 class Tile():
@@ -660,3 +686,48 @@ class GameModelBase():
 
     def on_button_action(self, action_name):
         pass
+
+"""
+FUTURE:
+Il y a 4 valeurs définissant ce qu'on prend dans l'atlas : img_x, img_y, size_x, size_y. Par défaut, size_x et size_y c'est les valeurs de tile_size (définie dans la config json). Tout est en pixels.
+
+Il y a 4 valeurs définissant où on l'affiche dans l'aire de jeu. offset_x, offset_y, scale_x, scale_y. Tout est en fraction de squares. Car ça définit l'endroit où on affiche l'objet, dans l'aire de jeu, qui est constituée de squares. Par défaut, les valeurs sont 0.0, 0.0, 1.0, 1.0. On peut pas définir pixel perfect. Puisque la taille réelle de l'aire de jeu ne peut pas être choisie pixel perfect. Elle dépend de la taille de la fenêtre du navigateur.
+
+Et on peut avoir des transitions smooth sur ces 8 valeurs.
+
+Les offset_x et offset_y peuvent faire sortir l'image partiellement ou complètement de l'aire de jeu. Ça pose pas de problème.
+
+On doit pouvoir donner des valeurs par défaut quand on définit un sprite, qui permettraient d'éviter des calculs relous.
+Exemple: tous les sprites ont une taille de 32x32 pixels. On en veut un particulier, ayant une taille de 40x32 pixels, qui dépasse à gauche et à droite de 4 pixels.
+Il faut faire des calcules relous et définir les valeurs suivantes:
+atlas: img_x = 42, img_y = 51, size_x = 40, size_y = 32
+aire de jeu: offset_x = -0.125, offset_x = 0.0, scale_x = 1.25, scale_y = 1.0
+
+Dans la config, on devrait avoir 3 manières de définir des images (de la moins précise à la plus précise):
+
+    1. "img_machin_normal": [corner_x, corner_y]
+    Dans ce cas, size_x et size_y valent tile_size
+    2. "img_machin_size": [corner_x, corner_y, size_x, size_y]
+    Dans ce cas, hotpoint_x et hotpoint_y valent 0.
+    3. "img_machin_hotpointed": [corner_x, corner_y, size_x, size_y, hotpoint_x, hotpoint_y]
+    Ouais mais c'est pas cohérent avec ce que j'ai dit avant...
+    zut...
+
+C'est vachement plus logique que, par défaut, les pixels dans l'atlas aient une influence sur la taille globale du game_object affiché.
+Ça veut dire que quand je définis les size_x, size_y pour une image, ça va obligatoirement influer sur le scale_x, scale_y du game_object.
+Et après on redéfinit le scale_x, scale_y et ça va faire des trucs trop bizarres...
+Ou alors y'a deux scales qui se multiplient. Ça va se finir comme ça.
+La seule difficulté, c'est quand on aura une image ayant une size particulière, et on veut ajouter le scale du game_object pour que ça fasse
+pil poil la taille d'une tile à l'écran. Dans ce cas, il faut faire des calculs compliqués. Mais c'est un cas assez rare, donc on l'accepte.
+
+Mais dans ce cas, pourquoi les offsets et scale seraient données en unité de tile, et pas en unité de pixels ?
+Comme ça tout serait dans la même unité...
+Ha ha... Non, on fait pas comme ça.
+L'idée, c'est que le code python et les infos de la config soient le plus indépendants possibles (même si c'est vachement dépendant parce qu'on retrouve
+les noms des images dans le code python)
+
+Dans un premier temps: les layers sans transition ne prennent pas en compte les image modifiers.
+Mais ils prennent en compte les configs de tile spécifiques que l'on peut avoir dans le json de config.
+Dans un autre temps: je sais pas, on verra.
+
+"""

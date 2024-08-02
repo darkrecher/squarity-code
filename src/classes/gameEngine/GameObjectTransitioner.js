@@ -21,6 +21,7 @@ export default class GameObjectTransitioner {
     this.currentTransitions = [];
     this.gameObject = gameObject;
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
+    this.has_image_modifier = !isNonePython(this.gameObject.image_modifier);
   }
 
 

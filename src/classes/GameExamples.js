@@ -1174,7 +1174,11 @@ class GameModel(squarity.GameModelBase):
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)
 
-          self.gamobj_gem_green = squarity.GameObject(Coord(4, 1), "gem_green")
+          self.gamobj_gem_green = squarity.GameObject(
+              Coord(4, 1),
+              "gem_green",
+              image_modifier=squarity.ComponentImageModifier(area_x=0.4, area_y=-0.7)
+          )
           self.layer_main.add_game_object(self.gamobj_gem_green)
           # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
