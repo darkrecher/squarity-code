@@ -1,9 +1,13 @@
 import { isNonePython } from '../common/SimpleFunctions.js';
 import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
-import GameUpdateResult from './GameUpdateResult.js'
+import GameUpdateResult from './GameUpdateResult.js';
+import ComponentImageModifier from './ComponentImageModifier.js';
 
 
+// FUTURE : ce serait peut-être plus simple que tous les champs soit des objets StateTransition,
+// qui évoluent ou pas. Au lieu d'avoir un nombre de StateTransition variable dans
+// une liste, contenant uniquement les transitions qui bougent.
 export default class GameObjectTransitioner {
   /*
    * Contient des transitions, avec le field concerné, time start time end, val start val end.
@@ -21,7 +25,11 @@ export default class GameObjectTransitioner {
     this.currentTransitions = [];
     this.gameObject = gameObject;
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
-    this.has_image_modifier = !isNonePython(this.gameObject.image_modifier);
+    if (!isNonePython(this.gameObject.image_modifier)) {
+      this.imageModifier = new ComponentImageModifier(this.gameObject);
+    } else {
+      this.imageModifier = null;
+    }
   }
 
 
@@ -101,7 +109,14 @@ export default class GameObjectTransitioner {
       this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
       this.gobjState = new GobjState(x, y, this.gameObject.sprite_name);
     }
-    return (this.currentTransitions.length > 0);
+
+    let hasCurrentTransitions = (this.currentTransitions.length > 0);
+    if (this.imageModifier !== null) {
+      if (this.imageModifier.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
+        hasCurrentTransitions = true;
+      }
+    }
+    return hasCurrentTransitions;
   }
 
 
@@ -166,10 +181,18 @@ export default class GameObjectTransitioner {
 
 
   updateTransitions(timeNow) {
-    if (this.currentTransitions.length === 0) {
-      return null;
-    }
     const gameUpdateResult = new GameUpdateResult();
+    if (this.imageModifier !== null) {
+      // TODO : on devrait récupérer le booléen renvoyé par cette fonction, pour savoir si on a endedAllTransitions.
+      // Et en plus, faut aussi savoir si on a encore des transitions en cours. Argh. Faut renvoyer deux crappy booleans.
+      this.imageModifier.updateTransitions(timeNow);
+      if (this.imageModifier.hasAnyTransitionLeft()) {
+        gameUpdateResult.hasAnyTransition = true;
+      }
+    }
+    if (this.currentTransitions.length === 0) {
+      return gameUpdateResult;
+    }
     let endedAllTransition = true;
     let hasDoneAtLeastOneTransition = false;
     for (let transition of this.currentTransitions) {
@@ -217,6 +240,9 @@ export default class GameObjectTransitioner {
     /* Renvoie un gobjState avec les champs à jour,
      * en fonction des transitions en cours et d'un time donné.
      */
+    if (this.imageModifier !== null) {
+      this.imageModifier.updateState(timeNow);
+    }
     if (this.currentTransitions.length === 0) {
       return this.gobjState;
     }
@@ -267,6 +293,7 @@ export default class GameObjectTransitioner {
       gobjStateDest.y = finalVal;
     } else if (transition.fieldName == "sprite_name") {
       if (applyInGame) {
+        // TODO : à vérifier, mais c'est pas le bon nom. Faut que ce soit sprite_name.
         this.gameObject.spriteName = finalVal;
         transition.isAppliedInGame = true;
       }

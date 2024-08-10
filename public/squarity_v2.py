@@ -275,17 +275,17 @@ class ComponentImageModifier():
 
     def __init__(
         self,
-        img_x=None, img_y=None,
+        img_offset_x=None, img_offset_y=None,
         img_size_x=None, img_size_y=None,
-        area_x=0.0, area_y=0.0,
+        area_offset_x=0.0, area_offset_y=0.0,
         area_scale_x=1.0, area_scale_y=1.0,
     ):
-        self.img_x = img_x
-        self.img_y = img_y
+        self.img_offset_x = img_offset_x
+        self.img_offset_y = img_offset_y
         self.img_size_x = img_size_x
         self.img_size_y = img_size_y
-        self.area_x = area_x
-        self.area_y = area_y
+        self.area_offset_x = area_offset_x
+        self.area_offset_y = area_offset_y
         self.area_scale_x = area_scale_x
         self.area_scale_y = area_scale_y
 
@@ -726,8 +726,5 @@ Ha ha... Non, on fait pas comme ça.
 L'idée, c'est que le code python et les infos de la config soient le plus indépendants possibles (même si c'est vachement dépendant parce qu'on retrouve
 les noms des images dans le code python)
 
-Dans un premier temps: les layers sans transition ne prennent pas en compte les image modifiers.
-Mais ils prennent en compte les configs de tile spécifiques que l'on peut avoir dans le json de config.
-Dans un autre temps: je sais pas, on verra.
 
 """

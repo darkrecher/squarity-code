@@ -123,17 +123,17 @@ export class LayerWithTransition extends LayerBase {
     for (let gobjTransitioner of this.layerMemory.values()) {
       const gobjState = gobjTransitioner.getCurrentState(timeNow);
       const [coordImgX, coordImgY] = this.imgCoords[gobjState.spriteName];
-      if (gobjTransitioner.has_image_modifier) {
+      if (gobjTransitioner.imageModifier !== null) {
         console.log("zuuuuuut");
-        const imageModifier = gobjTransitioner.gameObject.image_modifier;
+        const imageModifier = gobjTransitioner.imageModifier;
         console.log("zut");
         console.log(imageModifier);
         this.ctxCanvasBuffer.drawImage(
           this.tileAtlas,
           coordImgX, coordImgY,
           this.tileImgWidth, this.tileImgHeight,
-          (gobjState.x + imageModifier.area_x) * this.tileCanvasWidth,
-          (gobjState.y +  + imageModifier.area_y) * this.tileCanvasHeight,
+          (gobjState.x + imageModifier.areaOffsetX) * this.tileCanvasWidth,
+          (gobjState.y + imageModifier.areaOffsetY) * this.tileCanvasHeight,
           this.tileCanvasWidth, this.tileCanvasHeight,
         );
       } else {

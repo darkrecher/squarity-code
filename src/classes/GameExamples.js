@@ -1177,12 +1177,20 @@ class GameModel(squarity.GameModelBase):
           self.gamobj_gem_green = squarity.GameObject(
               Coord(4, 1),
               "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_x=0.4, area_y=-0.7)
+              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7)
           )
           self.layer_main.add_game_object(self.gamobj_gem_green)
           # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
           self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
+
+          self.gamobj_gem_green_2 = squarity.GameObject(
+              Coord(4, 5),
+              "gem_green",
+              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.1, area_offset_y=-0.7)
+          )
+          self.gamobj_gem_green_2.set_transition_delay(400)
+          self.layer_main.add_game_object(self.gamobj_gem_green_2)
 
           self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
           self.layer_main.add_game_object(self.gamobj_gem_violet)
@@ -1243,6 +1251,7 @@ class GameModel(squarity.GameModelBase):
                   Coord(1, 1),
                   sprite_names=["gem_green", "rock"]
               ))
+              self.gamobj_gem_green_2.image_modifier.area_offset_x = -2.3
               return
 
           if direction == squarity.dirs.Down:

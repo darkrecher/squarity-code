@@ -111,7 +111,9 @@ export default {
       // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
-        this.exampleMagician();
+        // TODO WIP bleuargh.
+        this.exampleTunnelMatch();
+        //this.exampleMagician();
         return;
       }
       if (locHash === '#fetchez_example_h2o') {
