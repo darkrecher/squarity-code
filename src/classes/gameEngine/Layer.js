@@ -80,8 +80,7 @@ export class LayerWithTransition extends LayerBase {
           coordAndGameObj.x, coordAndGameObj.y, timeNow
         );
       }
-      if (gameObj._transitions_to_record.length) {
-        gobjTransitioner.addTransitionsFromRecords(timeNow);
+      if (gobjTransitioner.addTransitionsFromRecords(timeNow)) {
         hasNewTransition = true;
       }
       if (hasNewTransition) {
@@ -132,7 +131,7 @@ export class LayerWithTransition extends LayerBase {
           this.tileAtlas,
           coordImgX, coordImgY,
           this.tileImgWidth, this.tileImgHeight,
-          (gobjState.x + imageModifier.areaOffsetX) * this.tileCanvasWidth,
+          (gobjState.x + imageModifier.areaOffsetX.fieldValue) * this.tileCanvasWidth,
           (gobjState.y + imageModifier.areaOffsetY) * this.tileCanvasHeight,
           this.tileCanvasWidth, this.tileCanvasHeight,
         );

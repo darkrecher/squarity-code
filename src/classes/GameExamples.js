@@ -1239,6 +1239,7 @@ class GameModel(squarity.GameModelBase):
           ):
               print(";".join(map(str, gobj)))
 
+          print("green_2 area_offset_x :", self.gamobj_gem_green_2.image_modifier.area_offset_x)
           return event_result
 
       def on_button_direction(self, direction):
@@ -1257,6 +1258,18 @@ class GameModel(squarity.GameModelBase):
           if direction == squarity.dirs.Down:
               print("clear transitions, but add more")
               self.gamobj_gem_green.clear_recorded_transitions()
+              self.gamobj_gem_green_2.image_modifier.add_transition(
+                  squarity.TransitionSteps(
+                      "area_offset_x",
+                      (
+                          (400, -1),
+                          (400, 2.5),
+                          (400, 2.9),
+                          (400, 0.2),
+                      )
+                  )
+              )
+
 
           self.gamobj_gem_green.add_transition(
               squarity.TransitionSteps(

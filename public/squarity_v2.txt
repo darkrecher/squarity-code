@@ -288,6 +288,16 @@ class ComponentImageModifier():
         self.area_offset_y = area_offset_y
         self.area_scale_x = area_scale_x
         self.area_scale_y = area_scale_y
+        self._transitions_to_record = []
+
+    def add_transition(self, transition):
+        """
+        Le paramètre transition doit être une instanceTransitionSteps.
+        """
+        self._transitions_to_record.append(transition)
+
+    def clear_new_transitions(self):
+        self._transitions_to_record[:] = []
 
 
 class Tile():

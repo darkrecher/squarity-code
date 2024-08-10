@@ -1,4 +1,4 @@
-import { StateTransitionProgressive } from './StateTransition.js';
+import { transitionsLeft, TransitionableField } from './TransitionableField.js';
 
 /*
 Réflexions sur des trucs:
@@ -34,75 +34,55 @@ export default class ComponentImageModifier {
 
   constructor(gameObject) {
     this.gameObject = gameObject;
-    this.PythonComponent = this.gameObject.image_modifier;
-    // TODO : on est d'accord que c'est dégueu et qu'il faudra génériquifier tout ça.
-    this.areaOffsetX = this.PythonComponent.area_offset_x;
-    this.areaOffsetXFinal = this.areaOffsetX;
-    this.areaOffsetXStateTransitioners = [];
+    this.pythonComponent = this.gameObject.image_modifier;
+    // Trop bizarre cette histoire de bind, mais ça semble marcher.
+    // https://www.w3schools.com/js/js_function_bind.asp
+    const getValFromPython = this.getValFromPython.bind(this);
+    const setValToPython = this.setValToPython.bind(this);
+    this.areaOffsetX = new TransitionableField("area_offset_x", getValFromPython, setValToPython);
     this.areaOffsetY = 0;
   }
 
+  getValFromPython() {
+    return this.pythonComponent.area_offset_x;
+  }
+
+  setValToPython(val) {
+    this.pythonComponent.area_offset_x = val;
+  }
+
   addTransitionsFromNewState(transitionDelay, currentTimeStart) {
-    // TODO : peut-être qu'on n'a pas besoin de cette variable.
-    let somethingChanged = false;
-    if (this.areaOffsetXFinal != this.PythonComponent.area_offset_x) {
-      const transitionToAdd = new StateTransitionProgressive(
-        "area_offset_x",
-        currentTimeStart, currentTimeStart + transitionDelay,
-        this.areaOffsetXFinal,
-        this.PythonComponent.area_offset_x,
-        true
-      );
-      this.areaOffsetXStateTransitioners.push(transitionToAdd);
-      this.areaOffsetXStateTransitioners.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-      this.areaOffsetXFinal = this.PythonComponent.area_offset_x
-      somethingChanged = true;
+    return this.areaOffsetX.addTransitionFromNewState(transitionDelay, currentTimeStart);
+  }
+
+  addTransitionsFromRecords(timeNow) {
+    if (!this.pythonComponent._transitions_to_record.length) {
+      return false;
     }
-    return (this.areaOffsetXStateTransitioners.length > 0);
+
+    // TODO : faut calculer ça en fonction des transitions en cours dans le bazar.
+    let currentTimeStart = timeNow;
+
+    for (let transiToRecord of this.pythonComponent._transitions_to_record) {
+      if (transiToRecord.field_name === "area_offset_x") {
+        this.areaOffsetX.addTransitionsFromRecords(timeNow, transiToRecord);
+      }
+    }
+    this.pythonComponent.clear_new_transitions();
+    return true;
   }
 
   updateState(timeNow) {
-    if (this.areaOffsetXStateTransitioners.length > 0) {
-      const firstTransition = this.areaOffsetXStateTransitioners[0];
-      this.areaOffsetX = firstTransition.getCurrentVal(timeNow);
-    }
+    this.areaOffsetX.updateState(timeNow);
   }
 
   updateTransitions(timeNow) {
-    let hasAnyTransitionLeft = false;
-    let endedOneTransitionList = false;
-    if (this.areaOffsetXStateTransitioners.length !== 0) {
-      const firstTransition = this.areaOffsetXStateTransitioners[0];
-      if ((timeNow >= firstTransition.timeStart) && (!firstTransition.isAppliedInGame)) {
-        this.applyTransition(firstTransition);
-      }
-      if (firstTransition.isTimeEnded(timeNow)) {
-        firstTransition.isDone = true;
-        this.areaOffsetXStateTransitioners.shift();
-        if (this.areaOffsetXStateTransitioners.length > 0) {
-          endedOneTransitionList = true;
-        }
-      } else {
-        hasAnyTransitionLeft = true;
-      }
-    }
-    const endedAllTransition = endedOneTransitionList && (!hasAnyTransitionLeft);
-    if (endedAllTransition) {
-      console.log("endedAllTransition !!!!");
-    }
+    this.areaOffsetX.updateTransitions(timeNow);
   }
 
   // TODO : bof. Faut renvoyer ça dans le updateTransitions
   hasAnyTransitionLeft() {
-    return this.areaOffsetXStateTransitioners.length > 0;
-  }
-
-  // TODO : faut une espèce de callback dans la transition elle-même. Mais là, bon voilà...
-  applyTransition(transition) {
-    if (transition.fieldName == "area_offset_x") {
-      this.areaOffsetXFinal = transition.getFinalVal();
-      transition.isAppliedInGame = true;
-    }
+    return this.areaOffsetX.hasAnyTransitionLeft();
   }
 
 }

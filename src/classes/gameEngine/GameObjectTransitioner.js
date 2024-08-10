@@ -121,12 +121,22 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromRecords(timeNow) {
+    let hasAnyTransition = false;
+    if (this.imageModifier !== null) {
+      hasAnyTransition = hasAnyTransition || this.imageModifier.addTransitionsFromRecords(timeNow);
+    }
+    if (!this.gameObject._transitions_to_record.length) {
+      return hasAnyTransition;
+    }
+
     let currentTimeStart;
     let currentGobjStateStart;
     if (this.currentTransitions.length === 0) {
       currentTimeStart = timeNow;
       currentGobjStateStart = this.gobjState;
     } else {
+      // Ça, c'est juste pour récupérer la valeur finale des champs, qu'il y aura à la fin des transitions existantes.
+      // (Et c'est bourrin).
       currentTimeStart = this.getEndTransitionTime(timeNow);
       currentGobjStateStart = this.gobjState.clone();
       for (let transition of this.currentTransitions) {
@@ -177,6 +187,8 @@ export default class GameObjectTransitioner {
     }
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
     this.gameObject.clear_new_transitions();
+    hasAnyTransition = true;
+    return hasAnyTransition;
   }
 
 
