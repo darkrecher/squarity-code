@@ -35,24 +35,35 @@ export default class ComponentImageModifier {
   constructor(gameObject) {
     this.gameObject = gameObject;
     this.pythonComponent = this.gameObject.image_modifier;
+
     // Trop bizarre cette histoire de bind, mais ça semble marcher.
     // https://www.w3schools.com/js/js_function_bind.asp
-    const getValFromPython = this.getValFromPython.bind(this);
-    const setValToPython = this.setValToPython.bind(this);
-    this.areaOffsetX = new TransitionableField("area_offset_x", getValFromPython, setValToPython);
-    this.areaOffsetY = 0;
-  }
+    const getValFromPythonAOX = this.getValFromPythonAOX.bind(this);
+    const setValToPythonAOX = this.setValToPythonAOX.bind(this);
+    this.areaOffsetX = new TransitionableField("area_offset_x", getValFromPythonAOX, setValToPythonAOX);
+    const getValFromPythonAOY = this.getValFromPythonAOY.bind(this);
+    const setValToPythonAOY = this.setValToPythonAOY.bind(this);
+    this.areaOffsetY = new TransitionableField("area_offset_y", getValFromPythonAOY, setValToPythonAOY);
+    const getValFromPythonASX = this.getValFromPythonASX.bind(this);
+    const setValToPythonASX = this.setValToPythonASX.bind(this);
+    this.areaScaleX = new TransitionableField("area_scale_x", getValFromPythonASX, setValToPythonASX);
+    const getValFromPythonASY = this.getValFromPythonASY.bind(this);
+    const setValToPythonASY = this.setValToPythonASY.bind(this);
+    this.areaScaleY = new TransitionableField("area_scale_y", getValFromPythonASY, setValToPythonASY);
 
-  getValFromPython() {
-    return this.pythonComponent.area_offset_x;
-  }
-
-  setValToPython(val) {
-    this.pythonComponent.area_offset_x = val;
+    this.transiFields = new Map();
+    this.transiFields.set("area_offset_x", this.areaOffsetX);
+    this.transiFields.set("area_offset_y", this.areaOffsetY);
+    this.transiFields.set("area_scale_x", this.areaScaleX);
+    this.transiFields.set("area_scale_y", this.areaScaleY);
   }
 
   addTransitionsFromNewState(transitionDelay, currentTimeStart) {
-    return this.areaOffsetX.addTransitionFromNewState(transitionDelay, currentTimeStart);
+    let hasAnyTransition = false;
+    for (let transiField of this.transiFields.values()) {
+      hasAnyTransition = transiField.addTransitionFromNewState(transitionDelay, currentTimeStart) || hasAnyTransition;
+    }
+    return hasAnyTransition;
   }
 
   addTransitionsFromRecords(timeNow) {
@@ -64,25 +75,64 @@ export default class ComponentImageModifier {
     let currentTimeStart = timeNow;
 
     for (let transiToRecord of this.pythonComponent._transitions_to_record) {
-      if (transiToRecord.field_name === "area_offset_x") {
-        this.areaOffsetX.addTransitionsFromRecords(timeNow, transiToRecord);
-      }
+      const transiField = this.transiFields.get(transiToRecord.field_name);
+      transiField.addTransitionsFromRecords(timeNow, transiToRecord);
     }
     this.pythonComponent.clear_new_transitions();
     return true;
   }
 
   updateState(timeNow) {
-    this.areaOffsetX.updateState(timeNow);
+    for (let transiField of this.transiFields.values()) {
+      transiField.updateState(timeNow);
+    }
   }
 
   updateTransitions(timeNow) {
-    this.areaOffsetX.updateTransitions(timeNow);
+    for (let transiField of this.transiFields.values()) {
+      transiField.updateTransitions(timeNow);
+    }
   }
 
   // TODO : bof. Faut renvoyer ça dans le updateTransitions
   hasAnyTransitionLeft() {
-    return this.areaOffsetX.hasAnyTransitionLeft();
+    let hasAnyTransition = false;
+    for (let transiField of this.transiFields.values()) {
+      hasAnyTransition = transiField.hasAnyTransitionLeft() || hasAnyTransition;
+    }
+    return hasAnyTransition;
   }
+
+  // --- Attention, ça va être dégueulasse !! ---
+  // Mais j'ai pas trouvé de meilleur moyen de faire ça.
+
+  getValFromPythonAOX() {
+    return this.pythonComponent.area_offset_x;
+  }
+  setValToPythonAOX(val) {
+    this.pythonComponent.area_offset_x = val;
+  }
+
+  getValFromPythonAOY() {
+    return this.pythonComponent.area_offset_y;
+  }
+  setValToPythonAOY(val) {
+    this.pythonComponent.area_offset_y = val;
+  }
+
+  getValFromPythonASX() {
+    return this.pythonComponent.area_scale_x;
+  }
+  setValToPythonASX(val) {
+    this.pythonComponent.area_scale_x = val;
+  }
+
+  getValFromPythonASY() {
+    return this.pythonComponent.area_scale_y;
+  }
+  setValToPythonASY(val) {
+    this.pythonComponent.area_scale_y = val;
+  }
+
 
 }

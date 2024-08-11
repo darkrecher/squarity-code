@@ -1258,6 +1258,7 @@ class GameModel(squarity.GameModelBase):
           if direction == squarity.dirs.Down:
               print("clear transitions, but add more")
               self.gamobj_gem_green.clear_recorded_transitions()
+              """
               self.gamobj_gem_green_2.image_modifier.add_transition(
                   squarity.TransitionSteps(
                       "area_offset_x",
@@ -1269,6 +1270,53 @@ class GameModel(squarity.GameModelBase):
                       )
                   )
               )
+              self.gamobj_gem_green_2.image_modifier.add_transition(
+                  squarity.TransitionSteps(
+                      "area_offset_y",
+                      (
+                          (400, -0.2),
+                          (400, 3),
+                          (400, 0.4),
+                          (400, -0.5),
+                      )
+                  )
+              )
+              """
+              self.gamobj_gem_green_2.image_modifier.add_transition(
+                  squarity.TransitionSteps(
+                      "area_scale_x",
+                      (
+                          (400, 3.0),
+                          (400, 2.5),
+                          (400, 4.5),
+                          (400, 4.0),
+                          (400, 6.0),
+                          (400, 5.5),
+                          (400, 7.5),
+                          (400, 7.0),
+                          (400, 9.0),
+                          (400, 8.5),
+                      )
+                  )
+              )
+              self.gamobj_gem_green_2.image_modifier.add_transition(
+                  squarity.TransitionSteps(
+                      "area_scale_y",
+                      (
+                          (400, 1.5),
+                          (400, 3.5),
+                          (400, 3.0),
+                          (400, 5.0),
+                          (400, 4.5),
+                          (400, 6.5),
+                          (400, 6.0),
+                          (400, 8.0),
+                          (400, 7.5),
+                          (400, 8.5),
+                      )
+                  )
+              )
+              return
 
 
           self.gamobj_gem_green.add_transition(

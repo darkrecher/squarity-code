@@ -30,8 +30,6 @@ export default class GameEngineV2 {
     // https://stackoverflow.com/questions/2795269/does-html5-canvas-support-double-buffering
     // clear canvas
     this.ctxCanvasBuffer.fillStyle = '#000000';
-    // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
-    this.ctxCanvasBuffer.imageSmoothingEnabled = false;
 
     this.layers = null;
     // mapLayers contient des objets Layer.
@@ -73,6 +71,9 @@ export default class GameEngineV2 {
     // Correspond à game_model dans le code python.
     this.gameModel = null;
 
+    // https://stackoverflow.com/questions/31910043/html5-canvas-drawimage-draws-image-blurry
+    this.ctxCanvas.imageSmoothingEnabled = false;
+    this.ctxCanvasBuffer.imageSmoothingEnabled = false;
   }
 
   hasPlockChanged(newPlockTransi) {
@@ -246,6 +247,9 @@ export default class GameEngineV2 {
       const layerId = pythonLayer._l_id;
       if (!this.mapLayers.has(layerId)) {
         let newLayer;
+        // FUTURE : grand mystère. Je dois remettre cette instruction ici, sinon ce n'est pas pris en compte.
+        // Pourtant, je l'ai dit dès le début, dans le constructeur de cette classe.
+        this.ctxCanvasBuffer.imageSmoothingEnabled = false;
         if (pythonLayer.show_transitions) {
           newLayer = new LayerWithTransition(
             pythonLayer,
