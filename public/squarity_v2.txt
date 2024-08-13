@@ -292,7 +292,7 @@ class ComponentImageModifier():
 
     def add_transition(self, transition):
         """
-        Le paramètre transition doit être une instanceTransitionSteps.
+        Le paramètre transition doit être une instance de TransitionSteps.
         """
         self._transitions_to_record.append(transition)
 

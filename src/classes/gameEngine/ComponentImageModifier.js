@@ -71,12 +71,10 @@ export default class ComponentImageModifier {
       return false;
     }
 
-    // TODO : faut calculer ça en fonction des transitions en cours dans le bazar.
-    let currentTimeStart = timeNow;
-
+    let currentTimeStart = this.getTransitionTimeEnd(timeNow);
     for (let transiToRecord of this.pythonComponent._transitions_to_record) {
       const transiField = this.transiFields.get(transiToRecord.field_name);
-      transiField.addTransitionsFromRecords(timeNow, transiToRecord);
+      transiField.addTransitionsFromRecords(currentTimeStart, transiToRecord);
     }
     this.pythonComponent.clear_new_transitions();
     return true;
@@ -89,18 +87,26 @@ export default class ComponentImageModifier {
   }
 
   updateTransitions(timeNow) {
+    let transiLeft = transitionsLeft.NO_TRANSITIONS;
     for (let transiField of this.transiFields.values()) {
-      transiField.updateTransitions(timeNow);
+      const newTransiLeft = transiField.updateTransitions(timeNow);
+      if (newTransiLeft == transitionsLeft.HAS_TRANSITIONS) {
+        transiLeft = transitionsLeft.HAS_TRANSITIONS;
+      } else if ((newTransiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) && (transiLeft == transitionsLeft.NO_TRANSITIONS)) {
+        transiLeft = transitionsLeft.JUST_ENDED_ALL_TRANSITIONS;
+      }
     }
+    return transiLeft;
   }
 
-  // TODO : bof. Faut renvoyer ça dans le updateTransitions
-  hasAnyTransitionLeft() {
-    let hasAnyTransition = false;
+  getTransitionTimeEnd(timeNow) {
+    let endTransitionTimes = [timeNow];
     for (let transiField of this.transiFields.values()) {
-      hasAnyTransition = transiField.hasAnyTransitionLeft() || hasAnyTransition;
+      if (transiField.stateTransitioners.length) {
+        endTransitionTimes.push(transiField.getTimeEnd())
+      }
     }
-    return hasAnyTransition;
+    return Math.max(...endTransitionTimes);
   }
 
   // --- Attention, ça va être dégueulasse !! ---

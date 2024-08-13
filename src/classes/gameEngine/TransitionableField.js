@@ -2,9 +2,9 @@ import { StateTransitionProgressive } from './StateTransition.js';
 
 
 export const transitionsLeft = {
-  noTransitions: 0,
-  justEndedAllTransitions: 1,
-  hasTransitions: 2,
+  NO_TRANSITIONS: 0,
+  JUST_ENDED_ALL_TRANSITIONS: 1,
+  HAS_TRANSITIONS: 2,
 }
 
 
@@ -13,27 +13,27 @@ export class TransitionableField {
   constructor(pythonFieldName, getValFromPython, setValToPython) {
     // Le nom que l'on utilise dans le code python,
     // quand on crée un objet squarity.TransitionSteps.
+    // TODO : et que si ça se trouve on n'en a pas besoin.
     this.pythonFieldName = pythonFieldName;
+
     this.getValFromPython = getValFromPython;
     this.setValToPython = setValToPython;
     // La valeur courante. Celle qui évolue progressivement quand il y a une transition en cours.
-    // C'est cette valeur qu'on utilise pour faire le rendu de l'aire de jeu,
-    // et donc ça fait bouger les objets.
+    // C'est cette valeur qu'on utilise pour faire le rendu dans l'aire de jeu.
+    // Les objets bougent, ils grossissent, etc,
     this.fieldValue = this.getValFromPython();
     // La valeur que l'on aura lorsque la transition en cours sera terminée.
     this.fieldValueFinal = this.fieldValue;
     // Liste de transition, rangée chronologiquement.
     // On vide cette liste au fur et à mesure que le temps avance.
-    // Et on y ajoute des éléments à la fin, lorsque la valeur python change,
+    // On y ajoute des éléments à la fin, lorsque la valeur python change,
     // ou que l'on enregistre explicitement des transitions.
     this.stateTransitioners = [];
-    // Est-ce qu'on est vraiment dans la première transition, ou est-ce qu'elle arrivera plus tard.
+    // Indique si on est vraiment dans la première transition, ou si elle arrivera plus tard.
     this.doingATransition = false;
   }
 
   addTransitionFromNewState(transitionDelay, currentTimeStart) {
-    // TODO : peut-être qu'on n'a pas besoin de cette variable.
-    let somethingChanged = false;
     const valFromPython = this.getValFromPython();
     if (this.fieldValueFinal != valFromPython) {
       const transitionToAdd = new StateTransitionProgressive(
@@ -44,7 +44,6 @@ export class TransitionableField {
       );
       this.stateTransitioners.push(transitionToAdd);
       this.stateTransitioners.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-      somethingChanged = true;
     }
     return this.stateTransitioners.length > 0;
   }
@@ -53,13 +52,13 @@ export class TransitionableField {
     let currentTime = currentTimeStart;
     let fieldValueRecord = this.fieldValueFinal;
     if (this.stateTransitioners.length) {
-      lastTransition = this.stateTransitioners.slice(-1)[0];
+      const lastTransition = this.stateTransitioners.slice(-1)[0];
       fieldValueRecord = lastTransition.getFinalVal();
     }
     for (let step of transiToRecord.steps) {
       let [delay, value] = step;
       const transition = new StateTransitionProgressive(
-        "osef",
+        "osef", // TODO.
         currentTime, currentTime + delay,
         fieldValueRecord, value,
         false
@@ -79,10 +78,10 @@ export class TransitionableField {
   }
 
   updateTransitions(timeNow) {
-    let transiLeft = transitionsLeft.noTransitions;
+    let transiLeft = transitionsLeft.NO_TRANSITIONS;
     if (this.stateTransitioners.length) {
 
-      transiLeft = transitionsLeft.hasTransitions;
+      transiLeft = transitionsLeft.HAS_TRANSITIONS;
       const firstTransition = this.stateTransitioners[0];
 
       if ((!this.doingATransition) && (timeNow >= firstTransition.timeStart)) {
@@ -103,21 +102,26 @@ export class TransitionableField {
         firstTransition.isDone = true;
         this.stateTransitioners.shift();
         if (!this.stateTransitioners.length) {
-          transiLeft = transitionsLeft.justEndedAllTransitions;
+          transiLeft = transitionsLeft.JUST_ENDED_ALL_TRANSITIONS;
         }
         this.doingATransition = false;
       }
 
     }
-    if (transiLeft == transitionsLeft.justEndedAllTransitions) {
+    if (transiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) {
       console.log("endedAllTransition on one field !!!!");
     }
     return transiLeft;
   }
 
-  // TODO : bof. Faut renvoyer ça dans le updateTransitions
-  hasAnyTransitionLeft() {
-    return this.stateTransitioners.length > 0;
+  getTimeEnd() {
+    /*
+     * Ça va planter si cette fonction est exécutée sur un TransitionableField
+     * qui n'a pas de transition en cours.
+     * Faut le vérifier avant, avec la condition this.stateTransitioners.length > 0
+     */
+    const lastTransition = this.stateTransitioners.slice(-1)[0];
+    return lastTransition.getTimeEnd();
   }
 
 }

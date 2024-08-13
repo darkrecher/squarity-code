@@ -2,6 +2,7 @@ import { isNonePython } from '../common/SimpleFunctions.js';
 import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
 import GameUpdateResult from './GameUpdateResult.js';
+import { transitionsLeft } from './TransitionableField.js';
 import ComponentImageModifier from './ComponentImageModifier.js';
 
 
@@ -37,6 +38,9 @@ export default class GameObjectTransitioner {
     // On vire toutes les transitions en cours. Boum !!
     this.currentTransitions = [];
     this.gameObject.ack_recorded_transitions_cleared();
+    if (this.imageModifier !== null) {
+      // TODO : mince, j'ai pas la fonction pour ça.
+    }
   }
 
 
@@ -195,10 +199,10 @@ export default class GameObjectTransitioner {
   updateTransitions(timeNow) {
     const gameUpdateResult = new GameUpdateResult();
     if (this.imageModifier !== null) {
-      // TODO : on devrait récupérer le booléen renvoyé par cette fonction, pour savoir si on a endedAllTransitions.
-      // Et en plus, faut aussi savoir si on a encore des transitions en cours. Argh. Faut renvoyer deux crappy booleans.
-      this.imageModifier.updateTransitions(timeNow);
-      if (this.imageModifier.hasAnyTransitionLeft()) {
+      // TODO : il faut contrôler si transiLeftFromImageModifier vaut JUST_ENDED_ALL_TRANSITIONS,
+      // et éventuellement mettre endedAllTransition à True dans ce cas. Mais on le fera quand on aura factorisé tout ce bazar.
+      const transiLeftFromImageModifier = this.imageModifier.updateTransitions(timeNow);
+      if (transiLeftFromImageModifier == transitionsLeft.HAS_TRANSITIONS) {
         gameUpdateResult.hasAnyTransition = true;
       }
     }
