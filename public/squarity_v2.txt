@@ -164,12 +164,14 @@ class GameObject(GameObjectBase):
             sprite_name,
             layer_owner=None,
             image_modifier=None,
+            back_caller=None,
         ):
         super().__init__()
         self._coord = Coord(coord=coord)
         self.sprite_name = sprite_name
         self.layer_owner = layer_owner
         self.image_modifier = image_modifier
+        self.back_caller = back_caller
         self.plock_transi = PlayerLockTransi.NO_LOCK
 
         # FUTURE: pour plus tard.
@@ -298,6 +300,19 @@ class ComponentImageModifier():
 
     def clear_new_transitions(self):
         self._transitions_to_record[:] = []
+
+
+class ComponentBackCaller():
+
+    def __init__(self):
+        # Liste d'objets DelayedCallback
+        self._callbacks_to_record = []
+
+    def add_callback(self, delayed_callback):
+        self._callbacks_to_record.append(delayed_callback)
+
+    def clear_callbacks(self):
+        self._callbacks_to_record[:] = []
 
 
 class Tile():

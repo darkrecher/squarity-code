@@ -1,4 +1,4 @@
-import { transitionsLeft, TransitionableField } from './TransitionableField.js';
+import { transitionsLeft, mergeTransitionsLeft, TransitionableField } from './TransitionableField.js';
 
 /*
 Réflexions sur des trucs:
@@ -40,16 +40,16 @@ export default class ComponentImageModifier {
     // https://www.w3schools.com/js/js_function_bind.asp
     const getValFromPythonAOX = this.getValFromPythonAOX.bind(this);
     const setValToPythonAOX = this.setValToPythonAOX.bind(this);
-    this.areaOffsetX = new TransitionableField("area_offset_x", getValFromPythonAOX, setValToPythonAOX);
+    this.areaOffsetX = new TransitionableField("area_offset_x", getValFromPythonAOX, setValToPythonAOX, true);
     const getValFromPythonAOY = this.getValFromPythonAOY.bind(this);
     const setValToPythonAOY = this.setValToPythonAOY.bind(this);
-    this.areaOffsetY = new TransitionableField("area_offset_y", getValFromPythonAOY, setValToPythonAOY);
+    this.areaOffsetY = new TransitionableField("area_offset_y", getValFromPythonAOY, setValToPythonAOY, true);
     const getValFromPythonASX = this.getValFromPythonASX.bind(this);
     const setValToPythonASX = this.setValToPythonASX.bind(this);
-    this.areaScaleX = new TransitionableField("area_scale_x", getValFromPythonASX, setValToPythonASX);
+    this.areaScaleX = new TransitionableField("area_scale_x", getValFromPythonASX, setValToPythonASX, true);
     const getValFromPythonASY = this.getValFromPythonASY.bind(this);
     const setValToPythonASY = this.setValToPythonASY.bind(this);
-    this.areaScaleY = new TransitionableField("area_scale_y", getValFromPythonASY, setValToPythonASY);
+    this.areaScaleY = new TransitionableField("area_scale_y", getValFromPythonASY, setValToPythonASY, true);
 
     this.transiFields = new Map();
     this.transiFields.set("area_offset_x", this.areaOffsetX);
@@ -71,10 +71,14 @@ export default class ComponentImageModifier {
       return false;
     }
 
+    // TODO : c'est pas comme ça. Il faut passer currentTimeStart, que l'on aura calculé avant.
+    // et non pas timeNow.
+    // Le currentTimeStart doit être calculé en commun, par rapport à tous les composants.
+    // TODO : et le nom currentTimeStart est pourri. timeStartTransition, c'est mieux.
     let currentTimeStart = this.getTransitionTimeEnd(timeNow);
     for (let transiToRecord of this.pythonComponent._transitions_to_record) {
       const transiField = this.transiFields.get(transiToRecord.field_name);
-      transiField.addTransitionsFromRecords(currentTimeStart, transiToRecord);
+      transiField.addTransitionsFromRecords(currentTimeStart, transiToRecord.steps);
     }
     this.pythonComponent.clear_new_transitions();
     return true;
@@ -90,11 +94,7 @@ export default class ComponentImageModifier {
     let transiLeft = transitionsLeft.NO_TRANSITIONS;
     for (let transiField of this.transiFields.values()) {
       const newTransiLeft = transiField.updateTransitions(timeNow);
-      if (newTransiLeft == transitionsLeft.HAS_TRANSITIONS) {
-        transiLeft = transitionsLeft.HAS_TRANSITIONS;
-      } else if ((newTransiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) && (transiLeft == transitionsLeft.NO_TRANSITIONS)) {
-        transiLeft = transitionsLeft.JUST_ENDED_ALL_TRANSITIONS;
-      }
+      transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
     }
     return transiLeft;
   }

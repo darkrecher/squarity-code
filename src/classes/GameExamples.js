@@ -1174,10 +1174,22 @@ class GameModel(squarity.GameModelBase):
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)
 
+          """
+          TODO : ce bout de code fait planter le python. C'est normal.
+          Mais l'erreur n'apparaît pas dans la fenêtre du jeu. Uniquement dans la console JS. C'est pas cool.
           self.gamobj_gem_green = squarity.GameObject(
               Coord(4, 1),
               "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7)
+              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7,
+              back_caller=squarity.ComponentBackCaller())
+          )
+          """
+
+          self.gamobj_gem_green = squarity.GameObject(
+              Coord(4, 1),
+              "gem_green",
+              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7),
+              back_caller=squarity.ComponentBackCaller(),
           )
           self.layer_main.add_game_object(self.gamobj_gem_green)
           # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
@@ -1316,6 +1328,9 @@ class GameModel(squarity.GameModelBase):
                       )
                   )
               )
+              my_delayed_callback = squarity.DelayedCallBack(150, self.my_callback)
+              self.gamobj_gem_green.back_caller.add_callback(my_delayed_callback)
+
               return
 
 
@@ -1364,7 +1379,6 @@ class GameModel(squarity.GameModelBase):
               )
           )
 
-
       def on_button_action(self, action_name):
           # print("on event", action_name)
           # self.gamobj_gem_green.clear_recorded_transitions()
@@ -1388,15 +1402,15 @@ class GameModel(squarity.GameModelBase):
           return event_result
 
       def my_callback(self):
-          pass
-          # print("my callback")
+          print("my callback zzz")
 
       def another_callback(self):
           print("another callback", self.gamobj_gem_green.get_coord())
           # self.gamobj_gem_green.move_to(Coord(4, 4))
 
       def another_another_callback(self):
-          print("another another callback", self.gamobj_gem_green.get_coord())
+          pass
+          # print("another another callback", self.gamobj_gem_green.get_coord())
           # self.gamobj_gem_green.move_to(Coord(4, 4))
 
 

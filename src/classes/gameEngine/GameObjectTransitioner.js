@@ -1,9 +1,10 @@
 import { isNonePython } from '../common/SimpleFunctions.js';
-import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
+import { StateTransitionImmediate } from './StateTransition.js';
 import GobjState from './GobjState.js';
 import GameUpdateResult from './GameUpdateResult.js';
-import { transitionsLeft } from './TransitionableField.js';
+import { transitionsLeft, mergeTransitionsLeft } from './TransitionableField.js';
 import ComponentImageModifier from './ComponentImageModifier.js';
+import ComponentGobjBase from './ComponentGobjBase.js';
 
 
 // FUTURE : ce serait peut-être plus simple que tous les champs soit des objets StateTransition,
@@ -24,12 +25,17 @@ export default class GameObjectTransitioner {
     // Si jamais le gameCode modifie transition_delay, on doit le prendre en compte ici.
     this.gameModel = gameModel;
     this.currentTransitions = [];
+    // Cette liste contiendra des objets StateTransitionImmediate.
+    // C'est un peu bizarre, mais c'est un objet qui stocke un délai et une valeur quelconque,
+    // alors ça passe.
+    this.plannedCallbacks = [];
     this.gameObject = gameObject;
+    this.compGobjBase = new ComponentGobjBase(this.gameObject);
     this.gobjState = new GobjState(x, y, gameObject.sprite_name);
     if (!isNonePython(this.gameObject.image_modifier)) {
-      this.imageModifier = new ComponentImageModifier(this.gameObject);
+      this.compImageModifier = new ComponentImageModifier(this.gameObject);
     } else {
-      this.imageModifier = null;
+      this.compImageModifier = null;
     }
   }
 
@@ -38,7 +44,7 @@ export default class GameObjectTransitioner {
     // On vire toutes les transitions en cours. Boum !!
     this.currentTransitions = [];
     this.gameObject.ack_recorded_transitions_cleared();
-    if (this.imageModifier !== null) {
+    if (this.compImageModifier !== null) {
       // TODO : mince, j'ai pas la fonction pour ça.
     }
   }
@@ -62,6 +68,8 @@ export default class GameObjectTransitioner {
       oneShotCallback = null;
     }
 
+    let hasCurrentTransitions = false;
+
     if (!transitionDelay) {
       // Le délai de transition est 0. On applique tout de suite les changements,
       // on enregistre rien dans currentTransitions.
@@ -69,6 +77,7 @@ export default class GameObjectTransitioner {
     } else {
       let transitionX = null;
       let transitionY = null;
+      /* WIP TODO
       if (this.gobjState.x != x) {
         transitionX = new StateTransitionProgressive(
           "x",
@@ -79,6 +88,12 @@ export default class GameObjectTransitioner {
         this.currentTransitions.push(transitionX);
         somethingChanged = true;
       }
+      */
+      if (this.compGobjBase.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
+        hasCurrentTransitions = true;
+      }
+      /* WIP TODO
+
       if (this.gobjState.y != y) {
         transitionY = new StateTransitionProgressive(
           "y",
@@ -89,15 +104,17 @@ export default class GameObjectTransitioner {
         this.currentTransitions.push(transitionY);
         somethingChanged = true;
       }
+        */
       if ((transitionX != null) && (transitionY != null)) {
         transitionY.setLinkedTransition(transitionX);
         transitionX.setLinkedTransition(transitionY);
       }
+      /*
       if (this.gobjState.spriteName != this.gameObject.sprite_name) {
         // FUTURE: Pas de transition pour le champ sprite_name,
         // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
         somethingChanged = true;
-      }
+      }*/
     }
 
     if (oneShotCallback != null) {
@@ -114,9 +131,9 @@ export default class GameObjectTransitioner {
       this.gobjState = new GobjState(x, y, this.gameObject.sprite_name);
     }
 
-    let hasCurrentTransitions = (this.currentTransitions.length > 0);
-    if (this.imageModifier !== null) {
-      if (this.imageModifier.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
+    hasCurrentTransitions = hasCurrentTransitions || (this.currentTransitions.length > 0);
+    if (this.compImageModifier !== null) {
+      if (this.compImageModifier.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
         hasCurrentTransitions = true;
       }
     }
@@ -126,13 +143,13 @@ export default class GameObjectTransitioner {
 
   addTransitionsFromRecords(timeNow) {
     let hasAnyTransition = false;
-    if (this.imageModifier !== null) {
-      hasAnyTransition = hasAnyTransition || this.imageModifier.addTransitionsFromRecords(timeNow);
-    }
-    if (!this.gameObject._transitions_to_record.length) {
-      return hasAnyTransition;
+    if (this.compImageModifier !== null) {
+      if (this.compImageModifier.addTransitionsFromRecords(timeNow)) {
+        hasAnyTransition = true;
+      }
     }
 
+    // TODO WIP crap ???
     let currentTimeStart;
     let currentGobjStateStart;
     if (this.currentTransitions.length === 0) {
@@ -148,17 +165,44 @@ export default class GameObjectTransitioner {
       }
     }
 
+    if (this.compGobjBase.addTransitionsFromRecords(timeNow)) {
+      hasAnyTransition = true;
+    }
+
+    // TODO : il faut un Component spécial pour ça, dans le JS.
+    console.log(this.gameObject.back_caller);
+    if (!isNonePython(this.gameObject.back_caller)) {
+      console.log("zuuuuut !!")
+      if (this.gameObject.back_caller._callbacks_to_record.length) {
+        console.log("on va eregistrar de la calbcakss. !!");
+        for (let delayedCallBack of this.gameObject.back_caller._callbacks_to_record) {
+          const transitionCallback = new StateTransitionImmediate("callback", currentTimeStart + delayedCallBack.delay, delayedCallBack.callback, false);
+          this.plannedCallbacks.push(transitionCallback);
+          console.log("V'la une callback enregistray !!");
+          console.log(delayedCallBack.callback);
+          hasAnyTransition = true;
+        }
+        this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
+        this.gameObject.back_caller.clear_callbacks();
+      }
+    }
+
+    /* TODO WIP BIG crap.
+
     for (let transi of this.gameObject._transitions_to_record) {
       let currentTime = currentTimeStart;
       let currentGobjState = currentGobjStateStart.clone()
       // FUTURE: je suis pas fan de ce truc, qui va être exécuté plein de fois et qui est un peu lent.
       // (rechercher une chaîne dans une autre chaîne).
+      // TODO : faut pas que ce soit la même liste.
+      // Il doit y avoir _transitions_to_record et _callbacks_to_record, dans chaque GameObject.
       if (transi.__class__.toString().includes("TransitionSteps")) {
         if (transi.field_name === "coord") {
           for (let step of transi.steps) {
             let [delay, value] = step;
             let transitionX = null;
             let transitionY = null;
+            /* TODO WIP crap.
             if (currentGobjState.x != value.x) {
               transitionX = new StateTransitionProgressive("x", currentTime, currentTime + delay, currentGobjState.x, value.x, false);
               this.currentTransitions.push(transitionX);
@@ -168,7 +212,7 @@ export default class GameObjectTransitioner {
               transitionY = new StateTransitionProgressive("y", currentTime, currentTime + delay, currentGobjState.y, value.y, false);
               this.currentTransitions.push(transitionY);
               currentGobjState.y = value.y;
-            }
+            }* /
             if ((transitionX != null) && (transitionY != null)) {
               transitionY.setLinkedTransition(transitionX);
               transitionX.setLinkedTransition(transitionY);
@@ -176,20 +220,26 @@ export default class GameObjectTransitioner {
             currentTime += delay;
           }
         } else if (transi.field_name === "sprite_name") {
+          /* TODO WIP crap.
           for (let step of transi.steps) {
             let [delay, value] = step;
             const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
             this.currentTransitions.push(transitionImg);
             currentGobjState.spriteName = value;
             currentTime += delay;
-          }
+          }* /
         }
       } else {
         const transitionCallback = new StateTransitionImmediate("callback", currentTime + transi.delay, transi.callback, false);
-        this.currentTransitions.push(transitionCallback);
+        this.plannedCallbacks.push(transitionCallback);
+        console.log("V'la une callback enregistray !!");
+        console.log(transi.callback);
       }
     }
+    */
     this.currentTransitions.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
+    // TODO : ce truc ne va pas ici. Et faut appeler les fonctions python de clear uniquement quand c'est nécessaire.
+    // Pour tous les components.
     this.gameObject.clear_new_transitions();
     hasAnyTransition = true;
     return hasAnyTransition;
@@ -197,18 +247,36 @@ export default class GameObjectTransitioner {
 
 
   updateTransitions(timeNow) {
+
     const gameUpdateResult = new GameUpdateResult();
-    if (this.imageModifier !== null) {
-      // TODO : il faut contrôler si transiLeftFromImageModifier vaut JUST_ENDED_ALL_TRANSITIONS,
-      // et éventuellement mettre endedAllTransition à True dans ce cas. Mais on le fera quand on aura factorisé tout ce bazar.
-      const transiLeftFromImageModifier = this.imageModifier.updateTransitions(timeNow);
-      if (transiLeftFromImageModifier == transitionsLeft.HAS_TRANSITIONS) {
-        gameUpdateResult.hasAnyTransition = true;
+    let transiLeft = this.compGobjBase.updateTransitions(timeNow);
+
+    if (this.compImageModifier !== null) {
+      const newTransiLeft = this.compImageModifier.updateTransitions(timeNow);
+      transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+    }
+
+    if (transiLeft == transitionsLeft.HAS_TRANSITIONS) {
+      gameUpdateResult.hasAnyTransition = true;
+      gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
+    }
+
+    if (transiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) {
+      // On détecte si y'a une callback de fin de transition à appeler.
+      // Et on la met dans le result, pour dire au game engine de les appeler.
+      if (!isNonePython(this.gameObject._callback_end_transi)) {
+        gameUpdateResult.callbackEndTransi.push(this.gameObject._callback_end_transi);
       }
     }
+
+    return gameUpdateResult;
+
+    // TODO WIP crap.
+
     if (this.currentTransitions.length === 0) {
       return gameUpdateResult;
     }
+
     let endedAllTransition = true;
     let hasDoneAtLeastOneTransition = false;
     for (let transition of this.currentTransitions) {
@@ -256,9 +324,11 @@ export default class GameObjectTransitioner {
     /* Renvoie un gobjState avec les champs à jour,
      * en fonction des transitions en cours et d'un time donné.
      */
-    if (this.imageModifier !== null) {
-      this.imageModifier.updateState(timeNow);
+    this.compGobjBase.updateState(timeNow);
+    if (this.compImageModifier !== null) {
+      this.compImageModifier.updateState(timeNow);
     }
+
     if (this.currentTransitions.length === 0) {
       return this.gobjState;
     }
@@ -273,6 +343,9 @@ export default class GameObjectTransitioner {
 
 
   getCurrentTransitionDelay() {
+    /* Récupère le délai de transition dans le cas d'une transition
+     * suite à un changement d'état.
+     */
     let transitionDelay = this.gameObject._one_shot_transition_delay
     if (!isNonePython(transitionDelay)) {
       this.gameObject.reset_one_shot_transition_delay();

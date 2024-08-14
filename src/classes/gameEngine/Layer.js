@@ -121,19 +121,21 @@ export class LayerWithTransition extends LayerBase {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
     for (let gobjTransitioner of this.layerMemory.values()) {
       const gobjState = gobjTransitioner.getCurrentState(timeNow);
-      const [coordImgX, coordImgY] = this.imgCoords[gobjState.spriteName];
-      if (gobjTransitioner.imageModifier !== null) {
-        const imageModifier = gobjTransitioner.imageModifier;
-        const areaScaleX = imageModifier.areaScaleX.fieldValue;
-        const areaScaleY = imageModifier.areaScaleY.fieldValue;
+      const coordX = gobjTransitioner.compGobjBase.coordX.fieldValue;
+      const coordY = gobjTransitioner.compGobjBase.coordY.fieldValue;
+      const [coordImgX, coordImgY] = this.imgCoords[gobjTransitioner.compGobjBase.spriteName.fieldValue];
+      if (gobjTransitioner.compImageModifier !== null) {
+        const compImageModifier = gobjTransitioner.compImageModifier;
+        const areaScaleX = compImageModifier.areaScaleX.fieldValue;
+        const areaScaleY = compImageModifier.areaScaleY.fieldValue;
         this.ctxCanvasBuffer.drawImage(
           this.tileAtlas,
           coordImgX,
           coordImgY,
           this.tileImgWidth,
           this.tileImgHeight,
-          (gobjState.x + imageModifier.areaOffsetX.fieldValue + ((1.0-areaScaleX) / 2)) * this.tileCanvasWidth,
-          (gobjState.y + imageModifier.areaOffsetY.fieldValue + ((1.0-areaScaleY) / 2)) * this.tileCanvasHeight,
+          (coordX + compImageModifier.areaOffsetX.fieldValue + ((1.0-areaScaleX) / 2)) * this.tileCanvasWidth,
+          (coordY + compImageModifier.areaOffsetY.fieldValue + ((1.0-areaScaleY) / 2)) * this.tileCanvasHeight,
           this.tileCanvasWidth * areaScaleX,
           this.tileCanvasHeight * areaScaleY
         );
@@ -142,7 +144,7 @@ export class LayerWithTransition extends LayerBase {
           this.tileAtlas,
           coordImgX, coordImgY,
           this.tileImgWidth, this.tileImgHeight,
-          gobjState.x * this.tileCanvasWidth, gobjState.y * this.tileCanvasHeight,
+          coordX * this.tileCanvasWidth, coordY * this.tileCanvasHeight,
           this.tileCanvasWidth, this.tileCanvasHeight,
         );
       }

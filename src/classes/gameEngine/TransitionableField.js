@@ -1,4 +1,4 @@
-import { StateTransitionProgressive } from './StateTransition.js';
+import { StateTransitionProgressive, StateTransitionImmediate } from './StateTransition.js';
 
 
 export const transitionsLeft = {
@@ -8,9 +8,26 @@ export const transitionsLeft = {
 }
 
 
+export function mergeTransitionsLeft(transi1, transi2) {
+  if (
+    (transi1 == transitionsLeft.HAS_TRANSITIONS)
+    || (transi2 == transitionsLeft.HAS_TRANSITIONS)
+  ) {
+    return transitionsLeft.HAS_TRANSITIONS;
+  }
+  if (
+    (transi1 == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS)
+    || (transi2 == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS)
+  ) {
+    return transitionsLeft.JUST_ENDED_ALL_TRANSITIONS;
+  }
+  return transitionsLeft.NO_TRANSITIONS;
+}
+
+
 export class TransitionableField {
 
-  constructor(pythonFieldName, getValFromPython, setValToPython) {
+  constructor(pythonFieldName, getValFromPython, setValToPython, useTransitionProgressive) {
     // Le nom que l'on utilise dans le code python,
     // quand on crée un objet squarity.TransitionSteps.
     // TODO : et que si ça se trouve on n'en a pas besoin.
@@ -18,6 +35,7 @@ export class TransitionableField {
 
     this.getValFromPython = getValFromPython;
     this.setValToPython = setValToPython;
+    this.useTransitionProgressive = useTransitionProgressive;
     // La valeur courante. Celle qui évolue progressivement quand il y a une transition en cours.
     // C'est cette valeur qu'on utilise pour faire le rendu dans l'aire de jeu.
     // Les objets bougent, ils grossissent, etc,
@@ -36,34 +54,61 @@ export class TransitionableField {
   addTransitionFromNewState(transitionDelay, currentTimeStart) {
     const valFromPython = this.getValFromPython();
     if (this.fieldValueFinal != valFromPython) {
-      const transitionToAdd = new StateTransitionProgressive(
-        "osef", // TODO.
-        currentTimeStart, currentTimeStart + transitionDelay,
-        this.fieldValueFinal, valFromPython,
-        true
-      );
+      let transitionToAdd = null;
+      if (this.useTransitionProgressive) {
+        transitionToAdd = new StateTransitionProgressive(
+          "osef", // TODO.
+          currentTimeStart, currentTimeStart + transitionDelay,
+          this.fieldValueFinal, valFromPython,
+          true
+        );
+      } else {
+        transitionToAdd = new StateTransitionImmediate(
+          "osef", // TODO.
+          currentTimeStart + transitionDelay,
+          valFromPython,
+          true
+        );
+      }
       this.stateTransitioners.push(transitionToAdd);
       this.stateTransitioners.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
     }
     return this.stateTransitioners.length > 0;
   }
 
-  addTransitionsFromRecords(currentTimeStart, transiToRecord) {
+  addTransitionsFromRecords(currentTimeStart, transitionsToRecord) {
+    /* transitionsToRecord doit être un liste, dont chaque élément
+     * est une sous-liste de 2 valeurs.
+     *  - int. Délai, en millisecondes.
+     *  - any. La valeur du champ à la fin de ce step de transition.
+     */
     let currentTime = currentTimeStart;
+    // TODO : pas besoin de faire ça si on est une transition immediate
     let fieldValueRecord = this.fieldValueFinal;
     if (this.stateTransitioners.length) {
       const lastTransition = this.stateTransitioners.slice(-1)[0];
       fieldValueRecord = lastTransition.getFinalVal();
     }
-    for (let step of transiToRecord.steps) {
+
+    for (let step of transitionsToRecord) {
       let [delay, value] = step;
-      const transition = new StateTransitionProgressive(
-        "osef", // TODO.
-        currentTime, currentTime + delay,
-        fieldValueRecord, value,
-        false
-      );
-      this.stateTransitioners.push(transition);
+      let transitionToAdd = null;
+      if (this.useTransitionProgressive) {
+        transitionToAdd = new StateTransitionProgressive(
+          "osef", // TODO.
+          currentTime, currentTime + delay,
+          fieldValueRecord, value,
+          false
+        );
+      } else {
+        transitionToAdd = new StateTransitionImmediate(
+          "osef", // TODO.
+          currentTime + delay,
+          value,
+          false
+        );
+      }
+      this.stateTransitioners.push(transitionToAdd);
       fieldValueRecord = value;
       currentTime += delay;
     }
