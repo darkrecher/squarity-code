@@ -1201,13 +1201,13 @@ class GameModel(squarity.GameModelBase):
               "gem_green",
               image_modifier=squarity.ComponentImageModifier(area_offset_x=0.1, area_offset_y=-0.7)
           )
-          self.gamobj_gem_green_2.set_transition_delay(400)
+          self.gamobj_gem_green_2.set_transition_delay(407)
           self.layer_main.add_game_object(self.gamobj_gem_green_2)
 
           self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
           self.layer_main.add_game_object(self.gamobj_gem_violet)
           # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
-          self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
+          # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
 
           event_result = squarity.EventResult()
           event_result.add_delayed_callback(
@@ -1259,7 +1259,7 @@ class GameModel(squarity.GameModelBase):
           print(direction, int(direction))
           if direction == squarity.dirs.Left:
               print("clear transitions")
-              self.gamobj_gem_green.clear_recorded_transitions()
+              self.gamobj_gem_green.clear_all_transitions()
               print(self.get_first_gobj(
                   Coord(1, 1),
                   sprite_names=["gem_green", "rock"]
@@ -1269,7 +1269,7 @@ class GameModel(squarity.GameModelBase):
 
           if direction == squarity.dirs.Down:
               print("clear transitions, but add more")
-              self.gamobj_gem_green.clear_recorded_transitions()
+              self.gamobj_gem_green.clear_all_transitions()
               """
               self.gamobj_gem_green_2.image_modifier.add_transition(
                   squarity.TransitionSteps(
@@ -1307,7 +1307,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 7.5),
                           (400, 7.0),
                           (400, 9.0),
-                          (400, 8.5),
+                          (350, 8.5),
                       )
                   )
               )
@@ -1324,7 +1324,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 6.0),
                           (400, 8.0),
                           (400, 7.5),
-                          (400, 8.5),
+                          (350, 8.5),
                       )
                   )
               )
@@ -1381,7 +1381,7 @@ class GameModel(squarity.GameModelBase):
 
       def on_button_action(self, action_name):
           # print("on event", action_name)
-          # self.gamobj_gem_green.clear_recorded_transitions()
+          # self.gamobj_gem_green.clear_all_transitions()
           offset = +1 if action_name == "action_1" else -1
           transi_violet = None if action_name == "action_1" else 300
           direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left

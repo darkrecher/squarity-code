@@ -245,20 +245,22 @@ class GameObject(GameObjectBase):
         # (On applique les valeurs d'une transition lorsqu'on la démarre)
         self._transitions_to_record.append(transition)
 
-    def clear_new_transitions(self):
+    def clear_transitions_to_record(self):
         self._transitions_to_record[:] = []
 
-    def clear_recorded_transitions(self):
+    def clear_all_transitions(self):
         self._must_clear_transitions = True
 
-    def ack_recorded_transitions_cleared(self):
+    def ack_cleared_all_transitions(self):
         self._must_clear_transitions = False
 
     def get_nb_undone_transitions(self):
         if self._transitioner is None:
             return 0
         else:
-            return len(self._transitioner.currentTransitions)
+            # TODO : ça marche plus ça. Faut le faire autrement.
+            # return len(self._transitioner.currentTransitions)
+            return 0
 
     def set_callback_end_transi(self, callback_end_transi):
         self._callback_end_transi = callback_end_transi
@@ -298,7 +300,7 @@ class ComponentImageModifier():
         """
         self._transitions_to_record.append(transition)
 
-    def clear_new_transitions(self):
+    def clear_transitions_to_record(self):
         self._transitions_to_record[:] = []
 
 
@@ -311,7 +313,7 @@ class ComponentBackCaller():
     def add_callback(self, delayed_callback):
         self._callbacks_to_record.append(delayed_callback)
 
-    def clear_callbacks(self):
+    def clear_callbacks_to_record(self):
         self._callbacks_to_record[:] = []
 
 

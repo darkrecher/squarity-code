@@ -66,7 +66,7 @@ export class LayerWithTransition extends LayerBase {
       let hasNewTransition = false;
       if (!this.layerMemory.has(gobjId)) {
         gobjTransitioner = new GameObjectTransitioner(
-          this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj
+          this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         gameObj._transitioner = gobjTransitioner;
@@ -74,7 +74,7 @@ export class LayerWithTransition extends LayerBase {
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
         if (gameObj._must_clear_transitions) {
-          gobjTransitioner.clearRecordedTransitions();
+          gobjTransitioner.clearAllTransitions();
         }
         hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
           coordAndGameObj.x, coordAndGameObj.y, timeNow
@@ -120,7 +120,7 @@ export class LayerWithTransition extends LayerBase {
   draw(timeNow) {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
     for (let gobjTransitioner of this.layerMemory.values()) {
-      const gobjState = gobjTransitioner.getCurrentState(timeNow);
+      gobjTransitioner.updateState(timeNow);
       const coordX = gobjTransitioner.compGobjBase.coordX.fieldValue;
       const coordY = gobjTransitioner.compGobjBase.coordY.fieldValue;
       const [coordImgX, coordImgY] = this.imgCoords[gobjTransitioner.compGobjBase.spriteName.fieldValue];

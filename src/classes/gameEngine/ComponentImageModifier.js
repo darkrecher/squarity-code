@@ -32,8 +32,9 @@ On va le tester pour le ComponentImageModifier:
 
 export default class ComponentImageModifier {
 
-  constructor(gameObject) {
+  constructor(gameObject, timeNow) {
     this.gameObject = gameObject;
+    this.timeEndTransitions = timeNow;
     this.pythonComponent = this.gameObject.image_modifier;
 
     // Trop bizarre cette histoire de bind, mais ça semble marcher.
@@ -58,29 +59,37 @@ export default class ComponentImageModifier {
     this.transiFields.set("area_scale_y", this.areaScaleY);
   }
 
-  addTransitionsFromNewState(transitionDelay, currentTimeStart) {
+  addTransitionsFromNewState(transitionDelay, timeStartTransition) {
     let hasAnyTransition = false;
+    let addedOneTransition = false;
     for (let transiField of this.transiFields.values()) {
-      hasAnyTransition = transiField.addTransitionFromNewState(transitionDelay, currentTimeStart) || hasAnyTransition;
+      if (transiField.addTransitionFromNewState(transitionDelay, timeStartTransition)) {
+        addedOneTransition = true;
+      }
+      if (transiField.stateTransitioners.length) {
+        hasAnyTransition = true;
+      }
+    }
+    if (addedOneTransition) {
+      this.timeEndTransitions = timeStartTransition + transitionDelay;
     }
     return hasAnyTransition;
   }
 
-  addTransitionsFromRecords(timeNow) {
+  addTransitionsFromRecords(timeStartTransition) {
+    console.log("addTransitionsFromRecords", timeStartTransition);
     if (!this.pythonComponent._transitions_to_record.length) {
       return false;
     }
-
-    // TODO : c'est pas comme ça. Il faut passer currentTimeStart, que l'on aura calculé avant.
-    // et non pas timeNow.
-    // Le currentTimeStart doit être calculé en commun, par rapport à tous les composants.
     // TODO : et le nom currentTimeStart est pourri. timeStartTransition, c'est mieux.
-    let currentTimeStart = this.getTransitionTimeEnd(timeNow);
     for (let transiToRecord of this.pythonComponent._transitions_to_record) {
       const transiField = this.transiFields.get(transiToRecord.field_name);
-      transiField.addTransitionsFromRecords(currentTimeStart, transiToRecord.steps);
+      const newTimeEndTransitions = transiField.addTransitionsFromRecords(timeStartTransition, transiToRecord.steps);
+      if (this.timeEndTransitions < newTimeEndTransitions) {
+        this.timeEndTransitions = newTimeEndTransitions;
+      }
     }
-    this.pythonComponent.clear_new_transitions();
+    this.pythonComponent.clear_transitions_to_record();
     return true;
   }
 
@@ -99,14 +108,18 @@ export default class ComponentImageModifier {
     return transiLeft;
   }
 
-  getTransitionTimeEnd(timeNow) {
-    let endTransitionTimes = [timeNow];
+  getTimeEndTransitions() {
+    console.log("ComponentImageModifier.timeEndTransitions ", this.timeEndTransitions);
+    return this.timeEndTransitions;
+  }
+
+  clearAllTransitions() {
     for (let transiField of this.transiFields.values()) {
-      if (transiField.stateTransitioners.length) {
-        endTransitionTimes.push(transiField.getTimeEnd())
-      }
+      transiField.clearAllTransitions();
     }
-    return Math.max(...endTransitionTimes);
+    // C'est pas top de redéfinir la date de fin des transitions en utilisant performance,
+    // plutôt qu'avec un paramètre timeNow. Mais bon, ça va bien.
+    this.timeEndTransitions = performance.now();
   }
 
   // --- Attention, ça va être dégueulasse !! ---

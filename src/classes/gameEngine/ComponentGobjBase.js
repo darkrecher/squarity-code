@@ -4,8 +4,9 @@ import { transitionsLeft, mergeTransitionsLeft, TransitionableField } from './Tr
 
 export default class ComponentGobjBase {
 
-  constructor(gameObject) {
+  constructor(gameObject, timeNow) {
     this.gameObject = gameObject;
+    this.timeEndTransitions = timeNow;
     // Trop bizarre cette histoire de bind, mais ça semble marcher.
     // https://www.w3schools.com/js/js_function_bind.asp
     const getValFromPythonCoordX = this.getValFromPythonCoordX.bind(this);
@@ -14,25 +15,39 @@ export default class ComponentGobjBase {
     const getValFromPythonCoordY = this.getValFromPythonCoordY.bind(this);
     const setValToPythonCoordY = this.setValToPythonCoordY.bind(this);
     this.coordY = new TransitionableField("coord.y", getValFromPythonCoordY, setValToPythonCoordY, true);
+    // FUTURE: Pas de transition pour le champ sprite_name.
+    // (On declare TransitionableField avec useTransitionProgressive=false)
+    // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
     const getValFromPythonSpriteName = this.getValFromPythonSpriteName.bind(this);
     const setValToPythonSpriteName = this.setValToPythonSpriteName.bind(this);
     this.spriteName = new TransitionableField("sprite_name", getValFromPythonSpriteName, setValToPythonSpriteName, false);
   }
 
-  addTransitionsFromNewState(transitionDelay, currentTimeStart) {
-    let hasAnyTransition = false;
-    hasAnyTransition = (
-      this.coordX.addTransitionFromNewState(transitionDelay, currentTimeStart)
-      || this.coordY.addTransitionFromNewState(transitionDelay, currentTimeStart)
-      || this.spriteName.addTransitionFromNewState(transitionDelay, currentTimeStart)
+  addTransitionsFromNewState(transitionDelay, timeStartTransition) {
+    const addedOneTransition = (
+      this.coordX.addTransitionFromNewState(transitionDelay, timeStartTransition)
+      || this.coordY.addTransitionFromNewState(transitionDelay, timeStartTransition)
+      // TODO : euh... C'est sûr qu'on doit faire comme ça pour le spriteName ?
+      || this.spriteName.addTransitionFromNewState(transitionDelay, timeStartTransition)
+    );
+    if (addedOneTransition) {
+      this.timeEndTransitions = timeStartTransition + transitionDelay;
+    }
+    const hasAnyTransition = (
+      (this.coordX.stateTransitioners.length > 0)
+      || (this.coordY.stateTransitioners.length > 0)
+      || (this.spriteName.stateTransitioners.length > 0)
     );
     return hasAnyTransition;
   }
 
   addTransitionsFromRecords(timeNow) {
+    if (!this.gameObject._transitions_to_record) {
+      return false;
+    }
+
     let currentTime = timeNow;
     for (let transi of this.gameObject._transitions_to_record) {
-
       if (transi.field_name === "coord") {
         let transiToRecordX = []
         let transiToRecordY = []
@@ -41,27 +56,29 @@ export default class ComponentGobjBase {
           transiToRecordX.push([delay, value.x]);
           transiToRecordY.push([delay, value.y]);
         }
-        this.coordX.addTransitionsFromRecords(currentTime, transiToRecordX);
-        this.coordY.addTransitionsFromRecords(currentTime, transiToRecordY);
-      } else if (transi.field_name === "sprite_name") {
-        /* TODO ça aussi
-        for (let step of transi.steps) {
-          let [delay, value] = step;
-          const transitionImg = new StateTransitionImmediate("sprite_name", currentTime + delay, value, false);
-          this.currentTransitions.push(transitionImg);
-          currentGobjState.spriteName = value;
-          currentTime += delay;
+        let newTimeEndTransitions = this.coordX.addTransitionsFromRecords(currentTime, transiToRecordX);
+        if (this.timeEndTransitions < newTimeEndTransitions) {
+          this.timeEndTransitions = newTimeEndTransitions;
         }
-          */
+        newTimeEndTransitions = this.coordY.addTransitionsFromRecords(currentTime, transiToRecordY);
+        if (this.timeEndTransitions < newTimeEndTransitions) {
+          this.timeEndTransitions = newTimeEndTransitions;
+        }
+      } else if (transi.field_name === "sprite_name") {
+        // TODO : Meuh. On doit pouvoir faire comme dans le image modifier.
         let transiToRecordSpriteName = []
         for (let step of transi.steps) {
           let [delay, value] = step;
           transiToRecordSpriteName.push([delay, value]);
         }
-        this.spriteName.addTransitionsFromRecords(currentTime, transiToRecordSpriteName);
+        let newTimeEndTransitions = this.spriteName.addTransitionsFromRecords(currentTime, transiToRecordSpriteName);
+        if (this.timeEndTransitions < newTimeEndTransitions) {
+          this.timeEndTransitions = newTimeEndTransitions;
+        }
       }
-
     }
+    this.gameObject.clear_transitions_to_record()
+    return true;
   }
 
   updateState(timeNow) {
@@ -80,28 +97,26 @@ export default class ComponentGobjBase {
     newTransiLeft = this.coordY.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
 
+    // TODO : vérifier que les recorded transitions mettent bien à jour le sprite_name dans le python.
+    // parce que le code d'avant ne le faisait pas, à priori.
     newTransiLeft = this.spriteName.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
 
     return transiLeft;
   }
 
-  getTransitionTimeEnd(timeNow) {
-    let endTransitionTimes = [timeNow];
-
-    if (this.coordX.stateTransitioners.length) {
-      endTransitionTimes.push(this.coordX.getTimeEnd())
-    }
-    if (this.coordY.stateTransitioners.length) {
-      endTransitionTimes.push(this.coordY.getTimeEnd())
-    }
-    if (this.spriteName.stateTransitioners.length) {
-      endTransitionTimes.push(this.coordY.getTimeEnd())
-    }
-
-    return Math.max(...endTransitionTimes);
+  getTimeEndTransitions(timeNow) {
+    return this.timeEndTransitions;
   }
 
+  clearAllTransitions() {
+    this.coordX.clearAllTransitions();
+    this.coordY.clearAllTransitions();
+    this.spriteName.clearAllTransitions();
+    // C'est pas top de redéfinir la date de fin des transitions en utilisant performance,
+    // plutôt qu'avec un paramètre timeNow. Mais bon, ça va bien.
+    this.timeEndTransitions = performance.now();
+  }
 
   // --- Les fonctions d'interfaçage entre le code python et le code javascript,
   //     pour ce composant du game object. ---
