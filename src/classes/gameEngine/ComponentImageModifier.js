@@ -77,7 +77,6 @@ export default class ComponentImageModifier {
   }
 
   addTransitionsFromRecords(timeStartTransition) {
-    console.log("addTransitionsFromRecords", timeStartTransition);
     if (!this.pythonComponent._transitions_to_record.length) {
       return false;
     }
@@ -109,7 +108,6 @@ export default class ComponentImageModifier {
   }
 
   getTimeEndTransitions() {
-    console.log("ComponentImageModifier.timeEndTransitions ", this.timeEndTransitions);
     return this.timeEndTransitions;
   }
 

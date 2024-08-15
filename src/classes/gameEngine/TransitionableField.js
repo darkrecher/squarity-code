@@ -42,6 +42,8 @@ export class TransitionableField {
     // Les objets bougent, ils grossissent, etc,
     this.fieldValue = this.getValFromPython();
     // La valeur que l'on aura lorsque la transition en cours sera terminée.
+    this.fieldValueNext = this.fieldValue;
+    // La valeur que l'on aura lorsque toutes les transitions enregistrées serontterminées.
     this.fieldValueFinal = this.fieldValue;
     // Liste de transition, rangée chronologiquement.
     // On vide cette liste au fur et à mesure que le temps avance.
@@ -54,7 +56,16 @@ export class TransitionableField {
 
   addTransitionFromNewState(transitionDelay, currentTimeStart) {
     const valFromPython = this.getValFromPython();
-    if (this.fieldValueFinal != valFromPython) {
+    // C'est un peu bizarre de vérifier fieldValueFinal et fieldValueNext avant de déclencher
+    // une transition de new-state. C'est parce que les transitions from-records modifient
+    // elle-mêmes le state actuel (fieldValueFinal). Il ne faut pas que les transitions from-records
+    // déclenchent elle-mêmes des transitions de new-state.
+    // Le fait de vouloir gérer les deux types de transitions amènent de toutes façons à des cas tordus,
+    // de manière générale, il ne faut pas s'amuser à faire les deux en même temps.
+    // Soit on change successivement le state, et ça enchaîne des transitions,
+    // soit on enregistre des transitions from records, et ça les enchaîne aussi.
+    // Mais les deux en même temps, ça se confusionne.
+    if ((this.fieldValueFinal != valFromPython) && (this.fieldValueNext != valFromPython)) {
       let transitionToAdd = null;
       if (this.useTransitionProgressive) {
         transitionToAdd = new StateTransitionProgressive(
@@ -71,6 +82,7 @@ export class TransitionableField {
           true
         );
       }
+      this.fieldValueFinal = valFromPython;
       this.stateTransitioners.push(transitionToAdd);
       this.stateTransitioners.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
       return true;
@@ -85,14 +97,7 @@ export class TransitionableField {
      *  - int. Délai, en millisecondes.
      *  - any. La valeur du champ à la fin de ce step de transition.
      */
-    console.log("addTransitionsFromRecords zut", currentTimeStart, this.pythonFieldName)
     let timeOfTransitions = currentTimeStart;
-    // TODO : pas besoin de faire ça si on est une transition immediate
-    let fieldValueRecord = this.fieldValueFinal;
-    if (this.stateTransitioners.length) {
-      const lastTransition = this.stateTransitioners.slice(-1)[0];
-      fieldValueRecord = lastTransition.getFinalVal();
-    }
 
     for (let step of transitionsToRecord) {
       let [delay, value] = step;
@@ -101,7 +106,7 @@ export class TransitionableField {
         transitionToAdd = new StateTransitionProgressive(
           "osef", // TODO.
           timeOfTransitions, timeOfTransitions + delay,
-          fieldValueRecord, value,
+          this.fieldValueFinal, value,
           false
         );
       } else {
@@ -113,15 +118,10 @@ export class TransitionableField {
         );
       }
       this.stateTransitioners.push(transitionToAdd);
-      fieldValueRecord = value;
+      this.fieldValueFinal = value;
       timeOfTransitions += delay;
     }
     this.stateTransitioners.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-    console.log(this.pythonFieldName);
-    for (let transi of this.stateTransitioners) {
-      console.log(transi.timeStart, transi.timeEnd, transi.valStart, transi.valEnd);
-    }
-    console.log("--------- returning ", timeOfTransitions);
     return timeOfTransitions;
   }
 
@@ -141,10 +141,10 @@ export class TransitionableField {
 
       if ((!this.doingATransition) && (timeNow >= firstTransition.timeStart)) {
         // On modifie les champs dans cet objet, et dans l'objet python, dès le début de la transition.
-        this.fieldValueFinal = firstTransition.getFinalVal();
+        this.fieldValueNext = firstTransition.getFinalVal();
         this.doingATransition = true;
         if (!firstTransition.isAppliedInGame) {
-          this.setValToPython(this.fieldValueFinal);
+          this.setValToPython(this.fieldValueNext);
           firstTransition.isAppliedInGame = true;
         }
       }
@@ -152,7 +152,7 @@ export class TransitionableField {
       if (firstTransition.isTimeEnded(timeNow)) {
         // À priori, les deux valeurs sont déjà égales suite aux appels à updateState,
         // mais on redéfinit une dernière fois, pour être sûr.
-        this.fieldValue = this.fieldValueFinal;
+        this.fieldValue = this.fieldValueNext;
         // TODO : on n'a peut-être plus besoin de ce truc. (isDone)
         firstTransition.isDone = true;
         this.stateTransitioners.shift();
@@ -162,9 +162,6 @@ export class TransitionableField {
         this.doingATransition = false;
       }
 
-    }
-    if (transiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) {
-      console.log("endedAllTransition on one field !!!!");
     }
     return transiLeft;
   }
@@ -180,9 +177,11 @@ export class TransitionableField {
   }
 
   clearAllTransitions() {
-    // Paf, on vide la liste direct.
+    // Paf, on vide la liste direct et on réinitialise des trucs.
     this.stateTransitioners = [];
     this.doingATransition = false;
+    this.fieldValue = this.fieldValueNext;
+    this.fieldValueFinal = this.fieldValueNext;
   }
 
 }

@@ -27,7 +27,7 @@ export default class ComponentGobjBase {
     const addedOneTransition = (
       this.coordX.addTransitionFromNewState(transitionDelay, timeStartTransition)
       || this.coordY.addTransitionFromNewState(transitionDelay, timeStartTransition)
-      // TODO : euh... C'est sûr qu'on doit faire comme ça pour le spriteName ?
+      // TODO : euh... C'est sûr qu'on doit faire comme ça pour le spriteName ? (Le transitionDelay, on devrait pas l'appliquer).
       || this.spriteName.addTransitionFromNewState(transitionDelay, timeStartTransition)
     );
     if (addedOneTransition) {
@@ -90,7 +90,6 @@ export default class ComponentGobjBase {
   updateTransitions(timeNow) {
     let transiLeft = transitionsLeft.NO_TRANSITIONS;
 
-    // TODO : moche, mais ce n'est que "localement" moche.
     let newTransiLeft = this.coordX.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
 

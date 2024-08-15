@@ -46,6 +46,7 @@ export default class GameObjectTransitioner {
     if (this.compImageModifier !== null) {
       this.compImageModifier.clearAllTransitions();
     }
+    this.plannedCallbacks = [];
     this.gameObject.ack_cleared_all_transitions();
   }
 
@@ -53,15 +54,14 @@ export default class GameObjectTransitioner {
   addTransitionsFromNewState(x, y, timeNow) {
 
     let hasCurrentTransitions = false;
-    let currentTimeStart = this.getTimeEndTransitions(timeNow);
+    let timeStartTransition = this.getTimeEndTransitions(timeNow);
     const transitionDelay = this.getCurrentTransitionDelay();
 
-    // TODO WIP : ça merdouille quand on clique plusieurs fois sur "1". Paf.
-    if (this.compGobjBase.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
+    if (this.compGobjBase.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
       hasCurrentTransitions = true;
     }
     if (this.compImageModifier !== null) {
-      if (this.compImageModifier.addTransitionsFromNewState(transitionDelay, currentTimeStart)) {
+      if (this.compImageModifier.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
         hasCurrentTransitions = true;
       }
     }
@@ -70,7 +70,7 @@ export default class GameObjectTransitioner {
     if (!isNonePython(oneShotCallback)) {
       const transitionCallback = new StateTransitionImmediate(
         "callback", // TODO : osef de ce champ.
-        currentTimeStart,
+        timeStartTransition,
         oneShotCallback,
         false
       );
@@ -88,7 +88,9 @@ export default class GameObjectTransitioner {
     let hasAnyTransition = false;
     // TODO : currentTimeStart c'est pas clair comme nom. À changer partout.
     // TODO : c'est bourrin d'appeler cette fonction à chaque fois, qui est un peu longue à exécuter.
-    //        faudrait l'appeler que quand on sait qu'on va devoir ajouter des transitions.
+    //        faut faire comme les components: on stocke une variable this.timeEndTransitions.
+    //        on la met à jour quand c'est nécessaire (faut trouver quand).
+    //        et pour connaître le time des prochaines transitions, on reprend juste cette variable.
     let timeStartTransition = this.getTimeEndTransitions(timeNow);
     if (this.compGobjBase.addTransitionsFromRecords(timeStartTransition)) {
       hasAnyTransition = true;
@@ -99,7 +101,7 @@ export default class GameObjectTransitioner {
       }
     }
 
-    // TODO : il faut un Component spécial pour ça, dans le JS.
+    // TODO : il faut un Component spécial pour les plannedCallbacks, dans le JS.
     if (!isNonePython(this.gameObject.back_caller)) {
       if (this.gameObject.back_caller._callbacks_to_record.length) {
         for (let delayedCallBack of this.gameObject.back_caller._callbacks_to_record) {
@@ -265,7 +267,11 @@ export default class GameObjectTransitioner {
     if (this.compImageModifier !== null) {
       endTransitionTimesAll.push(this.compImageModifier.getTimeEndTransitions());
     }
-    // TODO. peut être aussi, faut aller chercher le end time des plannedCallbacks.
+    // TODO. foutre les plannedCallbacks dans un component à part.
+    if (this.plannedCallbacks.length) {
+      const lastCallback = this.plannedCallbacks.slice(-1)[0];
+      endTransitionTimesAll.push(lastCallback.getTimeEnd());
+    }
     return Math.max(...endTransitionTimesAll);
   }
 

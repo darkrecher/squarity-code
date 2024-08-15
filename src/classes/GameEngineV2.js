@@ -336,6 +336,8 @@ export default class GameEngineV2 {
     this.drawCurrentGameBoardState(timeNow);
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on redemande un affichage pour plus tard.
+    // TODO : Revérifier vite fait que ça fonctionne. Et que ça lance
+    // pas des requestAnimationFrame pour rien, alors que y'a plus de transitions nul part.
     if (mergedGameUpdateResult.hasAnyTransition) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
     } else {

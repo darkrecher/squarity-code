@@ -1192,8 +1192,9 @@ class GameModel(squarity.GameModelBase):
               back_caller=squarity.ComponentBackCaller(),
           )
           self.layer_main.add_game_object(self.gamobj_gem_green)
+          # Retester les PlayerLocks.
           # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
-          self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
+          # self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
           self.gamobj_gem_green_2 = squarity.GameObject(
@@ -1380,6 +1381,10 @@ class GameModel(squarity.GameModelBase):
           )
 
       def on_button_action(self, action_name):
+          direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left
+          self.gamobj_gem_green.move_dir(direc)
+
+      def on_button_action_old(self, action_name):
           # print("on event", action_name)
           # self.gamobj_gem_green.clear_all_transitions()
           offset = +1 if action_name == "action_1" else -1
