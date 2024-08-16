@@ -60,27 +60,22 @@ export default class ComponentImageModifier {
   }
 
   addTransitionsFromNewState(transitionDelay, timeStartTransition) {
-    let hasAnyTransition = false;
-    let addedOneTransition = false;
+    let addedTransition = false;
     for (let transiField of this.transiFields.values()) {
       if (transiField.addTransitionFromNewState(transitionDelay, timeStartTransition)) {
-        addedOneTransition = true;
-      }
-      if (transiField.stateTransitioners.length) {
-        hasAnyTransition = true;
+        addedTransition = true;
       }
     }
-    if (addedOneTransition) {
+    if (addedTransition) {
       this.timeEndTransitions = timeStartTransition + transitionDelay;
     }
-    return hasAnyTransition;
+    return addedTransition;
   }
 
   addTransitionsFromRecords(timeStartTransition) {
     if (!this.pythonComponent._transitions_to_record.length) {
       return false;
     }
-    // TODO : et le nom currentTimeStart est pourri. timeStartTransition, c'est mieux.
     for (let transiToRecord of this.pythonComponent._transitions_to_record) {
       const transiField = this.transiFields.get(transiToRecord.field_name);
       const newTimeEndTransitions = transiField.addTransitionsFromRecords(timeStartTransition, transiToRecord.steps);
@@ -107,17 +102,19 @@ export default class ComponentImageModifier {
     return transiLeft;
   }
 
-  getTimeEndTransitions() {
-    return this.timeEndTransitions;
-  }
-
-  clearAllTransitions() {
+  clearAllTransitions(timeNow) {
     for (let transiField of this.transiFields.values()) {
       transiField.clearAllTransitions();
     }
-    // C'est pas top de redéfinir la date de fin des transitions en utilisant performance,
-    // plutôt qu'avec un paramètre timeNow. Mais bon, ça va bien.
-    this.timeEndTransitions = performance.now();
+    this.timeEndTransitions = timeNow;
+  }
+
+  getNbUndoneTransitions() {
+    let nbUndoneTransitions = 0;
+    for (let transiField of this.transiFields.values()) {
+      nbUndoneTransitions += transiField.stateTransitioners.length;
+    }
+    return nbUndoneTransitions;
   }
 
   // --- Attention, ça va être dégueulasse !! ---

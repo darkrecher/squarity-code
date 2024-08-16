@@ -29,11 +29,9 @@ export function mergeTransitionsLeft(transi1, transi2) {
 export class TransitionableField {
 
   constructor(pythonFieldName, getValFromPython, setValToPython, useTransitionProgressive) {
-    // Le nom que l'on utilise dans le code python,
-    // quand on crée un objet squarity.TransitionSteps.
-    // TODO : et que si ça se trouve on n'en a pas besoin.
+    // Le nom du champ (dans le code python) géré par ce TransitionableField.
+    // En vrai, y'en n'a pas besoin. Mais je le garde quand je veux logger du debug.
     this.pythonFieldName = pythonFieldName;
-
     this.getValFromPython = getValFromPython;
     this.setValToPython = setValToPython;
     this.useTransitionProgressive = useTransitionProgressive;
@@ -54,7 +52,7 @@ export class TransitionableField {
     this.doingATransition = false;
   }
 
-  addTransitionFromNewState(transitionDelay, currentTimeStart) {
+  addTransitionFromNewState(transitionDelay, timeStartTransition) {
     const valFromPython = this.getValFromPython();
     // C'est un peu bizarre de vérifier fieldValueFinal et fieldValueNext avant de déclencher
     // une transition de new-state. C'est parce que les transitions from-records modifient
@@ -70,14 +68,14 @@ export class TransitionableField {
       if (this.useTransitionProgressive) {
         transitionToAdd = new StateTransitionProgressive(
           "osef", // TODO.
-          currentTimeStart, currentTimeStart + transitionDelay,
+          timeStartTransition, timeStartTransition + transitionDelay,
           this.fieldValueFinal, valFromPython,
           true
         );
       } else {
         transitionToAdd = new StateTransitionImmediate(
           "osef", // TODO.
-          currentTimeStart + transitionDelay,
+          timeStartTransition + transitionDelay,
           valFromPython,
           true
         );
@@ -91,13 +89,13 @@ export class TransitionableField {
     }
   }
 
-  addTransitionsFromRecords(currentTimeStart, transitionsToRecord) {
+  addTransitionsFromRecords(timeStartTransition, transitionsToRecord) {
     /* transitionsToRecord doit être un liste, dont chaque élément
      * est une sous-liste de 2 valeurs.
      *  - int. Délai, en millisecondes.
      *  - any. La valeur du champ à la fin de ce step de transition.
      */
-    let timeOfTransitions = currentTimeStart;
+    let timeOfTransitions = timeStartTransition;
 
     for (let step of transitionsToRecord) {
       let [delay, value] = step;
@@ -177,11 +175,10 @@ export class TransitionableField {
   }
 
   clearAllTransitions() {
-    // Paf, on vide la liste direct et on réinitialise des trucs.
     this.stateTransitioners = [];
     this.doingATransition = false;
-    this.fieldValue = this.fieldValueNext;
-    this.fieldValueFinal = this.fieldValueNext;
+    this.fieldValue = this.getValFromPython();
+    this.fieldValueFinal = this.fieldValue;
   }
 
 }

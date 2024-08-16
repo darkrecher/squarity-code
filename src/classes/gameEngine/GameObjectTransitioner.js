@@ -29,6 +29,7 @@ export default class GameObjectTransitioner {
     // alors ça passe. (La valeur quelconque sera donc une fonction callback du code python)
     this.plannedCallbacks = [];
     this.gameObject = gameObject;
+    this.timeEndTransitions = timeNow;
     this.compGobjBase = new ComponentGobjBase(this.gameObject, timeNow);
     if (!isNonePython(this.gameObject.image_modifier)) {
       this.compImageModifier = new ComponentImageModifier(this.gameObject, timeNow);
@@ -38,13 +39,11 @@ export default class GameObjectTransitioner {
   }
 
 
-  clearAllTransitions() {
+  clearAllTransitions(timeNow) {
     // On vire toutes les transitions en cours. Boum !!
-    // TODO : à retester
-    this.plannedCallbacks = [];
-    this.compGobjBase.clearAllTransitions();
+    this.compGobjBase.clearAllTransitions(timeNow);
     if (this.compImageModifier !== null) {
-      this.compImageModifier.clearAllTransitions();
+      this.compImageModifier.clearAllTransitions(timeNow);
     }
     this.plannedCallbacks = [];
     this.gameObject.ack_cleared_all_transitions();
@@ -52,17 +51,31 @@ export default class GameObjectTransitioner {
 
 
   addTransitionsFromNewState(x, y, timeNow) {
+    /* Renvoie true si on a ajouté de nouvelles transitions.
+     * Si il y avait déjà des transitions existantes, mais que l'on n'en rajoute aucune,
+     * la fonction renvoie false.
+     */
 
-    let hasCurrentTransitions = false;
-    let timeStartTransition = this.getTimeEndTransitions(timeNow);
+    let addedTransitions = false;
+    // Au départ, la date de démarrage des éventuelles nouvelles transitions est
+    // égale à "maintenant", ou bien à la date de fin des transitions existantes.
+    // Comme ça, on met les transitions bout à bout.
+    let timeStartTransition = Math.max(timeNow, this.timeEndTransitions);
     const transitionDelay = this.getCurrentTransitionDelay();
 
     if (this.compGobjBase.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
-      hasCurrentTransitions = true;
+      if (this.timeEndTransitions < this.compGobjBase.timeEndTransitions) {
+        console.log("old this.timeEndTransitions", this.timeEndTransitions, "new ", this.compGobjBase.timeEndTransitions);
+        this.timeEndTransitions = this.compGobjBase.timeEndTransitions;
+      }
+      addedTransitions = true;
     }
     if (this.compImageModifier !== null) {
       if (this.compImageModifier.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
-        hasCurrentTransitions = true;
+        if (this.timeEndTransitions < this.compImageModifier.timeEndTransitions) {
+          this.timeEndTransitions = this.compImageModifier.timeEndTransitions;
+        }
+        addedTransitions = true;
       }
     }
 
@@ -77,27 +90,39 @@ export default class GameObjectTransitioner {
       this.plannedCallbacks.push(transitionCallback);
       this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
       this.gameObject.reset_one_shot_callback();
+      const lastCallback = this.plannedCallbacks.slice(-1)[0];
+      const timeEndCallbacks = lastCallback.getTimeEnd();
+      if (this.timeEndTransitions < timeEndCallbacks) {
+        this.timeEndTransitions = timeEndCallbacks;
+      }
+      addedTransitions = true;
     }
 
-    return hasCurrentTransitions;
+    return addedTransitions;
   }
 
 
   addTransitionsFromRecords(timeNow) {
+    /* Renvoie true si on a ajouté de nouvelles transitions.
+     * Si il y avait déjà des transitions existantes, mais que l'on n'en rajoute aucune,
+     * la fonction renvoie false.
+     */
 
-    let hasAnyTransition = false;
-    // TODO : currentTimeStart c'est pas clair comme nom. À changer partout.
-    // TODO : c'est bourrin d'appeler cette fonction à chaque fois, qui est un peu longue à exécuter.
-    //        faut faire comme les components: on stocke une variable this.timeEndTransitions.
-    //        on la met à jour quand c'est nécessaire (faut trouver quand).
-    //        et pour connaître le time des prochaines transitions, on reprend juste cette variable.
-    let timeStartTransition = this.getTimeEndTransitions(timeNow);
+    let addedTransition = false;
+    let timeStartTransition = Math.max(timeNow, this.timeEndTransitions);
+
     if (this.compGobjBase.addTransitionsFromRecords(timeStartTransition)) {
-      hasAnyTransition = true;
+      if (this.timeEndTransitions < this.compGobjBase.timeEndTransitions) {
+        this.timeEndTransitions = this.compGobjBase.timeEndTransitions;
+      }
+      addedTransition = true;
     }
     if (this.compImageModifier !== null) {
       if (this.compImageModifier.addTransitionsFromRecords(timeStartTransition)) {
-        hasAnyTransition = true;
+        if (this.timeEndTransitions < this.compImageModifier.timeEndTransitions) {
+          this.timeEndTransitions = this.compImageModifier.timeEndTransitions;
+        }
+        addedTransition = true;
       }
     }
 
@@ -115,17 +140,30 @@ export default class GameObjectTransitioner {
         }
         this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
         this.gameObject.back_caller.clear_callbacks_to_record();
-        hasAnyTransition = true;
+        const lastCallback = this.plannedCallbacks.slice(-1)[0];
+        const timeEndCallbacks = lastCallback.getTimeEnd();
+        if (this.timeEndTransitions < timeEndCallbacks) {
+          this.timeEndTransitions = timeEndCallbacks;
+        }
+        addedTransition = true;
       }
     }
 
-    return hasAnyTransition;
+    return addedTransition;
   }
 
 
   updateTransitions(timeNow) {
 
-    const gameUpdateResult = new GameUpdateResult();
+    // gameUpdateResult est null au départ. On l'instancie seulement
+    // si on a besoin de mettre des choses dedans. Dans la suite du code, il y a plein de fois
+    // la condition vérifiant si gameUpdateResult est null.
+    // C'est un peu bizarre de répéter ça tout le temps. Mais la plupart du temps,
+    // et pour la plupart des objets, il se passe rien.
+    // Quand il se passe rien, vaut mieux renvoyer null, ça évite au code extérieur de
+    // merger un gameUpdateResult. C'est une opération qui prend un peu de temps,
+    // et qui ne servirait à rien du tout si le gameUpdateResult n'a rien d'intéressant dedans.
+    let gameUpdateResult = null;
     let transiLeft = this.compGobjBase.updateTransitions(timeNow);
 
     if (this.compImageModifier !== null) {
@@ -134,6 +172,9 @@ export default class GameObjectTransitioner {
     }
 
     if (transiLeft == transitionsLeft.HAS_TRANSITIONS) {
+      if (gameUpdateResult === null) {
+        gameUpdateResult = new GameUpdateResult();
+      }
       gameUpdateResult.hasAnyTransition = true;
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
     }
@@ -142,6 +183,9 @@ export default class GameObjectTransitioner {
       // On détecte si y'a une callback de fin de transition à appeler.
       // Et on la met dans le result, pour dire au game engine de les appeler.
       if (!isNonePython(this.gameObject._callback_end_transi)) {
+        if (gameUpdateResult === null) {
+          gameUpdateResult = new GameUpdateResult();
+        }
         gameUpdateResult.callbackEndTransi.push(this.gameObject._callback_end_transi);
       }
     }
@@ -153,10 +197,16 @@ export default class GameObjectTransitioner {
       // elles seront faites aux prochains appels de updateTransitions et pis c'est tout.
       if (firstTransiCallback.isTimeEnded(timeNow)) {
         // On indique au reste du moteur qu'il faudra exécuter cette callback.
+        if (gameUpdateResult === null) {
+          gameUpdateResult = new GameUpdateResult();
+        }
         gameUpdateResult.callbackInsideTransi.push(firstTransiCallback.getFinalVal());
         this.plannedCallbacks.shift();
       }
       if (this.plannedCallbacks.length) {
+        if (gameUpdateResult === null) {
+          gameUpdateResult = new GameUpdateResult();
+        }
         gameUpdateResult.hasAnyTransition = true;
       }
     }
@@ -194,85 +244,14 @@ export default class GameObjectTransitioner {
   }
 
 
-  // private
-  /* TODO WIP crap big.
-  applyTransition(transition, gobjStateDest, applyInGame) {
-    // un peu bof, tous ces if.
-    // Mais je me dis que ça mérite pas de créer 36000 sous-classe juste pour ça.
-    if (this.tryApplyTransitionXY(transition, gobjStateDest, applyInGame)) {
-      return;
-    }
-
-    const finalVal = transition.getFinalVal();
-    if (transition.fieldName == "x") {
-      if (applyInGame) {
-        this.gameObject.move_to_xy(finalVal, this.gameObject._coord.y);
-        transition.isAppliedInGame = true;
-      }
-      gobjStateDest.x = finalVal;
-    } else if (transition.fieldName == "y") {
-      if (applyInGame) {
-        this.gameObject.move_to_xy(this.gameObject._coord.x, finalVal);
-        transition.isAppliedInGame = true;
-      }
-      gobjStateDest.y = finalVal;
-    } else if (transition.fieldName == "sprite_name") {
-      if (applyInGame) {
-        this.gameObject.spriteName = finalVal;
-        transition.isAppliedInGame = true;
-      }
-      gobjStateDest.spriteName = finalVal;
-    }
-  }
-
-
-  // private
-  tryApplyTransitionXY(transition, gobjStateDest, applyInGame) {
-    // On fusionne l'application en x et en y, si c'est possible.
-    if (transition.linkedTransition == null) {
-      return false;
-    }
-    const linkedTransition = transition.linkedTransition;
-    if (!((transition.fieldName == "x") ^ (linkedTransition.fieldName == "x"))) {
-      return false;
-    }
-    if (!((transition.fieldName == "y") ^ (linkedTransition.fieldName == "y"))) {
-      return false;
-    }
-    let finalValX;
-    let finalValY;
-    if (transition.fieldName == "x") {
-      finalValX = transition.getFinalVal();
-      finalValY = linkedTransition.getFinalVal();
-    } else {
-      finalValX = linkedTransition.getFinalVal();
-      finalValY = transition.getFinalVal();
-    }
-    if (applyInGame) {
-      this.gameObject.move_to_xy(finalValX, finalValY);
-      transition.isAppliedInGame = true;
-      linkedTransition.isAppliedInGame = true;
-    }
-    gobjStateDest.x = finalValX;
-    gobjStateDest.y = finalValY;
-    return true;
-  }
-    */
-
-
-  // private
-  getTimeEndTransitions(timeNow) {
-    let endTransitionTimesAll = [timeNow];
-    endTransitionTimesAll.push(this.compGobjBase.getTimeEndTransitions());
+  getNbUndoneTransitions() {
+    let nbUndoneTransitions = this.compGobjBase.getNbUndoneTransitions();
     if (this.compImageModifier !== null) {
-      endTransitionTimesAll.push(this.compImageModifier.getTimeEndTransitions());
+      nbUndoneTransitions += this.compImageModifier.getNbUndoneTransitions();
     }
     // TODO. foutre les plannedCallbacks dans un component à part.
-    if (this.plannedCallbacks.length) {
-      const lastCallback = this.plannedCallbacks.slice(-1)[0];
-      endTransitionTimesAll.push(lastCallback.getTimeEnd());
-    }
-    return Math.max(...endTransitionTimesAll);
+    nbUndoneTransitions += this.plannedCallbacks.length;
+    return nbUndoneTransitions;
   }
 
 }

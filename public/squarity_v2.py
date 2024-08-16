@@ -258,9 +258,7 @@ class GameObject(GameObjectBase):
         if self._transitioner is None:
             return 0
         else:
-            # TODO : ça marche plus ça. Faut le faire autrement.
-            # return len(self._transitioner.currentTransitions)
-            return 0
+            return self._transitioner.getNbUndoneTransitions()
 
     def set_callback_end_transi(self, callback_end_transi):
         self._callback_end_transi = callback_end_transi

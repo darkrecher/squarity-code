@@ -291,9 +291,9 @@ export default class GameEngineV2 {
       // On dessine l'état actuel. Faut tout redessiner.
       this.drawCurrentGameBoardState(timeNow)
     }
-    // On regarde si il y a encore des transitions en cours.
+    // On regarde si des nouvelles transitions ont été ajoutées.
     // Si oui, on demande un nouvel affichage de l'aire de jeu, "pour la prochaine fois".
-    if (gameUpdateResult.hasAnyTransition) {
+    if (gameUpdateResult.addedTransitions) {
       // Mais avant de demander un nouvel affichage, on vérifie qu'on n'est pas déjà en train
       // de faire des transitions, et donc d'afficher périodiquement l'état du jeu.
       // Si c'est le cas, pas la peine de redemander un affichage en plus.
@@ -323,6 +323,7 @@ export default class GameEngineV2 {
 
   updateAndDrawGameBoard() {
     const timeNow = performance.now();
+    console.log("updateAndDrawGameBoard ", timeNow);
 
     const mergedGameUpdateResult = new GameUpdateResult();
     for (let layer of this.orderedLayers) {
@@ -336,8 +337,6 @@ export default class GameEngineV2 {
     this.drawCurrentGameBoardState(timeNow);
     // On regarde si il y a encore des transitions en cours.
     // Si oui, on redemande un affichage pour plus tard.
-    // TODO : Revérifier vite fait que ça fonctionne. Et que ça lance
-    // pas des requestAnimationFrame pour rien, alors que y'a plus de transitions nul part.
     if (mergedGameUpdateResult.hasAnyTransition) {
       window.requestAnimationFrame(() => { this.updateAndDrawGameBoard() });
     } else {

@@ -10,6 +10,7 @@ export default class GameUpdateResult {
    */
   constructor() {
     this.hasAnyTransition = false;
+    this.addedTransitions = false;
     this.PlockTransi = PlayerLockTransi.NoLock
     this.callbackInsideTransi = []
     this.callbackEndTransi = []
@@ -17,6 +18,7 @@ export default class GameUpdateResult {
 
   merge(other) {
     this.hasAnyTransition |= other.hasAnyTransition;
+    this.addedTransitions |= other.addedTransitions;
     if (this.PlockTransi < other.PlockTransi) {
       this.PlockTransi = other.PlockTransi;
     }

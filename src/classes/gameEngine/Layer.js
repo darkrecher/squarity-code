@@ -63,7 +63,7 @@ export class LayerWithTransition extends LayerBase {
       const gobjId = gameObj._go_id;
       idObjsPresent.add(gobjId);
       let gobjTransitioner;
-      let hasNewTransition = false;
+      let addedTransitions = false;
       if (!this.layerMemory.has(gobjId)) {
         gobjTransitioner = new GameObjectTransitioner(
           this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
@@ -74,17 +74,17 @@ export class LayerWithTransition extends LayerBase {
       } else {
         gobjTransitioner = this.layerMemory.get(gobjId);
         if (gameObj._must_clear_transitions) {
-          gobjTransitioner.clearAllTransitions();
+          gobjTransitioner.clearAllTransitions(timeNow);
         }
-        hasNewTransition = gobjTransitioner.addTransitionsFromNewState(
+        addedTransitions = gobjTransitioner.addTransitionsFromNewState(
           coordAndGameObj.x, coordAndGameObj.y, timeNow
         );
       }
       if (gobjTransitioner.addTransitionsFromRecords(timeNow)) {
-        hasNewTransition = true;
+        addedTransitions = true;
       }
-      if (hasNewTransition) {
-        gameUpdateResult.hasAnyTransition = true;
+      if (addedTransitions) {
+        gameUpdateResult.addedTransitions = true;
         if (gameUpdateResult.PlockTransi < gameObj.plock_transi) {
           gameUpdateResult.PlockTransi = gameObj.plock_transi;
         }

@@ -15,30 +15,26 @@ export default class ComponentGobjBase {
     const getValFromPythonCoordY = this.getValFromPythonCoordY.bind(this);
     const setValToPythonCoordY = this.setValToPythonCoordY.bind(this);
     this.coordY = new TransitionableField("coord.y", getValFromPythonCoordY, setValToPythonCoordY, true);
-    // FUTURE: Pas de transition pour le champ sprite_name.
+    // FUTURE: Pour l'instant, pas de transition pour le champ sprite_name.
     // (On declare TransitionableField avec useTransitionProgressive=false)
     // mais on pourrait imaginer des fades ou une suite d'image prédéfinie.
     const getValFromPythonSpriteName = this.getValFromPythonSpriteName.bind(this);
     const setValToPythonSpriteName = this.setValToPythonSpriteName.bind(this);
     this.spriteName = new TransitionableField("sprite_name", getValFromPythonSpriteName, setValToPythonSpriteName, false);
+    this.pythonCoordXToSet = null;
   }
 
   addTransitionsFromNewState(transitionDelay, timeStartTransition) {
-    const addedOneTransition = (
+    const addedTransition = (
       this.coordX.addTransitionFromNewState(transitionDelay, timeStartTransition)
       || this.coordY.addTransitionFromNewState(transitionDelay, timeStartTransition)
-      // TODO : euh... C'est sûr qu'on doit faire comme ça pour le spriteName ? (Le transitionDelay, on devrait pas l'appliquer).
-      || this.spriteName.addTransitionFromNewState(transitionDelay, timeStartTransition)
+      // Pour spriteName, on applique la modif tout de suite. Donc transitionDelay = 0.
+      || this.spriteName.addTransitionFromNewState(0, timeStartTransition)
     );
-    if (addedOneTransition) {
+    if (addedTransition) {
       this.timeEndTransitions = timeStartTransition + transitionDelay;
     }
-    const hasAnyTransition = (
-      (this.coordX.stateTransitioners.length > 0)
-      || (this.coordY.stateTransitioners.length > 0)
-      || (this.spriteName.stateTransitioners.length > 0)
-    );
-    return hasAnyTransition;
+    return addedTransition;
   }
 
   addTransitionsFromRecords(timeNow) {
@@ -65,13 +61,7 @@ export default class ComponentGobjBase {
           this.timeEndTransitions = newTimeEndTransitions;
         }
       } else if (transi.field_name === "sprite_name") {
-        // TODO : Meuh. On doit pouvoir faire comme dans le image modifier.
-        let transiToRecordSpriteName = []
-        for (let step of transi.steps) {
-          let [delay, value] = step;
-          transiToRecordSpriteName.push([delay, value]);
-        }
-        let newTimeEndTransitions = this.spriteName.addTransitionsFromRecords(currentTime, transiToRecordSpriteName);
+        let newTimeEndTransitions = this.spriteName.addTransitionsFromRecords(currentTime, transi.steps);
         if (this.timeEndTransitions < newTimeEndTransitions) {
           this.timeEndTransitions = newTimeEndTransitions;
         }
@@ -89,32 +79,30 @@ export default class ComponentGobjBase {
 
   updateTransitions(timeNow) {
     let transiLeft = transitionsLeft.NO_TRANSITIONS;
-
+    // Il faut obligatoirement updater la coordonnée X avant la coordonnée Y.
+    // (Voir commentaires dans les fonctions "SetValToPythonCoord")
     let newTransiLeft = this.coordX.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
-
     newTransiLeft = this.coordY.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
-
-    // TODO : vérifier que les recorded transitions mettent bien à jour le sprite_name dans le python.
-    // parce que le code d'avant ne le faisait pas, à priori.
     newTransiLeft = this.spriteName.updateTransitions(timeNow);
     transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
-
     return transiLeft;
   }
 
-  getTimeEndTransitions(timeNow) {
-    return this.timeEndTransitions;
-  }
-
-  clearAllTransitions() {
+  clearAllTransitions(timeNow) {
     this.coordX.clearAllTransitions();
     this.coordY.clearAllTransitions();
     this.spriteName.clearAllTransitions();
-    // C'est pas top de redéfinir la date de fin des transitions en utilisant performance,
-    // plutôt qu'avec un paramètre timeNow. Mais bon, ça va bien.
-    this.timeEndTransitions = performance.now();
+    this.timeEndTransitions = timeNow;
+  }
+
+  getNbUndoneTransitions() {
+    return (
+      this.coordX.stateTransitioners.length
+      + this.coordY.stateTransitioners.length
+      + this.spriteName.stateTransitioners.length
+    );
   }
 
   // --- Les fonctions d'interfaçage entre le code python et le code javascript,
@@ -124,18 +112,34 @@ export default class ComponentGobjBase {
     return this.gameObject._coord.x;
   }
   setValToPythonCoordX(val) {
-    // TODO : faut s'arranger pour appeler ça qu'une seule fois,
-    // même si on change les deux coordonnées X et Y en même temps.
-    const currentY = this.gameObject._coord.y
-    this.gameObject.move_to_xy(val, currentY);
+    // On n'écrit pas la valeur dans l'objet python. On la garde pour plus tard.
+    // Elle sera écrite lorsqu'on s'occupera de la coordonnée Y.
+    // Ça veut dire qu'après avoir appelé cette fonction, il faut obligatoirement
+    // appeler setValToPythonCoordY.
+    // Sinon ça va tout mettre en vrac dans les gameObject python.
+    this.pythonCoordXToSet = val;
   }
 
   getValFromPythonCoordY() {
     return this.gameObject._coord.y;
   }
   setValToPythonCoordY(val) {
-    const currentX = this.gameObject._coord.x
-    this.gameObject.move_to_xy(currentX, val);
+    // On récupère la coordonnée X à définir, qui a été préalablement enregistrée
+    // lors de l'exécution de setValToPythonCoordX.
+    let coordX;
+    if (this.pythonCoordXToSet !== null) {
+      coordX = this.pythonCoordXToSet;
+      this.pythonCoordXToSet = null;
+    } else {
+      // Si y'en a pas, on prend la valeur courante par défaut.
+      coordX = this.gameObject._coord.x;
+    }
+    // Et maintenant, on peut appeler cette fonction python.
+    // Cette bidouille de transfert de la coordonnée X permet d'appeler la fonction move_to_xy
+    // une seule fois, pour X et Y. Au lieu de l'appeler une première fois pour X
+    // puis une seconde pour Y. Ça fonctionnerait, mais ce serait un peu bizarre.
+    // Il faut limiter les interactions python <-> JS.
+    this.gameObject.move_to_xy(coordX, val);
   }
 
   getValFromPythonSpriteName() {
