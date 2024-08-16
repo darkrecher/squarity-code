@@ -1,4 +1,4 @@
-import { transitionsLeft, mergeTransitionsLeft, TransitionableField } from './TransitionableField.js';
+import { remainingTransi, mergeRemTransi, TransitionableField } from './TransitionableField.js';
 
 /*
 Réflexions sur des trucs:
@@ -94,10 +94,10 @@ export default class ComponentImageModifier {
   }
 
   updateTransitions(timeNow) {
-    let transiLeft = transitionsLeft.NO_TRANSITIONS;
+    let transiLeft = remainingTransi.NO_TRANSITIONS;
     for (let transiField of this.transiFields.values()) {
       const newTransiLeft = transiField.updateTransitions(timeNow);
-      transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+      transiLeft = mergeRemTransi(transiLeft, newTransiLeft);
     }
     return transiLeft;
   }

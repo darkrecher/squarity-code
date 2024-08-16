@@ -206,7 +206,6 @@ class GameObject(GameObjectBase):
     # ou pas, car ça nécessite des vérifs qui vont faire ralentir...
 
     def move_to_xy(self, x, y, transition_delay=None, callback=None):
-        print("move_to_xy", self.sprite_name, x, y)
         self.layer_owner.move_game_object_xy(self, self._coord.x, self._coord.y, x, y)
         self._coord.x = x
         self._coord.y = y

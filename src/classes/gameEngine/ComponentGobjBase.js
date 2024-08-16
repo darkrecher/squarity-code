@@ -1,5 +1,4 @@
-import { StateTransitionProgressive } from './StateTransition.js';
-import { transitionsLeft, mergeTransitionsLeft, TransitionableField } from './TransitionableField.js';
+import { remainingTransi, mergeRemTransi, TransitionableField } from './TransitionableField.js';
 
 
 export default class ComponentGobjBase {
@@ -37,12 +36,11 @@ export default class ComponentGobjBase {
     return addedTransition;
   }
 
-  addTransitionsFromRecords(timeNow) {
+  addTransitionsFromRecords(timeStartTransition) {
     if (!this.gameObject._transitions_to_record) {
       return false;
     }
 
-    let currentTime = timeNow;
     for (let transi of this.gameObject._transitions_to_record) {
       if (transi.field_name === "coord") {
         let transiToRecordX = []
@@ -52,16 +50,16 @@ export default class ComponentGobjBase {
           transiToRecordX.push([delay, value.x]);
           transiToRecordY.push([delay, value.y]);
         }
-        let newTimeEndTransitions = this.coordX.addTransitionsFromRecords(currentTime, transiToRecordX);
+        let newTimeEndTransitions = this.coordX.addTransitionsFromRecords(timeStartTransition, transiToRecordX);
         if (this.timeEndTransitions < newTimeEndTransitions) {
           this.timeEndTransitions = newTimeEndTransitions;
         }
-        newTimeEndTransitions = this.coordY.addTransitionsFromRecords(currentTime, transiToRecordY);
+        newTimeEndTransitions = this.coordY.addTransitionsFromRecords(timeStartTransition, transiToRecordY);
         if (this.timeEndTransitions < newTimeEndTransitions) {
           this.timeEndTransitions = newTimeEndTransitions;
         }
       } else if (transi.field_name === "sprite_name") {
-        let newTimeEndTransitions = this.spriteName.addTransitionsFromRecords(currentTime, transi.steps);
+        let newTimeEndTransitions = this.spriteName.addTransitionsFromRecords(timeStartTransition, transi.steps);
         if (this.timeEndTransitions < newTimeEndTransitions) {
           this.timeEndTransitions = newTimeEndTransitions;
         }
@@ -78,15 +76,15 @@ export default class ComponentGobjBase {
   }
 
   updateTransitions(timeNow) {
-    let transiLeft = transitionsLeft.NO_TRANSITIONS;
+    let transiLeft = remainingTransi.NO_TRANSITIONS;
     // Il faut obligatoirement updater la coordonnée X avant la coordonnée Y.
     // (Voir commentaires dans les fonctions "SetValToPythonCoord")
     let newTransiLeft = this.coordX.updateTransitions(timeNow);
-    transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+    transiLeft = mergeRemTransi(transiLeft, newTransiLeft);
     newTransiLeft = this.coordY.updateTransitions(timeNow);
-    transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+    transiLeft = mergeRemTransi(transiLeft, newTransiLeft);
     newTransiLeft = this.spriteName.updateTransitions(timeNow);
-    transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+    transiLeft = mergeRemTransi(transiLeft, newTransiLeft);
     return transiLeft;
   }
 

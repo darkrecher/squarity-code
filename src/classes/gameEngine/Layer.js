@@ -66,7 +66,7 @@ export class LayerWithTransition extends LayerBase {
       let addedTransitions = false;
       if (!this.layerMemory.has(gobjId)) {
         gobjTransitioner = new GameObjectTransitioner(
-          this.gameModel, coordAndGameObj.x, coordAndGameObj.y, gameObj, timeNow
+          this.gameModel, gameObj, timeNow
         );
         this.layerMemory.set(gobjId, gobjTransitioner);
         gameObj._transitioner = gobjTransitioner;
@@ -76,9 +76,7 @@ export class LayerWithTransition extends LayerBase {
         if (gameObj._must_clear_transitions) {
           gobjTransitioner.clearAllTransitions(timeNow);
         }
-        addedTransitions = gobjTransitioner.addTransitionsFromNewState(
-          coordAndGameObj.x, coordAndGameObj.y, timeNow
-        );
+        addedTransitions = gobjTransitioner.addTransitionsFromNewState(timeNow);
       }
       if (gobjTransitioner.addTransitionsFromRecords(timeNow)) {
         addedTransitions = true;

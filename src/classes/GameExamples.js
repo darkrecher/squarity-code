@@ -1174,26 +1174,15 @@ class GameModel(squarity.GameModelBase):
           self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
           self.layers.append(self.layer_rock)
 
-          """
-          TODO : ce bout de code fait planter le python. C'est normal.
-          Mais l'erreur n'apparaît pas dans la fenêtre du jeu. Uniquement dans la console JS. C'est pas cool.
           self.gamobj_gem_green = squarity.GameObject(
               Coord(4, 1),
               "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7,
-              back_caller=squarity.ComponentBackCaller())
-          )
-          """
-
-          self.gamobj_gem_green = squarity.GameObject(
-              Coord(4, 1),
-              "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7),
+              # image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7),
               back_caller=squarity.ComponentBackCaller(),
           )
           self.layer_main.add_game_object(self.gamobj_gem_green)
           # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
-          # self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
+          self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
           self.gamobj_gem_green.set_transition_delay(500)
 
           self.gamobj_gem_green_2 = squarity.GameObject(
@@ -1318,7 +1307,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 7.5),
                           (400, 7.0),
                           (400, 9.0),
-                          (350, 8.5),
+                          (350, 108.5),
                       )
                   )
               )
@@ -1335,7 +1324,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 6.0),
                           (400, 8.0),
                           (400, 7.5),
-                          (350, 8.5),
+                          (350, 108.5),
                       )
                   )
               )
@@ -1391,11 +1380,6 @@ class GameModel(squarity.GameModelBase):
           )
 
       def on_button_action(self, action_name):
-          direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left
-          self.gamobj_gem_green.move_dir(direc)
-          print(self.gamobj_gem_green.sprite_name)
-
-      def on_button_action_old(self, action_name):
           # print("on event", action_name)
           # self.gamobj_gem_green.clear_all_transitions()
           offset = +1 if action_name == "action_1" else -1

@@ -3,7 +3,6 @@ class StateTransition  {
   constructor(timeStart, isAppliedInGame) {
     this.timeStart = timeStart;
     this.isAppliedInGame = isAppliedInGame;
-    this.isDone = false;
     // Pour gérer des champs qui fonctionnent ensemble, par exemple les coordonnées (x, y).
     this.linkedTransition = null;
   }
@@ -28,9 +27,8 @@ export class StateTransitionProgressive extends StateTransition {
   // isAppliedInGame n'est pas forcément false au départ.
   // Lorsque c'est une transition que l'on crée suite à une détection de changement d'une valeur,
   // c'est déjà appliqué dans le jeu.
-  constructor(fieldName, timeStart, timeEnd, valStart, valEnd, isAppliedInGame) {
+  constructor(timeStart, timeEnd, valStart, valEnd, isAppliedInGame) {
     super(timeStart, isAppliedInGame);
-    this.fieldName = fieldName;
     this.timeEnd = timeEnd;
     this.valStart = valStart;
     this.valEnd = valEnd;
@@ -70,9 +68,8 @@ export class StateTransitionProgressive extends StateTransition {
 
 export class StateTransitionImmediate extends StateTransition {
 
-  constructor(fieldName, timeStart, val, isAppliedInGame) {
+  constructor(timeStart, val, isAppliedInGame) {
     super(timeStart, isAppliedInGame);
-    this.fieldName = fieldName;
     this.val = val;
   }
 

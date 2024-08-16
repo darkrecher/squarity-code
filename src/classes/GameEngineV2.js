@@ -157,15 +157,18 @@ export default class GameEngineV2 {
 
   execStartCode() {
     let eventResultRaw;
+
     try {
       eventResultRaw = this.gameModel.on_start();
     } catch (err) {
       const errMessage = err.message;
       this.printGameConsole(`Erreur python durant l'exécution de game_model.on_start\n${errMessage}`);
-      // Je rethrow l'exception, parce que si le code python déconne,
-      // vaut mieux pas essayer de faire d'autres choses après.
-      throw err;
+      // Au début, j'avais l'intention de rethrower l'exception.
+      // Mais si je fais ça, l'erreur ne s'affiche pas dans la zone de texte de la page web.
+      // Donc je re throw pas, et c'est tout.
+      // Par contre, ça marche pour les autres fonctions. C'est vraiment zarb, le JS.
     }
+
     this.afterGameEvent(eventResultRaw);
   }
 

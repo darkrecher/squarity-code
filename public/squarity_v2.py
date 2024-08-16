@@ -151,13 +151,6 @@ class GameObjectBase():
 
 class GameObject(GameObjectBase):
 
-    # FUTURE: on ajoutera deux booléens: isTransitionable, isVisualEffectable.
-    # Selon ces deux valeurs, il y a, ou pas, des composants pour gérer les transitions et les effets visuels.
-    # Ce sera moins dégueux qu'actuellement, où y'a des variables de partout.
-    # On ne pourra pas changer ces deux booléens après instanciation.
-    # Si on veut un objet qui se transitionne, on détruit l'ancien et on recrée un transitionable,
-    # et puis c'est tout.
-    # (Trouver un autre nom que "isVisualEffectable").
     def __init__(
             self,
             coord,
@@ -166,6 +159,13 @@ class GameObject(GameObjectBase):
             image_modifier=None,
             back_caller=None,
         ):
+        """
+        Les deux composants image_modifier et back_caller doivent être ajoutés dès le départ.
+        Si on les crée après le __init__, ce n'est pas pris en compte par le moteur du jeu.
+        C'est pour optimiser les vérifs et les traitements.
+        Si vous voulez un game object avec un image_modifier alors qu'il n'en n'a pas au départ,
+        il n'y a pas d'autres solutions que de détruire-recréer ce game object. C'est comme ça.
+        """
         super().__init__()
         self._coord = Coord(coord=coord)
         self.sprite_name = sprite_name
@@ -176,13 +176,8 @@ class GameObject(GameObjectBase):
 
         # FUTURE: pour plus tard.
         # self.visible = True
-        # FUTURE: on gérera tout ça plus tard (rotation, scaling, ...).
-        # Et ce sera dans un composant. Pas là-dedans paf.
-        # self.offset_x = 0.0
-        # self.offset_y = 0.0
+        # FUTURE: on gérera les autres transfo plus tard (rotation, opacity, ...).
         # self.angle = 0.0
-        # self.scale_x = 1.0
-        # self.scale_y = 1.0
         # self.opacity = 1.0
         # Not sure if we will implement the color_factor.
         # self.color_factor = (1.0, 1.0, 1.0)
@@ -338,10 +333,6 @@ class LayerBase():
         self.visible = True
 
     def get_game_objects(self, coord):
-        raise NotImplementedError
-
-    def iter_game_objects(self, iter_xs=None, iter_ys=None, by_line=True):
-        # FUTURE. On verra plus tard.
         raise NotImplementedError
 
     def iter_all_game_objects(self):
@@ -531,6 +522,8 @@ class SequenceableIterator():
 
 
 class RectIterator(SequenceableIterator):
+    # FUTURE. Itérateur de coordonnées où on avance de 2 en 2, (ou plus),
+    #         Itérateur de droite à gauche, par colonnes et non pas par lignes. etc.
 
     def __init__(self, rect, instanciate_coord=False):
         self.rect = rect

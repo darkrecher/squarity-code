@@ -1,33 +1,24 @@
 import { isNonePython } from '../common/SimpleFunctions.js';
-import { StateTransitionImmediate } from './StateTransition.js';
 import GameUpdateResult from './GameUpdateResult.js';
-import { transitionsLeft, mergeTransitionsLeft } from './TransitionableField.js';
+import { remainingTransi, mergeRemTransi } from './TransitionableField.js';
 import ComponentImageModifier from './ComponentImageModifier.js';
 import ComponentGobjBase from './ComponentGobjBase.js';
+import ComponentBackCaller from './ComponentBackCaller.js';
 
 
-// FUTURE : ce serait peut-être plus simple que tous les champs soit des objets StateTransition,
-// qui évoluent ou pas. Au lieu d'avoir un nombre de StateTransition variable dans
-// une liste, contenant uniquement les transitions qui bougent.
 export default class GameObjectTransitioner {
   /*
    * Contient des transitions, avec le field concerné, time start time end, val start val end.
    * Si il y a des fades, des rotations, des changements de couleurs, etc.
    * il faudra les mettre là-dedans.
    */
-
-  // TODO : plus besoin des x,y. Et dans addTransitionsFromNewState non plus.
-  constructor(gameModel, x, y, gameObject, timeNow) {
+  constructor(gameModel, gameObject, timeNow) {
     // On a besoin du gameModel uniquement pour récupérer la valeur transition_delay.
     // C'est pas génial. On a trimbalé ce gros truc depuis le game engine jusqu'ici,
     // en passant par les layers, tout ça pour récupérer un nombre.
     // J'ai pas de meilleur méthode, car il faut pouvoir prendre en compte une modif de ce nombre.
     // Si jamais le gameCode modifie transition_delay, on doit le prendre en compte ici.
     this.gameModel = gameModel;
-    // Cette liste contiendra des objets StateTransitionImmediate.
-    // C'est un peu bizarre, mais c'est un objet qui stocke un délai et une valeur quelconque,
-    // alors ça passe. (La valeur quelconque sera donc une fonction callback du code python)
-    this.plannedCallbacks = [];
     this.gameObject = gameObject;
     this.timeEndTransitions = timeNow;
     this.compGobjBase = new ComponentGobjBase(this.gameObject, timeNow);
@@ -36,6 +27,7 @@ export default class GameObjectTransitioner {
     } else {
       this.compImageModifier = null;
     }
+    this.compBackCaller = new ComponentBackCaller(this.gameObject, timeNow);
   }
 
 
@@ -45,12 +37,12 @@ export default class GameObjectTransitioner {
     if (this.compImageModifier !== null) {
       this.compImageModifier.clearAllTransitions(timeNow);
     }
-    this.plannedCallbacks = [];
+    this.compBackCaller.clearAllTransitions(timeNow);
     this.gameObject.ack_cleared_all_transitions();
   }
 
 
-  addTransitionsFromNewState(x, y, timeNow) {
+  addTransitionsFromNewState(timeNow) {
     /* Renvoie true si on a ajouté de nouvelles transitions.
      * Si il y avait déjà des transitions existantes, mais que l'on n'en rajoute aucune,
      * la fonction renvoie false.
@@ -79,21 +71,9 @@ export default class GameObjectTransitioner {
       }
     }
 
-    let oneShotCallback = this.gameObject._one_shot_callback;
-    if (!isNonePython(oneShotCallback)) {
-      const transitionCallback = new StateTransitionImmediate(
-        "callback", // TODO : osef de ce champ.
-        timeStartTransition,
-        oneShotCallback,
-        false
-      );
-      this.plannedCallbacks.push(transitionCallback);
-      this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-      this.gameObject.reset_one_shot_callback();
-      const lastCallback = this.plannedCallbacks.slice(-1)[0];
-      const timeEndCallbacks = lastCallback.getTimeEnd();
-      if (this.timeEndTransitions < timeEndCallbacks) {
-        this.timeEndTransitions = timeEndCallbacks;
+    if (this.compBackCaller.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
+      if (this.timeEndTransitions < this.compBackCaller.timeEndTransitions) {
+        this.timeEndTransitions = this.compBackCaller.timeEndTransitions;
       }
       addedTransitions = true;
     }
@@ -107,7 +87,6 @@ export default class GameObjectTransitioner {
      * Si il y avait déjà des transitions existantes, mais que l'on n'en rajoute aucune,
      * la fonction renvoie false.
      */
-
     let addedTransition = false;
     let timeStartTransition = Math.max(timeNow, this.timeEndTransitions);
 
@@ -117,6 +96,7 @@ export default class GameObjectTransitioner {
       }
       addedTransition = true;
     }
+
     if (this.compImageModifier !== null) {
       if (this.compImageModifier.addTransitionsFromRecords(timeStartTransition)) {
         if (this.timeEndTransitions < this.compImageModifier.timeEndTransitions) {
@@ -126,27 +106,11 @@ export default class GameObjectTransitioner {
       }
     }
 
-    // TODO : il faut un Component spécial pour les plannedCallbacks, dans le JS.
-    if (!isNonePython(this.gameObject.back_caller)) {
-      if (this.gameObject.back_caller._callbacks_to_record.length) {
-        for (let delayedCallBack of this.gameObject.back_caller._callbacks_to_record) {
-          const transitionCallback = new StateTransitionImmediate(
-            "callback",  // osef
-            timeStartTransition + delayedCallBack.delay,
-            delayedCallBack.callback,
-            false
-          );
-          this.plannedCallbacks.push(transitionCallback);
-        }
-        this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-        this.gameObject.back_caller.clear_callbacks_to_record();
-        const lastCallback = this.plannedCallbacks.slice(-1)[0];
-        const timeEndCallbacks = lastCallback.getTimeEnd();
-        if (this.timeEndTransitions < timeEndCallbacks) {
-          this.timeEndTransitions = timeEndCallbacks;
-        }
-        addedTransition = true;
+    if (this.compBackCaller.addTransitionsFromRecords(timeStartTransition)) {
+      if (this.timeEndTransitions < this.compBackCaller.timeEndTransitions) {
+        this.timeEndTransitions = this.compBackCaller.timeEndTransitions;
       }
+      addedTransition = true;
     }
 
     return addedTransition;
@@ -168,10 +132,10 @@ export default class GameObjectTransitioner {
 
     if (this.compImageModifier !== null) {
       const newTransiLeft = this.compImageModifier.updateTransitions(timeNow);
-      transiLeft = mergeTransitionsLeft(transiLeft, newTransiLeft);
+      transiLeft = mergeRemTransi(transiLeft, newTransiLeft);
     }
 
-    if (transiLeft == transitionsLeft.HAS_TRANSITIONS) {
+    if (transiLeft == remainingTransi.HAS_TRANSITIONS) {
       if (gameUpdateResult === null) {
         gameUpdateResult = new GameUpdateResult();
       }
@@ -179,7 +143,7 @@ export default class GameObjectTransitioner {
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
     }
 
-    if (transiLeft == transitionsLeft.JUST_ENDED_ALL_TRANSITIONS) {
+    if (transiLeft == remainingTransi.JUST_ENDED_ALL_TRANSITIONS) {
       // On détecte si y'a une callback de fin de transition à appeler.
       // Et on la met dans le result, pour dire au game engine de les appeler.
       if (!isNonePython(this.gameObject._callback_end_transi)) {
@@ -190,25 +154,19 @@ export default class GameObjectTransitioner {
       }
     }
 
-    // TODO : il faut un Component spécial pour ça, dans le JS.
-    if (this.plannedCallbacks.length) {
-      const firstTransiCallback = this.plannedCallbacks[0];
-      // On exécute une seule callback à la fois. Si il faut en faire plus d'une,
-      // elles seront faites aux prochains appels de updateTransitions et pis c'est tout.
-      if (firstTransiCallback.isTimeEnded(timeNow)) {
-        // On indique au reste du moteur qu'il faudra exécuter cette callback.
-        if (gameUpdateResult === null) {
-          gameUpdateResult = new GameUpdateResult();
-        }
-        gameUpdateResult.callbackInsideTransi.push(firstTransiCallback.getFinalVal());
-        this.plannedCallbacks.shift();
+    const pythonCallBack = this.compBackCaller.updateTransitions(timeNow);
+    if (pythonCallBack !== null) {
+      // On indique au reste du moteur qu'il faudra exécuter cette callback.
+      if (gameUpdateResult === null) {
+        gameUpdateResult = new GameUpdateResult();
       }
-      if (this.plannedCallbacks.length) {
-        if (gameUpdateResult === null) {
-          gameUpdateResult = new GameUpdateResult();
-        }
-        gameUpdateResult.hasAnyTransition = true;
+      gameUpdateResult.callbackInsideTransi.push(pythonCallBack);
+    }
+    if (this.compBackCaller.getNbUndoneTransitions()) {
+      if (gameUpdateResult === null) {
+        gameUpdateResult = new GameUpdateResult();
       }
+      gameUpdateResult.hasAnyTransition = true;
     }
 
     return gameUpdateResult;
@@ -249,8 +207,7 @@ export default class GameObjectTransitioner {
     if (this.compImageModifier !== null) {
       nbUndoneTransitions += this.compImageModifier.getNbUndoneTransitions();
     }
-    // TODO. foutre les plannedCallbacks dans un component à part.
-    nbUndoneTransitions += this.plannedCallbacks.length;
+    nbUndoneTransitions += this.compBackCaller.getNbUndoneTransitions();
     return nbUndoneTransitions;
   }
 
