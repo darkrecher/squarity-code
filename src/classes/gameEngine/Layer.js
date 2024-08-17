@@ -30,14 +30,14 @@ export class LayerWithTransition extends LayerBase {
   constructor(
     pythonLayer,
     gameModel,
-    imgCoords,
+    atlasDefinitions,
     ctxCanvasBuffer,
     tileAtlas,
     tileImgWidth, tileImgHeight,
     tileCanvasWidth, tileCanvasHeight,
   ) {
     super(pythonLayer, gameModel);
-    this.imgCoords = imgCoords;
+    this.atlasDefinitions = atlasDefinitions;
     this.ctxCanvasBuffer = ctxCanvasBuffer;
     this.tileAtlas = tileAtlas;
     this.tileImgWidth = tileImgWidth;
@@ -117,11 +117,18 @@ export class LayerWithTransition extends LayerBase {
 
   draw(timeNow) {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
+    // FUTURE : tout ce code devrait aller dans le GameObjectTransitioner, ou dans un GameObjectBidule.
+    //          c'est bizarre que ce soit directement dans le layer.
     for (let gobjTransitioner of this.layerMemory.values()) {
       gobjTransitioner.updateState(timeNow);
       const coordX = gobjTransitioner.compGobjBase.coordX.fieldValue;
       const coordY = gobjTransitioner.compGobjBase.coordY.fieldValue;
-      const [coordImgX, coordImgY] = this.imgCoords[gobjTransitioner.compGobjBase.spriteName.fieldValue];
+      const [coordImgX, coordImgY, tileInAtlasWidth, tileInAtlasHeight] = this.atlasDefinitions.get(
+        gobjTransitioner.compGobjBase.spriteName.fieldValue
+      );
+      // TODO : precalc this.
+      const scaleAtlasWidth = tileInAtlasWidth / this.tileImgWidth;
+      const scaleAtlasHeight = tileInAtlasHeight / this.tileImgHeight;
       if (gobjTransitioner.compImageModifier !== null) {
         const compImageModifier = gobjTransitioner.compImageModifier;
         const areaScaleX = compImageModifier.areaScaleX.fieldValue;
@@ -130,20 +137,20 @@ export class LayerWithTransition extends LayerBase {
           this.tileAtlas,
           coordImgX,
           coordImgY,
-          this.tileImgWidth,
-          this.tileImgHeight,
+          tileInAtlasWidth,
+          tileInAtlasHeight,
           (coordX + compImageModifier.areaOffsetX.fieldValue + ((1.0-areaScaleX) / 2)) * this.tileCanvasWidth,
           (coordY + compImageModifier.areaOffsetY.fieldValue + ((1.0-areaScaleY) / 2)) * this.tileCanvasHeight,
-          this.tileCanvasWidth * areaScaleX,
-          this.tileCanvasHeight * areaScaleY
+          this.tileCanvasWidth * areaScaleX * scaleAtlasWidth,
+          this.tileCanvasHeight * areaScaleY * scaleAtlasHeight
         );
       } else {
         this.ctxCanvasBuffer.drawImage(
           this.tileAtlas,
           coordImgX, coordImgY,
-          this.tileImgWidth, this.tileImgHeight,
+          tileInAtlasWidth, tileInAtlasHeight,
           coordX * this.tileCanvasWidth, coordY * this.tileCanvasHeight,
-          this.tileCanvasWidth, this.tileCanvasHeight,
+          this.tileCanvasWidth * scaleAtlasWidth, this.tileCanvasHeight * scaleAtlasHeight,
         );
       }
     }
@@ -157,14 +164,14 @@ export class LayerNoTransition extends LayerBase{
   constructor(
     pythonLayer,
     gameModel,
-    imgCoords,
+    atlasDefinitions,
     ctxCanvasBuffer,
     tileAtlas,
     tileImgWidth, tileImgHeight,
     tileCanvasWidth, tileCanvasHeight,
   ) {
     super(pythonLayer, gameModel);
-    this.imgCoords = imgCoords;
+    this.atlasDefinitions = atlasDefinitions;
     this.ctxCanvasBuffer = ctxCanvasBuffer;
     this.tileAtlas = tileAtlas;
     this.tileImgWidth = tileImgWidth;
@@ -185,9 +192,10 @@ export class LayerNoTransition extends LayerBase{
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(
       this.tileCanvasWidth, this.tileCanvasHeight
     )) {
-      const [coordImgX, coordImgY] = this.imgCoords[
+      // TODO : woups. Va y avoir du duplicate code, ou alors faut mettre ça autre part.
+      const [coordImgX, coordImgY, tileInAtlasWidth, tileInAtlasHeight] = this.atlasDefinitions.get(
         coordAndGameObj.gameObj.sprite_name
-      ];
+      );
       this.ctxCanvasBuffer.drawImage(
         this.tileAtlas,
         coordImgX, coordImgY, this.tileImgWidth, this.tileImgHeight,

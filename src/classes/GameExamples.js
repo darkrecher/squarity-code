@@ -1135,6 +1135,7 @@ class GameModel():
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
   `,
 
+  // eyes : cx: 109, cy: 60, w: 93, h:49.
   TUNNEL_MATCH_JSON_CONF: `
   {
     "name": "Test du moteur V2",
@@ -1147,7 +1148,8 @@ class GameModel():
     "img_coords": {
       "gem_green": [0, 72],
       "gem_violet": [0, 36],
-      "rock": [72, 0]
+      "rock": [72, 0],
+      "eyes": [109, 60, 93, 49]
     }
   }
   `,
@@ -1197,6 +1199,10 @@ class GameModel(squarity.GameModelBase):
           self.layer_main.add_game_object(self.gamobj_gem_violet)
           # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
           # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
+
+          self.layer_main.add_game_object(
+              squarity.GameObject(Coord(8, 5), "eyes")
+          )
 
           event_result = squarity.EventResult()
           event_result.add_delayed_callback(

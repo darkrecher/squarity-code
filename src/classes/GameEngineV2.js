@@ -123,7 +123,7 @@ export default class GameEngineV2 {
       }
     }
     this.configGameSizes(tileSize, areaWidth, areaHeight);
-    this.imgCoords = jsonConf.img_coords;
+    this.atlasDefinitions = this.computeAtlasDefinitions(jsonConf.img_coords, tileSize);
     this.tileAtlas = tileAtlas;
 
     // On annule toutes les delayed callbacks du jeu précédent.
@@ -153,6 +153,27 @@ export default class GameEngineV2 {
       'hasattr(game_model, "on_click")',
       'Vérification de la présence de on_click',
     );
+  }
+
+  computeAtlasDefinitions(jsonImgCoords, tileSize) {
+    const atlasDefinitions = new Map();
+    // Syntaxe dégueulââsse du javascript pour parcourir les clés d'un dictionnaire json.
+    // La notion de json provient du javascript (JavaScript Object Notation)
+    // et pourtant il n'y a pas de moyen simple de parcourir ces données JSON. Foutage de gueule.
+    // https://stackoverflow.com/questions/9138959/parsing-json-dictionary-in-javascript-to-iterate-through-keys
+    for (const spriteName in jsonImgCoords) {
+      if (jsonImgCoords.hasOwnProperty(spriteName)) {
+        let spriteDefCoords = jsonImgCoords[spriteName];
+        if (spriteDefCoords.length < 3) {
+          spriteDefCoords.push(tileSize);
+        }
+        if (spriteDefCoords.length < 4) {
+          spriteDefCoords.push(tileSize);
+        }
+        atlasDefinitions.set(spriteName, spriteDefCoords);
+      }
+    }
+    return atlasDefinitions;
   }
 
   execStartCode() {
@@ -257,7 +278,7 @@ export default class GameEngineV2 {
           newLayer = new LayerWithTransition(
             pythonLayer,
             this.gameModel,
-            this.imgCoords,
+            this.atlasDefinitions,
             this.ctxCanvasBuffer,
             this.tileAtlas,
             this.tileImgWidth, this.tileImgHeight,
@@ -267,7 +288,7 @@ export default class GameEngineV2 {
           newLayer = new LayerNoTransition(
             pythonLayer,
             this.gameModel,
-            this.imgCoords,
+            this.atlasDefinitions,
             this.ctxCanvasBuffer,
             this.tileAtlas,
             this.tileImgWidth, this.tileImgHeight,
@@ -326,7 +347,6 @@ export default class GameEngineV2 {
 
   updateAndDrawGameBoard() {
     const timeNow = performance.now();
-    console.log("updateAndDrawGameBoard ", timeNow);
 
     const mergedGameUpdateResult = new GameUpdateResult();
     for (let layer of this.orderedLayers) {
