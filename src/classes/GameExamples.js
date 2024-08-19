@@ -1149,7 +1149,7 @@ class GameModel():
       "gem_green": [0, 72, 36, 36, "center"],
       "gem_violet": [0, 36],
       "rock": [72, 0],
-      "eyes": [109, 60, 93, 49, "center"]
+      "eyes": [109, 60, 45, 49, "center"]
     }
   }
   `,
@@ -1194,6 +1194,7 @@ class GameModel(squarity.GameModelBase):
           )
           self.gamobj_gem_green_2.set_transition_delay(407)
           self.layer_main.add_game_object(self.gamobj_gem_green_2)
+          print("img_size_x:", self.gamobj_gem_green_2.image_modifier.img_size_x)
 
           self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
           self.layer_main.add_game_object(self.gamobj_gem_violet)
@@ -1203,7 +1204,7 @@ class GameModel(squarity.GameModelBase):
           self.gamobj_eyes = squarity.GameObject(
               Coord(8, 5),
               "eyes",
-              image_modifier=squarity.ComponentImageModifier(area_scale_x=2, area_scale_y=3)
+              image_modifier=squarity.ComponentImageModifier(area_scale_x=2, area_scale_y=3, img_size_x=45, img_size_y=49)
           )
           self.layer_main.add_game_object(self.gamobj_eyes)
 
@@ -1341,6 +1342,8 @@ class GameModel(squarity.GameModelBase):
               )
               my_delayed_callback = squarity.DelayedCallBack(150, self.my_callback)
               self.gamobj_gem_green.back_caller.add_callback(my_delayed_callback)
+
+              self.gamobj_eyes.image_modifier.img_size_x = 93
 
               return
 

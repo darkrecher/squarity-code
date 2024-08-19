@@ -270,17 +270,28 @@ class GameObject(GameObjectBase):
 
 class ComponentImageModifier():
 
+    default_tile_size = 32
+
+    def set_default_tile_size(tile_size):
+        ComponentImageModifier.default_tile_size = tile_size
+
     def __init__(
         self,
-        img_offset_x=None, img_offset_y=None,
+        img_offset_x=0, img_offset_y=0,
         img_size_x=None, img_size_y=None,
         area_offset_x=0.0, area_offset_y=0.0,
         area_scale_x=1.0, area_scale_y=1.0,
     ):
         self.img_offset_x = img_offset_x
         self.img_offset_y = img_offset_y
-        self.img_size_x = img_size_x
-        self.img_size_y = img_size_y
+        if img_size_x is None:
+            self.img_size_x = ComponentImageModifier.default_tile_size
+        else:
+            self.img_size_x = img_size_x
+        if img_size_y is None:
+            self.img_size_y = ComponentImageModifier.default_tile_size
+        else:
+            self.img_size_y = img_size_y
         self.area_offset_x = area_offset_x
         self.area_offset_y = area_offset_y
         self.area_scale_x = area_scale_x
@@ -659,7 +670,7 @@ class Sequencer():
 
 class GameModelBase():
 
-    def __init__(self, w, h, str_game_conf_json):
+    def __init__(self, w, h, tile_size, str_game_conf_json):
         self.w = w
         self.h = h
         self.str_game_conf_json = str_game_conf_json
@@ -667,6 +678,7 @@ class GameModelBase():
         self.layers = []
         self.layer_main = Layer(self, w, h)
         self.layers.append(self.layer_main)
+        ComponentImageModifier.set_default_tile_size(tile_size)
         # Par défaut: 200 ms de transition lorsqu'on déplace un objet.
         self.transition_delay = 200
 

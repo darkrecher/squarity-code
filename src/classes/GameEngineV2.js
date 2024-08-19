@@ -140,7 +140,7 @@ export default class GameEngineV2 {
     );
     document.json_conf = JSON.stringify(jsonConf);
     this.runPython(
-      `game_model = GameModel(${areaWidth}, ${areaHeight}, js.document.json_conf)`,
+      `game_model = GameModel(${areaWidth}, ${areaHeight}, ${tileSize}, js.document.json_conf)`,
       'Instanciation du GameModel',
     );
     // FUTURE: meuh... Y'a pas plus simple pour récupérer ce truc ?

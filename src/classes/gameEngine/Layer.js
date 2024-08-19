@@ -24,7 +24,7 @@ class LayerBase {
   }
 
   drawOneGameObject(
-    timeNow, ctxCanvasBuffer,
+    ctxCanvasBuffer,
     tileAtlas, atlasDefinitions,
     gobjTransitioner, coordAndGameObj,
     tileImgWidth, tileImgHeight,
@@ -51,7 +51,7 @@ class LayerBase {
       spriteName = compGobjBase.spriteName.fieldValue;
       hasImgModifier = gobjTransitioner.compImageModifier !== null;
     }
-    const [
+    let [
       coordInAtlasX, coordInAtlasY,
       tileInAtlasWidth, tileInAtlasHeight,
       imgAnchorVal,
@@ -87,6 +87,12 @@ class LayerBase {
         canvasScaleY = compImageModifier.areaScaleY.fieldValue;
         canvasOffsetX = compImageModifier.areaOffsetX.fieldValue;
         canvasOffsetY = compImageModifier.areaOffsetY.fieldValue;
+        coordInAtlasX += compImageModifier.imgOffsetX.fieldValue;
+        coordInAtlasY += compImageModifier.imgOffsetY.fieldValue;
+        tileInAtlasWidth = compImageModifier.imgSizeX.fieldValue;
+        scaleAtlasWidth = tileInAtlasWidth / tileImgWidth;
+        tileInAtlasHeight = compImageModifier.imgSizeY.fieldValue;
+        scaleAtlasHeight = tileInAtlasHeight / tileImgHeight;
       }
       let anchorOffsetX;
       let anchorOffsetY;
@@ -215,7 +221,7 @@ export class LayerWithTransition extends LayerBase {
     for (let gobjTransitioner of this.layerMemory.values()) {
       gobjTransitioner.updateState(timeNow);
       this.drawOneGameObject(
-        timeNow, this.ctxCanvasBuffer,
+        this.ctxCanvasBuffer,
         this.tileAtlas, this.atlasDefinitions,
         gobjTransitioner, null,
         this.tileImgWidth, this.tileImgHeight,
@@ -259,7 +265,7 @@ export class LayerNoTransition extends LayerBase{
   draw(timeNow) {
     for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects()) {
       this.drawOneGameObject(
-        timeNow, this.ctxCanvasBuffer,
+        this.ctxCanvasBuffer,
         this.tileAtlas, this.atlasDefinitions,
         null, coordAndGameObj,
         this.tileImgWidth, this.tileImgHeight,

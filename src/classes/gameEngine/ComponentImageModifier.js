@@ -36,6 +36,7 @@ export default class ComponentImageModifier {
     this.gameObject = gameObject;
     this.timeEndTransitions = timeNow;
     this.pythonComponent = this.gameObject.image_modifier;
+    this.transiFields = new Map();
 
     // Trop bizarre cette histoire de bind, mais ça semble marcher.
     // https://www.w3schools.com/js/js_function_bind.asp
@@ -52,11 +53,29 @@ export default class ComponentImageModifier {
     const setValToPythonASY = this.setValToPythonASY.bind(this);
     this.areaScaleY = new TransitionableField("area_scale_y", getValFromPythonASY, setValToPythonASY, true);
 
-    this.transiFields = new Map();
     this.transiFields.set("area_offset_x", this.areaOffsetX);
     this.transiFields.set("area_offset_y", this.areaOffsetY);
     this.transiFields.set("area_scale_x", this.areaScaleX);
     this.transiFields.set("area_scale_y", this.areaScaleY);
+
+    const getValFromPythonIOX = this.getValFromPythonIOX.bind(this);
+    const setValToPythonIOX = this.setValToPythonIOX.bind(this);
+    this.imgOffsetX = new TransitionableField("img_offset_x", getValFromPythonIOX, setValToPythonIOX, true);
+    const getValFromPythonIOY = this.getValFromPythonIOY.bind(this);
+    const setValToPythonIOY = this.setValToPythonIOY.bind(this);
+    this.imgOffsetY = new TransitionableField("img_offset_y", getValFromPythonIOY, setValToPythonIOY, true);
+    const getValFromPythonISX = this.getValFromPythonISX.bind(this);
+    const setValToPythonISX = this.setValToPythonISX.bind(this);
+    this.imgSizeX = new TransitionableField("img_size_x", getValFromPythonISX, setValToPythonISX, true);
+    const getValFromPythonISY = this.getValFromPythonISY.bind(this);
+    const setValToPythonISY = this.setValToPythonISY.bind(this);
+    this.imgSizeY = new TransitionableField("img_size_y", getValFromPythonISY, setValToPythonISY, true);
+
+    this.transiFields.set("img_offset_x", this.imgOffsetX);
+    this.transiFields.set("img_offset_y", this.imgOffsetY);
+    this.transiFields.set("img_size_x", this.imgSizeX);
+    this.transiFields.set("img_size_y", this.imgSizeY);
+
   }
 
   addTransitionsFromNewState(transitionDelay, timeStartTransition) {
@@ -146,6 +165,34 @@ export default class ComponentImageModifier {
   }
   setValToPythonASY(val) {
     this.pythonComponent.area_scale_y = val;
+  }
+
+  getValFromPythonIOX() {
+    return this.pythonComponent.img_offset_x;
+  }
+  setValToPythonIOX(val) {
+    this.pythonComponent.img_offset_x = val;
+  }
+
+  getValFromPythonIOY() {
+    return this.pythonComponent.img_offset_y;
+  }
+  setValToPythonIOY(val) {
+    this.pythonComponent.img_offset_y = val;
+  }
+
+  getValFromPythonISX() {
+    return this.pythonComponent.img_size_x;
+  }
+  setValToPythonISX(val) {
+    this.pythonComponent.img_size_x = val;
+  }
+
+  getValFromPythonISY() {
+    return this.pythonComponent.img_size_y;
+  }
+  setValToPythonISY(val) {
+    this.pythonComponent.img_size_y = val;
   }
 
 
