@@ -13,7 +13,7 @@ class GameObjectIterator {
   }
   // Syntaxe dégueue avec une étoile, pour dire qu'on veut faire un itérateur.
   // https://stackoverflow.com/questions/39197811/how-can-i-write-a-generator-in-a-javascript-class
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {}
+  * iterOnGameObjects() {}
 }
 
 
@@ -21,7 +21,7 @@ export class GameObjectIteratorDense extends GameObjectIterator {
   constructor(pythonLayer) {
     super(pythonLayer);
   }
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {
+  * iterOnGameObjects() {
     let currentX = 0;
     let currentY = 0;
     for (let lineTile of this.pythonLayer.tiles) {
@@ -29,10 +29,10 @@ export class GameObjectIteratorDense extends GameObjectIterator {
         for (let gameObj of tile.game_objects) {
           yield new CoordAndGameObject(currentX, currentY, gameObj);
         }
-        currentX += multiplicatorX;
+        currentX += 1;
       }
       currentX = 0;
-      currentY += multiplicatorY;
+      currentY += 1;
     }
   }
 }
@@ -42,11 +42,11 @@ export class GameObjectIteratorSparse extends GameObjectIterator {
   constructor(pythonLayer) {
     super(pythonLayer);
   }
-  * iterOnGameObjects(multiplicatorX, multiplicatorY) {
+  * iterOnGameObjects() {
     for (let gameObj of this.pythonLayer.game_objects) {
       yield new CoordAndGameObject(
-        gameObj._coord.x * multiplicatorX,
-        gameObj._coord.y * multiplicatorY,
+        gameObj._coord.x,
+        gameObj._coord.y,
         gameObj
       );
     }

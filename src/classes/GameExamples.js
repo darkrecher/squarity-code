@@ -1146,10 +1146,10 @@ class GameModel():
     },
     "tile_size": 36,
     "img_coords": {
-      "gem_green": [0, 72],
+      "gem_green": [0, 72, 36, 36, "center"],
       "gem_violet": [0, 36],
       "rock": [72, 0],
-      "eyes": [109, 60, 93, 49]
+      "eyes": [109, 60, 93, 49, "center"]
     }
   }
   `,
@@ -1200,9 +1200,12 @@ class GameModel(squarity.GameModelBase):
           # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
           # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
 
-          self.layer_main.add_game_object(
-              squarity.GameObject(Coord(8, 5), "eyes")
+          self.gamobj_eyes = squarity.GameObject(
+              Coord(8, 5),
+              "eyes",
+              image_modifier=squarity.ComponentImageModifier(area_scale_x=2, area_scale_y=3)
           )
+          self.layer_main.add_game_object(self.gamobj_eyes)
 
           event_result = squarity.EventResult()
           event_result.add_delayed_callback(
@@ -1214,12 +1217,14 @@ class GameModel(squarity.GameModelBase):
           # print("on click", coord.x, coord.y)
           target_tile_main = self.layer_main.get_tile(coord)
 
-          if target_tile_main.game_objects:
+          if target_tile_main.game_objects and target_tile_main.game_objects[0].sprite_name == "gem_green":
               target_tile_main.game_objects[0].sprite_name = "gem_violet"
           else:
               gobj_rocks = self.layer_rock.get_game_objects(coord)
               if not gobj_rocks:
-                  self.layer_rock.add_game_object(squarity.GameObject(coord, "rock"))
+                  self.layer_rock.add_game_object(
+                      squarity.GameObject(coord, "rock", image_modifier=squarity.ComponentImageModifier(area_scale_y=0.8+coord.x*0.05))
+                  )
               else:
                   # print("suppression du rock")
                   self.layer_rock.remove_game_object(gobj_rocks[0])
@@ -1313,7 +1318,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 7.5),
                           (400, 7.0),
                           (400, 9.0),
-                          (350, 108.5),
+                          (350, 8.5),
                       )
                   )
               )
@@ -1330,7 +1335,7 @@ class GameModel(squarity.GameModelBase):
                           (400, 6.0),
                           (400, 8.0),
                           (400, 7.5),
-                          (350, 108.5),
+                          (350, 8.5),
                       )
                   )
               )

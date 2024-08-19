@@ -1,7 +1,12 @@
 import GameObjectTransitioner from './GameObjectTransitioner.js';
 import GameUpdateResult from './GameUpdateResult.js'
 import { GameObjectIteratorDense, GameObjectIteratorSparse } from './GameObjectIterator.js'
+import { isNonePython } from '../common/SimpleFunctions.js';
 
+export const imgAnchor = {
+  CORNER_UPLEFT: 0,
+  CENTER: 1,
+}
 
 class LayerBase {
 
@@ -16,6 +21,96 @@ class LayerBase {
       this.isLayerSparse = false;
       this.gameObjectIterator = new GameObjectIteratorDense(this.pythonLayer);
     }
+  }
+
+  drawOneGameObject(
+    timeNow, ctxCanvasBuffer,
+    tileAtlas, atlasDefinitions,
+    gobjTransitioner, coordAndGameObj,
+    tileImgWidth, tileImgHeight,
+    tileCanvasWidth, tileCanvasHeight
+  ) {
+    // FUTURE: ça devrait être dans un component à part des GameObject.
+    // Mais vu que pour l'instant j'ai pas vraiment de GameObject qui gérerait tous ses components,
+    // on va mettre ça ici pour l'instant.
+    // Et en plus, ça fait passer plein de paramètres qui changent jamais
+    // (tileAtlas, atlasDefinitions, tileImgWidth/Height, tileCanvasWidth/Height).
+    let coordInGameX;
+    let coordInGameY;
+    let spriteName;
+    let hasImgModifier;
+    if (coordAndGameObj !== null) {
+      coordInGameX = coordAndGameObj.x;
+      coordInGameY = coordAndGameObj.y;
+      spriteName = coordAndGameObj.gameObj.sprite_name;
+      hasImgModifier = !isNonePython(coordAndGameObj.gameObj.image_modifier);
+    } else {
+      const compGobjBase = gobjTransitioner.compGobjBase
+      coordInGameX = compGobjBase.coordX.fieldValue;
+      coordInGameY = compGobjBase.coordY.fieldValue;
+      spriteName = compGobjBase.spriteName.fieldValue;
+      hasImgModifier = gobjTransitioner.compImageModifier !== null;
+    }
+    const [
+      coordInAtlasX, coordInAtlasY,
+      tileInAtlasWidth, tileInAtlasHeight,
+      imgAnchorVal,
+      scaleAtlasWidth, scaleAtlasHeight
+    ] = atlasDefinitions.get(spriteName);
+
+    if (!hasImgModifier) {
+
+      ctxCanvasBuffer.drawImage(
+        tileAtlas,
+        coordInAtlasX, coordInAtlasY,
+        tileInAtlasWidth, tileInAtlasHeight,
+        coordInGameX * tileCanvasWidth, coordInGameY * tileCanvasHeight,
+        tileCanvasWidth * scaleAtlasWidth, tileCanvasHeight * scaleAtlasHeight,
+      );
+
+    } else {
+
+      // FUTURE : truc dégueu parce qu'on est obligé de revérifier coordAndGameObj.
+      //          Ça devrait se régler tout seul quand on gérera mieux les components.
+      let canvasScaleX;
+      let canvasScaleY;
+      let canvasOffsetX;
+      let canvasOffsetY;
+      if (coordAndGameObj !== null) {
+        canvasScaleX = coordAndGameObj.gameObj.image_modifier.area_scale_x;
+        canvasScaleY = coordAndGameObj.gameObj.image_modifier.area_scale_y;
+        canvasOffsetX = coordAndGameObj.gameObj.image_modifier.area_offset_x;
+        canvasOffsetY = coordAndGameObj.gameObj.image_modifier.area_offset_y;
+      } else {
+        const compImageModifier = gobjTransitioner.compImageModifier;
+        canvasScaleX = compImageModifier.areaScaleX.fieldValue;
+        canvasScaleY = compImageModifier.areaScaleY.fieldValue;
+        canvasOffsetX = compImageModifier.areaOffsetX.fieldValue;
+        canvasOffsetY = compImageModifier.areaOffsetY.fieldValue;
+      }
+      let anchorOffsetX;
+      let anchorOffsetY;
+      if (imgAnchorVal == imgAnchor.CENTER) {
+        anchorOffsetX = ((1.0-canvasScaleX*scaleAtlasWidth) / 2);
+        anchorOffsetY = ((1.0-canvasScaleY*scaleAtlasHeight) / 2);
+      } else {
+        anchorOffsetX = 0;
+        anchorOffsetY = 0;
+      }
+      ctxCanvasBuffer.drawImage(
+        tileAtlas,
+        coordInAtlasX,
+        coordInAtlasY,
+        tileInAtlasWidth,
+        tileInAtlasHeight,
+        (coordInGameX + canvasOffsetX + anchorOffsetX) * tileCanvasWidth,
+        (coordInGameY + canvasOffsetY + anchorOffsetY) * tileCanvasHeight,
+        tileCanvasWidth * canvasScaleX * scaleAtlasWidth,
+        tileCanvasHeight * canvasScaleY * scaleAtlasHeight
+      );
+
+    }
+
   }
 
   updateWithGameSituation(timeNow) {}
@@ -58,7 +153,7 @@ export class LayerWithTransition extends LayerBase {
     let idObjsPresent = new Set();
     let gameUpdateResult = new GameUpdateResult();
 
-    for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(1, 1)) {
+    for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects()) {
       const gameObj = coordAndGameObj.gameObj;
       const gobjId = gameObj._go_id;
       idObjsPresent.add(gobjId);
@@ -117,42 +212,15 @@ export class LayerWithTransition extends LayerBase {
 
   draw(timeNow) {
     // FUTURE : Éventuellement, mettre en cache l'image du layer en cours, si c'en est un qu'a pas de transitions.
-    // FUTURE : tout ce code devrait aller dans le GameObjectTransitioner, ou dans un GameObjectBidule.
-    //          c'est bizarre que ce soit directement dans le layer.
     for (let gobjTransitioner of this.layerMemory.values()) {
       gobjTransitioner.updateState(timeNow);
-      const coordX = gobjTransitioner.compGobjBase.coordX.fieldValue;
-      const coordY = gobjTransitioner.compGobjBase.coordY.fieldValue;
-      const [coordImgX, coordImgY, tileInAtlasWidth, tileInAtlasHeight] = this.atlasDefinitions.get(
-        gobjTransitioner.compGobjBase.spriteName.fieldValue
+      this.drawOneGameObject(
+        timeNow, this.ctxCanvasBuffer,
+        this.tileAtlas, this.atlasDefinitions,
+        gobjTransitioner, null,
+        this.tileImgWidth, this.tileImgHeight,
+        this.tileCanvasWidth, this.tileCanvasHeight
       );
-      // TODO : precalc this.
-      const scaleAtlasWidth = tileInAtlasWidth / this.tileImgWidth;
-      const scaleAtlasHeight = tileInAtlasHeight / this.tileImgHeight;
-      if (gobjTransitioner.compImageModifier !== null) {
-        const compImageModifier = gobjTransitioner.compImageModifier;
-        const areaScaleX = compImageModifier.areaScaleX.fieldValue;
-        const areaScaleY = compImageModifier.areaScaleY.fieldValue;
-        this.ctxCanvasBuffer.drawImage(
-          this.tileAtlas,
-          coordImgX,
-          coordImgY,
-          tileInAtlasWidth,
-          tileInAtlasHeight,
-          (coordX + compImageModifier.areaOffsetX.fieldValue + ((1.0-areaScaleX) / 2)) * this.tileCanvasWidth,
-          (coordY + compImageModifier.areaOffsetY.fieldValue + ((1.0-areaScaleY) / 2)) * this.tileCanvasHeight,
-          this.tileCanvasWidth * areaScaleX * scaleAtlasWidth,
-          this.tileCanvasHeight * areaScaleY * scaleAtlasHeight
-        );
-      } else {
-        this.ctxCanvasBuffer.drawImage(
-          this.tileAtlas,
-          coordImgX, coordImgY,
-          tileInAtlasWidth, tileInAtlasHeight,
-          coordX * this.tileCanvasWidth, coordY * this.tileCanvasHeight,
-          this.tileCanvasWidth * scaleAtlasWidth, this.tileCanvasHeight * scaleAtlasHeight,
-        );
-      }
     }
   }
 
@@ -189,17 +257,13 @@ export class LayerNoTransition extends LayerBase{
   }
 
   draw(timeNow) {
-    for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects(
-      this.tileCanvasWidth, this.tileCanvasHeight
-    )) {
-      // TODO : woups. Va y avoir du duplicate code, ou alors faut mettre ça autre part.
-      const [coordImgX, coordImgY, tileInAtlasWidth, tileInAtlasHeight] = this.atlasDefinitions.get(
-        coordAndGameObj.gameObj.sprite_name
-      );
-      this.ctxCanvasBuffer.drawImage(
-        this.tileAtlas,
-        coordImgX, coordImgY, this.tileImgWidth, this.tileImgHeight,
-        coordAndGameObj.x, coordAndGameObj.y, this.tileCanvasWidth, this.tileCanvasHeight,
+    for (let coordAndGameObj of this.gameObjectIterator.iterOnGameObjects()) {
+      this.drawOneGameObject(
+        timeNow, this.ctxCanvasBuffer,
+        this.tileAtlas, this.atlasDefinitions,
+        null, coordAndGameObj,
+        this.tileImgWidth, this.tileImgHeight,
+        this.tileCanvasWidth, this.tileCanvasHeight
       );
     }
   }

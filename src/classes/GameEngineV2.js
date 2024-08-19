@@ -1,6 +1,6 @@
 import { isNonePython } from './common/SimpleFunctions.js';
 import { Direction, PlayerLockTransi } from './common/Constants.js';
-import { LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
+import { imgAnchor, LayerWithTransition, LayerNoTransition } from './gameEngine/Layer.js';
 import GameUpdateResult from './gameEngine/GameUpdateResult.js'
 
 
@@ -163,13 +163,53 @@ export default class GameEngineV2 {
     // https://stackoverflow.com/questions/9138959/parsing-json-dictionary-in-javascript-to-iterate-through-keys
     for (const spriteName in jsonImgCoords) {
       if (jsonImgCoords.hasOwnProperty(spriteName)) {
+        // spriteDefCoords doit contenir 7 valeurs :
+        //  - Coordonnées x et y du coin supérieur gauche de l'image, dans l'atlas
+        //    (la grosse image principale contenant toutes les images du jeu)
+        //  - Taille (largeur, hauteur) de l'image à afficher, dans l'atlas.
+        //    optionel. Par défaut, on prend la taille par défaut.
+        //    C'est à dire celle indiquée dans le json de config : la valeur "tile_size".
+        //    On décalera un peu l'image par rapport cette taille, pour que le centre de la tile dans l'aire de jeu
+        //    corresponde au centre de l'image dans l'atlas.
+        //    On peut faire que ces deux centres ne se correspondent plus, en appliquant un décalage
+        //    (voir les 2 valeurs suivantes).
+        //  - Anchor. valeur imgAnchor.CORNER_UPLEFT ou imgAnchor.CENTER.
+        //    Ça indique où placer l'image lorsqu'elle est agrandie/rétrécie.
+        //    Si c'est CORNER_UPLEFT, le coin haut gauche de l'image reste fixé sur le coin haut gauche de la tile.
+        //    Si c'est CENTER, le centre de l'image reste fixé sur le centre de la tile.
+        //    Par défaut : CORNER_UPLEFT.
+        //  - Facteur de scale à appliquer dans l'aire de jeu. C'est juste la taille en pixel de l'image d'atlas,
+        //    divisée par la taille d'une tile dans l'aire de jeu.
+        //    Elle n'est pas indiquée dans le json de config. Il est présente juste parce qu'on peut la précalculer.
+        // FUTURE : on pourrait avoir d'autres point d'ancrage : corner_up_right, etc. ou des points d'ancrage en coordonnées.
+        // FUTURE : faire des petits schémas dans une doc à part, pour que ce soit plus clair.
         let spriteDefCoords = jsonImgCoords[spriteName];
+
         if (spriteDefCoords.length < 3) {
           spriteDefCoords.push(tileSize);
         }
         if (spriteDefCoords.length < 4) {
           spriteDefCoords.push(tileSize);
         }
+        if (spriteDefCoords.length < 5) {
+          spriteDefCoords.push(imgAnchor.CORNER_UPLEFT);
+        } else {
+          let imgAnchorVal;
+          if (spriteDefCoords[4] == "center") {
+            imgAnchorVal = imgAnchor.CENTER;
+          } else {
+            imgAnchorVal = imgAnchor.CORNER_UPLEFT;
+          }
+          spriteDefCoords.pop();
+          spriteDefCoords.push(imgAnchorVal);
+        }
+
+        const tileInAtlasWidth = spriteDefCoords[2];
+        const scaleAtlasWidth = tileInAtlasWidth / this.tileImgWidth;
+        spriteDefCoords.push(scaleAtlasWidth);
+        const tileInAtlasHeight = spriteDefCoords[3];
+        const scaleAtlasHeight = tileInAtlasHeight / this.tileImgHeight;
+        spriteDefCoords.push(scaleAtlasHeight);
         atlasDefinitions.set(spriteName, spriteDefCoords);
       }
     }

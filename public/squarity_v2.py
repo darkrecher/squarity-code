@@ -726,8 +726,8 @@ Dans la config, on devrait avoir 3 manières de définir des images (de la moins
     1. "img_machin_normal": [corner_x, corner_y]
     Dans ce cas, size_x et size_y valent tile_size
     2. "img_machin_size": [corner_x, corner_y, size_x, size_y]
-    Dans ce cas, hotpoint_x et hotpoint_y valent 0.
-    3. "img_machin_hotpointed": [corner_x, corner_y, size_x, size_y, hotpoint_x, hotpoint_y]
+    Dans ce cas, anchor vaut "corner_upleft".
+    3. "img_machin_anchored": [corner_x, corner_y, size_x, size_y, "center"]
     Ouais mais c'est pas cohérent avec ce que j'ai dit avant...
     zut...
 
@@ -743,6 +743,8 @@ Comme ça tout serait dans la même unité...
 Ha ha... Non, on fait pas comme ça.
 L'idée, c'est que le code python et les infos de la config soient le plus indépendants possibles (même si c'est vachement dépendant parce qu'on retrouve
 les noms des images dans le code python)
+
+(Remplacer tout ça par une vraie documentation, avec des schémas et tout).
 
 
 """
