@@ -1190,7 +1190,7 @@ class GameModel(squarity.GameModelBase):
           self.gamobj_gem_green_2 = squarity.GameObject(
               Coord(4, 5),
               "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.1, area_offset_y=-0.7)
+              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.5, area_offset_y=-0.7)
           )
           self.gamobj_gem_green_2.set_transition_delay(407)
           self.layer_main.add_game_object(self.gamobj_gem_green_2)
@@ -1269,11 +1269,19 @@ class GameModel(squarity.GameModelBase):
               return
 
           if direction == squarity.dirs.Right:
-              self.gamobj_gem_violet.add_transition(
+              #self.gamobj_gem_violet.add_transition(
+              #    squarity.TransitionSteps(
+              #        "coord",
+              #        (
+              #            (1000, Coord(8, 1)),
+              #        )
+              #    )
+              #)
+              self.gamobj_gem_green_2.image_modifier.add_transition(
                   squarity.TransitionSteps(
-                      "coord",
+                      "area_offset_x",
                       (
-                          (1000, Coord(8, 1)),
+                          (400, 0),
                       )
                   )
               )

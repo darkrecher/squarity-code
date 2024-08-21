@@ -138,62 +138,66 @@ export default class ComponentImageModifier {
 
   // --- Attention, ça va être dégueulasse !! ---
   // Mais j'ai pas trouvé de meilleur moyen de faire ça.
+  //
+  // Et en plus, j'ai besoin de mettre des Reflect partout, à cause de ce truc idiot:
+  // https://stackoverflow.com/questions/72355462/uncaught-typeerror-proxy-set-handler-returned-false-for-property-length
+  // Sans les Reflect, quand je définis img_offset_x à 0,
+  // ça lève une exception "proxy set handler returned false for property" dans le javascript.
 
   getValFromPythonAOX() {
     return this.pythonComponent.area_offset_x;
   }
   setValToPythonAOX(val) {
-    this.pythonComponent.area_offset_x = val;
+    Reflect.set(this.pythonComponent, "area_offset_x", val);
   }
 
   getValFromPythonAOY() {
     return this.pythonComponent.area_offset_y;
   }
   setValToPythonAOY(val) {
-    this.pythonComponent.area_offset_y = val;
+    Reflect.set(this.pythonComponent, "area_offset_y", val);
   }
 
   getValFromPythonASX() {
     return this.pythonComponent.area_scale_x;
   }
   setValToPythonASX(val) {
-    this.pythonComponent.area_scale_x = val;
+    Reflect.set(this.pythonComponent, "area_scale_x", val);
   }
 
   getValFromPythonASY() {
     return this.pythonComponent.area_scale_y;
   }
   setValToPythonASY(val) {
-    this.pythonComponent.area_scale_y = val;
+    Reflect.set(this.pythonComponent, "area_scale_y", val);
   }
 
   getValFromPythonIOX() {
     return this.pythonComponent.img_offset_x;
   }
   setValToPythonIOX(val) {
-    this.pythonComponent.img_offset_x = val;
+    Reflect.set(this.pythonComponent, "img_offset_x", val);
   }
 
   getValFromPythonIOY() {
     return this.pythonComponent.img_offset_y;
   }
   setValToPythonIOY(val) {
-    this.pythonComponent.img_offset_y = val;
+    Reflect.set(this.pythonComponent, "img_offset_y", val);
   }
 
   getValFromPythonISX() {
     return this.pythonComponent.img_size_x;
   }
   setValToPythonISX(val) {
-    this.pythonComponent.img_size_x = val;
+    Reflect.set(this.pythonComponent, "img_size_x", val);
   }
 
   getValFromPythonISY() {
     return this.pythonComponent.img_size_y;
   }
   setValToPythonISY(val) {
-    this.pythonComponent.img_size_y = val;
+    Reflect.set(this.pythonComponent, "img_size_y", val);
   }
-
 
 }

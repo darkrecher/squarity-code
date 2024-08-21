@@ -105,6 +105,8 @@ export default class ComponentGobjBase {
 
   // --- Les fonctions d'interfaçage entre le code python et le code javascript,
   //     pour ce composant du game object. ---
+  // Je mets des "return true" dans tous les set, à cause de ça :
+  // https://stackoverflow.com/questions/72355462/uncaught-typeerror-proxy-set-handler-returned-false-for-property-length
 
   getValFromPythonCoordX() {
     return this.gameObject._coord.x;
@@ -144,7 +146,7 @@ export default class ComponentGobjBase {
     return this.gameObject.sprite_name;
   }
   setValToPythonSpriteName(val) {
-    this.gameObject.sprite_name = val;
+    Reflect.set(this.gameObject, "sprite_name", val);
   }
 
 }

@@ -119,12 +119,14 @@ class Rect:
         self.h = h
 
     def in_bounds(self, coord):
-        if not (self.x <= coord.x < self.w):
+        if not (self.x <= coord.x < self.x+self.w):
             return False
-        if not (self.y <= coord.y < self.h):
+        if not (self.y <= coord.y < self.y+self.h):
             return False
         return True
 
+    def __repr__(self):
+        return f"<Rect {self.x}, {self.y}, {self.w}, {self.h} >"
 
 
 class TransitionSteps():
@@ -201,7 +203,8 @@ class GameObject(GameObjectBase):
     # ou pas, car ça nécessite des vérifs qui vont faire ralentir...
 
     def move_to_xy(self, x, y, transition_delay=None, callback=None):
-        self.layer_owner.move_game_object_xy(self, self._coord.x, self._coord.y, x, y)
+        if self.layer_owner is not None:
+            self.layer_owner.move_game_object_xy(self, self._coord.x, self._coord.y, x, y)
         self._coord.x = x
         self._coord.y = y
         self._one_shot_transition_delay = transition_delay
@@ -212,7 +215,8 @@ class GameObject(GameObjectBase):
         # Je ne factorise pas, car ces deux fonctions vont être beaucoup utilisées.
         # (y compris par le javascript). Ça permet d'optimiser un peu
         # les performances, en évitant d'avoir une fonction qui appelle l'autre.
-        self.layer_owner.move_game_object(self, self._coord, dest_coord)
+        if self.layer_owner is not None:
+            self.layer_owner.move_game_object(self, self._coord, dest_coord)
         self._coord.x = dest_coord.x
         self._coord.y = dest_coord.y
         self._one_shot_transition_delay = transition_delay
@@ -433,7 +437,7 @@ class Layer(LayerBase):
     def remove_game_object(self, gobj):
         gobj.layer_owner = None
         tile = self.get_tile(gobj._coord)
-        tile.remove(gobj)
+        tile.game_objects.remove(gobj)
 
     def remove_at_coord(self, coord):
         tile = self.get_tile(coord)

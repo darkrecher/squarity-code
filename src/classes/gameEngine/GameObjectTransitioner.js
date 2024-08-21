@@ -71,12 +71,16 @@ export default class GameObjectTransitioner {
       }
     }
 
+    // Ce code rajoute l'éventuelle callback qui est dans _one_shot_callback.
+    // Elle doit être exécutée à ... zut. C'est pas ça du tout.
+    // WIP TODO crap.
+    /*
     if (this.compBackCaller.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
       if (this.timeEndTransitions < this.compBackCaller.timeEndTransitions) {
         this.timeEndTransitions = this.compBackCaller.timeEndTransitions;
       }
       addedTransitions = true;
-    }
+    }*/
 
     return addedTransitions;
   }
@@ -143,14 +147,22 @@ export default class GameObjectTransitioner {
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
     }
 
+    // BIG TODO : lorsqu'on termine une transition qui locke, et qui déclenche une callback de end transition qui locke aussi,
+    // on récupère quand même les inputs du player entre les deux transitions. Ça met le bazar, faut pas récupérer ces inputs.
     if (transiLeft == remainingTransi.JUST_ENDED_ALL_TRANSITIONS) {
-      // On détecte si y'a une callback de fin de transition à appeler.
+      // On détecte si y'a une callback de fin de transition à appeler (soit en one_shot, soit celle habituelle).
       // Et on la met dans le result, pour dire au game engine de les appeler.
-      if (!isNonePython(this.gameObject._callback_end_transi)) {
+      let callBackEndTransiToAdd = this.gameObject._one_shot_callback;
+      if (!isNonePython(callBackEndTransiToAdd)) {
+        this.gameObject.reset_one_shot_callback();
+      } else {
+        callBackEndTransiToAdd = this.gameObject._callback_end_transi;
+      }
+      if (!isNonePython(callBackEndTransiToAdd)) {
         if (gameUpdateResult === null) {
           gameUpdateResult = new GameUpdateResult();
         }
-        gameUpdateResult.callbackEndTransi.push(this.gameObject._callback_end_transi);
+        gameUpdateResult.callbackEndTransi.push(callBackEndTransiToAdd);
       }
     }
 
