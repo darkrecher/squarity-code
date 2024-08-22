@@ -24,12 +24,11 @@ export default class ComponentGobjBase {
   }
 
   addTransitionsFromNewState(transitionDelay, timeStartTransition) {
-    const addedTransition = (
-      this.coordX.addTransitionFromNewState(transitionDelay, timeStartTransition)
-      || this.coordY.addTransitionFromNewState(transitionDelay, timeStartTransition)
-      // Pour spriteName, on applique la modif tout de suite. Donc transitionDelay = 0.
-      || this.spriteName.addTransitionFromNewState(0, timeStartTransition)
-    );
+    const addedX = this.coordX.addTransitionFromNewState(transitionDelay, timeStartTransition);
+    const addedY = this.coordY.addTransitionFromNewState(transitionDelay, timeStartTransition);
+    // Pour spriteName, on applique la modif tout de suite. Donc transitionDelay = 0.
+    const addedSprite = this.spriteName.addTransitionFromNewState(0, timeStartTransition);
+    const addedTransition = addedX || addedY || addedSprite;
     if (addedTransition) {
       this.timeEndTransitions = timeStartTransition + transitionDelay;
     }
