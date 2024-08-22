@@ -63,6 +63,11 @@ export default {
       this.messages[this.messages.length - 1] = ' ';
       this.messages.push(msg);
     },
+
+    clearProgressMessage() {
+      this.messages = [];
+    }
+
   },
 };
 </script>

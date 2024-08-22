@@ -16,27 +16,6 @@ export default class ComponentBackCaller {
   }
 
 
-  addTransitionsFromNewState(transitionDelay, timeStartTransition) {
-    let oneShotCallback = this.gameObject._one_shot_callback;
-    if (!isNonePython(oneShotCallback)) {
-      const transitionCallback = new StateTransitionImmediate(
-        timeStartTransition,
-        oneShotCallback,
-        false
-      );
-      this.plannedCallbacks.push(transitionCallback);
-      this.plannedCallbacks.sort((tr1, tr2) => tr1.timeStart - tr2.timeStart);
-      this.gameObject.reset_one_shot_callback();
-      const lastCallback = this.plannedCallbacks.slice(-1)[0];
-      const timeEndCallbacks = lastCallback.getTimeEnd();
-      this.timeEndTransitions = timeEndCallbacks;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-
   addTransitionsFromRecords(timeStartTransition) {
     if (!this.hasPythonBackCaller) {
       return false;

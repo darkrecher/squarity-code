@@ -54,7 +54,7 @@
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
                 <canvas v-show="loadingDone" ref="gameCanvas" @click="onGameClick"/>
-                <ProgressIndicator v-if="!loadingDone" ref="progressIndicator" />
+                <ProgressIndicator v-show="!loadingDone" ref="progressIndicator" />
               </div>
             </div>
           </div>
@@ -327,6 +327,7 @@ export default {
 
     async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
 
+      this.loadingDone = false;
       this.$refs.pythonConsole.textContent = '';
       jsonConf = JSON.parse(jsonConf);
       let useV2 = true;
@@ -404,6 +405,7 @@ export default {
       this.$refs.gameInterface.focus();
       this.showProgress('C\'est parti !');
       this.loadingDone = true;
+      this.$refs.progressIndicator.clearProgressMessage();
     },
 
     toggleDevZoneDisplay() {

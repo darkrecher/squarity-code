@@ -125,6 +125,15 @@ class Rect:
             return False
         return True
 
+    def on_border(self, coord):
+        if not self.in_bounds(coord):
+            return False
+        if coord.x == self.x:return True
+        if coord.y == self.y:return True
+        if coord.x == self.x + self.w - 1:return True
+        if coord.y == self.y + self.h - 1:return True
+        return False
+
     def __repr__(self):
         return f"<Rect {self.x}, {self.y}, {self.w}, {self.h} >"
 

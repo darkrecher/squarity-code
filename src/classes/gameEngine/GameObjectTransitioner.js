@@ -57,7 +57,6 @@ export default class GameObjectTransitioner {
 
     if (this.compGobjBase.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
       if (this.timeEndTransitions < this.compGobjBase.timeEndTransitions) {
-        console.log("old this.timeEndTransitions", this.timeEndTransitions, "new ", this.compGobjBase.timeEndTransitions);
         this.timeEndTransitions = this.compGobjBase.timeEndTransitions;
       }
       addedTransitions = true;
@@ -70,17 +69,6 @@ export default class GameObjectTransitioner {
         addedTransitions = true;
       }
     }
-
-    // Ce code rajoute l'éventuelle callback qui est dans _one_shot_callback.
-    // Elle doit être exécutée à ... zut. C'est pas ça du tout.
-    // WIP TODO crap.
-    /*
-    if (this.compBackCaller.addTransitionsFromNewState(transitionDelay, timeStartTransition)) {
-      if (this.timeEndTransitions < this.compBackCaller.timeEndTransitions) {
-        this.timeEndTransitions = this.compBackCaller.timeEndTransitions;
-      }
-      addedTransitions = true;
-    }*/
 
     return addedTransitions;
   }
@@ -147,8 +135,6 @@ export default class GameObjectTransitioner {
       gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
     }
 
-    // BIG TODO : lorsqu'on termine une transition qui locke, et qui déclenche une callback de end transition qui locke aussi,
-    // on récupère quand même les inputs du player entre les deux transitions. Ça met le bazar, faut pas récupérer ces inputs.
     if (transiLeft == remainingTransi.JUST_ENDED_ALL_TRANSITIONS) {
       // On détecte si y'a une callback de fin de transition à appeler (soit en one_shot, soit celle habituelle).
       // Et on la met dans le result, pour dire au game engine de les appeler.
@@ -163,6 +149,9 @@ export default class GameObjectTransitioner {
           gameUpdateResult = new GameUpdateResult();
         }
         gameUpdateResult.callbackEndTransi.push(callBackEndTransiToAdd);
+        // Le fait que le game object indique une callback de fin de transition,
+        // a pour effet de continuer de locker l'interface, si c'est un objet lockeur d'interface.
+        gameUpdateResult.PlockTransi = this.gameObject.plock_transi;
       }
     }
 

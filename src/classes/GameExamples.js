@@ -1135,307 +1135,384 @@ class GameModel():
             print("Blarg ! Appuyez sur un bouton pour ressusciter")
   `,
 
-  // eyes : cx: 109, cy: 60, w: 93, h:49.
-  TUNNEL_MATCH_JSON_CONF: `
+  EMERALD_JSON_CONF: `
   {
-    "name": "Test du moteur V2",
-    "version": "2.0.1",
+    "name": "Une émeraude cherche son ami",
+    "version": "2.1.0",
     "game_area": {
-      "nb_tile_width": 22,
-      "nb_tile_height": 15
+      "nb_tile_width": 8,
+      "nb_tile_height": 9
     },
-    "tile_size": 36,
+    "tile_size": 40,
     "img_coords": {
-      "gem_green": [0, 72, 36, 36, "center"],
-      "gem_violet": [0, 36],
-      "rock": [72, 0],
-      "eyes": [109, 60, 45, 49, "center"]
+      "gem_yellow": [0, 0, 40, 40, "center"],
+      "gem_green": [58, 0, 40, 40, "center"],
+      "background": [0, 40, 640, 400]
     }
   }
   `,
-  TUNNEL_MATCH_GAME_CODE: `"""
-  Test et démo des développements en cours, avec le nouveau moteur de jeu,
-  une API mieux faite, et la possibilité d'afficher des mouvements de transitions
-  quand on déplace un GameObject d'une tile à une autre.
-  Pour l'instant, rien n'est documenté.
-  À vous de découvrir par vous-même ce que vous pouvez faire !
+  EMERALD_GAME_CODE: `"""
+
+---------------------------
+À la recherche de votre ami
+---------------------------
+
+Vous êtes une émeraude verte à la recherche
+de votre fidèle ami le chrysobéryl jaune.
+
+Il s'agit d'un simple mini-jeu, pour montrer les nouvelles fonctionnalités
+de la version 2.1.0 du moteur de Squarity.
+
+Ces fonctionnalités seront documentées très prochainement.
+
+L'image de background plasma-lava a été créée par 'Downdate'.
+Elle est disponible ici :
+https://opengameart.org/content/centered-around-the-hero
+Licence CC-BY-3.0
 """
-import json
+
+import random
 import squarity
+
 Coord = squarity.Coord
-d = squarity.dirs
-s = squarity.Sequencer
+MARGIN_BACKGROUND_X = 1
+MARGIN_BACKGROUND_Y = 1
+BIG_WORLD_W = 32
+BIG_WORLD_H = 20
+
+
+class GameObjectInBigWorld(squarity.GameObject):
+
+    def more_init(self, coord_big_world, rect_visible):
+        self.coord_big_world = coord_big_world
+        self.move_to_xy(
+            self.coord_big_world.x - rect_visible.x,
+            self.coord_big_world.y - rect_visible.y
+        )
+        self.must_set_visible = rect_visible.in_bounds(self.coord_big_world)
+        self.must_hide = False
+
+
+    def ack_zone_moved(self, zone_move_details):
+        zmd = zone_move_details
+        is_visible_prev = zmd.rect_visible_prev.in_bounds(self.coord_big_world)
+        is_visible_cur = zmd.rect_visible_cur.in_bounds(self.coord_big_world)
+
+        if is_visible_prev and is_visible_cur:
+            # L'objet était déjà visible dans la zone affichée, et il l'est toujours.
+            # FUTURE : argh. Va falloir un truc pour multiplier les coordonnées,
+            # et les les additionner, et les soustraire ?
+            scroll_vector = Coord(
+                self._coord.x-zmd.coord_vector.x,
+                self._coord.y-zmd.coord_vector.y,
+            )
+            self.add_transition(
+                squarity.TransitionSteps(
+                    "coord",((zmd.scroll_time, scroll_vector), )
+                )
+            )
+
+        elif not is_visible_prev and is_visible_cur:
+            # L'objet devient visible dans la zone affichée.
+            self.move_to_xy(
+                self.coord_big_world.x - zmd.rect_visible_cur.x,
+                self.coord_big_world.y - zmd.rect_visible_cur.y
+            )
+            self.image_modifier.area_offset_x = zmd.coord_vector.x
+            self.image_modifier.area_offset_y = zmd.coord_vector.y
+            if zmd.coord_vector.x:
+                self.image_modifier.add_transition(
+                    squarity.TransitionSteps(
+                        "area_offset_x", ((zmd.scroll_time, 0), )
+                    )
+                )
+            if zmd.coord_vector.y:
+                self.image_modifier.add_transition(
+                    squarity.TransitionSteps(
+                        "area_offset_y", ((zmd.scroll_time, 0), )
+                    )
+                )
+            self.must_set_visible = True
+
+        elif is_visible_prev and not is_visible_cur:
+            # L'objet disparaît de la zone affichée.
+            if zmd.coord_vector.x:
+                self.image_modifier.add_transition(
+                    squarity.TransitionSteps(
+                        "area_offset_x",
+                        ((zmd.scroll_time, -zmd.coord_vector.x), )
+                    )
+                )
+            if zmd.coord_vector.y:
+                self.image_modifier.add_transition(
+                    squarity.TransitionSteps(
+                        "area_offset_y",
+                        ((zmd.scroll_time, -zmd.coord_vector.y), )
+                    )
+                )
+            self.must_hide = True
+
+# FUTURE : on devrait pouvoir configurer le "center" des sprites dans le code,
+# et pas que dans la config json.
+
+
+class ZoneMoveDetails():
+
+    def __init__(self, rect_visible_prev, rect_visible_cur):
+        self.rect_visible_prev = rect_visible_prev
+        self.rect_visible_cur = rect_visible_cur
+        self.coord_vector = Coord(
+            self.rect_visible_cur.x - self.rect_visible_prev.x,
+            self.rect_visible_cur.y - self.rect_visible_prev.y,
+        )
+        move_dist_manh = (abs(self.coord_vector.x) + abs(self.coord_vector.y))
+        self.scroll_time = move_dist_manh * 75
+
 
 class GameModel(squarity.GameModelBase):
-      def on_start(self):
-          self.transition_delay = 50
-          json_conf = json.loads(self.str_game_conf_json)
-          for gobj_name in json_conf["img_coords"].keys():
-              print(gobj_name)
-          # Le layer_rock n'a pas de transition.
-          self.layer_rock = squarity.LayerSparse(self, self.w, self.h, False)
-          self.layers.append(self.layer_rock)
 
-          self.gamobj_gem_green = squarity.GameObject(
-              Coord(4, 1),
-              "gem_green",
-              # image_modifier=squarity.ComponentImageModifier(area_offset_x=0.8, area_offset_y=-0.7),
-              back_caller=squarity.ComponentBackCaller(),
-          )
-          self.layer_main.add_game_object(self.gamobj_gem_green)
-          # self.gamobj_gem_green.plock_transi = squarity.PlayerLockTransi.LOCK
-          self.gamobj_gem_green.set_callback_end_transi(self.another_callback)
-          self.gamobj_gem_green.set_transition_delay(500)
+    def on_start(self):
+        print("Allez vers la droite pour retrouver votre ami le chrysobéryl jaune.")
+        self.transition_delay = 100
+        self.rect_big_world = squarity.Rect(0, 0, BIG_WORLD_W, BIG_WORLD_H)
+        self.layer_gem = squarity.Layer(self, self.w, self.h)
+        self.layers.append(self.layer_gem)
+        self.gobj_bg = squarity.GameObject(
+            Coord(0, 0),
+            "background",
+            image_modifier=squarity.ComponentImageModifier(
+                area_scale_x=2.0,
+                area_scale_y=2.0,
+                area_offset_x=MARGIN_BACKGROUND_X,
+                area_offset_y=MARGIN_BACKGROUND_Y,
+                img_size_x=640,
+                img_size_y=400,
+            )
+        )
+        self.gobj_bg.set_callback_end_transi(self.on_move_zone_end)
+        self.gobj_bg.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+        self.layer_main.add_game_object(self.gobj_bg)
+        self.coord_zone = Coord(0, 0)
+        self.rect_visible = self.compute_rect_visible()
 
-          self.gamobj_gem_green_2 = squarity.GameObject(
-              Coord(4, 5),
-              "gem_green",
-              image_modifier=squarity.ComponentImageModifier(area_offset_x=0.5, area_offset_y=-0.7)
-          )
-          self.gamobj_gem_green_2.set_transition_delay(407)
-          self.layer_main.add_game_object(self.gamobj_gem_green_2)
-          print("img_size_x:", self.gamobj_gem_green_2.image_modifier.img_size_x)
+        self.gem_green = GameObjectInBigWorld(
+            Coord(0, 0),
+            "gem_green",
+            image_modifier=squarity.ComponentImageModifier()
+        )
+        self.gem_green.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+        self.gem_green.more_init(Coord(3, 3), self.rect_visible)
+        if self.gem_green.must_set_visible:
+            self.layer_gem.add_game_object(self.gem_green)
+            self.gem_green.must_set_visible = False
 
-          self.gamobj_gem_violet = squarity.GameObject(Coord(5, 1), "gem_violet")
-          self.layer_main.add_game_object(self.gamobj_gem_violet)
-          # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.INVISIBLE
-          # self.gamobj_gem_violet.plock_transi = squarity.PlayerLockTransi.LOCK
-
-          self.gamobj_eyes = squarity.GameObject(
-              Coord(8, 5),
-              "eyes",
-              image_modifier=squarity.ComponentImageModifier(area_scale_x=2, area_scale_y=3, img_size_x=45, img_size_y=49)
-          )
-          self.layer_main.add_game_object(self.gamobj_eyes)
-
-          event_result = squarity.EventResult()
-          event_result.add_delayed_callback(
-              squarity.DelayedCallBack(100, self.another_callback)
-          )
-          return event_result
-
-      def on_click(self, coord):
-          # print("on click", coord.x, coord.y)
-          target_tile_main = self.layer_main.get_tile(coord)
-
-          if target_tile_main.game_objects and target_tile_main.game_objects[0].sprite_name == "gem_green":
-              target_tile_main.game_objects[0].sprite_name = "gem_violet"
-          else:
-              gobj_rocks = self.layer_rock.get_game_objects(coord)
-              if not gobj_rocks:
-                  self.layer_rock.add_game_object(
-                      squarity.GameObject(coord, "rock", image_modifier=squarity.ComponentImageModifier(area_scale_y=0.8+coord.x*0.05))
-                  )
-              else:
-                  # print("suppression du rock")
-                  self.layer_rock.remove_game_object(gobj_rocks[0])
-
-          event_result = squarity.EventResult()
-          event_result.add_delayed_callback(
-              squarity.DelayedCallBack(100, self.my_callback)
-          )
-          print("nb transition of green diam:", self.gamobj_gem_green.get_nb_undone_transitions())
-
-          tile_up_right = target_tile_main.adjacencies[int(squarity.dirs.UpRight)]
-          if tile_up_right is not None:
-              print("gobj up right: ", tile_up_right.game_objects)
-
-          cl = coord.clone().move_dir(d.Left, 3)
-          print(cl)
-          print(coord)
-
-          for gobj in s.seq_iter(
-              s.iter_on_rect(squarity.Rect(0, 0, 10, 10)),
-              # s.gobj_on_layers([self.layer_main, self.layer_rock]),
-              s.gobj_on_layers_by_coords([self.layer_main, self.layer_rock]),
-              s.filter_sprites(["rock", "gem_violet"], True),
-          ):
-              print(";".join(map(str, gobj)))
-
-          print("green_2 area_offset_x :", self.gamobj_gem_green_2.image_modifier.area_offset_x)
-          return event_result
-
-      def on_button_direction(self, direction):
-
-          print(direction, int(direction))
-          if direction == squarity.dirs.Left:
-              print("clear transitions")
-              self.gamobj_gem_green.clear_all_transitions()
-              #print(self.get_first_gobj(
-              #    Coord(1, 1),
-              #    sprite_names=["gem_green", "rock"]
-              #))
-              # self.gamobj_gem_green_2.image_modifier.area_offset_x = -2.3
-              return
-
-          if direction == squarity.dirs.Right:
-              #self.gamobj_gem_violet.add_transition(
-              #    squarity.TransitionSteps(
-              #        "coord",
-              #        (
-              #            (1000, Coord(8, 1)),
-              #        )
-              #    )
-              #)
-              self.gamobj_gem_green_2.image_modifier.add_transition(
-                  squarity.TransitionSteps(
-                      "area_offset_x",
-                      (
-                          (400, 0),
-                      )
-                  )
-              )
-              return
-
-          if direction == squarity.dirs.Down:
-              print("clear transitions, but add more")
-              self.gamobj_gem_green.clear_all_transitions()
-              """
-              self.gamobj_gem_green_2.image_modifier.add_transition(
-                  squarity.TransitionSteps(
-                      "area_offset_x",
-                      (
-                          (400, -1),
-                          (400, 2.5),
-                          (400, 2.9),
-                          (400, 0.2),
-                      )
-                  )
-              )
-              self.gamobj_gem_green_2.image_modifier.add_transition(
-                  squarity.TransitionSteps(
-                      "area_offset_y",
-                      (
-                          (400, -0.2),
-                          (400, 3),
-                          (400, 0.4),
-                          (400, -0.5),
-                      )
-                  )
-              )
-              """
-              self.gamobj_gem_green_2.image_modifier.add_transition(
-                  squarity.TransitionSteps(
-                      "area_scale_x",
-                      (
-                          (400, 3.0),
-                          (400, 2.5),
-                          (400, 4.5),
-                          (400, 4.0),
-                          (400, 6.0),
-                          (400, 5.5),
-                          (400, 7.5),
-                          (400, 7.0),
-                          (400, 9.0),
-                          (350, 8.5),
-                      )
-                  )
-              )
-              self.gamobj_gem_green_2.image_modifier.add_transition(
-                  squarity.TransitionSteps(
-                      "area_scale_y",
-                      (
-                          (400, 1.5),
-                          (400, 3.5),
-                          (400, 3.0),
-                          (400, 5.0),
-                          (400, 4.5),
-                          (400, 6.5),
-                          (400, 6.0),
-                          (400, 8.0),
-                          (400, 7.5),
-                          (350, 8.5),
-                      )
-                  )
-              )
-              my_delayed_callback = squarity.DelayedCallBack(150, self.my_callback)
-              self.gamobj_gem_green.back_caller.add_callback(my_delayed_callback)
-
-              self.gamobj_eyes.image_modifier.img_size_x = 93
-
-              return
+        self.gem_yellow = GameObjectInBigWorld(
+            Coord(0, 0),
+            "gem_yellow",
+            image_modifier=squarity.ComponentImageModifier(),
+            back_caller=squarity.ComponentBackCaller(),
+        )
+        self.gem_yellow.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+        self.gem_yellow.more_init(Coord(8, 7), self.rect_visible)
+        if self.gem_yellow.must_set_visible:
+            self.layer_gem.add_game_object(self.gem_yellow)
+            self.gem_yellow.must_set_visible = False
+        self.nb_found_yellow = 0
 
 
-          self.gamobj_gem_green.add_transition(
-              squarity.TransitionSteps(
-                  "coord",
-                  (
-                      (400, Coord(1, 5)),
-                      (400, Coord(5, 8)),
-                      (400, Coord(8, 4)),
-                      (400, Coord(4, 1)),
-                  )
-              )
-          )
-
-          my_other_callback = squarity.DelayedCallBack(150, self.my_callback)
-          self.gamobj_gem_green.add_transition(my_other_callback)
-
-          self.gamobj_gem_green.add_transition(
-              squarity.TransitionSteps(
-                  "sprite_name",
-                  (
-                      (0, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                      (100, "gem_violet"),
-                      (100, "gem_green"),
-                  )
-              )
-          )
-          self.gamobj_gem_violet.add_transition(
-              squarity.TransitionSteps(
-                  "coord",
-                  (
-                      (3000, Coord(8, 1)),
-                  )
-              )
-          )
-
-      def on_button_action(self, action_name):
-          # print("on event", action_name)
-          # self.gamobj_gem_green.clear_all_transitions()
-          offset = +1 if action_name == "action_1" else -1
-          transi_violet = None if action_name == "action_1" else 300
-          direc = squarity.dirs.Right if action_name == "action_1" else squarity.dirs.Left
-          self.gamobj_gem_green.move_dir(direc)
-          self.gamobj_gem_violet.move(Coord(-offset, 0), transi_violet, self.another_another_callback)
-
-          event_result = squarity.EventResult()
-          event_result.plocks_custom = ["blabla"]
-          event_result.add_delayed_callback(
-              squarity.DelayedCallBack(200, self.callback_unlock_custom)
-          )
-          return event_result
-
-      def callback_unlock_custom(self):
-          print("unlock custom")
-          event_result = squarity.EventResult()
-          event_result.punlocks_custom = ["*"]
-          return event_result
-
-      def my_callback(self):
-          print("my callback zzz")
-
-      def another_callback(self):
-          print("another callback", self.gamobj_gem_green.get_coord())
-          # self.gamobj_gem_green.move_to(Coord(4, 4))
-
-      def another_another_callback(self):
-          pass
-          # print("another another callback", self.gamobj_gem_green.get_coord())
-          # self.gamobj_gem_green.move_to(Coord(4, 4))
+    def compute_rect_visible(self):
+        return squarity.Rect(
+            self.coord_zone.x * 6 - MARGIN_BACKGROUND_X,
+            self.coord_zone.y * 7 - MARGIN_BACKGROUND_Y,
+            self.w,
+            self.h,
+        )
 
 
-  `
+    def on_button_direction(self, direction):
+        coord_test = self.gem_green.coord_big_world.clone().move_dir(direction)
+        if not self.rect_big_world.in_bounds(coord_test):
+            return
+        self.gem_green.coord_big_world.move_dir(direction)
 
+        if self.rect_visible.on_border(self.gem_green.coord_big_world):
+            self.direction_move_zone = direction
+            self.gem_green.move_dir(
+                direction,
+                callback=self.on_green_move_borders,
+            )
+        elif coord_test == self.gem_yellow.coord_big_world:
+            self.gem_green.move_dir(
+                direction,
+                callback=self.on_diamond_meets,
+            )
+        else:
+            self.gem_green.move_dir(direction)
+
+
+    def on_diamond_meets(self):
+        TRANSI_SCALE = (
+            (150, 0.5), (150, 1.5), (150, 0.5), (150, 1.5),
+            (150, 0.5), (150, 1.5), (150, 0.5), (150, 1.5),
+            (150, 0.5), (150, 1.5)
+        )
+        TRANSI_SCALE_YELLOW = ((150, 1.5),) + TRANSI_SCALE + ((225, 0), )
+        TRANSI_SCALE_GREEN = TRANSI_SCALE + ((150, 0.5), (75, 1), )
+
+        self.gem_yellow.image_modifier.add_transition(
+            squarity.TransitionSteps(
+                "area_offset_x",
+                ((200, 1), (400, 1), (400, -1), (400, -1), (400, 1), )
+            )
+        )
+        self.gem_yellow.image_modifier.add_transition(
+            squarity.TransitionSteps(
+                "area_offset_y",
+                ((200, -1), (400, 1), (400, 1), (400, -1), (400, -1), )
+            )
+        )
+        self.gem_yellow.image_modifier.add_transition(
+            squarity.TransitionSteps("area_scale_x", TRANSI_SCALE_YELLOW)
+        )
+        self.gem_yellow.image_modifier.add_transition(
+            squarity.TransitionSteps("area_scale_y", TRANSI_SCALE_YELLOW)
+        )
+        # FUTURE : ça fait quand même beaucoup de code boiler plate,
+        # juste pour balancer une callback (et y'en a aussi dans l'init).
+        self.gem_yellow.back_caller.add_callback(
+            squarity.DelayedCallBack(1875, self.on_met_yellow)
+        )
+
+        self.gem_green.image_modifier.add_transition(
+            squarity.TransitionSteps(
+                "area_offset_x",
+                ((200, -1), (400, -1), (400, 1), (400, 1), (400, -1), (200, 0))
+            )
+        )
+        self.gem_green.image_modifier.add_transition(
+            squarity.TransitionSteps(
+                "area_offset_y",
+                ((200, 1), (400, -1), (400, -1), (400, 1), (400, 1), (200, 0))
+            )
+        )
+        self.gem_green.image_modifier.add_transition(
+            squarity.TransitionSteps("area_scale_x", TRANSI_SCALE_GREEN)
+        )
+        self.gem_green.image_modifier.add_transition(
+            squarity.TransitionSteps("area_scale_y", TRANSI_SCALE_GREEN)
+        )
+
+
+    def on_green_move_borders(self):
+        rect_visi_prev = self.rect_visible
+        self.coord_zone.move_dir(self.direction_move_zone)
+        self.rect_visible = self.compute_rect_visible()
+        zone_move_details = ZoneMoveDetails(rect_visi_prev, self.rect_visible)
+        self.ack_zone_moved_for_background(zone_move_details)
+
+        for gem in [self.gem_yellow, self.gem_green]:
+            gem.ack_zone_moved(zone_move_details)
+            if gem.must_set_visible:
+                self.layer_gem.add_game_object(gem)
+                gem.must_set_visible = False
+
+        if self.gem_green.coord_big_world == self.gem_yellow.coord_big_world:
+            event_result = squarity.EventResult()
+            event_result.add_delayed_callback(
+                squarity.DelayedCallBack(0, self.on_diamond_meets)
+            )
+            return event_result
+
+
+    def on_move_zone_end(self):
+        for gem in [self.gem_yellow, self.gem_green]:
+            if gem.must_hide:
+                self.layer_gem.remove_game_object(gem)
+                gem.must_hide = False
+
+
+    def get_random_coord_in_big_world(self):
+        return Coord(
+            random.randrange(0, BIG_WORLD_W),
+            random.randrange(0, BIG_WORLD_H)
+        )
+
+
+    def on_met_yellow(self):
+        self.layer_gem.remove_game_object(self.gem_yellow)
+        self.gem_yellow.must_hide = False
+        # Il faut choisir un nouvel emplacement pour le diamant jaune,
+        # mais pas dans le visible rect. (sinon ça fera bizarre)
+        nb_tries = 5
+        new_yellow_coord = self.get_random_coord_in_big_world()
+        while self.rect_visible.in_bounds(new_yellow_coord):
+            new_yellow_coord = self.get_random_coord_in_big_world()
+            nb_tries -= 1
+            if nb_tries == 0:
+                # On a essayé des coord random,
+                # et on n'arrive pas à être ailleurs que le visible rect.
+                # alors on balance un truc par défaut, et osef.
+                new_yellow_coord = Coord(0, 0)
+            elif nb_tries == -1:
+                # Ça marche toujours pas. On rebalance un truc par défaut.
+                new_yellow_coord = Coord(BIG_WORLD_W-1, BIG_WORLD_H-1)
+            elif nb_tries < -1:
+                raise Exception("Not supposed to happen")
+
+        self.gem_yellow.coord_big_world = new_yellow_coord.clone()
+        self.gem_yellow.image_modifier.area_scale_x = 1.0
+        self.gem_yellow.image_modifier.area_scale_y = 1.0
+
+        self.nb_found_yellow += 1
+        if self.nb_found_yellow == 1:
+            print(
+                "\\nVous avez trouvé votre ami !",
+                "Mais il est parti batifoler aux coordonnées :",
+                new_yellow_coord.x,
+                new_yellow_coord.y
+            )
+        elif self.nb_found_yellow == 2:
+            print(
+                "\\nVous avez retrouvé votre ami.",
+                "Il est reparti batifoler, à vous de trouver où il est."
+            )
+        else:
+            print(
+                "\\nVous avez retrouvé votre ami",
+                self.nb_found_yellow,
+                "fois."
+            )
+            if self.nb_found_yellow > 7:
+                print("Vous devriez faire autre chose...")
+
+
+    def ack_zone_moved_for_background(self, zone_move_details):
+        zmd = zone_move_details
+        if zmd.coord_vector.x:
+            self.gobj_bg.image_modifier.add_transition(
+                squarity.TransitionSteps(
+                    "area_offset_x",
+                    ((zmd.scroll_time, -zmd.rect_visible_cur.x), )
+                )
+            )
+        if zmd.coord_vector.y:
+            # FUTURE :
+            #  - add_transition de area_offset et img_offset où on peut donner des coords.
+            #  - add_transition dans le game object,
+            #    qui transmet au image_modifier selon le field name.
+            #  - directement les paramètres, sans passer par le squarity.TransitionSteps.
+            #  - add_transi_step pour ajouter un seul step, (pas de tuple de tuple).
+            #  - rassemblement des transi sur un même field.
+            self.gobj_bg.image_modifier.add_transition(
+                squarity.TransitionSteps(
+                    "area_offset_y",
+                    ((zmd.scroll_time, -zmd.rect_visible_cur.y), )
+                )
+            )
+
+
+    def on_button_action(self, action_name):
+        print("Les boutons d'actions ne servent à rien dans ce jeu.")
+
+`
 });

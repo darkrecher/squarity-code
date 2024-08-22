@@ -17,7 +17,7 @@
           <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
           <img src="../assets/magicien_icon.png" @click="exampleMagician">
           <img src="../assets/h2o_icon.png" @click="exampleH2o">
-          <img src="../assets/tunnel_match_icon.png" @click="exampleTunnelMatch">
+          <img src="../assets/emerald_icon.png" @click="exampleEmerald">
         </div>
       </div>
     </div>
@@ -49,7 +49,7 @@ import gameExamples from '../classes/GameExamples';
 import gameSpecLoader from '../classes/GameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
 import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
-import TUNNEL_MATCH_URL_TILESET from '../assets/tunnel_match_tileset.png';
+import EMERALD_URL_TILESET from '../assets/emerald_tileset.png';
 
 export default {
   name: 'DevZone',
@@ -99,10 +99,10 @@ export default {
       this.activateCurrentGameSpec();
     },
 
-    exampleTunnelMatch() {
-      this.$refs.urlTileset.value = TUNNEL_MATCH_URL_TILESET;
-      this.$refs.jsonConf.value = gameExamples.TUNNEL_MATCH_JSON_CONF;
-      this.$refs.gameCode.value = gameExamples.TUNNEL_MATCH_GAME_CODE;
+    exampleEmerald() {
+      this.$refs.urlTileset.value = EMERALD_URL_TILESET;
+      this.$refs.jsonConf.value = gameExamples.EMERALD_JSON_CONF;
+      this.$refs.gameCode.value = gameExamples.EMERALD_GAME_CODE;
       this.activateCurrentGameSpec();
     },
 
@@ -111,17 +111,15 @@ export default {
       // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
-        // TODO WIP bleuargh.
-        this.exampleTunnelMatch();
-        //this.exampleMagician();
+        this.exampleMagician();
         return;
       }
       if (locHash === '#fetchez_example_h2o') {
         this.exampleH2o();
         return;
       }
-      if (locHash === '#fetchez_example_tunnel_match') {
-        this.exampleTunnelMatch();
+      if (locHash === '#fetchez_example_emerald') {
+        this.exampleEmerald();
         return;
       }
       const urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);
