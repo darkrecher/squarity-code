@@ -215,9 +215,9 @@
     {
       "key": "g04",
       "rank": "normal",
-      "html_class": "game-engine-undone",
+      "html_class": "game-engine",
       "title": "Ajouter des game objects qui d\u00e9passent de la tile",
-      "description": "\u00c7a devrait \u00eatre assez facile une fois qu'on aura les layers.\n\nDans la d\u00e9finition du game object, on ajoute un hot point (x, y), et une taille (width, height)."
+      "description": "Il y a 4 valeurs d\u00e9finissant ce qu'on prend dans le tileset : [img_offset_x, img_offset_y, img_size_x, img_size_y]. Par d\u00e9faut, size_x et size_y valent tile_size (d\u00e9finie dans la config json). Tout est en pixels.\n\nIl y a 4 valeurs d\u00e9finissant o\u00f9 on l'affiche dans l'aire de jeu. [area_offset_x, area_offset_y, area_scale_x, area_scale_y]. Tout est en fraction de squares, car \u00e7a d\u00e9finit l'endroit o\u00f9 on affiche l'objet dans l'aire de jeu. Or, cette aire de jeu constitu\u00e9e de squares. Par d\u00e9faut, les valeurs sont [0.0, 0.0, 1.0, 1.0]. On ne peut pas d\u00e9finir ces valeurs en pixel perfect, puisque la taille r\u00e9elle de l'aire de jeu ne peut pas \u00eatre choisie en pixel perfect. Elle d\u00e9pend de la taille de la fen\u00eatre du navigateur.\n\n\u00c7a fait deux scales qui se multiplient : scale_x * (img_size_x / tile_size). \u00c7a reste logique.\n\nOn peut avoir des transitions smooth sur ces 8 valeurs.\n\nOn d\u00e9finit aussi une \"anchor\", indiquant o\u00f9 se trouve le point fixe de l'image lorsqu'on l'agrandit/r\u00e9tr\u00e9cit.\n\nDans la config, chaque \u00e9l\u00e9ment de img_coords doit d\u00e9finir 5 valeurs : [corner_x, corner_y, size_x, size_y, \"center\" ou bien \"corner_upleft\"].\n\nLes trois derni\u00e8res sont facultatives. Si non d\u00e9finies, elles valent [tile_size, tile_size, \"corner_upleft\"]."
     },
     {
       "key": "g05",

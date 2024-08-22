@@ -19,7 +19,7 @@ export default class GameEngineV2 {
     canvasBuffer,
     libSquarityCode
   ) {
-    this.version = "2.0.0";
+    this.version = "2.1.0";
     this.pythonConsole = pythonConsole;
     this.pyodide = pyodide;
     this.refreshPlock = refreshPlock;
