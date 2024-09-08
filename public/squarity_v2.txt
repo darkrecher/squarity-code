@@ -25,8 +25,9 @@ class Direction():
         self.turned_ccw = [None] * 8
 
     def set_turned(self, turned_cw):
+        # Cette fonction est censée être appelée uniquement par la classe Directions.
         self.turned_cw = turned_cw
-        self.turned_ccw = self.turned_cw[::-1]
+        self.turned_ccw = [self.turned_cw[0]] + self.turned_cw[:0:-1]
         self.opposite = self.turned_cw[4]
 
     def turn_cw(self, n=2):
@@ -260,6 +261,7 @@ class GameObject(GameObjectBase):
         self._must_clear_transitions = True
 
     def ack_cleared_all_transitions(self):
+        # Cette fonction est appelée par le moteur Squarity.
         self._must_clear_transitions = False
 
     def get_nb_undone_transitions(self):
@@ -275,9 +277,11 @@ class GameObject(GameObjectBase):
         self._transition_delay = transition_delay
 
     def reset_one_shot_transition_delay(self):
+        # Cette fonction est appelée par le moteur Squarity.
         self._one_shot_transition_delay = None
 
     def reset_one_shot_callback(self):
+        # Cette fonction est appelée par le moteur Squarity.
         self._one_shot_callback = None
 
 
