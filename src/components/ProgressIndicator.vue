@@ -9,29 +9,21 @@
   <div class="progress-indicator">
     <div>
       <div class="sk-cube-grid">
-        <div class="sk-cube sk-cube1" />
-        <div class="sk-cube sk-cube2" />
-        <div class="sk-cube sk-cube3" />
-        <div class="sk-cube sk-cube4" />
-        <div class="sk-cube sk-cube5" />
-        <div class="sk-cube sk-cube6" />
-        <div class="sk-cube sk-cube7" />
-        <div class="sk-cube sk-cube8" />
-        <div class="sk-cube sk-cube9" />
+        <div class="sk-cube sk-cube1"></div>
+        <div class="sk-cube sk-cube2"></div>
+        <div class="sk-cube sk-cube3"></div>
+        <div class="sk-cube sk-cube4"></div>
+        <div class="sk-cube sk-cube5"></div>
+        <div class="sk-cube sk-cube6"></div>
+        <div class="sk-cube sk-cube7"></div>
+        <div class="sk-cube sk-cube8"></div>
+        <div class="sk-cube sk-cube9"></div>
       </div>
 
       Please wait / Veuillez patienter...
+      <div class="main-progress">[**....]</div>
+      <div>{{ message }}</div>
 
-      <ul>
-        <!--
-          https://stackoverflow.com/questions/51086657/vue-warn-duplicate-keys-detected-x-this-may-cause-an-update-error
-          On est obligé de prendre l'index dans la boucle v-for, et de l'utiliser dans "key".
-          Sinon, ça fait une erreur "Duplicate keys detected: ' '. This may cause an update error"
-        -->
-        <li v-for="(msg, index) in messages" :key="index">
-          {{ msg }}
-        </li>
-      </ul>
     </div>
   </div>
 </template>
@@ -46,9 +38,7 @@ export default {
 
   data() {
     return {
-      messages: [
-        'Initialisation de l\'initialiseur.',
-      ],
+      message: 'Initialisation de l\'initialiseur.',
     };
   },
 
@@ -58,14 +48,11 @@ export default {
   methods: {
 
     addProgressMessage(msg) {
-      // On met à vide le message d'avant.
-      // Sinon ça fait trop de texte à lire juste pour une barre de progress.
-      this.messages[this.messages.length - 1] = ' ';
-      this.messages.push(msg);
+      this.message = msg;
     },
 
     clearProgressMessage() {
-      this.messages = [];
+      this.message = '';
     }
 
   },
@@ -79,15 +66,8 @@ export default {
   padding: 1em;
 }
 
-ul {
-  text-align: left;
-  padding-top: 1em;
-  list-style: none;
-}
-
-ul li:before {
-  /* Le caractère "tick" à chaque élément de liste à puces. */
-  content: "\2713\0020 ";
+.main-progress {
+  font-family: monospace;
 }
 
 .sk-cube-grid {

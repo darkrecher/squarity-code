@@ -122,6 +122,7 @@ import { loadScript } from "vue-plugin-load-script";
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
+import FilePreloader from '../classes/FilePreloader.js';
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
 import { Direction, PlayerLockTransi } from '../classes/common/Constants.js';
@@ -169,9 +170,15 @@ export default {
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
     const elemGameInterface = this.$refs.gameInterface;
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
-
     window.languagePluginUrl = '/pyodide/v0.15.0/';
-    this.showProgress('Téléchargement du téléchargeur.');
+    const filePreloader = new FilePreloader(null);
+    this.showProgress('Pré-chargement des gros fichiers 1/3.');
+    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
+    this.showProgress('Pré-chargement des gros fichiers 2/3.');
+    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
+    this.showProgress('Pré-chargement des gros fichiers 3/3.');
+    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
+    this.showProgress('Initialisation de Pyodide.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
     // Et aussi à ce plugin, avec la doc qui va bien. Et qui est compatible Vue 3.

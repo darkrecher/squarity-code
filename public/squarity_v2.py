@@ -459,10 +459,14 @@ class Layer(LayerBase):
         tile.game_objects = []
 
     def move_game_object(self, gobj, src_coord, dest_coord):
+        # Cette fonction est appelée par les Game Objects.
+        # Il ne faut pas l'appeler directement.
         self.get_tile(src_coord).game_objects.remove(gobj)
         self.get_tile(dest_coord).game_objects.append(gobj)
 
     def move_game_object_xy(self, gobj, src_x, src_y, dest_x, dest_y):
+        # Cette fonction est appelée par les Game Objects.
+        # Il ne faut pas l'appeler directement.
         self.get_tile_xy(src_x, src_y).game_objects.remove(gobj)
         self.get_tile_xy(dest_x, dest_y).game_objects.append(gobj)
 

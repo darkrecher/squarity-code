@@ -179,7 +179,7 @@ export default class GameEngineV2 {
       //    Par défaut : CORNER_UPLEFT.
       //  - Facteur de scale à appliquer dans l'aire de jeu. C'est juste la taille en pixel de l'image d'atlas,
       //    divisée par la taille d'une tile dans l'aire de jeu.
-      //    Elle n'est pas indiquée dans le json de config. Il est présente juste parce qu'on peut la précalculer.
+      //    Elle n'est pas indiquée dans le json de config. Elle est présente juste parce qu'on peut la précalculer.
       // FUTURE : on pourrait avoir d'autres point d'ancrage : corner_up_right, etc. ou des points d'ancrage en coordonnées.
       // FUTURE : faire des petits schémas dans une doc à part, pour que ce soit plus clair.
       let spriteDefCoords = jsonImgCoords[spriteName];
