@@ -21,7 +21,16 @@
       </div>
 
       Please wait / Veuillez patienter...
-      <div class="main-progress">[**....]</div>
+      <div class="main-progress">
+        <span>[</span>
+        <span v-for="task in nbMainTasksDone">
+          *
+        </span>
+        <span v-for="task in (nbMainTasks - nbMainTasksDone)">
+          .
+        </span>
+        <span>]</span>
+      </div>
       <div>{{ message }}</div>
 
     </div>
@@ -39,6 +48,8 @@ export default {
   data() {
     return {
       message: 'Initialisation de l\'initialiseur.',
+      nbMainTasks: 3,
+      nbMainTasksDone: 0,
     };
   },
 
@@ -47,11 +58,19 @@ export default {
 
   methods: {
 
-    addProgressMessage(msg) {
+    setNbMainTasks(nbMainTasks) {
+      this.nbMainTasks = nbMainTasks;
+    },
+
+    advanceToNextMainTask(msg) {
+      if (this.nbMainTasksDone < this.nbMainTasks) {
+        this.nbMainTasksDone += 1;
+      }
       this.message = msg;
     },
 
-    clearProgressMessage() {
+    clearProgress() {
+      this.nbMainTasksDone = 0;
       this.message = '';
     }
 
@@ -62,7 +81,7 @@ export default {
 <style scoped>
 .progress-indicator {
   background-color: #303030;
-  color: #C0C0C0;
+  color: #F0F0F0;
   padding: 1em;
 }
 

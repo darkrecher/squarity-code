@@ -164,6 +164,8 @@ export default {
     this.canvasBuffer = document.createElement('canvas');
     this.currentUrlTileset = '';
     this.tileAtlas = null;
+    this.$refs.progressIndicator.clearProgress();
+    this.$refs.progressIndicator.setNbMainTasks(9);
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
@@ -172,11 +174,11 @@ export default {
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
     window.languagePluginUrl = '/pyodide/v0.15.0/';
     const filePreloader = new FilePreloader(null);
-    this.showProgress('Pré-chargement des gros fichiers 1/3.');
+    this.showProgress('Pré-chargement du fichier pyodide "data".');
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
-    this.showProgress('Pré-chargement des gros fichiers 2/3.');
+    this.showProgress('Pré-chargement du fichier pyodide "wasm".');
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
-    this.showProgress('Pré-chargement des gros fichiers 3/3.');
+    this.showProgress('Pré-chargement du fichier pyodide "js".');
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
     this.showProgress('Initialisation de Pyodide.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
@@ -240,7 +242,7 @@ export default {
 
     showProgress(msg) {
       if (!this.loadingDone) {
-        this.$refs.progressIndicator.addProgressMessage(msg);
+        this.$refs.progressIndicator.advanceToNextMainTask(msg);
       }
     },
 
@@ -412,7 +414,7 @@ export default {
       this.$refs.gameInterface.focus();
       this.showProgress('C\'est parti !');
       this.loadingDone = true;
-      this.$refs.progressIndicator.clearProgressMessage();
+      this.$refs.progressIndicator.clearProgress();
     },
 
     toggleDevZoneDisplay() {
