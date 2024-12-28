@@ -174,11 +174,11 @@ export default {
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
     window.languagePluginUrl = '/pyodide/v0.15.0/';
     const filePreloader = new FilePreloader(null);
-    this.showProgress('Pré-chargement du fichier pyodide "data".');
+    this.showProgress('Pré-chargement du fichier pyodide "data".', true);
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
-    this.showProgress('Pré-chargement du fichier pyodide "wasm".');
+    this.showProgress('Pré-chargement du fichier pyodide "wasm".', true);
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
-    this.showProgress('Pré-chargement du fichier pyodide "js".');
+    this.showProgress('Pré-chargement du fichier pyodide "js".', true);
     await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
     this.showProgress('Initialisation de Pyodide.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
@@ -240,9 +240,9 @@ export default {
 
   methods: {
 
-    showProgress(msg) {
+    showProgress(msg, withSubTask) {
       if (!this.loadingDone) {
-        this.$refs.progressIndicator.advanceToNextMainTask(msg);
+        this.$refs.progressIndicator.advanceToNextMainTask(msg, withSubTask);
       }
     },
 

@@ -21,6 +21,7 @@
       </div>
 
       Please wait / Veuillez patienter...
+
       <div class="main-progress">
         <span>[</span>
         <span v-for="task in nbMainTasksDone">
@@ -31,7 +32,18 @@
         </span>
         <span>]</span>
       </div>
+
       <div>{{ message }}</div>
+
+      <template v-if="showSubTask">
+        <div class="subtask-container">
+          <div class="subtask-progress"></div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="subtask-disabled"></div>
+      </template>
+
 
     </div>
   </div>
@@ -47,9 +59,10 @@ export default {
 
   data() {
     return {
-      message: 'Initialisation de l\'initialiseur.',
       nbMainTasks: 3,
       nbMainTasksDone: 0,
+      message: 'Initialisation de l\'initialiseur.',
+      showSubTask: false,
     };
   },
 
@@ -62,11 +75,12 @@ export default {
       this.nbMainTasks = nbMainTasks;
     },
 
-    advanceToNextMainTask(msg) {
+    advanceToNextMainTask(msg, withSubTask) {
       if (this.nbMainTasksDone < this.nbMainTasks) {
         this.nbMainTasksDone += 1;
       }
       this.message = msg;
+      this.showSubTask = withSubTask === true;
     },
 
     clearProgress() {
@@ -87,6 +101,24 @@ export default {
 
 .main-progress {
   font-family: monospace;
+}
+
+.subtask-disabled {
+  height: 1.5em;
+}
+
+.subtask-container {
+  height: 1.5em;
+  margin-left: 5%;
+  margin-right: 5%;
+  background-color: #505050;
+  padding: 0.2em;
+}
+
+.subtask-progress {
+  height: 100%;
+  width: 37%;
+  background-color: #C0C0C0;
 }
 
 .sk-cube-grid {
