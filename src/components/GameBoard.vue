@@ -165,7 +165,7 @@ export default {
     this.currentUrlTileset = '';
     this.tileAtlas = null;
     this.$refs.progressIndicator.clearProgress();
-    this.$refs.progressIndicator.setNbMainTasks(9);
+    this.$refs.progressIndicator.setNbMainTasks(6);
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
     // C'est relou ces récupération d'appui de touches.
@@ -173,13 +173,19 @@ export default {
     const elemGameInterface = this.$refs.gameInterface;
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
     window.languagePluginUrl = '/pyodide/v0.15.0/';
-    const filePreloader = new FilePreloader(null);
-    this.showProgress('Pré-chargement du fichier pyodide "data".', true);
-    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
-    this.showProgress('Pré-chargement du fichier pyodide "wasm".', true);
-    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
-    this.showProgress('Pré-chargement du fichier pyodide "js".', true);
-    await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
+
+    // TODO: ça marche pas. Ça met pas les fichiers en cache pour le moment où Pyodide les charge pour lui.
+    // Pourtant, ça avait l'air de marcher en local. Tant pis. Je vais chercher une autre solution.
+    // Peut-être avec ça : https://stackoverflow.com/questions/65491241/get-webassembly-instantiatestreaming-progress
+    //
+    // const filePreloader = new FilePreloader(this.$refs.progressIndicator);
+    // this.showProgress('Pré-chargement du fichier pyodide "data".', true);
+    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
+    // this.showProgress('Pré-chargement du fichier pyodide "wasm".', true);
+    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
+    // this.showProgress('Pré-chargement du fichier pyodide "js".', true);
+    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
+
     this.showProgress('Initialisation de Pyodide.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
     // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components

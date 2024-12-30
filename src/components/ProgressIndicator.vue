@@ -24,10 +24,10 @@
 
       <div class="main-progress">
         <span>[</span>
-        <span v-for="task in nbMainTasksDone">
+        <span v-for="task in nbMainTasksDone" :key="task">
           *
         </span>
-        <span v-for="task in (nbMainTasks - nbMainTasksDone)">
+        <span v-for="task in (nbMainTasks - nbMainTasksDone)" :key="task">
           .
         </span>
         <span>]</span>
@@ -37,13 +37,19 @@
 
       <template v-if="showSubTask">
         <div class="subtask-container">
-          <div class="subtask-progress"></div>
+          <!--
+            C'est salement dégueulasse ce style avec une variable Vue.
+            Inspiré de ce truc:
+            https://stackoverflow.com/questions/61511236/vue-setting-the-width-of-a-component-dynamically
+            Mais en encore plus dégueulasse, parce qu'un attribut "width" à l'arrache dans une div,
+            ça marche pas.
+          -->
+          <div class="subtask-progress" :style="subtaskStyle"></div>
         </div>
       </template>
       <template v-else>
         <div class="subtask-disabled"></div>
       </template>
-
 
     </div>
   </div>
@@ -63,6 +69,7 @@ export default {
       nbMainTasksDone: 0,
       message: 'Initialisation de l\'initialiseur.',
       showSubTask: false,
+      subtaskStyle: 'width: 1%;',
     };
   },
 
@@ -80,7 +87,12 @@ export default {
         this.nbMainTasksDone += 1;
       }
       this.message = msg;
+      this.subtaskStyle = 'width: 0;';
       this.showSubTask = withSubTask === true;
+    },
+
+    setSubTaskProgress(percentage) {
+      this.subtaskStyle = 'width: ' + percentage.toString() +'%;';
     },
 
     clearProgress() {
@@ -117,7 +129,6 @@ export default {
 
 .subtask-progress {
   height: 100%;
-  width: 37%;
   background-color: #C0C0C0;
 }
 

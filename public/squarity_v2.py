@@ -232,9 +232,9 @@ class GameObject(GameObjectBase):
         self._one_shot_transition_delay = transition_delay
         self._one_shot_callback = callback
 
-    def move(self, coord_offset, transition_delay=None, callback=None):
-        dest_x = self._coord.x + coord_offset.x
-        dest_y = self._coord.y + coord_offset.y
+    def move(self, vector, transition_delay=None, callback=None):
+        dest_x = self._coord.x + vector.x
+        dest_y = self._coord.y + vector.y
         self.move_to_xy(dest_x, dest_y, transition_delay, callback)
 
     def move_dir(self, direction, distance=1, transition_delay=None, callback=None):
