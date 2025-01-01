@@ -122,7 +122,7 @@ import { loadScript } from "vue-plugin-load-script";
 import MainTitle from './MainTitle.vue';
 import DevZone from './DevZone.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
-import FilePreloader from '../classes/FilePreloader.js';
+import ProgressImposter from "../classes/ProgressImposter.js";
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
 import { Direction, PlayerLockTransi } from '../classes/common/Constants.js';
@@ -173,7 +173,9 @@ export default {
     const elemGameInterface = this.$refs.gameInterface;
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
     window.languagePluginUrl = '/pyodide/v0.15.0/';
+    window.pyodideDownloadProgress = this.pyodideDownloadProgress;
 
+    this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
     // TODO: ça marche pas. Ça met pas les fichiers en cache pour le moment où Pyodide les charge pour lui.
     // Pourtant, ça avait l'air de marcher en local. Tant pis. Je vais chercher une autre solution.
     // Peut-être avec ça : https://stackoverflow.com/questions/65491241/get-webassembly-instantiatestreaming-progress
@@ -200,7 +202,7 @@ export default {
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
     // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
     await loadScript('pyodide.js');
-    this.showProgress('Iodification du python géant.');
+    this.showProgress('Iodification du python géant.', true, true);
     await window.languagePluginLoader;
     this.showProgress('Déballage de la cartouche du jeu.');
 
@@ -246,10 +248,16 @@ export default {
 
   methods: {
 
-    showProgress(msg, withSubTask) {
+    showProgress(msg, withSubTask, isImposted) {
       if (!this.loadingDone) {
-        this.$refs.progressIndicator.advanceToNextMainTask(msg, withSubTask);
+        withSubTask = withSubTask === true;
+        isImposted = isImposted === true;
+        this.progressImposter.advanceToNextMainTask(msg, withSubTask, isImposted);
       }
+    },
+
+    pyodideDownloadProgress(currentBytes, totalBytes) {
+      this.progressImposter.onSubTaskProgress(currentBytes, totalBytes);
     },
 
     refreshPlock() {
