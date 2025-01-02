@@ -174,19 +174,7 @@ export default {
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
     window.languagePluginUrl = '/pyodide/v0.15.0/';
     window.pyodideDownloadProgress = this.pyodideDownloadProgress;
-
     this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
-    // TODO: ça marche pas. Ça met pas les fichiers en cache pour le moment où Pyodide les charge pour lui.
-    // Pourtant, ça avait l'air de marcher en local. Tant pis. Je vais chercher une autre solution.
-    // Peut-être avec ça : https://stackoverflow.com/questions/65491241/get-webassembly-instantiatestreaming-progress
-    //
-    // const filePreloader = new FilePreloader(this.$refs.progressIndicator);
-    // this.showProgress('Pré-chargement du fichier pyodide "data".', true);
-    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.data', 'text/plain');
-    // this.showProgress('Pré-chargement du fichier pyodide "wasm".', true);
-    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.wasm');
-    // this.showProgress('Pré-chargement du fichier pyodide "js".', true);
-    // await filePreloader.preloadFile(window.languagePluginUrl + 'pyodide.asm.js');
 
     this.showProgress('Initialisation de Pyodide.');
     // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
@@ -196,11 +184,10 @@ export default {
     //
     // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
     // Ce script js télécharge les fichiers suivants :
-    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.wasm
-    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data.js
-    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.data
-    // https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.asm.js
-    // https://pyodide-cdn2.iodide.io/v0.15.0/full/packages.json
+    // public/pyodide/v0.15.0/pyodide.asm.wasm
+    // public/pyodide/v0.15.0/pyodide.asm.data.js
+    // public/pyodide/v0.15.0/pyodide.asm.data
+    // public/pyodide/v0.15.0/pyodide.asm.js
     await loadScript('pyodide.js');
     this.showProgress('Iodification du python géant.', true, true);
     await window.languagePluginLoader;

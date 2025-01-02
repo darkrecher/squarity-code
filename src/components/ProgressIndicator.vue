@@ -38,18 +38,10 @@
       <template v-if="showSubTask">
         <div class="subtask-container">
           <!--
-            C'est salement dégueulasse ce style avec une variable Vue.
-            Inspiré de ce truc:
+            Si on veut changer le style en fonction d'une variable du component :
+            <div :style="subtaskStyle"></div>
+            Sinon, il y a peut-être ça aussi :
             https://stackoverflow.com/questions/61511236/vue-setting-the-width-of-a-component-dynamically
-            Mais en encore plus dégueulasse, parce qu'un attribut "width" à l'arrache dans une div,
-            ça marche pas.
-            TODO. Je teste d'autres trucs...
-            <div class="subtask-progress" :style="subtaskStyle"></div>
-
-            Ouais, et sinon j'ai ce message dans la console, en prod:
-            La mise en page a été forcée avant le chargement complet de la page.
-            Si les feuilles de style ne sont pas encore chargées, cela peut provoquer un flash de contenu non stylisé.
-            Mais je sais même pas si ça vient de ce component ou d'autres choses...
           -->
           <span v-for="step in nbSubTaskStep" :key="step" class="subtask-step"></span>
         </div>
@@ -76,7 +68,6 @@ export default {
       nbMainTasksDone: 0,
       message: 'Initialisation de l\'initialiseur.',
       showSubTask: false,
-      // subtaskStyle: 'width: 1%;', TODO: plus besoin de ce truc. ou pas...
       nbSubTaskStep: 0,
     };
   },
@@ -95,13 +86,11 @@ export default {
         this.nbMainTasksDone += 1;
       }
       this.message = msg;
-      // this.subtaskStyle = 'width: 0;';
       this.nbSubTaskStep = 0;
       this.showSubTask = withSubTask === true;
     },
 
     setSubTaskProgress(percentage) {
-      //this.subtaskStyle = 'width: ' + percentage.toString() +'%;';
       const tmpNbSubTaskStep = Math.floor(percentage / 2);
       if (this.nbSubTaskStep != tmpNbSubTaskStep) {
         this.nbSubTaskStep = tmpNbSubTaskStep;
@@ -146,11 +135,6 @@ export default {
   width: 2%;
   display: inline-block;
 }
-/* TODO fuck le CSS
-.subtask-progress {
-  height: 100%;
-  background-color: #C0C0C0;
-}*/
 
 .sk-cube-grid {
   width: 40px;

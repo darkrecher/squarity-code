@@ -27,20 +27,17 @@ export default class ProgressImposter {
     this.impostedTotal = 1;
     this.isImposting = false;
     if (this.intervalId !== null) {
-      // console.log("stop imposting because next main task.");
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
   }
 
   onSubTaskProgress(current, total) {
-    // console.log("TODO wesh", this.isTaskImposted, current, total);
     this.impostedCurrent = current;
     this.impostedTotal = total;
     if (this.isTaskImposted) {
       this.impostedTotal = total * this.imposterRatio;
       if ((current > 0) && (current == total)) {
-        // console.log("We start imposting things.");
         // +1 ajouté à l'arrache si jamais startDate = endDate.
         const subTaskEndDate = performance.now() + 1;
         const workRate = current / (subTaskEndDate - this.subTaskStartDate);
@@ -62,12 +59,10 @@ export default class ProgressImposter {
 
   impostedSubTaskProgress() {
     this.impostedCurrent += this.stepSize;
-    // console.log("imposting", this.impostedCurrent, this.impostedTotal);
     if (this.impostedCurrent >= this.impostedTotal) {
       this.impostedCurrent = this.impostedTotal;
       this.isImposting = false;
       if (this.intervalId !== null) {
-        // console.log("stop imposting");
         clearInterval(this.intervalId);
         this.intervalId = null;
       }
