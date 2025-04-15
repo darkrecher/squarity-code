@@ -1,5 +1,15 @@
 <script setup>
 import { RouterView } from 'vue-router'
+
+// Pour pouvoir continuer de gérer les liens existants, qui mène vers des jeux spécifiques.
+// Au départ, on n'utilisait pas le path "/game" pour référencer des pages vers un jeu.
+if (
+  (window.location.pathname == "/")
+  && window.location.hash.startsWith("#fetchez")
+) {
+  window.location.pathname = "/game/"
+}
+
 </script>
 
 <template>

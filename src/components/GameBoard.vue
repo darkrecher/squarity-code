@@ -188,7 +188,7 @@ export default {
     // public/pyodide/v0.15.0/pyodide.asm.data.js
     // public/pyodide/v0.15.0/pyodide.asm.data
     // public/pyodide/v0.15.0/pyodide.asm.js
-    await loadScript('pyodide.js');
+    await loadScript('../pyodide.js');
     this.showProgress('Iodification du python géant.', true, true);
     await window.languagePluginLoader;
     this.showProgress('Déballage de la cartouche du jeu.');

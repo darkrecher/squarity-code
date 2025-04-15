@@ -1,6 +1,10 @@
-# squarity-code
+# Squarity
 
-This template should help get you started developing with Vue 3 in Vite.
+Squarity est un outil de création et de partage de jeux vidéo en 2D. Vous dessinez quelques images, vous écrivez quelques lignes de code en python, et vous obtenez un jeu directement jouable dans votre navigateur.
+
+http://squarity.fr
+
+[Repository de documentation](https://github.com/darkrecher/squarity-doc)
 
 ## Recommended IDE Setup
 
@@ -33,3 +37,5 @@ npm run build
 ```sh
 npm run lint
 ```
+
+Ce code source est distribué sous la [Licence publique générale GNU Affero version 3](https://www.gnu.org/licenses/agpl-3.0.html)

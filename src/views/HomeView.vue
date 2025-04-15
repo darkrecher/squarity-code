@@ -1,10 +1,10 @@
 <script setup>
-  // @ is an alias to /src.
-  import GameBoard from '@/components/GameBoard.vue'
 </script>
 
 <template>
   <main>
-    <GameBoard />
+    Coucou !!
+    <br>
+    <a href="/game/">Jouer au jeu du sorcier tout dégueu</a>
   </main>
 </template>
