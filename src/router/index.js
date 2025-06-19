@@ -34,3 +34,7 @@ router.afterEach(() => {
 })
 
 export default router
+
+// TODO : pas besoin de ça, mais c'est juste pour tester.
+// https://squarity.pythonanywhere.com/#fetchez_githubgist_darkrecher/9f4abdcecb567b7e6d7d8abb9f2c44a0/raw/skweek-breakout.txt
+// http://localhost:5173/#fetchez_githubgist_darkrecher/9f4abdcecb567b7e6d7d8abb9f2c44a0/raw/skweek-breakout.txt
