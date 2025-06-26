@@ -3,6 +3,10 @@ export default Object.freeze({
   // Ça marche pas pastebin. Même avec le proxy de cors. On laisse tomber ça pour l'instant.
   URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
+  URL_PATTERN_EXAMPLES: '/gamedata/examples/{externalId}.txt',
+
+  // http://localhost:5173/games/sokobanv2.txt
+  // /games/sokobanv2.txt
 
   urlGameSpecFromLocHash(locHash) {
     const locHashSplitted = locHash.split('_');
@@ -22,10 +26,16 @@ export default Object.freeze({
       }
     } else if (locHashSplitted[1] === 'githubgist') {
       urlPattern = this.URL_PATTERN_GITHUBGIST;
-      if (!externalId.match(/^[0-9a-zA-Z/._-]+$/)) {
+      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
+        return null;
+      }
+    } else if (locHashSplitted[1] === 'example') {
+      urlPattern = this.URL_PATTERN_EXAMPLES;
+      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
         return null;
       }
     }
+
     if (!urlPattern) {
       return null;
     }

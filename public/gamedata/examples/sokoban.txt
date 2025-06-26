@@ -1,0 +1,260 @@
+/gamedata/examples/sokoban_tileset.png
+--------
+{
+    "name": "Sokoban v2",
+    "version": "2.0.1",
+    "tile_size": 32,
+    "game_area": {
+      "nb_tile_width": 20,
+      "nb_tile_height": 14
+    },
+    "img_coords": {
+        "herb": [0, 0],
+        "wall": [32, 0],
+        "crate": [64, 0],
+        "avatar": [0, 32],
+        "target": [32, 32]
+    }
+}
+--------
+"""
+Petite démonstration de la V2 du moteur de Squarity,
+avec un grand classique: Soko-ban.
+
+C'est les mêmes images et les mêmes niveaux que le Soko-ban
+qui a été créés il y a quelques temps. Mais pas du tout le même code.
+
+Grâce à la v2, les objets se déplacent progressivement
+d'une case à une autre, et le personnage fait
+une petite danse de la victoire à la fin d'un niveau !
+"""
+
+import squarity
+Coord = squarity.Coord
+s = squarity.Sequencer
+
+LEVELS_AND_DESCRIPTIONS = (
+    (
+        "Origine de ce niveau : http://www.sokobano.de/wiki/index.php?title=Optimizer",
+        (
+            "                    ",
+            "          ####      ",
+            "         ##. ##     ",
+            "     ##### .  #     ",
+            "     #   #  # #     ",
+            "     # $ #  # #     ",
+            "     # $      #     ",
+            "     ######  ##     ",
+            "          # ##      ",
+            "          # #       ",
+            "          # #       ",
+            "         ## ##      ",
+            "         # @ #      ",
+            "         #   #      ",
+        )
+    ),
+    (
+        "Origine : https://www.mathsisfun.com/games/sokoban.html (un peu transformé)",
+        (
+            "    #####           ",
+            "    #   #      ###  ",
+            "    #$  #      #.#  ",
+            "  ###  $###    # #  ",
+            "  #  $  $ #   ## ###",
+            "### # ### #   #   .#",
+            "#   # ### #####  ###",
+            "# $  $           ..#",
+            "########### ###  ###",
+            "          # # #   .#",
+            "          # # ## ###",
+            "          # #  # #  ",
+            "          # #  #.#  ",
+            "          #@#  ###  ",
+        )
+    ),
+    (
+        "Origine : https://www.mathsisfun.com/games/sokoban.html",
+        (
+            "                    ",
+            "                    ",
+            "                    ",
+            "         #####      ",
+            "##########   #      ",
+            " @      . $  #      ",
+            "########## $.#      ",
+            "       #.##$ #      ",
+            "       # # . ##     ",
+            "       #$ *$$.#     ",
+            "       #   .  #     ",
+            "       ## #####     ",
+            "        # #         ",
+            "        # #         ",
+        )
+    ),
+    (
+        "Origine : https://alonso-delarte.medium.com/the-basics-of-sokoban-level-formats-"
+        "for-designing-your-own-sokoban-levels-51882a7a36f0",
+        (
+            "       #####        ",
+            "   #####   #####    ",
+            "   #           #    ",
+            "   #  ### ###  #    ",
+            " #### #     # ####  ",
+            "##    #  *  #    #  ",
+            "   $  # *+*      #  ",
+            "##    #  *  #    #  ",
+            " #### #     # ####  ",
+            "   #  ### ###  #    ",
+            "   #           #    ",
+            "   #####   #####    ",
+            "       #####        ",
+            "                    ",
+        ),
+    ),
+    (
+        "Bravo, vous avez réussi tous les niveaux. Pourquoi ne pas en profiter pour créer les vôtres ?",
+        (
+            "         @          ",
+            "#  #  ### #   #  #  ",
+            "#  #  #    # #   #  ",
+            "####  ##    #    #  ",
+            "#  #  #     #       ",
+            "#  #  ###   #    #  ",
+            "                    ",
+            "        ####        ",
+            "       #    #       ",
+            "      # .  . #      ",
+            "      #      #      ",
+            "      #  ..  #      ",
+            "       #    #       ",
+            "        ####        ",
+        ),
+    ),
+)
+
+ELEMS_FROM_CHAR = {
+    " ": ["herb"],
+    "#": ["herb", "wall"],
+    "@": ["herb", "avatar"],
+    "$": ["herb", "crate"],
+    ".": ["herb", "target"],
+    "+": ["herb", "target", "avatar"],
+    "*": ["herb", "target", "crate"],
+}
+
+
+class GameModel(squarity.GameModelBase):
+
+    def on_start(self):
+        self.transition_delay = 70
+        self.layer_background = squarity.Layer(self, self.w, self.h, False)
+        self.layer_crate = squarity.Layer(self, self.w, self.h, True)
+        self.layers.insert(0, self.layer_background)
+        self.layers.insert(1, self.layer_crate)
+
+        self.gobj_avatar = squarity.GameObject(Coord(0, 0), "avatar")
+        self.gobj_avatar.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+        self.layer_main.add_game_object(self.gobj_avatar)
+        self.current_level = 0
+        self.initiate_level()
+        self.restart_level = False
+
+    def initiate_level(self):
+        descrip, level_map = LEVELS_AND_DESCRIPTIONS[self.current_level]
+        print(descrip)
+        layer_from_elem = {
+            "herb": self.layer_background,
+            "wall": self.layer_background,
+            "crate": self.layer_crate,
+            "target": self.layer_background,
+        }
+        for coord in s.seq_iter(s.iter_on_rect(self.rect)):
+            self.layer_background.remove_at_coord(coord)
+            self.layer_crate.remove_at_coord(coord)
+
+            elems_to_add = ELEMS_FROM_CHAR[level_map[coord.y][coord.x]]
+            for elem in elems_to_add:
+                if elem == "avatar":
+                    self.gobj_avatar.move_to(coord, 0)
+                else:
+                    layer = layer_from_elem[elem]
+                    layer.add_game_object(squarity.GameObject(coord, elem))
+
+    def on_button_direction(self, direction):
+
+        self.restart_level = False
+        avatar_dest = self.gobj_avatar.get_coord().move_dir(direction)
+        if not self.rect.in_bounds(avatar_dest):
+            return
+        if self.get_first_gobj(avatar_dest, ["wall"], self.layer_background):
+            return
+
+        crate_to_push = self.get_first_gobj(
+            avatar_dest,
+            ["crate"],
+            self.layer_crate,
+        )
+        if crate_to_push is not None:
+            crate_dest = avatar_dest.clone().move_dir(direction)
+            if not self.rect.in_bounds(crate_dest):
+                return
+            if self.get_first_gobj(crate_dest, ["wall", "crate"]):
+                return
+            crate_to_push.move_dir(direction)
+
+        self.gobj_avatar.move_dir(direction)
+        return self.check_crate_on_target()
+
+    def check_crate_on_target(self):
+
+        for game_objects in s.seq_iter(
+            s.iter_on_rect(self.rect),
+            s.gobj_on_layers_by_coords([self.layer_background, self.layer_crate]),
+            s.filter_sprites(["target", "crate"]),
+        ):
+            if len(game_objects) not in (0, 2):
+                return
+
+        print("Victoire !")
+        victory_dance = []
+        dir_jumps = (
+            squarity.dirs.UpLeft,
+            squarity.dirs.UpRight,
+            squarity.dirs.Up,
+            squarity.dirs.Up,
+        )
+        coord_jump_back = self.gobj_avatar.get_coord()
+        for dir_jump in dir_jumps:
+            coord_jump = coord_jump_back.clone().move_dir(dir_jump)
+            if self.rect.in_bounds(coord_jump):
+                victory_dance.append((150, coord_jump))
+                victory_dance.append((150, coord_jump_back))
+
+        if victory_dance:
+            self.gobj_avatar.add_transition(
+                squarity.TransitionSteps("coord", victory_dance)
+            )
+        event_result = squarity.EventResult()
+        event_result.add_delayed_callback(
+            squarity.DelayedCallBack(1800, self.end_anim_victory)
+        )
+        event_result.plocks_custom.append("victory_anim")
+        return event_result
+
+    def end_anim_victory(self):
+        self.current_level += 1
+        if self.current_level >= len(LEVELS_AND_DESCRIPTIONS):
+            self.current_level = 0
+        self.initiate_level()
+        event_result = squarity.EventResult()
+        event_result.punlocks_custom.append("victory_anim")
+        return event_result
+
+    def on_button_action(self, action_name):
+        if action_name == "action_1":
+            if self.restart_level:
+                self.initiate_level()
+                self.restart_level = False
+            else:
+                print("Appuyez une seconde fois sur le bouton '1' pour redémarrer le niveau.")
+                self.restart_level = True

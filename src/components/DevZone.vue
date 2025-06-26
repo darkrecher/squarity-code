@@ -45,6 +45,12 @@
 
 <script>
 
+// TODO: si l'url de l'image n'est pas absolue,
+// on ajoute manuellement le nom de domaine dans la zone de texte.
+// Ça permet de montrer clairement que c'est une url et qu'on peut
+// en mettre une autre, hébergée sur un autre site.
+
+
 import gameExamples from '../classes/GameExamples';
 import gameSpecLoader from '../classes/GameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
@@ -107,8 +113,6 @@ export default {
     },
 
     async fetchGameSpecFromLocHash() {
-      // Pour tester :
-      // http://localhost:8080/#fetchez_githubgist_darkrecher/bd49300f9c480b789a70315155571e9d/raw/game_code.txt
       const locHash = window.location.hash;
       if (!locHash) {
         this.exampleMagician();
