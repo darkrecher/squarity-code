@@ -54,7 +54,6 @@
 import gameExamples from '../classes/GameExamples';
 import gameSpecLoader from '../classes/GameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
-import H2O_URL_TILESET from '../assets/h2o_tileset2.png';
 import EMERALD_URL_TILESET from '../assets/emerald_tileset.png';
 
 export default {
@@ -99,10 +98,8 @@ export default {
     },
 
     exampleH2o() {
-      this.$refs.urlTileset.value = H2O_URL_TILESET;
-      this.$refs.jsonConf.value = gameExamples.H2O_JSON_CONF;
-      this.$refs.gameCode.value = gameExamples.H2O_GAME_CODE;
-      this.activateCurrentGameSpec();
+      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
+      this.$refs.urlTileset.value += " Pour jouer à H2O, retournez sur la page d'accueil et cliquez sur le jeu."
     },
 
     exampleEmerald() {
@@ -116,10 +113,6 @@ export default {
       const locHash = window.location.hash;
       if (!locHash) {
         this.exampleMagician();
-        return;
-      }
-      if (locHash === '#fetchez_example_h2o') {
-        this.exampleH2o();
         return;
       }
       if (locHash === '#fetchez_example_emerald') {

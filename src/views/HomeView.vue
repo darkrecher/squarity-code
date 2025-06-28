@@ -15,7 +15,8 @@
       <v-row>
         <v-col cols="12" sm="4">
           <div>
-            <button @click="$router.push('/game')">Liste des jeux</button>
+            <!-- <button @click="$router.push('/game')">Liste des jeux</button> -->
+             <button @click="$router.push('/gameslist')">Liste des jeux</button>
           </div>
         </v-col>
         <v-col cols="12" sm="4">
@@ -34,19 +35,21 @@
       </v-row>
       <v-row>
         <v-col cols="12" sm="6">
-          <div class="img-example">
+          <div class="game-example">
             <a href="/game/#fetchez_example_h2o">
               <img src="../assets/screenshot_h2o.png">
+              <br>
+              H2O
             </a>
-            <a href="/game/#fetchez_example_h2o">H2O</a>
           </div>
         </v-col>
         <v-col cols="12" sm="6">
-          <div class="img-example">
+          <div class="game-example">
             <a href="/game/#fetchez_example_sokoban">
               <img src="../assets/screenshot_sokoban.png">
+              <br>
+              Sokoban
             </a>
-            <a href="/game/#fetchez_example_sokoban">Sokoban</a>
           </div>
         </v-col>
       </v-row>
@@ -64,12 +67,19 @@ h1 {
 
 img {
   width: 100%;
+  max-width: 15em;
 }
 
 a {
+  color: #A0A0D0;
   font-weight: bold;
   font-size: 1.7em;
 }
+
+a:visited {
+  color: #b06edb;
+}
+
 
 button {
   /* TODO: mettre le vert officiel de Squarity. */
@@ -89,7 +99,7 @@ button:active {
   background-color: #00e204;
 }
 
-.img-example {
+.game-example {
   padding: 1.5em;
 }
 
