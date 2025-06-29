@@ -54,7 +54,6 @@
 import gameExamples from '../classes/GameExamples';
 import gameSpecLoader from '../classes/GameSpecLoader';
 import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
-import EMERALD_URL_TILESET from '../assets/emerald_tileset.png';
 
 export default {
   name: 'DevZone',
@@ -103,20 +102,15 @@ export default {
     },
 
     exampleEmerald() {
-      this.$refs.urlTileset.value = EMERALD_URL_TILESET;
-      this.$refs.jsonConf.value = gameExamples.EMERALD_JSON_CONF;
-      this.$refs.gameCode.value = gameExamples.EMERALD_GAME_CODE;
-      this.activateCurrentGameSpec();
+      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
+      this.$refs.urlTileset.value += " Pour jouer à Emerald, allez à la liste des jeux et cliquez sur le jeu."
     },
 
     async fetchGameSpecFromLocHash() {
       const locHash = window.location.hash;
       if (!locHash) {
+        // TODO: un exemple tout vide quand y'a pas de locHash.
         this.exampleMagician();
-        return;
-      }
-      if (locHash === '#fetchez_example_emerald') {
-        this.exampleEmerald();
         return;
       }
       const urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);

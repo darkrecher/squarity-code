@@ -31,13 +31,13 @@
         </v-col>
       </v-row>
       <v-row>
-        <div class="separator"></div>
+        <hr>
       </v-row>
       <v-row>
         <v-col cols="12" sm="6">
           <div class="game-example">
             <a href="/game/#fetchez_example_h2o">
-              <img src="../assets/screenshot_h2o.png">
+              <img src="../assets/game_card_img/h2o.png">
               <br>
               H2O
             </a>
@@ -46,7 +46,7 @@
         <v-col cols="12" sm="6">
           <div class="game-example">
             <a href="/game/#fetchez_example_sokoban">
-              <img src="../assets/screenshot_sokoban.png">
+              <img src="../assets/game_card_img/sokoban.png">
               <br>
               Sokoban
             </a>
@@ -82,8 +82,7 @@ a:visited {
 
 
 button {
-  /* TODO: mettre le vert officiel de Squarity. */
-  background-color: #069f09;
+  background-color: #3e9b2b;
   padding: 1em;
   font-weight: bold;
   color: #202020;
@@ -92,11 +91,11 @@ button {
 }
 
 button:hover {
-  background-color: #04b507;
+  background-color: #41b829;
 }
 
 button:active {
-  background-color: #00e204;
+  background-color: #3ae218;
 }
 
 .game-example {
@@ -108,11 +107,10 @@ button:active {
   padding: 1em 0 1em 0;
 }
 
-.separator {
-  margin: 0.5em;
-  height: 3px;
-  background-color: #c0c0c0;
-  width: 100%;
+hr {
+  border-top: 5px solid #c0c0c0;
+  width: 90%;
+  margin: 0 auto;
 }
 
 </style>
