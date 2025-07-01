@@ -26,6 +26,11 @@ const router = createRouter({
       path: '/roadmap',
       name: 'roadmap',
       component: () => import('../views/RoadmapView.vue')
+    },
+    {
+      path: '/maindocv2',
+      name: 'maindocv2',
+      component: () => import('../views/DocArticleView.vue')
     }
   ]
 })
