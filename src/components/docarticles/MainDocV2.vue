@@ -1,4 +1,5 @@
 <template>
+    <div class="doc-article">
 
 <h1 id="documentation-de-référence-de-squarity-v2">Documentation de référence de Squarity V2 <a class="header-anchor" href="#documentation-de-référence-de-squarity-v2">¶</a></h1>
 <p>Squarity est un espace de création et de partage de jeux vidéo jouables dans un navigateur web. Les jeux se déroulent sur une grille en 2D composée de carrés. Le fonctionnement et les règles du jeu sont définis par du code en python.</p>
@@ -883,4 +884,7 @@ class GameModel(squarity.GameModelBase):
 <p>Vous verrez tous les sprites du jeu affiché les uns après les autres dans l'aire de jeu.</p>
 <p>Cet exemple de code fonctionne avec tous les jeux (à condition de les mettre en version 2). Il peut être utile si vous voulez vérifier que vous avez bien défini toutes les coordonnées de tous les noms de sprites.</p>
 
+    </div>
 </template>
+
+<style lang="css" scoped src="@/styles/docArticle.css"></style>
