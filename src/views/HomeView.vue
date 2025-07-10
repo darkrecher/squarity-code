@@ -1,6 +1,3 @@
-<script setup>
-</script>
-
 <template>
   <main>
     <h1>Squarity</h1>
@@ -21,7 +18,7 @@
         </v-col>
         <v-col cols="12" sm="4">
           <div>
-            <button>Créer un jeu</button>
+            <button  @click="$router.push('/create')">Créer des jeux</button>
           </div>
         </v-col>
         <v-col cols="12" sm="4">
@@ -57,6 +54,7 @@
 
   </main>
 </template>
+
 
 <style scoped>
 

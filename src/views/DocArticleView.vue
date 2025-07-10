@@ -1,22 +1,25 @@
-<script setup>
-  import MainDocV2 from '@/components/docarticles/MainDocV2.vue'
-  import MainDocV2Toc from '@/components/docarticles/MainDocV2Toc.vue'
-</script>
-
 <template>
   <main>
-
     <div class="container">
       <div class="table-of-content">
         <MainDocV2Toc/>
       </div>
       <div class="content">
+        <div id="doc-start"></div>
+        <HeaderCreate/>
         <MainDocV2/>
       </div>
     </div>
 
   </main>
 </template>
+
+<script setup>
+  import MainDocV2 from '@/components/docarticles/MainDocV2.vue'
+  import MainDocV2Toc from '@/components/docarticles/MainDocV2Toc.vue'
+  import HeaderCreate from '@/components/HeaderCreate.vue'
+</script>
+
 
 <style scoped>
 

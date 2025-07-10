@@ -1,5 +1,5 @@
 <template>
-  <a href="#documentation-de-référence-de-squarity-v2"><h1>Documentation de référence de Squarity V2</h1></a>
+  <a href="#doc-start"><h1>Documentation de référence de Squarity V2</h1></a>
   <h2>Le tileset <a class="header-anchor" href="#le-tileset">¶</a></h2>
   <h2>Configuration json <a class="header-anchor" href="#configuration-json">¶</a></h2>
   <h2>Notions de base du &quot;game code&quot; <a class="header-anchor" href="#notions-de-base-du-game-code">¶</a></h2>

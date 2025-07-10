@@ -1,6 +1,3 @@
-<script setup>
-</script>
-
 <template>
   <main>
     <!--
@@ -43,6 +40,7 @@
 
   </main>
 </template>
+
 
 <script setup>
   import MyHeader from '@/components/Header.vue'
