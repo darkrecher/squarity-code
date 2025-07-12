@@ -1,5 +1,6 @@
-* {
+.doc-toc {
     word-wrap: break-word;
+    background: #202020;
 }
 
 h1, h2, h3, h4, h5 {
