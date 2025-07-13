@@ -18,6 +18,7 @@
     "@vitejs/plugin-vue": "^4.2.3",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
+    "serve": "^14.2.4",
     "vite": "^4.3.9"
   }
 }
