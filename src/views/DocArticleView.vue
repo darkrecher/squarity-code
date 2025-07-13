@@ -1,18 +1,25 @@
 <template>
   <main>
     <div class="container">
+
       <div class="table-of-content">
-        <MainDocV2Toc/>
+        <!-- Ici on peut mettre DummyToc, et ça met l'autre component. C'est super cool ! -->
+        <DocTocContainer component-name="MainDocV2Toc"/>
       </div>
       <div class="content">
         <div id="doc-start"></div>
         <HeaderCreate/>
-        <div class="table-of-content-narrow" id="toc-narrow">
-          <!--
-            TODO: ce serait bien d'arriver à écrire une seule fois ce component.
-            Au lieu de l'avoir deux fois, et il y en a toujours un sur deux qui est invisible.
-          -->
-          <MainDocV2Toc/>
+        <div class="zone-when-narrow">
+          <div id="toc-narrow">
+            <!--
+              TODO: ce serait bien d'arriver à écrire une seule fois ce component.
+              Au lieu de l'avoir deux fois, et il y en a toujours un sur deux qui est invisible.
+            -->
+            <DocTocContainer component-name="MainDocV2Toc"/>
+          </div>
+          <a class="to-the-top" href="#doc-start" ref="buttonToTheTop">
+            &#x21A5
+          </a>
         </div>
         <MainDocV2/>
       </div>
@@ -24,14 +31,14 @@
 <script>
 
 import MainDocV2 from '@/components/docarticles/MainDocV2.vue'
-import MainDocV2Toc from '@/components/docarticles/MainDocV2Toc.vue'
+import DocTocContainer from '@/components/DocTocContainer.vue'
 import HeaderCreate from '@/components/HeaderCreate.vue'
 
 export default {
   name: 'DocArticleView',
   components: {
     MainDocV2,
-    MainDocV2Toc,
+    DocTocContainer,
     HeaderCreate,
   },
 
@@ -45,14 +52,12 @@ export default {
       "intersectionRatio" in window.IntersectionObserverEntry.prototype
     ) {
       let observer = new IntersectionObserver(entries => {
-        //console.log(entries[0].boundingClientRect.y);
-        //console.log(entries[0].boundingClientRect);
         if (entries[0].boundingClientRect.bottom > 0) {
-          console.log("Il faut masquer le bouton 'go to the top'.")
-          // document.body.classList.add("header-not-at-top");
+          // Il faut masquer le bouton permettant de retourner en haut de la page.
+          this.$refs.buttonToTheTop.classList.add("hidden");
         } else {
-          console.log("Il faut montrer le bouton 'go to the top'.")
-          // document.body.classList.remove("header-not-at-top");
+          // Il faut montrer le bouton.
+          this.$refs.buttonToTheTop.classList.remove("hidden");
         }
       });
       observer.observe(document.querySelector("#toc-narrow"));
@@ -66,6 +71,25 @@ export default {
 
 <style scoped>
 
+.hidden {
+  visibility: hidden;
+}
+
+.to-the-top {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  overflow-y: auto;
+  background-color: #3e9b2b;
+  font-weight: bold;
+  font-size: 3em;
+  text-align: center;
+  width: 1.8em;
+  height: 1.8em;
+  color: white;
+  text-decoration: none;
+}
+
 .table-of-content {
   position: fixed;
   left: 0;
@@ -77,7 +101,7 @@ export default {
   padding: 0.2em;
 }
 
-.table-of-content-narrow {
+.zone-when-narrow {
   width: 100%;
 }
 
@@ -90,7 +114,7 @@ export default {
   .table-of-content {
     visibility: hidden;
   }
-  .table-of-content-narrow {
+  .zone-when-narrow {
     visibility: visible;
   }
   .content {
@@ -103,7 +127,7 @@ export default {
   .table-of-content {
     width: 300px;
   }
-  .table-of-content-narrow {
+  .zone-when-narrow {
     visibility: hidden;
     height: 0;
   }
@@ -119,7 +143,7 @@ export default {
     width: 500px;
     padding: 0.5em 2em 0.5em 1em;
   }
-  .table-of-content-narrow {
+  .zone-when-narrow {
     visibility: hidden;
     height: 0;
   }
