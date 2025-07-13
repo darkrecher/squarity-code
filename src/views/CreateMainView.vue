@@ -8,9 +8,16 @@
     <p>
       Blou
     </p>
-    <a href="/maindocv2">
-      Doc de référence de la librairie squarity
-    </a>
+    <div>
+      <a href="/maindocv2">
+        Doc de référence de la librairie squarity
+      </a>
+    </div>
+    <div>
+      <a href="/dummy">
+        Doc dubidon
+      </a>
+    </div>
   </main>
 </template>
 

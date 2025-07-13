@@ -1,10 +1,14 @@
 <template>
   <main>
-    <div class="container">
 
+    <div class="container">
       <div class="table-of-content">
-        <!-- Ici on peut mettre DummyToc, et ça met l'autre component. C'est super cool ! -->
-        <DocTocContainer component-name="MainDocV2Toc"/>
+        <!--
+          On récupère directement la valeur de la props "componentNameDocToc",
+          et on la balance dans le component DocContainer.
+          Ça indique au DocContainer le nom du sous-component qu'il devra charger.
+        -->
+        <DocContainer :component-name="componentNameDocToc"/>
       </div>
       <div class="content">
         <div id="doc-start"></div>
@@ -15,13 +19,13 @@
               TODO: ce serait bien d'arriver à écrire une seule fois ce component.
               Au lieu de l'avoir deux fois, et il y en a toujours un sur deux qui est invisible.
             -->
-            <DocTocContainer component-name="MainDocV2Toc"/>
+            <DocContainer :component-name="componentNameDocToc"/>
           </div>
           <a class="to-the-top" href="#doc-start" ref="buttonToTheTop">
             &#x21A5
           </a>
         </div>
-        <MainDocV2/>
+        <DocContainer :component-name="componentNameDoc"/>
       </div>
     </div>
 
@@ -30,21 +34,22 @@
 
 <script>
 
-import MainDocV2 from '@/components/docarticles/MainDocV2.vue'
-import DocTocContainer from '@/components/DocTocContainer.vue'
+import DocContainer from '@/components/DocContainer.vue'
 import HeaderCreate from '@/components/HeaderCreate.vue'
 
 export default {
   name: 'DocArticleView',
   components: {
-    MainDocV2,
-    DocTocContainer,
+    DocContainer,
     HeaderCreate,
   },
 
-  props: {},
+  props: {
+    componentNameDoc: { type: String, required: true },
+    componentNameDocToc: { type: String, required: true },
+  },
 
-  async mounted() {
+  mounted() {
     // https://css-tricks.com/styling-based-on-scroll-position/
     if (
       "IntersectionObserver" in window &&

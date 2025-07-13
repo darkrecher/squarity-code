@@ -8,12 +8,12 @@
 // Merci beaucoup à ce post stackoverflow.
 // https://stackoverflow.com/questions/53406350/vue-import-vue-components-dynamically
 
-//Vue 3 is having a special function to define these async functions
+// Vue 3 a une fonction spéciale pour charger les composants dynamiquement, ou un truc du genre.
 import {defineAsyncComponent} from "vue";
 
 export default {
   name: "DocTocContainer",
-  //I am passing the name of the Component as a prop
+  // Je passe le nom du sous-composant à charger dans une prop.
   props: {
     componentName: { type: String, required: true }
   },
