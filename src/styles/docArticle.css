@@ -17,6 +17,11 @@ a:visited {
   text-decoration: underline;
 }
 
+a.header-anchor {
+  color: red;
+  font-size: 0.8em;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   margin-top: 1em;
@@ -91,19 +96,18 @@ h6 {
 table {
   border-collapse: collapse;
   margin-bottom: 0.7em;
-}
-
-th {
-  text-align: left;
-  border-bottom: 1px solid;
+  border: 2px solid;
 }
 
 th, td {
-  padding: 5px 10px;
+  text-align: left;
+  padding: 0.2em 0.4em;
+  border: 1px solid;
 }
 
-table > tbody > tr + tr > td {
-  border-top: 1px solid;
+th {
+  background-color: #181818;
+  border-bottom: 2px solid;
 }
 
 code {
