@@ -82,8 +82,8 @@ export default {
 
 .to-the-top {
   position: fixed;
-  bottom: 1em;
-  right: 1em;
+  bottom: 0.5em;
+  right: 0.5em;
   overflow-y: auto;
   background-color: #3e9b2b;
   font-weight: bold;

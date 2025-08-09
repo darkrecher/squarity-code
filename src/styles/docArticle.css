@@ -18,8 +18,12 @@ a:visited {
 }
 
 a.header-anchor {
-  color: red;
+  color: #00000050;
   font-size: 0.8em;
+}
+
+a.header-anchor:hover {
+    color: #000000A0;
 }
 
 h1, h2, h3, h4, h5, h6 {
