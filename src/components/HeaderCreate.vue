@@ -25,6 +25,10 @@ TODO: fichier CSS commun avec Header
 (Déjà que les deux components sont plus ou moins du copié-collé...)
  */
 
+ a {
+  text-decoration: none;
+ }
+
 .header {
   padding: 1em;
   margin-left: 20%;

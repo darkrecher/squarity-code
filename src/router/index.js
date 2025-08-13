@@ -36,13 +36,19 @@ const router = createRouter({
     {
       path: '/maindocv2',
       name: 'maindocv2',
-      component: () => import('../views/DocArticleView.vue'),
+      component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "MainDocV2", componentNameDocToc: "MainDocV2Toc"},
+    },
+    {
+      path: '/shareyourgame',
+      name: 'shareyourgame',
+      component: () => import('../views/DocArticleView.vue'),
+      props: {componentNameDoc: "ShareYourGame"},
     },
     {
       path: '/dummy',
       name: 'dummy',
-      component: () => import('../views/DocArticleView.vue'),
+      component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "Dummy", componentNameDocToc: "DummyToc"},
     },
   ]

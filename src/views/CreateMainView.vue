@@ -9,6 +9,11 @@
       Blou
     </p>
     <div>
+      <a href="/shareyourgame">
+        Comment partager votre jeu
+      </a>
+    </div>
+    <div>
       <a href="/maindocv2">
         Doc de référence de la librairie squarity
       </a>

@@ -5,9 +5,6 @@ export default Object.freeze({
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
   URL_PATTERN_EXAMPLES: '/gamedata/examples/{externalId}.txt',
 
-  // http://localhost:5173/games/sokobanv2.txt
-  // /games/sokobanv2.txt
-
   urlGameSpecFromLocHash(locHash) {
     const locHashSplitted = locHash.split('_');
     if (locHashSplitted.length !== 3) {
@@ -52,8 +49,7 @@ export default Object.freeze({
     }
     const dataText = await response.text();
     // On parse selon le format décrit ici :
-    // https://trello.com/c/pbxgBITh/44-%C3%A9crire-la-documentation-utilisateur
-    // Ce sera dans une vraie doc plus tard.
+    // https://github.com/darkrecher/squarity-doc/blob/master/user_manual/share_your_game.md
     const dataLines = dataText.split('\n', 3);
     if (dataLines.length < 2) {
       return null;

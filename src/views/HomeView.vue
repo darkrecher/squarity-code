@@ -13,7 +13,7 @@
         <v-col cols="12" sm="4">
           <div>
             <!-- <button @click="$router.push('/game')">Liste des jeux</button> -->
-             <button @click="$router.push('/gameslist')">Liste des jeux</button>
+             <button @click="$router.push('/gameslist')">Jouer</button>
           </div>
         </v-col>
         <v-col cols="12" sm="4">

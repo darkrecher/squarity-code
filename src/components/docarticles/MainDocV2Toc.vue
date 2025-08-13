@@ -1,5 +1,5 @@
 <template>
-  <div class="doc-toc">
+    <div class="doc-toc">
 
 <a href="#doc-start"><h1>Documentation de référence de Squarity V2 </h1></a>
 <a href="#le-tileset"><h2>Le tileset </h2></a>
@@ -57,7 +57,7 @@
 <a href="#récupérer-le-premier-game-object"><h3>Récupérer le premier Game Object </h3></a>
 <a href="#exemple-bonus--afficher-tous-les-sprites-existants"><h2>Exemple bonus : afficher tous les sprites existants </h2></a>
 
-  </div>
+    </div>
 </template>
 
 <style lang="css" scoped src="@/styles/docToc.css"></style>
