@@ -1,7 +1,7 @@
 <template>
   <main>
     <!--
-      Linter ou je-ne-sais-quel-autre-truc qui accepte pas que j'accepte mes propres componets "Header".
+      Linter ou je-ne-sais-quel-autre-truc qui accepte pas que j'accepte mes propres components "Header".
       Ce sera donc "MyHeader". Merci.
     -->
     <MyHeader />

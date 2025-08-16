@@ -1,0 +1,86 @@
+/gamedata/tutorials/tutorial_tileset.png
+--------
+{
+  "name": "Afficher un game object",
+  "version": "2.1.0",
+  "game_area": {
+    "nb_tile_width": 6,
+    "nb_tile_height": 4
+  },
+  "tile_size": 32,
+  "img_coords": {
+    "head_green": [96, 0]
+  }
+}
+--------
+"""
+Ce premier tutoriel affiche un seul objet statique dans l'aire de jeu.
+Il n'y a pas d'interactions.
+
+La configuration JSON définit :
+
+ - La taille de l'aire de jeu
+   (6 cases de large, 4 cases de haut).
+
+ - Une seule image, appelée "head_green".
+   Cette image provient du tileset,
+   elle est récupérée à partir des coordonnées
+   x=96, y=0 (en pixels dans le tileset)
+
+"""
+import squarity
+
+# Pour créer un jeu, il faut définir une classe "GameModel",
+# qui hérite de squarity.GameModelBase.
+# Cette classe sera automatiquement instanciée par le moteur du jeu Squarity.
+class GameModel(squarity.GameModelBase):
+
+    # La fonction on_start est automatiquement exécutée au démarrage du jeu.
+    def on_start(self):
+
+        # Création d'un "game object", c'est à dire un objet
+        # qui peut s'afficher dans une case de l'aire de jeu.
+        gobj = squarity.GameObject(
+            # On indique à quelle coordonnée, dans l'aire de jeu,
+            # se trouvera cet objet.
+            # x = 2 cases, en comptant à partir de 0, depuis le côté gauche.
+            # y = 0 cases, c'est à dire en haut de l'aire de jeu.
+            squarity.Coord(2, 0),
+            # Cette chaîne de caractère indique l'image utilisée
+            # pour représenter le game object. Elle correspond au
+            # nom d'image indiqué dans la configuration JSON.
+            "head_green",
+        )
+
+        # Une fois le game object créé, il faut l'ajouter dans un Layer,
+        # pour qu'il soit affiché dans l'aire de jeu.
+        # Dans cette exemple, on l'ajoute dans le Layer principal,
+        # c'est à dire "self.layer_main".
+        self.layer_main.add_game_object(gobj)
+
+
+"""
+---------------
+Modifications que vous pouvez essayer
+---------------
+
+Ces modifs vous permettront de comprendre le fonctionnement du code,
+ce qui vous aidera lors de la création de vos jeux.
+
+Pensez à cliquer sur le bouton "Exécuter" après chacune
+de vos modifications, pour voir le résultat dans le jeu.
+
+1. Changer les valeurs "96" et "0" dans la configuration JSON.
+Ajoutez ou soustrayez des valeurs assez grande : 10, 20, 50, ...
+Pour que ça tombe juste sur une nouvelle image, il faut décaler
+avec des multiples de 32.
+
+2. Changer les valeurs "2" et "0" dans la ligne de code
+squarity.Coord(2, 0),
+La première valeur doit être comprise entre 0 et 5 (inclus).
+La deuxième entre 0 et 3 (inclus).
+
+3. Essayer d'afficher deux têtes dans l'aire de jeu.
+Vous allez devoir copier-coller du code, puis modifier la copie.
+Bon courage !
+"""

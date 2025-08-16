@@ -5,21 +5,55 @@
     <p>
       Bla bla
     </p>
-    <p>
-      Blou
-    </p>
+    <h2>Mini-exemples</h2>
     <div>
-      <a href="/shareyourgame">
+      <v-container>
+        <v-row>
+          <v-col cols="12" md="3" sm="6">
+            <a href="/game/#fetchez_tutorial_showobject">
+              (oeil) Afficher un objet
+            </a>
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (souris) Réagir aux clics et aux boutons
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (4 flèches) Déplacer des objets
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (croix en case) Récupérer les cases adjacentes
+          </v-col>
+        <v-row>
+        </v-row>
+          <v-col cols="12" md="3" sm="6">
+            (2 carré à bords rond, superposés) Définir l'ordre d'affichage avec des layers
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (un carré à bord rond, avec un truc en pointillé dedans) Changer un objet de layer
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (un chemin en 3 morceau, qui finit par une flèche) Définir une séquence de mouvement
+          </v-col>
+          <v-col cols="12" md="3" sm="6">
+            (une caisse) Exemple complet : Soko-ban
+          </v-col>
+        </v-row>
+
+      </v-container>
+    </div>
+
+    <div>
+      <a href="/create/shareyourgame">
         Comment partager votre jeu
       </a>
     </div>
     <div>
-      <a href="/maindocv2">
+      <a href="/create/maindocv2">
         Doc de référence de la librairie squarity
       </a>
     </div>
     <div>
-      <a href="/dummy">
+      <a href="/create/dummy">
         Doc dubidon
       </a>
     </div>

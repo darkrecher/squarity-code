@@ -4,6 +4,7 @@ export default Object.freeze({
   URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
   URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
   URL_PATTERN_EXAMPLES: '/gamedata/examples/{externalId}.txt',
+  URL_PATTERN_TUTORIALS: '/gamedata/tutorials/{externalId}.txt',
 
   urlGameSpecFromLocHash(locHash) {
     const locHashSplitted = locHash.split('_');
@@ -28,6 +29,11 @@ export default Object.freeze({
       }
     } else if (locHashSplitted[1] === 'example') {
       urlPattern = this.URL_PATTERN_EXAMPLES;
+      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
+        return null;
+      }
+    } else if (locHashSplitted[1] === 'tutorial') {
+      urlPattern = this.URL_PATTERN_TUTORIALS;
       if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
         return null;
       }
