@@ -61,7 +61,7 @@ class GameModel(squarity.GameModelBase):
 
 """
 ---------------
-Modifications que vous pouvez essayer
+Modifications à essayer
 ---------------
 
 Ces modifs vous permettront de comprendre le fonctionnement du code,

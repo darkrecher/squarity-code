@@ -8,14 +8,24 @@
     <h2>Mini-exemples</h2>
     <div>
       <v-container>
-        <v-row>
+        <!-- Pourquoi que VSCode me colorie le mot "align" en rouge ?
+             Il va très bien ce mot. C'est pas une erreur de syntaxe ou autre.
+             C'est relou, tous ces trucs...
+         -->
+        <v-row align="center" justify="center">
           <v-col cols="12" md="3" sm="6">
-            <a href="/game/#fetchez_tutorial_showobject">
-              (oeil) Afficher un objet
-            </a>
+            <TutorialGameCard
+              tutoGameId="showobject"
+              tutoTitle="Afficher un objet"
+              tutoImg="eye.png"
+            />
           </v-col>
           <v-col cols="12" md="3" sm="6">
-            (souris) Réagir aux clics et aux boutons
+            <TutorialGameCard
+              tutoGameId="playerinput"
+              tutoTitle="Réagir aux clics et aux boutons"
+              tutoImg="mouse.png"
+            />
           </v-col>
           <v-col cols="12" md="3" sm="6">
             (4 flèches) Déplacer des objets
@@ -63,6 +73,7 @@
 
 <script setup>
   import MyHeader from '@/components/Header.vue'
+  import TutorialGameCard from '@/components/TutorialGameCard.vue'
 </script>
 
 

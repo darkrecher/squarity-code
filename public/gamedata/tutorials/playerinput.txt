@@ -1,0 +1,21 @@
+/gamedata/tutorials/tutorial_tileset.png
+--------
+{
+  "name": "TODO : blah",
+  "version": "2.1.0",
+  "game_area": {
+    "nb_tile_width": 6,
+    "nb_tile_height": 4
+  },
+  "tile_size": 32,
+  "img_coords": {
+    "head_green": [96, 0]
+  }
+}
+--------
+import squarity
+
+class GameModel(squarity.GameModelBase):
+
+    def on_start(self):
+        print("TODO : work in progress")
