@@ -8,7 +8,8 @@
     <h2>Mini-exemples</h2>
     <div>
       <v-container>
-        <!-- Pourquoi que VSCode me colorie le mot "align" en rouge ?
+        <!-- https://stackoverflow.com/questions/52343526/center-content-vertically-on-vuetify
+             Pourquoi que VSCode me colorie le mot "align" en rouge ?
              Il va très bien ce mot. C'est pas une erreur de syntaxe ou autre.
              C'est relou, tous ces trucs...
          -->
