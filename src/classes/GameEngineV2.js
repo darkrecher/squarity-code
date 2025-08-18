@@ -294,7 +294,7 @@ export default class GameEngineV2 {
     // FUTURE: si je pouvais récupérer Coord,
     // j'aurais pas besoin d'exécuter ça avec une string pourrie.
     const eventResultRaw = this.runPython(
-      `game_model.on_click(Coord(${clickedTileX}, ${clickedTileY}))`,
+      `game_model.on_click(squarity.Coord(${clickedTileX}, ${clickedTileY}))`,
       `Exécution de on_click sur (${clickedTileX}, ${clickedTileX})`,
     );
     this.afterGameEvent(eventResultRaw);
