@@ -10,14 +10,13 @@
   "tile_size": 32,
   "img_coords": {
     "head_green": [96, 0],
-    "gray_square": [0, 64]
+    "square_gray": [0, 64]
   }
 }
 --------
 """
 Ce tutoriel affiche un quadrillage et écrit des informations
-dans le log de squarity à chaque action
-effectuée par la personne qui joue :
+dans le log de squarity à chaque interaction :
 
  - clic de souris
  - appui sur les boutons de directions ou sur les touches du clavier
@@ -47,7 +46,7 @@ class GameModel(squarity.GameModelBase):
                     # sur toutes les "cases impaires", pour dessiner un damier.
                     gobj = squarity.GameObject(
                         squarity.Coord(x, y),
-                        "gray_square",
+                        "square_gray",
                     )
                     self.layer_main.add_game_object(gobj)
         print("Affichage quadrillage ok.")
@@ -109,8 +108,8 @@ des coordonnées de la case cliquée.
 La configuration contient déjà la définition de l'image "head_green",
 comme dans le tutoriel précédent.
 
-3. Lors de l'activation d'une action, itérer sur toutes les cases de l'aire
-de jeu et compter le nombre total de game object présents
+3. Lors de l'activation d'une action (1 ou 2), itérer sur toutes les
+cases de l'aire de jeu et compter le nombre total de game object présents
 (les carrés gris + les têtes vertes). Pour cela, vous aurez besoin de la
 fonction permettant de récupérer les game objects d'une case.
 Consultez la doc :

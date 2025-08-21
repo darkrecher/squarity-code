@@ -1,0 +1,126 @@
+/gamedata/tutorials/tutorial_tileset.png
+--------
+{
+  "name": "Récupération des actions de jeu",
+  "version": "2.1.0",
+  "game_area": {
+    "nb_tile_width": 6,
+    "nb_tile_height": 4
+  },
+  "tile_size": 32,
+  "img_coords": {
+    "head_green": [96, 0],
+    "hat_violet": [0, 32]
+  }
+}
+--------
+"""
+Ce tutoriel affiche une tête verte et un chapeau violet.
+Lors de l'activation d'une des 4 directions, la tête se déplace
+d'une case. Elle est bloquée contre les bords de l'aire de jeu.
+
+Le chapeau ne se déplace pas, jusqu'à ce que la tête arrive
+sur sa case. À partir de cet instant, les deux objets se
+déplacent en même temps, lors de l'activation d'une direction.
+"""
+
+import squarity
+
+class GameModel(squarity.GameModelBase):
+
+    def on_start(self):
+
+        # Création du game object "self.person" (la tête verte).
+        # On la garde en variable membre de GameModel, pour
+        # pouvoir agir dessus plus tard.
+        self.person = squarity.GameObject(
+            squarity.Coord(2, 1),
+            "head_green",
+        )
+        # Ajout d'un petit attribut à self.person, indiquant
+        # si elle porte le chapeau violet.
+        self.person.wearing_hat = False
+        self.layer_main.add_game_object(self.person)
+
+        # Création du game object "self.hat"
+        # (le chapeau violet).
+        self.hat = squarity.GameObject(
+            squarity.Coord(4, 3),
+            "hat_violet",
+        )
+        self.layer_main.add_game_object(self.hat)
+
+    def on_button_direction(self, direction):
+
+        # On récupère les coordonnées actuelle de self.person,
+        # que l'on déplace d'une case dans la direction activée.
+        # La variable dest_coord contient donc les coordonnées
+        # de destination de self.person.
+        dest_coord = self.person.get_coord().move_dir(direction)
+
+        # Vérification que la destination se trouve dans l'aire de jeu.
+        # Cela permet de s'assurer que self.person ne va pas sortir
+        # par un des côtés. Par exemple, elle est tout à gauche
+        # et c'est la direction gauche qui est activée.
+        if self.rect.in_bounds(dest_coord):
+            # Déplacement de self.person.
+            self.person.move_to(dest_coord)
+            # Éventuellement, déplacement du chapeau sur les mêmes
+            # coordonnées de destination, si self.person le porte.
+            if self.person.wearing_hat:
+                self.hat.move_to(dest_coord)
+
+        # Si self.person et le chapeau se retrouvent sur la même case,
+        # on considère qu'elle prend le chapeau.
+        # Pour toutes les futures activations de directions,
+        # on déplacera les deux objets en même temps.
+        if self.person.get_coord() == self.hat.get_coord():
+            self.person.wearing_hat = True
+
+
+"""
+---------------
+Modifications à essayer
+---------------
+
+1. Lorsqu'un bouton d'action est appuyé (le 1 ou le 2), self.person
+pourrait poser le chapeau sur la case actuelle. Lors du prochain
+déplacement, le chapeau resterait où il est.
+
+Si self.person revient sur la case du chapeau, elle le reprend.
+Puis elle peut le redéposer autre part, etc.
+
+Pour cette modif, vous devrez déclarer une nouvelle fonction
+(plus précisément: une méthode de la classe GameModel). Cette fonction
+est mentionnée dans le tutoriel précédent.
+
+2. Les "transitions" (déplacement pixel par pixel d'un game object,
+de sa case de départ vers sa case de destination),
+sont automatiquement gérées par le moteur de Squarity.
+La seule chose que vous avez à faire est d'indiquer qu'un game object
+doit aller sur une autre case.
+
+Le temps de transition est de 200 millisecondes par défaut.
+C'est un peu lent. Essayez de le redéfinir à 50 millisecondes,
+pour les deux game objects.
+
+Pour trouver comment faire, consultez la doc :
+http://https://squarity.pythonanywhere.com//create/maindocv2#fonction-add_transition
+
+3. Avec un temps de transition lent, un bug de mouvement peut apparaître.
+Placez-vous sur la même ligne que le chapeau, tout à gauche.
+Appuyez plusieurs fois très rapidement sur la flèche de droite.
+Vous avancerez et prendrez le chapeau au passage, et les deux game objects
+seront momentanément décalés.
+
+Cela vient du fait que les mouvements sont mis dans une file d'attente au fur
+et à mesure qu'ils sont enregistrés, et les files d'attente sont indépendantes
+entre chaque objet.
+
+Pour remédier à cela, vous pouvez bloquer toutes les actions d'interface
+lorsque certains game objects ont des transitions en cours.
+
+À la fin de la fonction "on_start", ajoutez cette ligne de code:
+        self.hero.plock_transi = squarity.PlayerLockTransi.INVISIBLE
+
+"""

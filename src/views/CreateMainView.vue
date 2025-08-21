@@ -29,7 +29,11 @@
             />
           </v-col>
           <v-col cols="12" md="3" sm="6">
-            (4 flèches) Déplacer des objets
+            <TutorialGameCard
+              tutoGameId="moveobjects"
+              tutoTitle="Déplacer des objets"
+              tutoImg="4_arrows.png"
+            />
           </v-col>
           <v-col cols="12" md="3" sm="6">
             (croix en case) Récupérer les cases adjacentes
