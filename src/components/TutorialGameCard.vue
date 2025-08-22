@@ -40,7 +40,7 @@ export default {
 <style scoped>
 
 a {
-  text-decoration: none;
+  text-decoration-color: #A0A0A0;
 }
 
 span {

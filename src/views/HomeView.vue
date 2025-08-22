@@ -42,6 +42,9 @@
         </v-col>
         <v-col cols="12" sm="6">
           <div class="game-example">
+            <!-- TODO: autre chose que le sokoban comme premier exemple, parce qu'on le montre déjà dans les tutoriels.
+                 Un jeu simple avec des formes qu'on déplace et il faut en mettre trois ensemble pour les faire disparaître, et puis c'est tout.
+            -->
             <a href="/game/#fetchez_example_sokoban">
               <img src="../assets/game_card_img/sokoban.png">
               <br>

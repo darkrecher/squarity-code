@@ -2,10 +2,17 @@
   <main>
     <MyHeader />
     <h1>Créer des jeux</h1>
-    <p>
-      Bla bla
-    </p>
+    <a href="/game/#fetchez_tutorial_minimal" target="_blank">
+      Jeu avec un code minimal
+    </a>
     <h2>Mini-exemples</h2>
+    <p>
+      Ces exemples sont des tutoriels présentant chacun une fonctionnalité spécifique.
+      <br>
+      Ils contiennent des suggestions de modifications, pour vous entrainer à coder en python et à utiliser la librairie Squarity.
+      <br>
+      Il est conseillé de les regarder dans l'ordre. Ce que vous apprenez dans un tutoriel peut servir pour les suivants.
+    </p>
     <div>
       <v-container>
         <!-- https://stackoverflow.com/questions/52343526/center-content-vertically-on-vuetify
@@ -36,10 +43,23 @@
             />
           </v-col>
           <v-col cols="12" md="3" sm="6">
+            <TutorialGameCard
+              tutoGameId="sokoban"
+              tutoTitle="Soko-ban (jeu&nbsp;complet)"
+              tutoImg="sokoban.png"
+            />
+          </v-col>
+        </v-row>
+        <v-row align="center" justify="center">
+          <v-col cols="12" md="12" sm="12">
+            D'autres exemples viendront bientôt...
+          </v-col>
+        </v-row>
+        <!--
+        </v-row>
+          <v-col cols="12" md="3" sm="6">
             (croix en case) Récupérer les cases adjacentes
           </v-col>
-        <v-row>
-        </v-row>
           <v-col cols="12" md="3" sm="6">
             (2 carré à bords rond, superposés) Définir l'ordre d'affichage avec des layers
           </v-col>
@@ -53,9 +73,12 @@
             (une caisse) Exemple complet : Soko-ban
           </v-col>
         </v-row>
+        -->
 
       </v-container>
     </div>
+
+    <h2>Documentation</h2>
 
     <div>
       <a href="/create/shareyourgame">
@@ -64,7 +87,12 @@
     </div>
     <div>
       <a href="/create/maindocv2">
-        Doc de référence de la librairie squarity
+        Doc de référence
+      </a>
+    </div>
+    <div>
+      <a href="/create/codelibsquarityv2">
+        Code source de la librairie squarity
       </a>
     </div>
     <div>
@@ -92,6 +120,11 @@ h1 {
   font-size: 3em;
 }
 
+h2 {
+  padding-top: 2em;
+  font-size: 2.5em;
+}
+
 img {
   width: 100%;
   max-width: 15em;
@@ -103,10 +136,13 @@ a {
   font-size: 1.7em;
 }
 
+p {
+  font-size: 1.2em;
+}
+
 a:visited {
   color: #b06edb;
 }
-
 
 .game-example {
   padding: 1.5em;

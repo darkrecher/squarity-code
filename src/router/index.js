@@ -46,6 +46,12 @@ const router = createRouter({
       props: {componentNameDoc: "ShareYourGame"},
     },
     {
+      path: '/create/codelibsquarityv2',
+      name: 'codelibsquarityv2',
+      component: () => import('../views/DocArticleView.vue'),
+      props: {componentNameDoc: "CodeLibSquarityV2"},
+    },
+    {
       path: '/create/dummy',
       name: 'dummy',
       component: () => import('../views/DocArticleViewWithToc.vue'),
