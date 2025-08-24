@@ -11,6 +11,7 @@
 <li>le &quot;game code&quot;.</li>
 </ul>
 <p>Pour l'instant, Squarity ne gère pas de comptes ni de profil personnel. Vous devez sauvegarder vos jeux par vous-même. Vous pouvez les distribuer en <a href="https://github.com/darkrecher/squarity-doc/blob/master/user_manual/share_your_game.md">les publiant sur un gist github</a>.</p>
+<p><strong>TODO</strong> : et après faudra mettre la vraie url de la doc sur le site, quand ce sera dispo</p>
 <h2 id="le-tileset">Le tileset <a class="header-anchor" href="#le-tileset">&#x1F517;</a></h2>
 <p>Le tileset est comme un atlas : c'est une image regroupant toutes les &quot;sous-images&quot; des éléments de votre jeu (décor, personnages, bonus, ...).</p>
 <p>Pour que votre tileset soit accessible dans Squarity, il doit être publié sur internet : dans un repository github, sur un site d'hébergement d'images, etc.</p>

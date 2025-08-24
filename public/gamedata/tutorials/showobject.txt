@@ -60,6 +60,7 @@ class GameModel(squarity.GameModelBase):
 
 
 """
+
 ---------------
 Modifications à essayer
 ---------------
@@ -69,6 +70,14 @@ ce qui vous aidera lors de la création de vos jeux.
 
 Pensez à cliquer sur le bouton "Exécuter" après chacune
 de vos modifications, pour voir le résultat dans le jeu.
+
+Remarque : il n'y a pas de sauvegarde automatique de votre code.
+C'est à vous de le sauvegarder dans un fichier texte en local.
+
+Le plus simple est d'écrire la configuration et le code de votre jeu
+avec l'éditeur de texte que vous utilisez habituellement, et de
+les copier-coller dans squarity lorsque vous voulez tester votre jeu.
+(Ce fonctionnement sera rendu plus pratique dans le futur).
 
 1. Changer les valeurs "96" et "0" dans la configuration JSON.
 Ajoutez ou soustrayez des valeurs assez grande : 10, 20, 50, ...

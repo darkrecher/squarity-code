@@ -52,10 +52,10 @@ const router = createRouter({
       props: {componentNameDoc: "CodeLibSquarityV2"},
     },
     {
-      path: '/create/dummy',
-      name: 'dummy',
+      path: '/create/chooseversion',
+      name: 'chooseversion',
       component: () => import('../views/DocArticleViewWithToc.vue'),
-      props: {componentNameDoc: "Dummy", componentNameDocToc: "DummyToc"},
+      props: {componentNameDoc: "ChooseVersion", componentNameDocToc: "ChooseVersionToc"},
     },
   ]
 })
