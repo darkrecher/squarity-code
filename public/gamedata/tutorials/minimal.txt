@@ -4,7 +4,7 @@
   "name": "Jeu avec un code minimal",
   "version": "2.1.0",
   "game_area": {
-    "nb_tile_width": 15,
+    "nb_tile_width": 17,
     "nb_tile_height": 15
   },
   "tile_size": 32,
@@ -14,7 +14,7 @@
 }
 --------
 """
-Ce jeu s'exécute sans erreur, mais il ne fait absolument rien
+Ce jeu s'exécute sans erreur, mais il ne fait rien,
 à part écrire "Hello World".
 C'est le point de départ pour créer vos propres jeux.
 

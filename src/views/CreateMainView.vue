@@ -172,10 +172,13 @@
                   Quelle version choisir ?
                 </a>
                 <br>
-                <a href="/create/blah">
-                  Blah
+                <a href="/game/#fetchez_tutorial_minimalv1" target="_blank">
+                  Jeu vide (en V1) pour commencer à créer
                 </a>
                 <br>
+                <a href="/game/#fetchez_tutorial_sokobanv1" target="_blank">
+                  Soko-ban (V1) avec des commentaires dans le code
+                </a>
               </div>
             </div>
 

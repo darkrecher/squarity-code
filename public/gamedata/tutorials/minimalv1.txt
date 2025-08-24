@@ -1,0 +1,49 @@
+/gamedata/tutorials/tutorial_tileset.png
+--------
+{
+  "name": "Jeu en V1 avec un code minimal",
+  "version": "1.0.0",
+  "game_area": {
+    "nb_tile_width": 17,
+    "nb_tile_height": 15
+  },
+  "tile_size": 32,
+  "img_coords": {
+    "whatever": [0, 0]
+  }
+}
+--------
+"""
+Ce jeu s'exécute sans erreur, mais il ne fait rien
+à part écrire "Hello World" au début, et écrire
+les événements de clics et de touches.
+
+C'est le point de départ pour créer vos jeux,
+avec la version V1.
+
+La doc concernant la V1 se trouve dans la page
+"Créer des jeux".
+"""
+
+class GameModel():
+
+    def __init__(self):
+        self.w = 17
+        self.h = 15
+        self.tiles = [
+            [
+                [] for x in range(self.w)
+            ]
+            for y in range(self.h)
+        ]
+        print("Hello world")
+
+    def export_all_tiles(self):
+        return self.tiles
+
+    def on_game_event(self, event_name):
+        print(event_name)
+
+    def on_click(self, x, y):
+        print("click", x, y)
+
