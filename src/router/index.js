@@ -57,6 +57,12 @@ const router = createRouter({
       component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "ChooseVersion", componentNameDocToc: "ChooseVersionToc"},
     },
+    {
+      path: '/create/maindocv1',
+      name: 'maindocv1',
+      component: () => import('../views/DocArticleViewWithToc.vue'),
+      props: {componentNameDoc: "MainDocV1", componentNameDocToc: "MainDocV1Toc"},
+    },
   ]
 })
 

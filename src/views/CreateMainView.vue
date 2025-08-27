@@ -179,6 +179,10 @@
                 <a href="/game/#fetchez_tutorial_sokobanv1" target="_blank">
                   Soko-ban (V1) avec des commentaires dans le code
                 </a>
+                <br>
+                <a href="/create/maindocv1">
+                  Doc de référence de la V1
+                </a>
               </div>
             </div>
 

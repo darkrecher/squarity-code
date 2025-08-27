@@ -92,7 +92,7 @@
 </ul>
 <p>Ensuite, une mise à l'échelle des images est effectuée. On part de la taille définie par <code>config.tile_size</code> (en pixel de tileset), pour arriver à des images ayant une taille égale à <code>taille_case_affichage</code> (en pixel d'écran).</p>
 <p>La mise à l'échelle est effectuée selon l'algorithme &quot;proche voisin&quot;, sans traitement ni anti-aliasing. Vous verrez donc des gros pixels carrés si vos images de tileset sont petites et que vous jouez dans une grande fenêtre.</p>
-<p>![<img src="../../assets/doc_img/schema_game_sizes.png" alt="Schéma décrivant les tailles de case et d'aire de jeu" />)</p>
+<p><img src="../../assets/doc_img/schema_game_sizes.png" alt="Schéma décrivant les tailles de case et d'aire de jeu" /></p>
 <h2 id="class-direction">class Direction <a class="header-anchor" href="#class-direction">&#x1F517;</a></h2>
 <p>Il s'agit d'une classe python dont il n'existe que 8 instances : 4 pour les directions de base (haut, droite, bas, gauche) et 4 pour les diagonales. Ces 8 instances sont stockées dans l'objet <code>squarity.dirs</code>.</p>
 <h3 id="liste-des-directions">Liste des directions <a class="header-anchor" href="#liste-des-directions">&#x1F517;</a></h3>
@@ -686,7 +686,7 @@ class GameModel(squarity.GameModelBase):
                 self.gobj.image_modifier.area_scale_y -= 0.1
                 self.gobj.image_modifier.area_scale_x += 0.1
 </code></pre>
-<p>![<img src="../../assets/doc_img/schema_sprite_infos.png" alt="Schéma décrivant les informations que l'on peut indiquer dans un &quot;image modifier&quot;" />)</p>
+<p><img src="../../assets/doc_img/schema_sprite_infos.png" alt="Schéma décrivant les informations que l'on peut indiquer dans un &quot;image modifier&quot;" /></p>
 <h3 id="transitions-1">Transitions <a class="header-anchor" href="#transitions-1">&#x1F517;</a></h3>
 <p>Les 8 valeurs du <code>ComponentImageModifier</code> sont transitionnables, comme les coordonnées d'un game object.</p>
 <ul>
