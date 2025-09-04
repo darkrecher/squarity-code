@@ -11,7 +11,7 @@ const router = createRouter({
       component: HomeView
     },
     {
-      path: '/gameslist',
+      path: '/games-list',
       name: 'games_list',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
@@ -34,34 +34,40 @@ const router = createRouter({
       component: () => import('../views/RoadmapView.vue')
     },
     {
-      path: '/create/maindocv2',
-      name: 'maindocv2',
+      path: '/create/main-doc',
+      name: 'maindoc',
       component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "MainDocV2", componentNameDocToc: "MainDocV2Toc"},
     },
     {
-      path: '/create/shareyourgame',
+      path: '/create/share-your-game',
       name: 'shareyourgame',
       component: () => import('../views/DocArticleView.vue'),
       props: {componentNameDoc: "ShareYourGame"},
     },
     {
-      path: '/create/codelibsquarityv2',
-      name: 'codelibsquarityv2',
+      path: '/create/code-lib-squarity',
+      name: 'codelibsquarity',
       component: () => import('../views/DocArticleView.vue'),
       props: {componentNameDoc: "CodeLibSquarityV2"},
     },
     {
-      path: '/create/chooseversion',
+      path: '/create/choose-version',
       name: 'chooseversion',
       component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "ChooseVersion", componentNameDocToc: "ChooseVersionToc"},
     },
     {
-      path: '/create/maindocv1',
+      path: '/create/main-doc-v1',
       name: 'maindocv1',
       component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "MainDocV1", componentNameDocToc: "MainDocV1Toc"},
+    },
+    {
+      path: '/create/tutoriel-sokoban-v1',
+      name: 'tutorielsokobanv1',
+      component: () => import('../views/DocArticleViewWithToc.vue'),
+      props: {componentNameDoc: "TutorielSokobanV1", componentNameDocToc: "TutorielSokobanV1Toc"},
     },
   ]
 })

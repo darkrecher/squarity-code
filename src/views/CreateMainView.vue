@@ -88,15 +88,15 @@
             <h2>Documentation</h2>
             <div class="sub-chapter">
               <div class="link-list">
-                <a href="/create/maindocv2">
+                <a href="/create/main-doc">
                   Doc de référence
                 </a>
                 <br>
-                <a href="/create/shareyourgame">
+                <a href="/create/share-your-game">
                   Comment partager vos jeux
                 </a>
                 <br>
-                <a href="/create/codelibsquarityv2">
+                <a href="/create/code-lib-squarity">
                   Code source de la librairie squarity
                 </a>
               </div>
@@ -168,7 +168,7 @@
             <h2>Ancienne version (Squarity V1)</h2>
             <div class="sub-chapter">
               <div class="link-list">
-                <a href="/create/chooseversion">
+                <a href="/create/choose-version">
                   Quelle version choisir ?
                 </a>
                 <br>
@@ -177,11 +177,15 @@
                 </a>
                 <br>
                 <a href="/game/#fetchez_tutorial_sokobanv1" target="_blank">
-                  Soko-ban (V1) avec des commentaires dans le code
+                  Jeu Soko-ban (V1) avec des commentaires dans le code
                 </a>
                 <br>
-                <a href="/create/maindocv1">
+                <a href="/create/main-doc-v1">
                   Doc de référence de la V1
+                </a>
+                <br>
+                <a href="/create/tutoriel-sokoban-v1">
+                  Tutoriel long et détaillé pour créer le Soko-ban
                 </a>
               </div>
             </div>
