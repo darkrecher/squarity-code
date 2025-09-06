@@ -29,7 +29,7 @@ const router = createRouter({
       component: () => import('../views/PlayGameView.vue')
     },
     {
-      path: '/roadmap',
+      path: '/create/roadmap',
       name: 'roadmap',
       component: () => import('../views/RoadmapView.vue')
     },
@@ -68,6 +68,17 @@ const router = createRouter({
       name: 'tutorielsokobanv1',
       component: () => import('../views/DocArticleViewWithToc.vue'),
       props: {componentNameDoc: "TutorielSokobanV1", componentNameDocToc: "TutorielSokobanV1Toc"},
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutView.vue')
+    },
+    {
+      path: '/about/why-squarity',
+      name: 'whysquarity',
+      component: () => import('../views/DocArticleView.vue'),
+      props: {componentNameDoc: "WhySquarity", headerIsCreate: false},
     },
   ]
 })

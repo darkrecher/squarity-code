@@ -1,8 +1,8 @@
 <template>
   <div class="roadmap">
     <h1>Road map de Squarity</h1>
-    <router-link to="/">
-      Retour à la page principale.
+    <router-link to="/about">
+      Retour à la page précédente.
     </router-link>
     <br>
 

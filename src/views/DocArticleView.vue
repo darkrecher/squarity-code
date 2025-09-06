@@ -4,7 +4,13 @@
     <div class="container">
       <div class="content">
         <div id="doc-start"></div>
-        <HeaderCreate/>
+
+        <template v-if="headerIsCreate">
+          <HeaderCreate/>
+        </template>
+        <template v-else>
+          <HeaderAbout/>
+        </template>
         <DocContainer :component-name="componentNameDoc"/>
       </div>
     </div>
@@ -16,16 +22,19 @@
 
 import DocContainer from '@/components/DocContainer.vue'
 import HeaderCreate from '@/components/HeaderCreate.vue'
+import HeaderAbout from '@/components/HeaderAbout.vue'
 
 export default {
   name: 'DocArticleView',
   components: {
     DocContainer,
     HeaderCreate,
+    HeaderAbout,
   },
 
   props: {
     componentNameDoc: { type: String, required: true },
+    headerIsCreate: { type: Boolean, default: true },
   },
 
 }
@@ -44,13 +53,13 @@ export default {
 
 @media (max-width: 959px) {
   .content {
-    padding: 0.1em;
+    padding: 0.1em 0.1em 2em 0.1em;
   }
 }
 
 @media (min-width: 960px) {
   .content {
-    padding: 0.2em 2em 0.2em 2em;
+    padding: 0.2em 2em 4em 2em;
   }
 }
 

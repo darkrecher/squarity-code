@@ -23,7 +23,7 @@
         </v-col>
         <v-col cols="12" sm="4">
           <div>
-            <button>Squarity ?</button>
+            <button  @click="$router.push('/about')">Squarity ?</button>
           </div>
         </v-col>
       </v-row>
