@@ -1,7 +1,7 @@
 <template>
   <main>
     <!--
-      Linter ou je-ne-sais-quel-autre-truc qui accepte pas que j'accepte mes propres components "Header".
+      Linter ou je-ne-sais-quel-autre-truc qui accepte pas que j'appelle mes propres components "Header".
       Ce sera donc "MyHeader". Merci.
     -->
     <MyHeader />
@@ -35,8 +35,46 @@
             </a>
           </div>
         </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_unlimitedspace">
+              <img src="../assets/game_card_img/unlimitedspace.png">
+              <br>
+              Unlimited space
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="https://squarity.fr/#fetchez_githubgist_darkrecher/dd5cd1e7c59eb19f71609c5b074881c1/raw/unstable-isotopes">
+              <img src="../assets/game_card_img/unstableisotopes.png">
+              <br>
+              Unstable isotopes
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_magician">
+              <img src="../assets/game_card_img/magician.png">
+              <br>
+              Le magicien vert
+            </a>
+          </div>
+        </v-col>
       </v-row>
     </v-container>
+
+    <div>
+      <p>
+        <!-- TODO: Voili voilà... -->
+        Les autres jeux existants seront ajoutés très bientôt.
+        <br>
+        <br>
+        <br>
+        <br>
+      </p>
+    </div>
 
   </main>
 </template>

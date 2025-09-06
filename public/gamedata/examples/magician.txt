@@ -1,44 +1,61 @@
-// https://stackoverflow.com/questions/47597384/best-way-to-define-common-constants-in-vue-js
-
-export default Object.freeze({
-  MAGICIAN_JSON_CONF: `
-  {
-    "version": "1.0.0",
-    "game_area": {
-      "nb_tile_width": 22,
-      "nb_tile_height": 15
-    },
-    "tile_size": 16,
-    "img_coords": {
-      "0": [48, 32],
-      "1": [96, 32],
-      "2": [96, 48],
-      "3": [96, 96],
-      "4": [48, 96],
-      "5": [32, 96],
-      "6": [32, 48],
-      "7": [32, 32],
-      "8": [48, 48],
-      "W": [88, 208],
-      "|": [165, 132],
-      "-": [142, 132],
-      "V": [32, 336],
-      "v": [32, 352],
-      "y": [32, 143],
-      "s": [216, 64],
-      "D": [156, 212],
-      "d": [140, 212],
-      "M": [197, 161],
-      "N": [175, 161],
-      "[": [169, 83],
-      "]": [185, 83],
-      "(": [215, 99],
-      ")": [215, 115],
-      "fire": [187, 128]
-    }
+/gamedata/examples/magician_tileset.png
+--------
+{
+  "version": "1.0.0",
+  "game_area": {
+    "nb_tile_width": 22,
+    "nb_tile_height": 15
+  },
+  "tile_size": 16,
+  "img_coords": {
+    "0": [48, 32],
+    "1": [96, 32],
+    "2": [96, 48],
+    "3": [96, 96],
+    "4": [48, 96],
+    "5": [32, 96],
+    "6": [32, 48],
+    "7": [32, 32],
+    "8": [48, 48],
+    "W": [88, 208],
+    "|": [165, 132],
+    "-": [142, 132],
+    "V": [32, 336],
+    "v": [32, 352],
+    "y": [32, 143],
+    "s": [216, 64],
+    "D": [156, 212],
+    "d": [140, 212],
+    "M": [197, 161],
+    "N": [175, 161],
+    "[": [169, 83],
+    "]": [185, 83],
+    "(": [215, 99],
+    ")": [215, 115],
+    "fire": [187, 128]
   }
-  `,
-  MAGICIAN_GAME_CODE: `
+}
+--------
+"""
+Le magicien vert fabriqueur de pont.
+
+Le tout premier jeu créé avec Squarity !
+
+C'est pas un vrai jeu, c'est juste une démo montrant ce qu'il est possible de faire avec la V1 du moteur.
+
+ - Déplacez-vous dans la direction d'une case vide pour créer un pont.
+ - Appuyez sur le bouton d'action "2" pour lancer une boule de feu destructrice de ponts.
+ - Appuyez sur "1" sous une porte pour la fermer / l'ouvrir
+ - Ça marche aussi en cliquant sur une porte
+ - Laissez uniquement 2 portes ouvertes sur les 3, puis entrez dans l'une d'elles.
+ - Et surtout, avancez vers le nain pour dialoguer avec lui !!
+
+Le tileset de ce jeu a été créé par Buch :
+https://opengameart.org/content/dungeon-tileset
+
+Ce pseudo-jeu est une relique intemporelle pour Squarity, gros bisous.
+"""
+
 DATA_TILES_1 = [
     "7    701     70001    ",
     "     682     68882    ",
@@ -119,10 +136,6 @@ class GameModel():
         self.fires = []
         self.fire_ready = True
         self.clicked_once = False
-
-        print("Le tileset de ce jeu a été créé par Buch :")
-        print("https://opengameart.org/content/dungeon-tileset")
-        print()
 
     def export_all_tiles(self):
         return self.tiles
@@ -311,6 +324,3 @@ class GameModel():
                 print("Essayez de cliquer sur une porte.")
                 self.clicked_once = True
             return """{ "redraw": 0 }"""
-
-  `,
-});

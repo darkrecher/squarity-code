@@ -50,10 +50,7 @@
 // Ça permet de montrer clairement que c'est une url et qu'on peut
 // en mettre une autre, hébergée sur un autre site.
 
-
-import gameExamples from '../classes/GameExamples';
 import gameSpecLoader from '../classes/GameSpecLoader';
-import MAGICIAN_URL_TILESET from '../assets/dungeon_tiles_2.png';
 
 export default {
   name: 'DevZone',
@@ -90,10 +87,8 @@ export default {
     },
 
     exampleMagician() {
-      this.$refs.urlTileset.value = MAGICIAN_URL_TILESET;
-      this.$refs.jsonConf.value = gameExamples.MAGICIAN_JSON_CONF;
-      this.$refs.gameCode.value = gameExamples.MAGICIAN_GAME_CODE;
-      this.activateCurrentGameSpec();
+      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
+      this.$refs.urlTileset.value += " Pour jouer au magicien, retournez sur la page d'accueil et cliquez sur le jeu."
     },
 
     exampleH2o() {
