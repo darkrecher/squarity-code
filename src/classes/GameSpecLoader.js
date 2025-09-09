@@ -78,4 +78,8 @@ export default Object.freeze({
     };
   },
 
+  getDefaultGameSpecUrl() {
+    return this.URL_PATTERN_EXAMPLES.replace('{externalId}', 'magician');
+  },
+
 });

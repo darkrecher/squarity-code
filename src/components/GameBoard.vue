@@ -9,20 +9,6 @@
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
           </div>
-          <div class="dev-notice">
-            Fonctionne grâce à Pyodide.
-            <a href="https://github.com/darkrecher/squarity-code" target="_blank">
-              Code source
-            </a>
-            et
-            <a href="https://github.com/darkrecher/squarity-doc" target="_blank">
-              documentation
-            </a>
-            sur github.
-            <router-link to="/roadmap">
-              Lien vers la roadmap.
-            </router-link>
-          </div>
           <div class="flex-grow">
             <!--
               C'est cool les v-bind : https://vuejs.org/v2/guide/class-and-style.html
@@ -101,7 +87,20 @@
                       2
                     </button>
                   </div>
+
                   <div class="flex-grow" />
+                  <div class="flex-column">
+                    <div class="button-wrapper">
+                      <button class="my-button little">S</button>
+                      <span class="tooltip">Extra info here</span>
+                    </div>
+
+                    <div class="button-wrapper">
+                      <button class="my-button little">*</button>
+                      <span class="tooltip">Pouet</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -492,10 +491,6 @@ a {
     width: 2em;
     font-size: 1.5em;
   }
-
-  .dev-notice {
-    margin-top: 1em;
-  }
 }
 
 @media only screen and (min-width: 768px) {
@@ -566,6 +561,10 @@ div.game-buttons button {
   color: black;
 }
 
+button.little {
+  font-size: 0.8em;
+}
+
 canvas {
   border: 1px solid gray;
   image-rendering: pixelated;
@@ -589,8 +588,30 @@ textarea {
   font-family: monospace;
 }
 
-.dev-notice {
-  font-size: 0.8em;
+.button-wrapper {
+  position: relative; /* anchor point for tooltip */
+}
+
+.my-button {
+  /* your existing button styles */
+}
+
+.tooltip {
+  position: absolute;
+  right: 100%;            /* place it to the left of the button */
+  top: 50%;               /* vertically centered */
+  transform: translateY(-50%);
+  background: black;
+  color: white;
+  padding: 6px 10px;
+  white-space: nowrap;
+  z-index: 9999;          /* ensures it's above other elements */
+  opacity: 0;             /* hidden by default */
+  pointer-events: none;   /* so it doesn’t interfere with clicks */
+}
+
+.button-wrapper:hover .tooltip {
+  opacity: 1;             /* show on hover */
 }
 
 </style>

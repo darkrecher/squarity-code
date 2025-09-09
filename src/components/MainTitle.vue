@@ -11,8 +11,7 @@
 export default {
   name: 'MainTitle',
 };
-// TODO : quand c'est un jeu d'exemple, il faut ajouter un lien vers la liste des jeux d'exemples.
-//        quand c'est un tutoriel, il faut ajouter un lien vers la liste des tutos.
+
 </script>
 
 <style scoped>

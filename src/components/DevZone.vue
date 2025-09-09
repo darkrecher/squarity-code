@@ -1,41 +1,20 @@
 <template>
   <div ref="devZone" class="dev-zone">
-    <div class="links-and-exemples">
-      <div>
-        <a href="https://discord.gg/D5SYnk8u3j" target="_blank">
-          <img class="discord" src="../assets/discord.svg" alt="Logo discord">
-        </a>
-      </div>
-      <div>
-        <a href="https://mstdn.io/@recher" target="_blank">
-          <img class="mastodon" src="../assets/mastodon.svg" alt="Logo mastodon">
-        </a>
-      </div>
-      <div class="game-examples">
-        <div>
-          Exemples de jeu :
-          <!-- https://stackoverflow.com/questions/56523600/how-to-use-an-image-as-a-button-in-vue-js -->
-          <img src="../assets/magicien_icon.png" @click="exampleMagician">
-          <img src="../assets/h2o_icon.png" @click="exampleH2o">
-          <img src="../assets/emerald_icon.png" @click="exampleEmerald">
-        </div>
-      </div>
-    </div>
     <div class="dev-field-url">
-      Url de l'image :
+      Url de l'image :&nbsp;
       <input ref="urlTileset" type="text">
       <button @click="sendGameSpec">
         Exécuter &#x25B6;
       </button>
     </div>
     <div class="dev-field-label">
-      Config du jeu (en JSON).
+      Config du jeu (en JSON) :
     </div>
     <div class="dev-field-json">
       <textarea ref="jsonConf" spellcheck="false" />
     </div>
     <div class="dev-field-label">
-      Le code du jeu (en python).
+      Le code du jeu (en python) :
     </div>
     <div class="dev-field-python">
       <textarea ref="gameCode" spellcheck="false" />
@@ -86,29 +65,16 @@ export default {
       this.activateCurrentGameSpec();
     },
 
-    exampleMagician() {
-      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
-      this.$refs.urlTileset.value += " Pour jouer au magicien, retournez sur la page d'accueil et cliquez sur le jeu."
-    },
-
-    exampleH2o() {
-      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
-      this.$refs.urlTileset.value += " Pour jouer à H2O, retournez sur la page d'accueil et cliquez sur le jeu."
-    },
-
-    exampleEmerald() {
-      this.$refs.urlTileset.value = "Ce bouton ne marche plus ! Je vais l'enlever.";
-      this.$refs.urlTileset.value += " Pour jouer à Emerald, allez à la liste des jeux et cliquez sur le jeu."
-    },
-
     async fetchGameSpecFromLocHash() {
+
       const locHash = window.location.hash;
+      let urlGameSpec;
       if (!locHash) {
-        // TODO: un exemple tout vide quand y'a pas de locHash.
-        this.exampleMagician();
-        return;
+        urlGameSpec = gameSpecLoader.getDefaultGameSpecUrl();
+      } else {
+        urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);
       }
-      const urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);
+
       if (urlGameSpec === null) {
         console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
       } else {
@@ -122,6 +88,7 @@ export default {
           this.activateCurrentGameSpec();
         }
       }
+
     },
 
     onKeyDown(e) {
@@ -149,53 +116,8 @@ export default {
   padding-right: 2em;
 }
 
-.links-and-exemples {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.links-and-exemples img {
-  padding-left: 0.3em;
-  padding-right: 0.3em;
-}
-
-/* Crétins de svg qui ont pas la même taille apparente. */
-img.discord {
-  height: 2.5em;
-}
-
-img.mastodon {
-  height: 2em;
-}
-
-.game-examples {
-  padding-bottom: 0.8em;
-}
-
-.game-examples div {
-  display: flex;
-  align-items: center;
-}
-
-.game-examples img {
-  background-color: #505050;
-  border: 1px solid #A0A0A0;
-  height: 3em;
-  padding: 0.3em;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-  cursor: pointer;
-}
-
-.game-examples img:hover {
-  background-color: #909090;
-}
-
 .dev-field-url {
   display: flex;
-  border-top: 2px solid #C0C0C0;
   padding-top: 0.6em;
 }
 
