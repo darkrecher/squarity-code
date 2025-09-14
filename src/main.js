@@ -18,4 +18,6 @@ const app = createApp(App)
 app.use(router)
 app.use(vuetify)
 
+import './styles/globals.css'
+
 app.mount('#app')

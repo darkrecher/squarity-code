@@ -20,7 +20,7 @@
           </div>
         </div>
       </v-col>
-      <v-col sm="12" :md="hideCode ? 12 : 6" order="1" order-sm="1" order-md="2">
+      <v-col sm="12" :md="hideCode ? 12 : 6" order="1" order-sm="1" order-md="2" class="no-padding-you-dumbass">
         <!--
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
@@ -30,11 +30,6 @@
             <div :class="{ hidden: hideCode }">
               <MainTitle />
             </div>
-          </div>
-          <div ref="toggleButton" class="flex-grow-no full-screen-button">
-            <button @click="toggleDevZoneDisplay">
-              Jeu en plein écran
-            </button>
           </div>
           <div class="flex-grow">
             <div class="flex-line h-100">
@@ -46,7 +41,7 @@
           </div>
           <div ref="gameFooter" class="game-footer flex-grow-no">
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
-            <div>
+            <div class="game-footer-inside">
               <div class="flex-grow-2">
                 <textarea id="pythonConsole" ref="pythonConsole" readonly />
               </div>
@@ -59,49 +54,64 @@
               -->
               <div class="flex-grow game-buttons">
                 <div>
+
                   <div class="flex-grow" />
                   <div>
-                    <button :disabled="isPlayerLocked" @click="goLeft">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="goLeft">
                       &#x21e6;
                     </button>
                   </div>
                   <div class="flex-column">
-                    <button :disabled="isPlayerLocked" @click="goUp">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="goUp">
                       &#x21e7;
                     </button>
-                    <button :disabled="isPlayerLocked" @click="goDown">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="goDown">
                       &#x21e9;
                     </button>
                   </div>
                   <div>
-                    <button :disabled="isPlayerLocked" @click="goRight">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="goRight">
                       &#x21e8;
                     </button>
                   </div>
                   <div class="flex-grow-04" />
                   <div class="flex-column">
-                    <button :disabled="isPlayerLocked" @click="action1">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="action1">
                       1
                     </button>
-                    <button :disabled="isPlayerLocked" @click="action2">
+                    <button class="game-button-for-real" :disabled="isPlayerLocked" @click="action2">
                       2
                     </button>
                   </div>
 
                   <div class="flex-grow" />
-                  <div class="flex-column">
+                  <div class="flex-column game-menu-normal">
                     <div class="button-wrapper">
-                      <button class="my-button little">S</button>
-                      <span class="tooltip">Extra info here</span>
+                      <button class="my-button game-menu-button-normal" @click="$router.push('/')">&#9632;</button>
+                      <span class="tooltip">Page d'accueil de Squarity</span>
                     </div>
 
                     <div class="button-wrapper">
-                      <button class="my-button little">*</button>
-                      <span class="tooltip">Pouet</span>
+                      <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">( ):</button>
+                      <span class="tooltip">Afficher/masquer le code source</span>
                     </div>
                   </div>
 
                 </div>
+              </div>
+            </div>
+            <div class="game-menu-small">
+              <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
+                <div @click="$router.push('/')">
+                  <span class="game-menu-icon">&#9632;</span>
+                  <span>Page d'accueil de Squarity</span>
+                </div>
+                <div @click="toggleDevZoneDisplay">
+                  <span class="game-menu-icon">( ):</span>
+                  <span>Afficher/masquer le code source</span>
+                </div>
+              </div>
+              <div :class="{ activated: !hideGameMenuSmall }" class="game-menu-small-toggle" @click="gameMenuSmallClick">
               </div>
             </div>
           </div>
@@ -153,6 +163,7 @@ export default {
     return {
       loadingDone: false,
       hideCode: false,
+      hideGameMenuSmall: true,
       isPlayerLocked: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
@@ -272,10 +283,9 @@ export default {
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.gameFooter.clientHeight;
       const Htitle = this.$refs.titleContainer.clientHeight;
-      const HtoggleButton = this.$refs.toggleButton.clientHeight;
       const Hmargin = 10;
 
-      let authorizedHeight = Hscreen - Hfooter - Htitle - HtoggleButton - Hmargin;
+      let authorizedHeight = Hscreen - Hfooter - Htitle - Hmargin;
       // La taille autorisée, on peut la récupérer directement.
       // (J'espère que ça marche comme ça sur à peu près tous les navigateurs)
       let authorizedWidth = this.$refs.gameInterface.clientWidth;
@@ -332,6 +342,14 @@ export default {
 
     action2() {
       this.gameEngine.onButtonAction('action_2');
+    },
+
+    gameMenuSmallClick() {
+      this.hideGameMenuSmall = !this.hideGameMenuSmall;
+      // Voir commentaire de la fonction "toggleDevZoneDisplay"
+      // pour comprendre la raison de cette ligne de code stupide.
+      this.dummytab = [{dummyvar: 'dummy'}];
+      this.handleResize();
     },
 
     async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
@@ -470,35 +488,12 @@ a {
   flex: 0.4 1 auto;
 }
 
-.full-screen-button {
-  text-align: right;
-}
-
-.full-screen-button button {
-  background-color: #909090;
-  color: black;
-  padding: 3px 3px 0px 3px;
-  margin-bottom: 5px;
-}
-
 .flex-child-center {
   align-self: center;
 }
 
-@media only screen and (max-width: 768px) {
-  .game-footer button {
-    height: 2em;
-    width: 2em;
-    font-size: 1.5em;
-  }
-}
-
-@media only screen and (min-width: 768px) {
-  .game-footer button {
-    height: 2em;
-    width: 2em;
-    font-size: 2em;
-  }
+.no-padding-you-dumbass {
+  padding: 0;
 }
 
 .game-interface {
@@ -515,7 +510,8 @@ a {
   margin-top: 5px;
 }
 
-.game-footer>div {
+/*.game-footer>div {*/
+.game-footer-inside {
   display: flex;
   flex-wrap: wrap-reverse;
 }
@@ -561,9 +557,15 @@ div.game-buttons button {
   color: black;
 }
 
-button.little {
+button.game-menu-button-normal {
   font-size: 0.8em;
+  border-radius: 8px;
 }
+
+button.game-menu-button-normal:hover {
+  border-radius: 0px;
+}
+
 
 canvas {
   border: 1px solid gray;
@@ -589,29 +591,99 @@ textarea {
 }
 
 .button-wrapper {
-  position: relative; /* anchor point for tooltip */
-}
-
-.my-button {
-  /* your existing button styles */
+  position: relative; /* anchor pour le tooltip */
 }
 
 .tooltip {
   position: absolute;
-  right: 100%;            /* place it to the left of the button */
-  top: 50%;               /* vertically centered */
-  transform: translateY(-50%);
-  background: black;
-  color: white;
-  padding: 6px 10px;
+  right: 100%; /* pour mettre le tooltip à gauche du bouton */
+  top: 50%; /* centré verticalement */
+  transform: translate(0.2em, -50%);
+  background: #909090;
+  color: #000;
+  padding: 0.09em 0.5em 0.09em 0.5em;
   white-space: nowrap;
-  z-index: 9999;          /* ensures it's above other elements */
-  opacity: 0;             /* hidden by default */
-  pointer-events: none;   /* so it doesn’t interfere with clicks */
+  z-index: 9999; /* Pour être sûr qu'il soit par-dessus tous les autres */
+  opacity: 0; /* caché par défaut */
+  pointer-events: none;   /* ne prend pas les clicks */
+  border-top: 5px solid black;
+  border-left: 5px solid black;
+  border-bottom: 5px solid black;
 }
 
 .button-wrapper:hover .tooltip {
-  opacity: 1;             /* show on hover */
+  opacity: 1; /* on affiche le tooltip */
+}
+
+@media only screen and (max-width: 768px) {
+  .game-footer button {
+    height: 2em;
+    width: 2em;
+  }
+  .game-button-for-real {
+    font-size: 1.5em;
+  }
+  .game-menu-normal {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .game-footer button {
+    height: 2em;
+    width: 2em;
+  }
+  .game-button-for-real {
+    font-size: 2em;
+  }
+  .game-menu-small {
+    display: none;
+  }
+}
+
+.game-menu-small-toggle {
+  margin-top: 5px;
+  height: 0.6em;
+  background-color: #707070;
+  border-radius: 10px;
+}
+
+.game-menu-small-toggle:hover {
+  background-color: #909090;
+}
+
+.game-menu-small-toggle.activated {
+  margin-top: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: #B0B0B0;
+}
+
+.game-menu-small-content {
+  background-color: #707070;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: black;
+  font-weight: bold;
+}
+
+.game-menu-small-content > div{
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  padding-left: 30%;
+}
+
+.game-menu-small-content > div:hover{
+  background-color: #909090;
+}
+
+.game-menu-icon {
+  /* https://stackoverflow.com/questions/257505/css-fixed-width-in-a-span */
+  float: left;
+  width: 2em;
 }
 
 </style>

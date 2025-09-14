@@ -18,12 +18,12 @@
         </v-col>
         <v-col cols="12" sm="4">
           <div>
-            <button  @click="$router.push('/create')">Créer des jeux</button>
+            <button @click="$router.push('/create')">Créer des jeux</button>
           </div>
         </v-col>
         <v-col cols="12" sm="4">
           <div>
-            <button  @click="$router.push('/about')">Squarity ?</button>
+            <button @click="$router.push('/about')">Squarity ?</button>
           </div>
         </v-col>
       </v-row>

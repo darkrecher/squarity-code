@@ -20,15 +20,6 @@ if (
 
 <style>
 
-html {
-  height: 100%;
-}
-
-body {
-  background-color: #101010;
-  height: 100%;
-}
-
 #app {
   background-color: #101010;
   font-family: Avenir, Helvetica, Arial, sans-serif;

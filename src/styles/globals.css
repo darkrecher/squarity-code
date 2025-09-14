@@ -1,0 +1,12 @@
+html {
+  height: 100%;
+  /* Cet idiot de Vuetify me mettait "scroll" dans cette propriété
+     Dans Chrome, on voyait la scrollbar verticale, même quand elle n'était pas nécessaire.
+  */
+  overflow-y: auto;
+}
+
+body {
+  background-color: #101010;
+  height: 100%;
+}
