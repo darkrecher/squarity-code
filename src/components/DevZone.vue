@@ -24,10 +24,6 @@
 
 <script>
 
-// TODO: si l'url de l'image n'est pas absolue,
-// on ajoute manuellement le nom de domaine dans la zone de texte.
-// Ça permet de montrer clairement que c'est une url et qu'on peut
-// en mettre une autre, hébergée sur un autre site.
 
 import gameSpecLoader from '../classes/GameSpecLoader';
 

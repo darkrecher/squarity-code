@@ -15,10 +15,6 @@
         <HeaderCreate/>
         <div class="zone-when-narrow">
           <div id="toc-narrow">
-            <!--
-              TODO: ce serait bien d'arriver à écrire une seule fois ce component.
-              Au lieu de l'avoir deux fois, et il y en a toujours un sur deux qui est invisible.
-            -->
             <DocContainer :component-name="componentNameDocToc"/>
           </div>
           <a class="to-the-top" href="#doc-start" ref="buttonToTheTop">

@@ -2,8 +2,7 @@
     <div class="doc-article">
 
 <!--
-    TODO: trouver un moyen plus indépendant et plus automatisé de générer ce fichier.
-    Méthode actuelle:
+    Méthode actuelle pour générer ce fichier, avec la coloration syntaxique:
      - aller sur : https://syntaxhighlighter.app/fr/python
      - choisir "type de thème" = "All"
      - choisir "Nom du thème" = "Dark Plus"

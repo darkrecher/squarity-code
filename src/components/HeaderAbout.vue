@@ -16,11 +16,7 @@
 export default {
   name: 'HeaderAbout',
 };
-// TODO: fichier CSS commun avec Header
-// (Déjà que les deux components sont plus ou moins du copié-collé...)
 
-// TODO: les composants HeaderAbout et HeaderCreate, c'est les mêmes.
-// Faudrait factoriser tout ce bazar, quand même.
 </script>
 
 <style scoped>

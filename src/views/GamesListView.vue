@@ -67,7 +67,6 @@
 
     <div>
       <p>
-        <!-- TODO: Voili voilà... -->
         Les autres jeux existants seront ajoutés très bientôt.
         <br>
         <br>

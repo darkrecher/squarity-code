@@ -20,11 +20,6 @@ export default {
 
 <style scoped>
 
-/*
-TODO: fichier CSS commun avec Header
-(Déjà que les deux components sont plus ou moins du copié-collé...)
- */
-
  a {
   text-decoration: none;
  }
