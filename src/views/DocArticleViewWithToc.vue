@@ -18,7 +18,7 @@
             <DocContainer :component-name="componentNameDocToc"/>
           </div>
           <a class="to-the-top" href="#doc-start" ref="buttonToTheTop">
-            &#x21A5
+            &#x21A5;
           </a>
         </div>
         <DocContainer :component-name="componentNameDoc"/>
