@@ -3,15 +3,14 @@
 
 <h1 id="documentation-de-référence-de-squarity-v2">Documentation de référence de Squarity V2 <a class="header-anchor" href="#documentation-de-référence-de-squarity-v2">&#x1F517;</a></h1>
 <p>Squarity est un espace de création et de partage de jeux vidéo jouables dans un navigateur web. Les jeux se déroulent sur une grille en 2D composée de carrés. Le fonctionnement et les règles du jeu sont définis par du code en python.</p>
-<p>Ce document décrit les fonctionnalités de la version 2.1.0 du moteur de Squarity. Il suppose que vous avez déjà un minimum de connaissance en python. Si ce n'est pas le cas, vous pouvez les acquérir avec ce tutoriel en français : https://python.doctor/</p>
+<p>Ce document décrit les fonctionnalités de la version 2.1.0 du moteur de Squarity. Il suppose que vous avez déjà un minimum de connaissance en python. Si ce n'est pas le cas, vous pouvez les acquérir avec la doc <a href="https://diveintopython.org/fr/learn">&quot;dive into python&quot; en français</a>.</p>
 <p>Un jeu est défini par trois informations :</p>
 <ul>
 <li>le tileset,</li>
 <li>la configuration,</li>
 <li>le &quot;game code&quot;.</li>
 </ul>
-<p>Pour l'instant, Squarity ne gère pas de comptes ni de profil personnel. Vous devez sauvegarder vos jeux par vous-même. Vous pouvez les distribuer en <a href="https://github.com/darkrecher/squarity-doc/blob/master/user_manual/share_your_game.md">les publiant sur un gist github</a>.</p>
-<p><strong>TODO</strong> : et après faudra mettre la vraie url de la doc sur le site, quand ce sera dispo</p>
+<p>Pour l'instant, Squarity ne gère pas de comptes ni de profil personnel. Vous devez sauvegarder vos jeux par vous-même. Vous pouvez les distribuer en <a href="https://squarity.pythonanywhere.com/create/share-your-game">les publiant sur un gist github</a>.</p>
 <h2 id="le-tileset">Le tileset <a class="header-anchor" href="#le-tileset">&#x1F517;</a></h2>
 <p>Le tileset est comme un atlas : c'est une image regroupant toutes les &quot;sous-images&quot; des éléments de votre jeu (décor, personnages, bonus, ...).</p>
 <p>Pour que votre tileset soit accessible dans Squarity, il doit être publié sur internet : dans un repository github, sur un site d'hébergement d'images, etc.</p>

@@ -107,7 +107,7 @@
 <p>Un rendu complet de l'aire de jeu est déclenché après chaque appel de cette fonction. Sauf si on indique explicitement qu'on ne le veut pas (fonctionnement non documenté pour l'instant).</p>
 <h2 id="données-renvoyées-par-on_game_event">Données renvoyées par on_game_event <a class="header-anchor" href="#données-renvoyées-par-on_game_event">&#x1F517;</a></h2>
 <p>La fonction <code>on_game_event</code> peut renvoyer une chaîne de caractère JSON, contenant différentes indications que le moteur de Squarity interprétera. Ce n'est pas obligatoire, la fonction peut ne contenir aucune instruction <code>return</code>, dans ce cas elle renverra <code>None</code> et le moteur ne fera rien de plus.</p>
-<p>Vous trouverez des exemples de tous les types de JSON qui peuvent être renvoyés dans le jeu du sorcier. TODO : lien.</p>
+<p>Vous trouverez des exemples de ces JSON dans <a href="https://squarity.pythonanywhere.com/game/#fetchez_example_magician">le jeu du sorcier</a>.</p>
 <h3 id="action-différée">Action différée <a class="header-anchor" href="#action-différée">&#x1F517;</a></h3>
 <p>Ce JSON peut contenir une clé <code>delayed_actions</code>. La valeur doit être une liste de sous-dictionnaire, avec une clé <code>name</code> et une clé <code>delay_ms</code>.</p>
 <p>Exemple de ligne de code renvoyant un JSON avec une action différée:</p>

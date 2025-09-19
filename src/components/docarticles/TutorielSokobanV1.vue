@@ -942,8 +942,7 @@ class GameModel():
         self.personnage_x = personnage_dest_x
         self.personnage_y = personnage_dest_y
 </code></pre>
-<p>Si vous en avez assez de faire des copié-collés, vous pouvez directement jouer à la version finale de ce sokoban, ici : http://squarity.fr/#fetchez_githubgist_darkrecher/aa3e1338998cc2a20a030011fbca9ce2/raw/sokoban-tuto.txt .</p>
-<p>TODO : changer le lien ci-dessus.</p>
+<p>Si vous en avez assez de faire des copié-collés, vous pouvez directement jouer à la version finale de ce sokoban <a href="https://squarity.pythonanywhere.com/game/#fetchez_tutorial_sokobanv1">ici</a> .</p>
 <p>J'ai ajouté plein de commentaires dans le code, pour le re-expliquer plus en détail. Ça peut vous aider à comprendre comment fonctionnne certaines parties.</p>
 <p>Si vous êtes arrivés jusqu'ici, bravo ! N'hésitez pas à bidouiller le code autant que vous le pouvez, pour mieux comprendre comment il fonctionne. Consultez des tutoriels et des cours spécifiques sur le python. Créez d'autres jeux, ou modifiez celui-là. Bref : amusez-vous !</p>
 
