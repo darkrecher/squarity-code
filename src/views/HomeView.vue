@@ -2,7 +2,7 @@
   <main>
     <h1>Squarity</h1>
     <div class="punch-line">
-      Créer et partager des mini jeux vidéos, en python, dans un navigateur web
+      Pour créer et partager des mini-jeux, en python, dans un navigateur web.
     </div>
     <!--
       Boutons qui emmènent vers une autre url
