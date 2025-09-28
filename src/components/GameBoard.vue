@@ -49,8 +49,7 @@
               <!--
                 C'est dégueu de devoir répéter "disabled = isPlayerLocked" à chaque bouton.
                 Mais c'est pas trop grave. Le HTML a le droit d'être dégueux,
-                tant que c'est pas le JS. Je met pas de tâche dans Trello pour ça.
-                Si un jour on a une solution tant mieux. Sinon, osef.
+                tant que c'est pas le JS.
               -->
               <div class="flex-grow game-buttons">
                 <div>
@@ -87,13 +86,15 @@
                   <div class="flex-grow" />
                   <div class="flex-column game-menu-normal">
                     <div class="button-wrapper">
-                      <button class="my-button game-menu-button-normal" @click="$router.push('/')">&#9632;</button>
-                      <span class="tooltip">Page d'accueil de Squarity</span>
+                      <button class="my-button game-menu-button-normal" @click="$router.push('/')">
+                         <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                      </button>
+                      <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
                     </div>
 
                     <div class="button-wrapper">
                       <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">( ):</button>
-                      <span class="tooltip">Afficher/masquer le code source</span>
+                      <span class="tooltip" @click="toggleDevZoneDisplay">Afficher/masquer le code source</span>
                     </div>
                   </div>
 
@@ -103,7 +104,9 @@
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
                 <div @click="$router.push('/')">
-                  <span class="game-menu-icon">&#9632;</span>
+                  <span class="game-menu-icon">
+                    <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                  </span>
                   <span>Page d'accueil de Squarity</span>
                 </div>
                 <div @click="toggleDevZoneDisplay">
@@ -562,11 +565,6 @@ button.game-menu-button-normal {
   border-radius: 8px;
 }
 
-button.game-menu-button-normal:hover {
-  border-radius: 0px;
-}
-
-
 canvas {
   border: 1px solid gray;
   image-rendering: pixelated;
@@ -592,6 +590,10 @@ textarea {
 
 .button-wrapper {
   position: relative; /* anchor pour le tooltip */
+  /* Si j'ai bien compris,
+     c'est pour mettre le tooltip et le bouton sur la même ligne,
+     et les deux auront la même hauteur */
+  display: inline-block;
 }
 
 .tooltip {
@@ -601,18 +603,39 @@ textarea {
   transform: translate(0.2em, -50%);
   background: #909090;
   color: #000;
-  padding: 0.09em 0.5em 0.09em 0.5em;
+  padding: 0.09em 0.5em;
   white-space: nowrap;
   z-index: 9999; /* Pour être sûr qu'il soit par-dessus tous les autres */
   opacity: 0; /* caché par défaut */
-  pointer-events: none;   /* ne prend pas les clicks */
+  /* Non-interactif par défaut. Ça évite que le tooltip apparaisse
+     quand la souris va directement dessus,
+     sans être préalablement passé par le mini-bouton */
+  pointer-events: none;
   border-top: 5px solid black;
   border-left: 5px solid black;
   border-bottom: 5px solid black;
+  transition: opacity .12s linear;
+  /* https://stackoverflow.com/questions/2310734/how-to-make-html-text-unselectable */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
+/* Affiche et active le tooltip seulement quand la souris se trouve
+   sur le wrapper (contenant le mini-bouton) et le tooltip). */
 .button-wrapper:hover .tooltip {
-  opacity: 1; /* on affiche le tooltip */
+  opacity: 1; /* Là, on affiche le tooltip *
+  /* Ça devient interactif seulement quand la souris est dessus. */
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.button-wrapper:hover button.game-menu-button-normal {
+  border-radius: 0px;
+  background-color: #909090;
 }
 
 @media only screen and (max-width: 768px) {
@@ -684,6 +707,10 @@ textarea {
   /* https://stackoverflow.com/questions/257505/css-fixed-width-in-a-span */
   float: left;
   width: 2em;
+}
+
+.home-icon {
+  width: 1.1em;
 }
 
 </style>
