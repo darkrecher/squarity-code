@@ -38,4 +38,5 @@ npm run build
 npm run lint
 ```
 
-Ce code source est distribué sous la [Licence publique générale GNU Affero version 3](https://www.gnu.org/licenses/agpl-3.0.html)
+Le code source de Squarity, ainsi que la documentation de Squarity, sont publiés sous la licence "GNU Affero General Public License", [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html).
+
