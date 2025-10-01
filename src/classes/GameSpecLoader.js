@@ -7,41 +7,36 @@ export default Object.freeze({
   URL_PATTERN_TUTORIALS: '/gamedata/tutorials/{externalId}.txt',
 
   urlGameSpecFromLocHash(locHash) {
+    // Le paramètre "limit" ne redonne pas toute la fin de la string...
     const locHashSplitted = locHash.split('_');
-    if (locHashSplitted.length !== 3) {
+    if (locHashSplitted.length < 3) {
       return null;
     }
-    if (locHashSplitted[0] !== '#fetchez') {
+    const [prefix, locCategory, ...externalIdParts] = locHashSplitted;
+    if (prefix !== '#fetchez') {
       return null;
     }
     let urlPattern = '';
-    const externalId = locHashSplitted[2];
+    let regexExternalId = /^[0-9a-zA-Z/\\._-]+$/;
+    const externalId = externalIdParts.join("_");
 
-    if (locHashSplitted[1] === 'pastebin') {
+    if (locCategory === 'pastebin') {
       urlPattern = this.URL_PATTERN_PASTEBIN;
-      if (!externalId.match(/^[0-9a-zA-Z]+$/)) {
-        return null;
-      }
-    } else if (locHashSplitted[1] === 'githubgist') {
+      regexExternalId = /^[0-9a-zA-Z]+$/;
+    } else if (locCategory === 'githubgist') {
       urlPattern = this.URL_PATTERN_GITHUBGIST;
-      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
-        return null;
-      }
-    } else if (locHashSplitted[1] === 'example') {
+    } else if (locCategory === 'example') {
       urlPattern = this.URL_PATTERN_EXAMPLES;
-      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
-        return null;
-      }
-    } else if (locHashSplitted[1] === 'tutorial') {
+    } else if (locCategory === 'tutorial') {
       urlPattern = this.URL_PATTERN_TUTORIALS;
-      if (!externalId.match(/^[0-9a-zA-Z/\\._-]+$/)) {
-        return null;
-      }
     }
-
     if (!urlPattern) {
       return null;
     }
+    if (!externalId.match(regexExternalId)) {
+      return null;
+    }
+
     return urlPattern.replace('{externalId}', externalId);
   },
 

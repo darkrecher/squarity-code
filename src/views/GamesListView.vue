@@ -46,7 +46,7 @@
         </v-col>
         <v-col cols="12" sm="4">
           <div class="game-example">
-            <a href="https://squarity.fr/game/#fetchez_githubgist_darkrecher/dd5cd1e7c59eb19f71609c5b074881c1/raw/unstable-isotopes">
+            <a href="/game/#fetchez_githubgist_darkrecher/dd5cd1e7c59eb19f71609c5b074881c1/raw/unstable-isotopes">
               <img src="../assets/game_card_img/unstableisotopes.png">
               <br>
               Unstable isotopes
