@@ -80,6 +80,12 @@ const router = createRouter({
       component: () => import('../views/DocArticleView.vue'),
       props: {componentNameDoc: "WhySquarity", headerIsCreate: false},
     },
+    {
+      path: '/about/licences',
+      name: 'licences',
+      component: () => import('../views/DocArticleView.vue'),
+      props: {componentNameDoc: "Licences", headerIsCreate: false},
+    },
   ]
 })
 

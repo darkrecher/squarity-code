@@ -47,6 +47,10 @@
                 <a href="https://github.com/darkrecher/squarity-doc" target="_blank">
                   Repository git de la documentation
                 </a>
+                <br>
+                <a href="/about/licences">
+                  Licences
+                </a>
               </div>
             </div>
 
