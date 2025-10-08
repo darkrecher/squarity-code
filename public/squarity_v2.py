@@ -39,6 +39,9 @@ class Direction():
     def __eq__(self, other):
         return self.int_dir == other.int_dir
 
+    def __hash__(self):
+        return hash(self.int_dir)
+
     def __int__(self):
         return self.int_dir
 
@@ -100,6 +103,16 @@ class Coord:
         # Par exemple: my_coord.clone().move_dir(...)
         return self
 
+    def scale(self, factor):
+        self.x = int(self.x * factor)
+        self.y = int(self.y * factor)
+        return self
+
+    def reverse(self):
+        self.x = -self.x
+        self.y = -self.y
+        return self
+
     def move_by_vect(self, vector=None, x=None, y=None):
         if vector is not None:
             self.x += vector.x
@@ -118,6 +131,9 @@ class Rect:
         self.y = y
         self.w = w
         self.h = h
+
+    def coord_upleft(self):
+        return Coord(self.x, self.y)
 
     def in_bounds(self, coord):
         if not (self.x <= coord.x < self.x+self.w):
@@ -519,6 +535,7 @@ class LayerSparse(LayerBase):
         # Pareil que move_game_object
         pass
 
+
 class EventResult():
 
     def __init__(self):
@@ -560,22 +577,52 @@ class RectIterator(SequenceableIterator):
     def __init__(self, rect, instanciate_coord=False):
         self.rect = rect
         self.instanciate_coord = instanciate_coord
-        self.current_coord = None
+        self.iterator = self._iter_rect()
+
+    def _iter_rect(self):
+        r = self.rect
+        c = Coord(self.rect.x, self.rect.y)
+        inst_c = self.instanciate_coord
+        for y in range(r.y, r.y + r.h):
+            c.y = y
+            for x in range(r.x, r.x + r.w):
+                c.x = x
+                yield Coord(coord=c) if inst_c else c
 
     def __next__(self):
-        if self.current_coord is None:
-            self.current_coord = Coord(self.rect.x, self.rect.y)
-        else:
-            self.current_coord.x += 1
-            if self.current_coord.x >= self.rect.x + self.rect.w:
-                self.current_coord.x = self.rect.x
-                self.current_coord.y += 1
-                if self.current_coord.y >= self.rect.y + self.rect.h:
-                    raise StopIteration
-        if self.instanciate_coord:
-            return Coord(coord=self.current_coord)
-        else:
-            return self.current_coord
+        return next(self.iterator)
+
+
+class BorderIterator(SequenceableIterator):
+
+    def __init__(self, rect, include_corners=True, instanciate_coord=False):
+        self.rect = rect
+        self.instanciate_coord = instanciate_coord
+        self.iterator = self._iter_border()
+        if not include_corners:
+            # TODO
+            raise NotImplemented
+
+    def _iter_border(self):
+        r = self.rect
+        c = Coord(r.x, r.y)
+        inst_c = self.instanciate_coord
+
+        for x in range(r.x, r.x + r.w):
+            c.x = x
+            yield Coord(coord=c) if inst_c else c
+        for y in range(r.y + 1, r.y + r.h):
+            c.y = y
+            yield Coord(coord=c) if inst_c else c
+        for x in range(r.x + r.w - 2, r.x - 1, -1):
+            c.x = x
+            yield Coord(coord=c) if inst_c else c
+        for y in range(r.y + r.h - 2, r.y, -1):
+            c.y = y
+            yield Coord(coord=c) if inst_c else c
+
+    def __next__(self):
+        return next(self.iterator)
 
 
 class GameObjectIterator(SequenceableIterator):

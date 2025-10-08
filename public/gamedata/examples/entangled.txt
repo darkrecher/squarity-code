@@ -228,32 +228,31 @@ AUTHORIZED_TEXTS = [
 
 class MapParser():
 
-    # TODO LIB: Direction doit être hashable.
     CORRESPS = {
-        (int(squarity.dirs.Up), "|"): ("vertic", squarity.dirs.Up),
-        (int(squarity.dirs.Down), "|"): ("vertic", squarity.dirs.Down),
-        (int(squarity.dirs.Left), "-"): ("horiz", squarity.dirs.Left),
-        (int(squarity.dirs.Right), "-"): ("horiz", squarity.dirs.Right),
-        (int(squarity.dirs.Up), "+"): ("vertic", squarity.dirs.Up),
-        (int(squarity.dirs.Down), "+"): ("vertic", squarity.dirs.Down),
-        (int(squarity.dirs.Left), "+"): ("horiz", squarity.dirs.Left),
-        (int(squarity.dirs.Right), "+"): ("horiz", squarity.dirs.Right),
-        (int(squarity.dirs.Right), "/"): ("turn_06", squarity.dirs.Up),
-        (int(squarity.dirs.Down), "/"): ("turn_06", squarity.dirs.Left),
-        (int(squarity.dirs.Up), "/"): ("turn_24", squarity.dirs.Right),
-        (int(squarity.dirs.Left), "/"): ("turn_24", squarity.dirs.Down),
-        (int(squarity.dirs.Right), "`"): ("turn_46", squarity.dirs.Down),
-        (int(squarity.dirs.Down), "`"): ("turn_02", squarity.dirs.Right),
-        (int(squarity.dirs.Up), "`"): ("turn_46", squarity.dirs.Left),
-        (int(squarity.dirs.Left), "`"): ("turn_02", squarity.dirs.Up),
-        (int(squarity.dirs.Up), "*"): ("extr_4", None),
-        (int(squarity.dirs.Down), "*"): ("extr_0", None),
-        (int(squarity.dirs.Left), "*"): ("extr_2", None),
-        (int(squarity.dirs.Right), "*"): ("extr_6", None),
-        (int(squarity.dirs.Up), "#"): ("extr_4", None),
-        (int(squarity.dirs.Down), "#"): ("extr_0", None),
-        (int(squarity.dirs.Left), "#"): ("extr_2", None),
-        (int(squarity.dirs.Right), "#"): ("extr_6", None),
+        (squarity.dirs.Up, "|"): ("vertic", squarity.dirs.Up),
+        (squarity.dirs.Down, "|"): ("vertic", squarity.dirs.Down),
+        (squarity.dirs.Left, "-"): ("horiz", squarity.dirs.Left),
+        (squarity.dirs.Right, "-"): ("horiz", squarity.dirs.Right),
+        (squarity.dirs.Up, "+"): ("vertic", squarity.dirs.Up),
+        (squarity.dirs.Down, "+"): ("vertic", squarity.dirs.Down),
+        (squarity.dirs.Left, "+"): ("horiz", squarity.dirs.Left),
+        (squarity.dirs.Right, "+"): ("horiz", squarity.dirs.Right),
+        (squarity.dirs.Right, "/"): ("turn_06", squarity.dirs.Up),
+        (squarity.dirs.Down, "/"): ("turn_06", squarity.dirs.Left),
+        (squarity.dirs.Up, "/"): ("turn_24", squarity.dirs.Right),
+        (squarity.dirs.Left, "/"): ("turn_24", squarity.dirs.Down),
+        (squarity.dirs.Right, "`"): ("turn_46", squarity.dirs.Down),
+        (squarity.dirs.Down, "`"): ("turn_02", squarity.dirs.Right),
+        (squarity.dirs.Up, "`"): ("turn_46", squarity.dirs.Left),
+        (squarity.dirs.Left, "`"): ("turn_02", squarity.dirs.Up),
+        (squarity.dirs.Up, "*"): ("extr_4", None),
+        (squarity.dirs.Down, "*"): ("extr_0", None),
+        (squarity.dirs.Left, "*"): ("extr_2", None),
+        (squarity.dirs.Right, "*"): ("extr_6", None),
+        (squarity.dirs.Up, "#"): ("extr_4", None),
+        (squarity.dirs.Down, "#"): ("extr_0", None),
+        (squarity.dirs.Left, "#"): ("extr_2", None),
+        (squarity.dirs.Right, "#"): ("extr_6", None),
     }
 
     def __init__(self, coord_corner, map_rib=MAP):
@@ -281,7 +280,7 @@ class MapParser():
     def _follow_path_one_step(self, coord_prev, direction_prev):
         coord_cur = coord_prev.clone().move_dir(direction_prev)
         char_cur = self.map_rib[coord_cur.y][coord_cur.x]
-        step_details = MapParser.CORRESPS.get((int(direction_prev), char_cur))
+        step_details = MapParser.CORRESPS.get((direction_prev, char_cur))
         if step_details is None:
             raise Exception("Fail map at", coord_prev, ":", char_cur)
         rib_type_cur, direction_cur = step_details
@@ -773,7 +772,6 @@ class RibbonWorldManager():
         Pour savoir ce qui est éventuellement sélectionné,
         consultez les variables self.coord_swap_x.
         """
-        # TODO LIB: ajouter des hasattr dans le coord.__eq__.
         if self.coord_swap_1 is not None and self.coord_swap_1 == coord_swap:
             # Déselection d'une coordonnée sélectionnée.
             self.reset_all_swap()
@@ -889,11 +887,6 @@ class RibbonWorldManager():
         gobj_below.sprite_name = gobj_below.sprite_name[:-6]
 
 
-# TODO LIB
-def coord_upleft_from_rect(rect):
-    return Coord(rect.x, rect.y)
-
-
 class Hero():
 
     def __init__(self, layer_hero, view_rect, ribbons_world, walls, interactable_world, start_coord):
@@ -908,10 +901,7 @@ class Hero():
         self.coord_hero_world = start_coord.clone()
 
     def render_hero(self):
-        view_corner = coord_upleft_from_rect(self.view_rect)
-        # TODO LIB: reverse a coord, you dumb!
-        view_corner.x = -view_corner.x
-        view_corner.y = -view_corner.y
+        view_corner = self.view_rect.coord_upleft().reverse()
         if self.view_rect.in_bounds(self.coord_hero_world):
             new_coord_hero = self.coord_hero_world.clone().move_by_vect(view_corner)
         else:
@@ -1037,7 +1027,7 @@ class DialogUI():
         self.gobjs_by_step = []
         self.gobjs_text_bubble = []
         self.gobj_hero = GameObject(
-            coord_upleft_from_rect(DialogUI.RECT_DIALOG_UI),
+            DialogUI.RECT_DIALOG_UI.coord_upleft(),
             "hero",
             image_modifier=squarity.ComponentImageModifier(
                 area_offset_x=-3.0,
@@ -1391,7 +1381,7 @@ class GameModel(squarity.GameModelBase):
 
     def scroll(self, direction):
         # TODO LIB : appliquer un vecteur sur un rect pour bouger son corner upleft.
-        temp_view_corner = coord_upleft_from_rect(self.view_rect)
+        temp_view_corner = self.view_rect.coord_upleft()
         temp_view_corner.move_dir(direction)
         if all(
             (
@@ -1609,7 +1599,6 @@ class GameModel(squarity.GameModelBase):
             # Ça c'est dégueux, mais osef:
             if self.ribbon_world_manager.coord_swap_1 is not None:
                 total_delay += 200
-            # TODO LIB : callback when all the current transitions, or all the blocking transitions, are finished.
             event_res = squarity.EventResult()
             event_res.plocks_custom.append("swap_anim")
             event_res.add_delayed_callback(

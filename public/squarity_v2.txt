@@ -39,6 +39,9 @@ class Direction():
     def __eq__(self, other):
         return self.int_dir == other.int_dir
 
+    def __hash__(self):
+        return hash(self.int_dir)
+
     def __int__(self):
         return self.int_dir
 
@@ -100,6 +103,16 @@ class Coord:
         # Par exemple: my_coord.clone().move_dir(...)
         return self
 
+    def scale(self, factor):
+        self.x = int(self.x * factor)
+        self.y = int(self.y * factor)
+        return self
+
+    def reverse(self):
+        self.x = -self.x
+        self.y = -self.y
+        return self
+
     def move_by_vect(self, vector=None, x=None, y=None):
         if vector is not None:
             self.x += vector.x
@@ -118,6 +131,9 @@ class Rect:
         self.y = y
         self.w = w
         self.h = h
+
+    def coord_upleft(self):
+        return Coord(self.x, self.y)
 
     def in_bounds(self, coord):
         if not (self.x <= coord.x < self.x+self.w):
