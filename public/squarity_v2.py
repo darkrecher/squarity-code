@@ -132,6 +132,16 @@ class Rect:
         self.w = w
         self.h = h
 
+    @staticmethod
+    def from_coords(coord_1, coord_2):
+        x1, y1 = coord_1.x, coord_1.y
+        x2, y2 = coord_2.x, coord_2.y
+        if x2 < x1:
+            x1, x2 = x2, x1
+        if y2 < y1:
+            y1, y2 = y2, y1
+        return Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1)
+
     def coord_upleft(self):
         return Coord(self.x, self.y)
 
@@ -597,29 +607,50 @@ class BorderIterator(SequenceableIterator):
 
     def __init__(self, rect, include_corners=True, instanciate_coord=False):
         self.rect = rect
+        self.include_corners = include_corners
         self.instanciate_coord = instanciate_coord
         self.iterator = self._iter_border()
-        if not include_corners:
-            # TODO
-            raise NotImplemented
 
     def _iter_border(self):
         r = self.rect
         c = Coord(r.x, r.y)
         inst_c = self.instanciate_coord
+        offset_corner = int(not self.include_corners)
 
-        for x in range(r.x, r.x + r.w):
-            c.x = x
-            yield Coord(coord=c) if inst_c else c
-        for y in range(r.y + 1, r.y + r.h):
-            c.y = y
-            yield Coord(coord=c) if inst_c else c
-        for x in range(r.x + r.w - 2, r.x - 1, -1):
-            c.x = x
-            yield Coord(coord=c) if inst_c else c
-        for y in range(r.y + r.h - 2, r.y, -1):
-            c.y = y
-            yield Coord(coord=c) if inst_c else c
+        if self.include_corners:
+            for x in range(r.x, r.x + r.w):
+                c.x = x
+                yield Coord(coord=c) if inst_c else c
+            for y in range(r.y + 1, r.y + r.h):
+                c.y = y
+                yield Coord(coord=c) if inst_c else c
+            if r.h > 1:
+                for x in range(r.x + r.w - 2, r.x - 1, -1):
+                    c.x = x
+                    yield Coord(coord=c) if inst_c else c
+            if r.w > 1:
+                for y in range(r.y + r.h - 2, r.y, -1):
+                    c.y = y
+                    yield Coord(coord=c) if inst_c else c
+        else:
+            for x in range(r.x + 1, r.x + r.w - 1):
+                c.x = x
+                yield Coord(coord=c) if inst_c else c
+            if r.w > 1:
+                c.x += 1
+            for y in range(r.y + 1, r.y + r.h - 1):
+                c.y = y
+                yield Coord(coord=c) if inst_c else c
+            c.y += 1
+            if r.h > 1:
+                for x in range(r.x + r.w - 2, r.x, -1):
+                    c.x = x
+                    yield Coord(coord=c) if inst_c else c
+            c.x = r.x
+            if r.w > 1:
+                for y in range(r.y + r.h - 2, r.y, -1):
+                    c.y = y
+                    yield Coord(coord=c) if inst_c else c
 
     def __next__(self):
         return next(self.iterator)

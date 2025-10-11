@@ -1,8 +1,8 @@
 <template>
   <div class="main-title">
-    <a href="/">
-      <h1>Squarity</h1>
-    </a>
+      <h1>
+        <a href="/">Squarity</a>
+      </h1>
     <div>un moteur de jeux 2D, en python</div>
   </div>
 </template>
