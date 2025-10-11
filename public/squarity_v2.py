@@ -161,6 +161,18 @@ class Rect:
         if coord.y == self.y + self.h - 1:return True
         return False
 
+    def move_dir(self, direction, dist=1):
+        c = self.coord_upleft().move_dir(direction)
+        self.x = c.x
+        self.y = c.y
+        return self
+
+    def move_by_vect(self, vector=None, x=None, y=None):
+        c = self.coord_upleft().move_by_vect(vector, x, y)
+        self.x = c.x
+        self.y = c.y
+        return self
+
     def __repr__(self):
         return f"<Rect {self.x}, {self.y}, {self.w}, {self.h} >"
 

@@ -1260,13 +1260,9 @@ class GameModel(squarity.GameModelBase):
         rect_background = squarity.Rect(1, 1, self.w-2, self.h-2)
         for c in squarity.Sequencer.iter_on_rect(rect_background):
             self.layer_main.add_game_object(GameObject(c, "background"))
-        # TODO LIB: damned missing border iterator.
-        for x in range(1, WORLD_WIDTH - 1):
-            self.walls.add_game_object(GameObject(Coord(x, 1), "wall"))
-            self.walls.add_game_object(GameObject(Coord(x, WORLD_HEIGHT - 3), "wall"))
-        for y in range(2, WORLD_HEIGHT - 2):
-            self.walls.add_game_object(GameObject(Coord(1, y), "wall"))
-            self.walls.add_game_object(GameObject(Coord(WORLD_WIDTH - 3, y), "wall"))
+        rect_border_wall = squarity.Rect(1, 1, WORLD_WIDTH - 3, WORLD_HEIGHT - 3)
+        for coord_border in squarity.BorderIterator(rect_border_wall):
+            self.walls.add_game_object(GameObject(coord_border, "wall"))
         self.walls.remove_at_coord(Coord(WORLD_WIDTH - 3, WORLD_HEIGHT - 6))
 
         map_parser = MapParser(Coord(2, 5))
@@ -1285,21 +1281,9 @@ class GameModel(squarity.GameModelBase):
         self.hero = Hero(self.layer_hero, self.view_rect, self.ribbons_world, self.walls, self.interactable_world, map_parser.coord_start_hero)
         self.interaction_mode = "grab"
         self.layer_ui = squarity.Layer(self, self.w, self.h, False)
-        # TODO lib. iterateur sur les bords d'un squarity.Rect. (ça itère des Coord).
-        for x in range(self.w):
-            self.layer_ui.add_game_object(
-                GameObject(Coord(x, 0), "black")
-            )
-            self.layer_ui.add_game_object(
-                GameObject(Coord(x, self.h - 1), "black")
-            )
-        for y in range(1, self.h - 1):
-            self.layer_ui.add_game_object(
-                GameObject(Coord(0, y), "black")
-            )
-            self.layer_ui.add_game_object(
-                GameObject(Coord(self.w - 1, y), "black")
-            )
+        for coord_border in squarity.BorderIterator(self.rect):
+            self.layer_ui.add_game_object(GameObject(coord_border, "black"))
+            print(coord_border)
         self.gobj_icon_interaction_mode = GameObject(Coord(0, 0), "icon_grab")
         self.layer_ui.add_game_object(self.gobj_icon_interaction_mode)
         self.ui_gobj_swap = GameObject(Coord(0, 0), "icon_swap")
@@ -1380,9 +1364,7 @@ class GameModel(squarity.GameModelBase):
                 self.layer_ui.add_game_object(self.ui_gobj_swap)
 
     def scroll(self, direction):
-        # TODO LIB : appliquer un vecteur sur un rect pour bouger son corner upleft.
-        temp_view_corner = self.view_rect.coord_upleft()
-        temp_view_corner.move_dir(direction)
+        temp_view_corner = self.view_rect.coord_upleft().move_dir(direction)
         if all(
             (
                 temp_view_corner.x >= 0,
@@ -1391,8 +1373,7 @@ class GameModel(squarity.GameModelBase):
                 temp_view_corner.y + self.view_rect.h < WORLD_HEIGHT,
             )
         ):
-            self.view_rect.x = temp_view_corner.x
-            self.view_rect.y = temp_view_corner.y
+            self.view_rect.move_dir(direction)
             self.render_world()
 
     def on_button_direction(self, direction):
