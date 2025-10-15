@@ -247,9 +247,6 @@ class GameModel():
             self.teledoortation_state = None
 
     def on_game_event(self, event_name):
-        # Décommentez la ligne ci-dessous pour afficher une ligne d'info
-        # à chaque fois que le joueur appuie sur une touche.
-        # print("on_game_event", event_name)
 
         if event_name == "handle_fire":
             return self.handle_fire()

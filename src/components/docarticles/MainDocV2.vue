@@ -166,6 +166,7 @@
 </tr>
 </tbody>
 </table>
+<p>Les directions sont &quot;hashables&quot;, vous pouvez donc les utiliser comme clé de dictionnaire. Par exemple: <code>dist_to_bonus = {dirs.Up: 4, dirs.UpRight: 7}</code> ...</p>
 <h3 id="rotations">Rotations <a class="header-anchor" href="#rotations">&#x1F517;</a></h3>
 <p>La méthode <code>turn_cw</code> renvoie une direction tournée dans le sens des aiguilles d'une montre. La méthode <code>turn_ccw</code> renvoie une direction tournée dans le sens inverse. L'angle de rotation par défaut est de 90 degrés.</p>
 <pre><code>d = squarity.dirs.Right
@@ -181,58 +182,78 @@ print(d.turn_ccw(3))
 <p>Cette classe sert à identifier une case dans l'aire de jeu ou dans un layer. Elle possède deux variables membres <code>x</code> et <code>y</code>, de type <code>int</code>.</p>
 <h3 id="instanciation">Instanciation <a class="header-anchor" href="#instanciation">&#x1F517;</a></h3>
 <p>La classe peut être instanciée en indiquant un X et un Y, ou une autre <code>Coord</code>. Les objets <code>Coord</code> peuvent être comparés entre eux.</p>
-<pre><code>coord_1 = squarity.Coord(5, 2)
-coord_2 = squarity.Coord(coord=coord_1)
-print(coord_1 == coord_2)
+<pre><code>coord_a = squarity.Coord(5, 2)
+coord_b = squarity.Coord(coord=coord_a)
+print(coord_a == coord_b)
 # La valeur 'True' s'affiche dans la console
 </code></pre>
-<h3 id="fonctions-de-base">Fonctions de base <a class="header-anchor" href="#fonctions-de-base">&#x1F517;</a></h3>
+<h3 id="méthodes-de-base">Méthodes de base <a class="header-anchor" href="#méthodes-de-base">&#x1F517;</a></h3>
 <p>Les <code>Coord</code> peuvent être utilisées comme clés dans un dictionnaire. Elles ont une représentation textuelle, ce qui permet de les écrire avec un <code>print</code>. Elles peuvent être dupliquées avec la méthode <code>clone</code>.</p>
-<pre><code>coord_1 = squarity.Coord(5, 2)
-coord_2 = coord_1.clone()
-print(coord_2)
+<pre><code>coord_a = squarity.Coord(5, 2)
+coord_b = coord_a.clone()
+print(coord_b)
 # Le texte &quot;&lt;Coord 5, 2 &gt;&quot; s'affiche dans la console
 </code></pre>
-<h3 id="fonctions-de-modification">Fonctions de modification <a class="header-anchor" href="#fonctions-de-modification">&#x1F517;</a></h3>
+<h3 id="méthodes-de-modification">Méthodes de modification <a class="header-anchor" href="#méthodes-de-modification">&#x1F517;</a></h3>
 <p>La méthode <code>move_dir</code> permet de se déplacer dans une direction donnée, sur une distance donnée (indiquée par un <code>int</code>). La distance par défaut est 1.</p>
-<pre><code>coord_1 = squarity.Coord(5, 2)
-coord_1.move_dir(squarity.dirs.Right, 2)
-print(coord_1)
+<pre><code>coord_a = squarity.Coord(5, 2)
+coord_a.move_dir(squarity.dirs.Right, 2)
+print(coord_a)
 # Affichage de &quot;&lt;Coord 7, 2 &gt;&quot;
 </code></pre>
 <p>La méthode <code>move_by_vect</code> permet d'appliquer un déplacement, spécifié par le paramètre <code>vector</code> (de type <code>Coord</code>), ou spécifié par les paramètres <code>x</code> et <code>y</code>.</p>
 <p>Attention, il n'y a pas de blocage sur les bords. Les mouvements peuvent amener une coordonnée en négatif ou en dehors de l'aire de jeu.</p>
-<pre><code>coord_1 = squarity.Coord(5, 2)
+<pre><code>coord_a = squarity.Coord(5, 2)
 coord_vect = squarity.Coord(0, -3)
-coord_1.move_by_vect(vector=coord_vect)
-coord_1.move_by_vect(x=1, y=-3)
-print(coord_1)
+coord_a.move_by_vect(vector=coord_vect)
+coord_a.move_by_vect(x=1, y=-3)
+print(coord_a)
 # Affichage de &quot;&lt;Coord 6, -4 &gt;&quot;
+</code></pre>
+<p>La méthode <code>scale</code> permet de multiplier les coordonnées par un facteur.</p>
+<p>La méthode <code>reverse</code> change <code>x</code> et <code>y</code> en leurs opposés.</p>
+<p>Toutes ces méthodes modifient les coordonnées &quot;en place&quot;, elles ne créent pas un nouvel objet <code>Coord</code>. Il est possible de les enchaîner.</p>
+<pre><code>coord_a = squarity.Coord(0, 0)
+coord_a.move_by_vect(x=1, y=3).scale(2).reverse()
+print(coord_a)
+# Affichage de &quot;&lt;Coord -2, -6 &gt;&quot;
 </code></pre>
 <h2 id="class-rect">class Rect <a class="header-anchor" href="#class-rect">&#x1F517;</a></h2>
 <p>Définit un rectangle à partir de 4 paramètres de type <code>int</code> :</p>
 <ul>
-<li>X du coin supérieur droit,</li>
-<li>Y du coin supérieur droit,</li>
+<li>coordonnée X du coin supérieur droit,</li>
+<li>coordonnée Y du coin supérieur droit,</li>
 <li>largeur,</li>
 <li>hauteur.</li>
 </ul>
 <p>Les coordonnées dans le rectangle s'étendent de X jusqu'à (X+largeur-1) en abscisse, et de Y jusqu'à (Y+hauteur-1) en ordonnée. C'est le même principe que la fonction python <code>range</code>.</p>
-<h3 id="fonction-in_bounds">Fonction in_bounds <a class="header-anchor" href="#fonction-in_bounds">&#x1F517;</a></h3>
-<p>Indique si une coordonnée se trouve à l'intérieur du rectangle.</p>
+<h3 id="création-dun-rect">Création d'un Rect <a class="header-anchor" href="#création-dun-rect">&#x1F517;</a></h3>
+<p>En plus de l'instanciation classique, il est possible de créer un <code>Rect</code> avec la méthode statique <code>from_coords</code>. Les paramètres spécifient deux coins du rectangle.</p>
+<p>Pour respecter le principe précédent, la colonne de droite et la ligne du bas ne sont pas incluses dans le rectangle.</p>
+<pre><code>rect = squarity.Rect.from_coords(
+    squarity.Coord(10, 20),
+    squarity.Coord(12, 25),
+)
+print(rect)
+# Le texte &quot;&lt;Rect(10, 20, 2, 5)&gt;&quot; s'affichera dans la console.
+</code></pre>
+<h3 id="méthode-coord_upleft">Méthode coord_upleft <a class="header-anchor" href="#méthode-coord_upleft">&#x1F517;</a></h3>
+<p>Renvoie une <code>Coord</code> contenant les coordonnées du coin supérieur gauche du rectangle.</p>
+<h3 id="méthode-in_bounds">Méthode in_bounds <a class="header-anchor" href="#méthode-in_bounds">&#x1F517;</a></h3>
+<p>Indique si la <code>Coord</code> passée en paramètre se trouve à l'intérieur du rectangle.</p>
 <pre><code>rect = squarity.Rect(5, 2, 3, 5)
 print(rect.in_bounds(squarity.Coord(0, 0)))
 # La valeur False s'affichera dans la console.
 print(rect.in_bounds(squarity.Coord(5, 4)))
 # La valeur True s'affichera dans la console.
 </code></pre>
-<h3 id="fonction-on_borders">Fonction on_borders <a class="header-anchor" href="#fonction-on_borders">&#x1F517;</a></h3>
-<p>Indique si une coordonnée se trouve sur un bord du rectangle.</p>
+<h3 id="méthode-on_borders">Méthode on_borders <a class="header-anchor" href="#méthode-on_borders">&#x1F517;</a></h3>
+<p>Indique si la <code>Coord</code> se trouve sur un bord du rectangle.</p>
 <pre><code>rect = squarity.Rect(5, 2, 3, 5)
 for x in range(4, 10):
-    coord_1 = squarity.Coord(x, 3)
-    border = rect.on_border(coord_1)
-    print(coord_1, &quot;est-elle au bord ?&quot;, border)
+    coord_a = squarity.Coord(x, 3)
+    border = rect.on_border(coord_a)
+    print(coord_a, &quot;est-elle au bord ?&quot;, border)
 # Les informations suivantes vont s'afficher:
 # &lt;Coord 4, 3 &gt; est-elle au bord ? False
 # &lt;Coord 5, 3 &gt; est-elle au bord ? True
@@ -241,6 +262,8 @@ for x in range(4, 10):
 # &lt;Coord 8, 3 &gt; est-elle au bord ? False
 # &lt;Coord 9, 3 &gt; est-elle au bord ? False
 </code></pre>
+<h3 id="méthodes-move_dir-et-move_by_vect">Méthodes move_dir et move_by_vect <a class="header-anchor" href="#méthodes-move_dir-et-move_by_vect">&#x1F517;</a></h3>
+<p>Ces méthodes déplacent le rectangle selon une direction ou un vecteur. Elles fonctionnent de la même manière que celles de la classe <code>Coord</code>.</p>
 <h2 id="class-gameobject">class GameObject <a class="header-anchor" href="#class-gameobject">&#x1F517;</a></h2>
 <p>Un &quot;game object&quot; (ou gobj) est un élément qui s'affiche dans l'aire de jeu. Un game object possède des coordonnées et un nom de sprite (<code>sprite_name</code>). Le nom de sprite correspond à un nom référencé dans le dictionnaire <code>img_coords</code> de la config JSON.</p>
 <p>Pour que le game object s'affiche, il doit être placé dans un <code>squarity.Layer</code>. Un game object peut être transféré d'un layer à un autre. Il peut également n'appartenir à aucun layer.</p>
@@ -790,6 +813,21 @@ class GameModel(squarity.GameModelBase):
         for coord in seq:
             sprite_name = get_chessed_gem(coord)
             self.gobj = squarity.GameObject(coord, sprite_name)
+            self.layer_main.add_game_object(self.gobj)
+</code></pre>
+<h3 id="itérer-sur-les-bords-dun-rectangle">Itérer sur les bords d'un rectangle <a class="header-anchor" href="#itérer-sur-les-bords-dun-rectangle">&#x1F517;</a></h3>
+<p>La méthode <code>iter_on_border</code> du séquenceur permet de faire le tour d'un rectangle, en commençant en haut à gauche, puis vers la droite, vers le bas, et retour en haut à gauche.</p>
+<p>Le paramètre optionnel <code>include_corners</code> (True par défaut) permet d'indiquer si l'itération se fait avec ou sans les coins du rectangle.</p>
+<p>Le paramètre <code>instanciate_coord</code> fonctionne de la même manière qu'avec <code>iter_on_rect</code>.</p>
+<pre><code>import squarity
+S = squarity.Sequencer
+
+class GameModel(squarity.GameModelBase):
+
+    def on_start(self):
+        seq = S.seq_iter(S.iter_on_border(self.rect))
+        for coord in seq:
+            self.gobj = squarity.GameObject(coord, &quot;gem_green&quot;)
             self.layer_main.add_game_object(self.gobj)
 </code></pre>
 <h3 id="itérer-sur-des-game-objects">Itérer sur des Game Objects <a class="header-anchor" href="#itérer-sur-des-game-objects">&#x1F517;</a></h3>

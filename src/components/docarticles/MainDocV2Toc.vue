@@ -14,11 +14,14 @@
 <a href="#rotations"><h3>Rotations </h3></a>
 <a href="#class-coord"><h2>class Coord </h2></a>
 <a href="#instanciation"><h3>Instanciation </h3></a>
-<a href="#fonctions-de-base"><h3>Fonctions de base </h3></a>
-<a href="#fonctions-de-modification"><h3>Fonctions de modification </h3></a>
+<a href="#méthodes-de-base"><h3>Méthodes de base </h3></a>
+<a href="#méthodes-de-modification"><h3>Méthodes de modification </h3></a>
 <a href="#class-rect"><h2>class Rect </h2></a>
-<a href="#fonction-in_bounds"><h3>Fonction in_bounds </h3></a>
-<a href="#fonction-on_borders"><h3>Fonction on_borders </h3></a>
+<a href="#création-dun-rect"><h3>Création d'un Rect </h3></a>
+<a href="#méthode-coord_upleft"><h3>Méthode coord_upleft </h3></a>
+<a href="#méthode-in_bounds"><h3>Méthode in_bounds </h3></a>
+<a href="#méthode-on_borders"><h3>Méthode on_borders </h3></a>
+<a href="#méthodes-move_dir-et-move_by_vect"><h3>Méthodes move_dir et move_by_vect </h3></a>
 <a href="#class-gameobject"><h2>class GameObject </h2></a>
 <a href="#nom-du-sprite"><h3>Nom du sprite </h3></a>
 <a href="#coordonnées-accès-et-modification"><h3>Coordonnées (accès et modification) </h3></a>
@@ -53,6 +56,7 @@
 <a href="#class-componentbackcaller"><h2>class ComponentBackCaller </h2></a>
 <a href="#itérer-dans-laire-de-jeu"><h2>Itérer dans l'aire de jeu </h2></a>
 <a href="#itérer-sur-des-coordonnées"><h3>Itérer sur des coordonnées </h3></a>
+<a href="#itérer-sur-les-bords-dun-rectangle"><h3>Itérer sur les bords d'un rectangle </h3></a>
 <a href="#itérer-sur-des-game-objects"><h3>Itérer sur des Game Objects </h3></a>
 <a href="#récupérer-le-premier-game-object"><h3>Récupérer le premier Game Object </h3></a>
 <a href="#exemple-bonus--afficher-tous-les-sprites-existants"><h2>Exemple bonus : afficher tous les sprites existants </h2></a>

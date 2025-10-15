@@ -131,6 +131,19 @@
   }
 }
 --------
+"""
+
+H2O la petite goutte d'eau
+
+Essayez d'atteindre la grille de sortie.
+
+
+Le tileset de ce jeu a été dessiné par Tacheul.
+http://pixeljoint.com/p/121104.htm
+
+
+"""
+
 LEVELS = (
     (
         "XXXXXXXXXXXXXXXXXXXX",
@@ -448,9 +461,6 @@ class GameModel():
         self.patterns_replacement_perspective_wall_lasers = compile_replace_patterns(PATTERNS_REPLACEMENT_PERSPECTIVE_WALL_LASERS)
 
         self.init_level()
-        print("Le tileset a été dessiné par Tacheul.")
-        print("http://pixeljoint.com/p/121104.htm")
-        print()
 
     def in_bound(self, x, y):
         return (0 <= x < self.w) and (0 <= y < self.h)
@@ -799,8 +809,9 @@ class GameModel():
                 tile_data_new_pos.remove("O")
                 tile_data_new_pos.append("wet_grid")
                 self.current_level_idx += 1
-                print("Bravo, vous passez au niveau %s" % (self.current_level_idx + 1))
                 print()
+                print("Bravo ! Vous avez atteint la sortie.")
+                print("Appuyez sur un bouton pour passer au niveau %s" % (self.current_level_idx + 1))
             elif self.current_level_idx == 0:
                 print("Il faut être en état liquide.")
 
