@@ -62,6 +62,33 @@
             </a>
           </div>
         </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_f40ans">
+              <img src="../assets/game_card_img/f40ans.png">
+              <br>
+              Les anniversaires de mon pote
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_koballd">
+              <img src="../assets/game_card_img/koballd.png">
+              <br>
+              Koballd crawler
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_grreeny">
+              <img src="../assets/game_card_img/grreeny.png">
+              <br>
+              Grreeny le front-ender
+            </a>
+          </div>
+        </v-col>
       </v-row>
     </v-container>
 
