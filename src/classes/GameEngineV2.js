@@ -95,10 +95,6 @@ export default class GameEngineV2 {
     return this.currentPlock;
   }
 
-  getRatioFromWidthToHeight() {
-    return this.ratioFromWidthToHeight;
-  }
-
   updateGameSpec(tileAtlas, jsonConf, gameCode) {
 
     let tileSize = defaultTileSize;
@@ -449,7 +445,6 @@ export default class GameEngineV2 {
     this.nbTileHeight = nbTileHeight;
     const canvasWidth = this.nbTileWidth * this.tileCanvasWidth;
     const canvasHeight = this.nbTileHeight * this.tileCanvasHeight;
-    this.ratioFromWidthToHeight = canvasHeight / canvasWidth;
 
     this.gameCanvas.width = canvasWidth;
     this.gameCanvas.height = canvasHeight;

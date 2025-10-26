@@ -65,10 +65,6 @@ export default class GameEngineV1 {
     }
   }
 
-  getRatioFromWidthToHeight() {
-    return this.ratioFromWidthToHeight;
-  }
-
   updateGameSpec(tile_atlas, json_conf, gameCode) {
 
     let tileSize = defaultTileSize;
@@ -77,6 +73,7 @@ export default class GameEngineV1 {
     if ('tile_size' in json_conf) {
       tileSize = json_conf.tile_size;
     }
+    // TODO : ce truc a déjà été fait par le gameBoard. Donc faudrait mettre ça en commun quelque part. Pareil pour la V2.
     if ('game_area' in json_conf) {
       const jsonConfGameArea = json_conf.game_area;
       if ('nb_tile_width' in jsonConfGameArea) {
@@ -258,7 +255,6 @@ export default class GameEngineV1 {
     this.nb_tile_height = nbTileHeight;
     const canvasWidth = this.nb_tile_width * this.tile_canvas_width;
     const canvasHeight = this.nb_tile_height * this.tile_canvas_height;
-    this.ratioFromWidthToHeight = canvasHeight / canvasWidth;
 
     this.game_canvas.width = canvasWidth;
     this.game_canvas.height = canvasHeight;

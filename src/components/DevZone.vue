@@ -24,14 +24,12 @@
 
 <script>
 
-
 import gameSpecLoader from '../classes/GameSpecLoader';
 
 export default {
   name: 'DevZone',
 
-  props: {
-  },
+  props: {},
 
   mounted() {
     this.$refs.devZone.addEventListener('keydown', this.onKeyDown);
@@ -46,19 +44,12 @@ export default {
 
   methods: {
 
-    activateCurrentGameSpec() {
+    sendGameSpec() {
       // https://openclassrooms.com/en/courses/5664336-create-a-web-application-with-vue-js/
       // 6535686-emit-events-to-parent-components
-      this.$emit(
-        'updateGameSpec',
-        this.$refs.urlTileset.value,
-        this.$refs.jsonConf.value,
-        this.$refs.gameCode.value,
-      );
-    },
-
-    sendGameSpec() {
-      this.activateCurrentGameSpec();
+      // On peut passer des paramètres, en les indiquant après le nom du message émis.
+      // Mais là, j'ai pas besoin de ça.
+      this.$emit('updateGameSpec');
     },
 
     async fetchGameSpecFromLocHash() {
@@ -73,18 +64,30 @@ export default {
 
       if (urlGameSpec === null) {
         console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
+        return null;
       } else {
         const gameSpec = await gameSpecLoader.fetchGameSpec(urlGameSpec);
+        console.log("gameSpec");
+        console.log(gameSpec);
         if (gameSpec === null) {
           console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
         } else {
           this.$refs.urlTileset.value = gameSpec.urlTileset;
           this.$refs.jsonConf.value = gameSpec.jsonConf;
           this.$refs.gameCode.value = gameSpec.gameCode;
-          this.activateCurrentGameSpec();
         }
+        return gameSpec;
       }
 
+    },
+
+    fetchGameSpecFromFields() {
+      const gameSpec = {
+        urlTileset: this.$refs.urlTileset.value,
+        jsonConf: this.$refs.jsonConf.value,
+        gameCode: this.$refs.gameCode.value,
+      };
+      return gameSpec;
     },
 
     onKeyDown(e) {
@@ -94,7 +97,7 @@ export default {
       //
       // https://stackoverflow.com/questions/905222/enter-key-press-event-in-javascript
       if (e.ctrlKey && e.key === 'Enter') {
-        this.activateCurrentGameSpec();
+        this.sendGameSpec();
         e.preventDefault();
       }
     },

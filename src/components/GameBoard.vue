@@ -34,8 +34,23 @@
           <div class="flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <canvas v-show="loadingDone" ref="gameCanvas" @click="onGameClick"/>
-                <ProgressIndicator v-show="!loadingDone" ref="progressIndicator" />
+                <div v-show="showDescriptionAbove">
+                  <div ref="descripAbove" class="descrip-above">
+                    <div class="flex-line">
+                      <div class="flex-grow">
+                        <h2 class="desc-title">Bla blabla title</h2>
+                      </div>
+                      <div>
+                        <button class="close-desc" @click="closeDescClick">X</button>
+                      </div>
+                    </div>
+                    {{gameDescription}}>
+                  </div>
+                </div>
+                <div v-show="loadingDone && !showDescriptionAbove">
+                  <canvas ref="gameCanvas" @click="onGameClick"/>
+                </div>
+                <ProgressIndicator v-show="!loadingDone && !showDescriptionAbove" ref="progressIndicator" />
               </div>
             </div>
           </div>
@@ -101,6 +116,7 @@
                 </div>
               </div>
             </div>
+            <!-- TODO : ça doit aller à gauche, ces deux boutons. -->
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
                 <div @click="$router.push('/')">
@@ -164,10 +180,12 @@ export default {
 
   data() {
     return {
+      showDescriptionAbove: false,
       loadingDone: false,
-      hideCode: false,
+      hideCode: true,
       hideGameMenuSmall: true,
       isPlayerLocked: false,
+      gameDescription: "",
       dummytab: [{dummyvar: 'dummy'}],
     };
   },
@@ -176,41 +194,21 @@ export default {
 
     this.canvasBuffer = document.createElement('canvas');
     this.currentUrlTileset = '';
+    this.mustReloadTileset = true;
+    this.ratioFromWidthToHeight = 1;
     this.tileAtlas = null;
+    this.gameConfig = null;
+    this.gameCode = '';
+    this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
     this.$refs.progressIndicator.clearProgress();
     this.$refs.progressIndicator.setNbMainTasks(6);
+    window.addEventListener('resize', this.handleResize);
 
     // https://www.raymondcamden.com/2019/08/12/working-with-the-keyboard-in-your-vue-app
-    // C'est relou ces récupération d'appui de touches.
+    // C'est relou ces récupérations d'appui de touches.
     // Je pensais que Vue aurait prévu un truc pour ça. Bienvenue dans les années 80.
     const elemGameInterface = this.$refs.gameInterface;
     elemGameInterface.addEventListener('keydown', this.onKeyDown);
-    window.languagePluginUrl = '/pyodide/v0.15.0/';
-    window.pyodideDownloadProgress = this.pyodideDownloadProgress;
-    this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
-
-    this.showProgress('Initialisation de Pyodide.');
-    // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
-    // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
-    // Et aussi à ce plugin, avec la doc qui va bien. Et qui est compatible Vue 3.
-    // https://www.npmjs.com/package/vue-plugin-load-script
-    //
-    // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
-    // Ce script js télécharge les fichiers suivants :
-    // public/pyodide/v0.15.0/pyodide.asm.wasm
-    // public/pyodide/v0.15.0/pyodide.asm.data.js
-    // public/pyodide/v0.15.0/pyodide.asm.data
-    // public/pyodide/v0.15.0/pyodide.asm.js
-    await loadScript('../pyodide.js');
-    this.showProgress('Iodification du python géant.', true, true);
-    await window.languagePluginLoader;
-    this.showProgress('Déballage de la cartouche du jeu.');
-
-    // Et donc là, j'envoie un message à un autre component, qui va en retour me renvoyer
-    // le message "update-game-spec" pour activer le jeu par défaut.
-    // Tellement génial le javascript.
-    this.$refs.devZone.fetchGameSpecFromLocHash();
-    window.addEventListener('resize', this.handleResize);
 
     this.functionFromButton = {
       ArrowUp: this.goUp,
@@ -222,6 +220,18 @@ export default {
       Numpad1: this.action1,
       Numpad2: this.action2,
     };
+
+    this.showProgress('Récupération du jeu.');
+    const gameSpec = await this.$refs.devZone.fetchGameSpecFromLocHash();
+    // TODO : check gameSpec is not null.
+    this.recordGameSpec(gameSpec);
+    this.defineInitialUIFromGame();
+    this.defineMainUIFromGame();
+    this.handleResize();
+    await this.getPyodide();
+    await this.refreshGameFromSpec();
+    this.startGame();
+
   },
 
   updated() {
@@ -247,6 +257,165 @@ export default {
   },
 
   methods: {
+
+    async onUpdateGameSpec() {
+      this.loadingDone = false;
+      const gameSpec = await this.$refs.devZone.fetchGameSpecFromFields();
+      // TODO : check gameSpec is not null.
+      this.recordGameSpec(gameSpec);
+      this.defineMainUIFromGame();
+      this.handleResize();
+      await this.refreshGameFromSpec();
+      this.startGame();
+    },
+
+    recordGameSpec(gameSpec) {
+      if (this.currentUrlTileset !== gameSpec.urlTileset) {
+        this.currentUrlTileset = gameSpec.urlTileset;
+        this.mustReloadTileset = true
+      }
+      console.log(gameSpec.jsonConf);
+      this.gameConfig = JSON.parse(gameSpec.jsonConf);
+      this.gameCode = gameSpec.gameCode;
+    },
+
+    defineInitialUIFromGame() {
+      // TODO : ça, en vrai, ça dépend de la game config. Mais pour l'instant j'ai pas les éléments dedans.
+      // Et par défaut, c'est false les deux.
+      this.hideCode = true;
+      this.showDescriptionAbove = false;
+    },
+
+    defineMainUIFromGame() {
+      // TODO : valeurs par défaut déjà définies à plein d'autres endroits. C'est vilain.
+      let areaWidth = 20;
+      let areaHeight = 14;
+      if ('game_area' in this.gameConfig) {
+        const jsonConfGameArea = this.gameConfig.game_area;
+        if ('nb_tile_width' in jsonConfGameArea) {
+          areaWidth = jsonConfGameArea.nb_tile_width;
+        }
+        if ('w' in jsonConfGameArea) {
+          areaWidth = jsonConfGameArea.w;
+        }
+        if ('nb_tile_height' in jsonConfGameArea) {
+          areaHeight = jsonConfGameArea.nb_tile_height;
+        }
+        if ('h' in jsonConfGameArea) {
+          areaHeight = jsonConfGameArea.h;
+        }
+      }
+      this.ratioFromWidthToHeight = areaHeight / areaWidth;
+      // TODO : évidemment, ça devrait venir du json. Ha ha.
+      this.gameDescription = "Bla bla bli.<br>Bla bla bli.<br>Bla         bla bli.<br>auiensrtauie\npouet\npouet\npouet\npouet"
+      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet"
+      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\n"
+      this.gameDescription += "grande ligne  pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet fin grande ligne"
+      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\nbloooooooooooooooorp"
+
+      // https://caniuse.com/?search=operator%3A%20in - 97%
+      if ('name' in this.gameConfig) {
+        document.title = `Squarity - ${this.gameConfig.name}`;
+      } else {
+        document.title = 'Squarity';
+      }
+    },
+
+    async getPyodide() {
+      window.languagePluginUrl = '/pyodide/v0.15.0/';
+      window.pyodideDownloadProgress = this.pyodideDownloadProgress;
+      this.showProgress('Initialisation de Pyodide.');
+      // Si j'arrive jusqu'au bout avec cet astuce, je met 3000 upvotes à cette réponse :
+      // https://stackoverflow.com/questions/45047126/how-to-add-external-js-scripts-to-vuejs-components
+      // Et aussi à ce plugin, avec la doc qui va bien. Et qui est compatible Vue 3.
+      // https://www.npmjs.com/package/vue-plugin-load-script
+      //
+      // Origine de ce fichier : https://pyodide-cdn2.iodide.io/v0.15.0/full/pyodide.js
+      // Ce script js télécharge les fichiers suivants :
+      // public/pyodide/v0.15.0/pyodide.asm.wasm
+      // public/pyodide/v0.15.0/pyodide.asm.data.js
+      // public/pyodide/v0.15.0/pyodide.asm.data
+      // public/pyodide/v0.15.0/pyodide.asm.js
+      await loadScript('../pyodide.js');
+      this.showProgress('Iodification du python géant.', true, true);
+      await window.languagePluginLoader;
+    },
+
+    async refreshGameFromSpec() {
+
+      this.$refs.pythonConsole.textContent = '';
+      let useV2 = true;
+      if ('version' in this.gameConfig) {
+        const version = this.gameConfig.version;
+        if (version[0] == '1') {
+          useV2 = false;
+        } else if (version[0] == '2') {
+          useV2 = true;
+        } else {
+          useV2 = false;
+          const msg = `Version du moteur inconnue. (${version}). On prend la V1 par défaut.\n`;
+          this.$refs.pythonConsole.textContent += msg;
+        }
+      } else {
+        // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
+        // si la version n'est pas indiquée.
+        const INFER_V1 = 'GameModel()';
+        const INFER_V2 = 'GameModel(squarity.GameModelBase)';
+        let msg = "";
+        if (this.gameCode.includes(INFER_V1)) {
+          useV2 = false;
+          msg = 'Warning: ajoutez: "version": "1.0.0" dans la config json.\n';
+        } else if (this.gameCode.includes(INFER_V2)) {
+          useV2 = true;
+          msg = 'Warning: ajoutez: "version": "2.0.0" dans la config json.\n';
+        } else {
+          useV2 = false;
+          msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
+        }
+        this.$refs.pythonConsole.textContent += msg;
+      }
+
+      // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
+      // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
+      const canvasElem = this.$refs.gameCanvas;
+      if (useV2) {
+        this.gameEngine = new GameEngineV2(
+          this.$refs.pythonConsole,
+          window.pyodide,
+          this.refreshPlock,
+          canvasElem,
+          this.canvasBuffer,
+          libSquarityCodeV2
+        );
+      } else {
+        this.gameEngine = new GameEngineV1(
+          this.$refs.pythonConsole,
+          window.pyodide,
+          this.refreshPlock,
+          canvasElem,
+          this.canvasBuffer,
+          libSquarityCodeV1
+        );
+      }
+
+      this.showProgress('Gloubiboulgatisation des pixels.');
+      if (this.mustReloadTileset) {
+        this.tileAtlas = await loadImage(this.currentUrlTileset);
+        this.mustReloadTileset = false;
+      }
+
+      this.showProgress('Compilation de la compote.');
+      this.gameEngine.updateGameSpec(this.tileAtlas, this.gameConfig, this.gameCode);
+    },
+
+    startGame() {
+      this.isPlayerLocked = false;
+      this.gameEngine.execStartCode();
+      this.$refs.gameInterface.focus();
+      this.showProgress('C\'est parti !');
+      this.loadingDone = true;
+      this.$refs.progressIndicator.clearProgress();
+    },
 
     showProgress(msg, withSubTask, isImposted) {
       if (!this.loadingDone) {
@@ -279,9 +448,8 @@ export default {
       // mais j'ai pas trouvé de meilleure solution.
       // J'ai essayé en mettant des bouts de CSS de partout, des flex, des height 100%, etc.
       // Ça me pétait à la gueule à chaque fois.
-      // Je hais le design de page web, je hais le CSS, putain de langage de zouzou !!
+      // Je pige rien au design de page web et au CSS, langage de zouzou !!
 
-      const ratioFromWidthToHeight = this.gameEngine.getRatioFromWidthToHeight();
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.gameFooter.clientHeight;
@@ -293,7 +461,7 @@ export default {
       // (J'espère que ça marche comme ça sur à peu près tous les navigateurs)
       let authorizedWidth = this.$refs.gameInterface.clientWidth;
 
-      const correspHeight = authorizedWidth * ratioFromWidthToHeight;
+      const correspHeight = authorizedWidth * this.ratioFromWidthToHeight;
       let finalHeight = 0;
       let finalWidth = 0;
       if (correspHeight < authorizedHeight) {
@@ -303,10 +471,11 @@ export default {
       } else {
         // On peut s'étendre à gauche à droite, mais pas en haut en bas.
         finalHeight = Math.floor(authorizedHeight);
-        finalWidth = Math.floor(authorizedHeight / ratioFromWidthToHeight);
+        finalWidth = Math.floor(authorizedHeight / this.ratioFromWidthToHeight);
       }
 
       this.$refs.gameCanvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
+      this.$refs.descripAbove.style = `height: ${authorizedHeight}px;`;
     },
 
     onKeyDown(e) {
@@ -355,87 +524,8 @@ export default {
       this.handleResize();
     },
 
-    async onUpdateGameSpec(urlTileset, jsonConf, gameCode) {
-
-      this.loadingDone = false;
-      this.$refs.pythonConsole.textContent = '';
-      jsonConf = JSON.parse(jsonConf);
-      let useV2 = true;
-      if ('version' in jsonConf) {
-        if (jsonConf.version[0] == '1') {
-          useV2 = false;
-        } else if (jsonConf.version[0] == '2') {
-          useV2 = true;
-        } else {
-          useV2 = false;
-          const msg = `Version du moteur inconnue. (${jsonConf.version}). On prend la V1 par défaut.\n`;
-          this.$refs.pythonConsole.textContent += msg;
-        }
-      } else {
-        // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
-        // si la version est pas indiquée.
-        const INFER_V1 = 'GameModel()';
-        const INFER_V2 = 'GameModel(squarity.GameModelBase)';
-        let msg = "";
-        if (gameCode.includes(INFER_V1)) {
-          useV2 = false;
-          msg = 'Warning: ajoutez: "version": "1.0.0" dans la config json.\n';
-        } else if (gameCode.includes(INFER_V2)) {
-          useV2 = true;
-          msg = 'Warning: ajoutez: "version": "2.0.0" dans la config json.\n';
-        } else {
-          useV2 = false;
-          msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
-        }
-        this.$refs.pythonConsole.textContent += msg;
-      }
-
-      // Utilisation de la variable $refs pour récupérer tous les trucs référencés dans le template.
-      // https://vuejs.org/v2/guide/migration.html#v-el-and-v-ref-replaced
-      const canvasElem = this.$refs.gameCanvas;
-      if (useV2) {
-        this.gameEngine = new GameEngineV2(
-          this.$refs.pythonConsole,
-          window.pyodide,
-          this.refreshPlock,
-          canvasElem,
-          this.canvasBuffer,
-          libSquarityCodeV2
-        );
-      } else {
-        this.gameEngine = new GameEngineV1(
-          this.$refs.pythonConsole,
-          window.pyodide,
-          this.refreshPlock,
-          canvasElem,
-          this.canvasBuffer,
-          libSquarityCodeV1
-        );
-      }
-
-      this.showProgress('Gloubiboulgatisation des pixels.');
-      if (this.currentUrlTileset !== urlTileset) {
-        this.tileAtlas = await loadImage(urlTileset);
-        this.currentUrlTileset = urlTileset;
-      }
-
-      this.showProgress('Compilation de la compote.');
-
-      // https://caniuse.com/?search=operator%3A%20in - 97%
-      if ('name' in jsonConf) {
-        document.title = `Squarity - ${jsonConf.name}`;
-      } else {
-        document.title = 'Squarity';
-      }
-      this.gameEngine.updateGameSpec(this.tileAtlas, jsonConf, gameCode);
-
-      this.handleResize();
-      this.isPlayerLocked = false;
-      this.gameEngine.execStartCode();
-      this.$refs.gameInterface.focus();
-      this.showProgress('C\'est parti !');
-      this.loadingDone = true;
-      this.$refs.progressIndicator.clearProgress();
+    closeDescClick() {
+      this.showDescriptionAbove = false;
     },
 
     toggleDevZoneDisplay() {
@@ -711,6 +801,28 @@ textarea {
 
 .home-icon {
   width: 1.1em;
+}
+
+.descrip-above {
+  background-color: #202020;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.close-desc {
+  color: red;
+  font-size: 2em;
+  font-weight: bold;
+  padding: 0.5em;
+}
+
+.desc-title {
+  padding: 0.75em;
+  font-size: 1.5em;
 }
 
 </style>
