@@ -34,23 +34,29 @@
           <div class="flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <div v-show="showDescriptionAbove">
+                <div v-show="visibleDescriptionAbove">
                   <div ref="descripAbove" class="descrip-above">
                     <div class="flex-line">
                       <div class="flex-grow">
                         <h2 class="desc-title">Bla blabla title</h2>
                       </div>
                       <div>
-                        <button class="close-desc" @click="closeDescClick">X</button>
+                        <button class="close-desc-cross" @click="closeDescClick">X</button>
                       </div>
                     </div>
-                    {{gameDescription}}>
+                    <div>
+                      {{gameDescription}}>
+                    </div>
+                    <div>
+                      <button class="close-desc-play" @click="closeDescClick">Jouer &gt;</button>
+                    </div>
                   </div>
                 </div>
-                <div v-show="loadingDone && !showDescriptionAbove">
+                <div v-show="loadingDone && !visibleDescriptionAbove">
                   <canvas ref="gameCanvas" @click="onGameClick"/>
                 </div>
-                <ProgressIndicator v-show="!loadingDone && !showDescriptionAbove" ref="progressIndicator" />
+                <!-- TODO : v-if au lieu de v-show ? -->
+                <ProgressIndicator v-show="!loadingDone && !visibleDescriptionAbove" ref="progressIndicator" />
               </div>
             </div>
           </div>
@@ -100,6 +106,14 @@
 
                   <div class="flex-grow" />
                   <div class="flex-column game-menu-normal">
+                    <!-- TODO : ça doit aller à gauche, ces 3 mini-boutons.   -->
+                    <div v-show="hasDescriptionAbove" class="button-wrapper">
+                      <button class="my-button game-menu-button-normal" @click="showDescClick">
+                         A
+                      </button>
+                      <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
+                    </div>
+
                     <div class="button-wrapper">
                       <button class="my-button game-menu-button-normal" @click="$router.push('/')">
                          <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
@@ -108,7 +122,9 @@
                     </div>
 
                     <div class="button-wrapper">
-                      <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">( ):</button>
+                      <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">
+                        ( ):
+                      </button>
                       <span class="tooltip" @click="toggleDevZoneDisplay">Afficher/masquer le code source</span>
                     </div>
                   </div>
@@ -116,7 +132,6 @@
                 </div>
               </div>
             </div>
-            <!-- TODO : ça doit aller à gauche, ces deux boutons. -->
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
                 <div @click="$router.push('/')">
@@ -180,7 +195,8 @@ export default {
 
   data() {
     return {
-      showDescriptionAbove: false,
+      visibleDescriptionAbove: false,
+      hasDescriptionAbove: false,
       loadingDone: false,
       hideCode: true,
       hideGameMenuSmall: true,
@@ -281,9 +297,10 @@ export default {
 
     defineInitialUIFromGame() {
       // TODO : ça, en vrai, ça dépend de la game config. Mais pour l'instant j'ai pas les éléments dedans.
-      // Et par défaut, c'est false les deux.
+      // Et par défaut, c'est false les trois.
       this.hideCode = true;
-      this.showDescriptionAbove = false;
+      this.hasDescriptionAbove = true;
+      this.visibleDescriptionAbove = true;
     },
 
     defineMainUIFromGame() {
@@ -525,7 +542,11 @@ export default {
     },
 
     closeDescClick() {
-      this.showDescriptionAbove = false;
+      this.visibleDescriptionAbove = false;
+    },
+
+    showDescClick() {
+      this.visibleDescriptionAbove = true;
     },
 
     toggleDevZoneDisplay() {
@@ -813,11 +834,24 @@ textarea {
   overflow-x: hidden;
 }
 
-.close-desc {
+.close-desc-cross {
   color: red;
   font-size: 2em;
   font-weight: bold;
   padding: 0.5em;
+}
+
+.close-desc-play {
+  background-color: #707070;
+  color: black;
+  font-size: 2em;
+  font-weight: bold;
+  margin-top: 0.25em;
+  padding: 0.25em 1em 0.25em 1em;
+}
+
+.close-desc-play:hover {
+  background-color: #808080;
 }
 
 .desc-title {
