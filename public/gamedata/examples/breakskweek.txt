@@ -24,6 +24,11 @@
     "bezel_blue_crack_2": [200, 50],
     "congrats": [100, 100, 300, 100],
     "end": [0, 0]
+  },
+  "show_code": false,
+  "texts": {
+    "description": "bla bla blou \n grande ligne  pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet fin grande ligne",
+    "show_desc": true
   }
 }
 --------

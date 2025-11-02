@@ -4,7 +4,7 @@
       https://stackoverflow.com/questions/25427407/bootstrap-3-and-4-container-fluid-with-grid-adding-unwanted-padding
     -->
     <v-row class="h-100 no-gutters">
-      <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: hideCode }">
+      <v-col sm="12" md="6" order="2" order-sm="2" order-md="1" :class="{ hidden: !showCode }">
         <div class="flex-column h-100">
           <div class="d-none d-sm-none d-md-block">
             <MainTitle />
@@ -20,14 +20,14 @@
           </div>
         </div>
       </v-col>
-      <v-col sm="12" :md="hideCode ? 12 : 6" order="1" order-sm="1" order-md="2" class="no-padding-you-dumbass">
+      <v-col sm="12" :md="showCode ? 6 : 12" order="1" order-sm="1" order-md="2" class="no-padding-you-dumbass">
         <!--
           Ne pas oublier le tabindex=0, sinon on peut pas choper les touches.
           https://laracasts.com/discuss/channels/vue/vuejs-listen-for-key-events-on-div
         -->
         <div ref="gameInterface" class="game-interface flex-column" tabindex="0">
           <div ref="titleContainer" class="d-block d-sm-block d-md-none">
-            <div :class="{ hidden: hideCode }">
+            <div :class="{ hidden: !showCode }">
               <MainTitle />
             </div>
           </div>
@@ -45,7 +45,7 @@
                       </div>
                     </div>
                     <div>
-                      {{gameDescription}}>
+                      {{gameDescription}}
                     </div>
                     <div>
                       <button class="close-desc-play" @click="closeDescClick">Jouer &gt;</button>
@@ -70,7 +70,8 @@
 
                   <div v-show="hasDescriptionAbove" class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="showDescClick" :disabled="visibleDescriptionAbove">
-                        A
+                      <!-- TODO : un espèce d'icône de parchemin. -->
+                      A
                     </button>
                     <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
                   </div>
@@ -84,7 +85,7 @@
 
                   <div class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="$router.push('/')">
-                        <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                      <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
                     </button>
                     <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
                   </div>
@@ -131,8 +132,6 @@
                       2
                     </button>
                   </div>
-
-                  <div class="flex-grow" />
 
                 </div>
               </div>
@@ -204,7 +203,7 @@ export default {
       visibleDescriptionAbove: false,
       hasDescriptionAbove: false,
       loadingDone: false,
-      hideCode: true,
+      showCode: true,
       hideGameMenuSmall: true,
       isPlayerLocked: false,
       gameDescription: "",
@@ -297,17 +296,27 @@ export default {
         this.currentUrlTileset = gameSpec.urlTileset;
         this.mustReloadTileset = true
       }
-      console.log(gameSpec.jsonConf);
       this.gameConfig = JSON.parse(gameSpec.jsonConf);
       this.gameCode = gameSpec.gameCode;
     },
 
     defineInitialUIFromGame() {
-      // TODO : ça, en vrai, ça dépend de la game config. Mais pour l'instant j'ai pas les éléments dedans.
-      // Et par défaut, c'est false les trois.
-      this.hideCode = true;
-      this.hasDescriptionAbove = true;
-      this.visibleDescriptionAbove = true;
+      if ('show_code' in this.gameConfig) {
+        this.showCode = this.gameConfig['show_code'];
+      }
+      if ('texts' in this.gameConfig) {
+        const textsConfig = this.gameConfig['texts']
+        if ('description' in textsConfig) {
+          this.gameDescription = textsConfig['description'];
+          if (this.gameDescription.length > 0) {
+            this.hasDescriptionAbove = true;
+          }
+        }
+        if ('show_desc' in textsConfig) {
+          this.visibleDescriptionAbove = textsConfig['show_desc'];
+        }
+      }
+      // TODO : faut gérer les notes (le texte en bas du jeu).
     },
 
     defineMainUIFromGame() {
@@ -330,12 +339,6 @@ export default {
         }
       }
       this.ratioFromWidthToHeight = areaHeight / areaWidth;
-      // TODO : évidemment, ça devrait venir du json. Ha ha.
-      this.gameDescription = "Bla bla bli.<br>Bla bla bli.<br>Bla         bla bli.<br>auiensrtauie\npouet\npouet\npouet\npouet"
-      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet"
-      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\n"
-      this.gameDescription += "grande ligne  pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet fin grande ligne"
-      this.gameDescription += "\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\npouet\nbloooooooooooooooorp"
 
       // https://caniuse.com/?search=operator%3A%20in - 97%
       if ('name' in this.gameConfig) {
@@ -563,7 +566,7 @@ export default {
     },
 
     toggleDevZoneDisplay() {
-      this.hideCode = !this.hideCode;
+      this.showCode = !this.showCode;
       // Si j'appelle handleResize tout de suite, ça marche pas car les valeurs clientWidth
       // des components n'ont pas été mises à jour.
       // Il faut déclencher un appel à la callback "updated".
@@ -691,6 +694,7 @@ div.game-menu-normal button {
 button.game-menu-button-normal {
   font-size: 0.8em;
   border-radius: 8px;
+  margin: 0.4em 1em 0.4em 0;
 }
 
 canvas {
@@ -728,7 +732,7 @@ textarea {
   position: absolute;
   left: 100%; /* pour mettre le tooltip à droite du bouton */
   top: 50%; /* centré verticalement */
-  transform: translate(-0.2em, -50%);
+  transform: translate(-1.2em, -50%);
   background: #909090;
   color: #000;
   padding: 0.09em 0.5em;
