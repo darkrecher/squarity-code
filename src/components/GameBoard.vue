@@ -35,7 +35,7 @@
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
                 <div v-show="visibleDescriptionAbove">
-                  <div ref="descripAbove" class="descrip-above">
+                  <div ref="descripAbove" class="descrip-above" :class="{ is_shrinking: shrinking }">
                     <div class="flex-line">
                       <div class="flex-grow">
                         <h2 class="desc-title">Bla blabla title</h2>
@@ -63,6 +63,34 @@
           <div ref="gameFooter" class="game-footer flex-grow-no">
             <!-- https://getbootstrap.com/docs/4.1/utilities/flex/ -->
             <div class="game-footer-inside">
+
+              <div class="flex-column game-menu-normal">
+
+                  <div class="flex-grow"></div>
+
+                  <div v-show="hasDescriptionAbove" class="button-wrapper">
+                    <button class="my-button game-menu-button-normal" @click="showDescClick" :disabled="visibleDescriptionAbove">
+                        A
+                    </button>
+                    <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
+                  </div>
+
+                  <div class="button-wrapper">
+                    <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">
+                      ( ):
+                    </button>
+                    <span class="tooltip" @click="toggleDevZoneDisplay">Afficher/masquer le code source</span>
+                  </div>
+
+                  <div class="button-wrapper">
+                    <button class="my-button game-menu-button-normal" @click="$router.push('/')">
+                        <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                    </button>
+                    <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
+                  </div>
+
+              </div>
+
               <div class="flex-grow-2">
                 <textarea id="pythonConsole" ref="pythonConsole" readonly />
               </div>
@@ -105,35 +133,13 @@
                   </div>
 
                   <div class="flex-grow" />
-                  <div class="flex-column game-menu-normal">
-                    <!-- TODO : ça doit aller à gauche, ces 3 mini-boutons.   -->
-                    <div v-show="hasDescriptionAbove" class="button-wrapper">
-                      <button class="my-button game-menu-button-normal" @click="showDescClick">
-                         A
-                      </button>
-                      <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
-                    </div>
-
-                    <div class="button-wrapper">
-                      <button class="my-button game-menu-button-normal" @click="$router.push('/')">
-                         <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
-                      </button>
-                      <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
-                    </div>
-
-                    <div class="button-wrapper">
-                      <button class="my-button game-menu-button-normal" @click="toggleDevZoneDisplay">
-                        ( ):
-                      </button>
-                      <span class="tooltip" @click="toggleDevZoneDisplay">Afficher/masquer le code source</span>
-                    </div>
-                  </div>
 
                 </div>
               </div>
             </div>
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
+                <!-- TODO : ajouter le bouton pour réafficher la descrip. -->
                 <div @click="$router.push('/')">
                   <span class="game-menu-icon">
                     <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
@@ -202,6 +208,7 @@ export default {
       hideGameMenuSmall: true,
       isPlayerLocked: false,
       gameDescription: "",
+      shrinking: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
   },
@@ -542,7 +549,13 @@ export default {
     },
 
     closeDescClick() {
+      this.shrinking = true;
+      this.$refs.descripAbove.addEventListener("transitionend", this.clodeDescEndTransi);
+    },
+
+    clodeDescEndTransi(e) {
       this.visibleDescriptionAbove = false;
+      this.shrinking = false;
     },
 
     showDescClick() {
@@ -671,6 +684,10 @@ div.game-buttons button {
   color: black;
 }
 
+div.game-menu-normal button {
+  color: black;
+}
+
 button.game-menu-button-normal {
   font-size: 0.8em;
   border-radius: 8px;
@@ -709,9 +726,9 @@ textarea {
 
 .tooltip {
   position: absolute;
-  right: 100%; /* pour mettre le tooltip à gauche du bouton */
+  left: 100%; /* pour mettre le tooltip à droite du bouton */
   top: 50%; /* centré verticalement */
-  transform: translate(0.2em, -50%);
+  transform: translate(-0.2em, -50%);
   background: #909090;
   color: #000;
   padding: 0.09em 0.5em;
@@ -723,7 +740,7 @@ textarea {
      sans être préalablement passé par le mini-bouton */
   pointer-events: none;
   border-top: 5px solid black;
-  border-left: 5px solid black;
+  border-right: 5px solid black;
   border-bottom: 5px solid black;
   transition: opacity .12s linear;
   /* https://stackoverflow.com/questions/2310734/how-to-make-html-text-unselectable */
@@ -832,7 +849,26 @@ textarea {
   word-wrap: break-word;
   overflow-y: scroll;
   overflow-x: hidden;
+  /* Définition de l'effet de transition,
+     quand on ne veut plus afficher la description.
+     La direction du shrink sera vers le coin inférieur gauche.
+  */
+  transform-origin: left bottom;
+  transition: transform 400ms ease;
+  will-change: transform;
+
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .descrip-above {
+    /* Transition très courte,
+       pour les gens qui ont une config indiquant qu'on ne veut pas de transition.
+       https://www.a11yproject.com/posts/understanding-vestibular-disorders/
+    */
+    transition: transform 0.001s ease !important;
+  }
+}
+
 
 .close-desc-cross {
   color: red;
@@ -857,6 +893,10 @@ textarea {
 .desc-title {
   padding: 0.75em;
   font-size: 1.5em;
+}
+
+.is_shrinking {
+  transform: scale(0);
 }
 
 </style>
