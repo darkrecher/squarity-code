@@ -3,10 +3,6 @@ import { isNonePython } from './common/SimpleFunctions.js';
 
 
 const actionsFromPlayer = ['U', 'R', 'D', 'L', 'action_1', 'action_2'];
-const defaultTileSize = 32;
-const defaultNbTileWidth = 20;
-const defaultNbTileHeight = 14;
-
 
 export default class GameEngineV1 {
 
@@ -40,7 +36,6 @@ export default class GameEngineV1 {
 
     this.delayed_actions = [];
     this.has_click_handling = false;
-    this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     // J'ai pas trouvé comment on importe un module python homemade dans pyodide.
     // Il y a des docs qui expliquent comment créer un package avec wheel et micropip.
@@ -48,9 +43,9 @@ export default class GameEngineV1 {
     // Alors j'y vais à la bourrin : je charge tout le code dans une string
     // et je la balance ensuite directement à la fonction runPython.
     this.runPython(
-        libSquarityCode,
-        'Interprétation de la lib python squarity',
-      );
+      libSquarityCode,
+      'Interprétation de la lib python squarity',
+    );
   }
 
   isPlayerLocked() {
@@ -65,32 +60,14 @@ export default class GameEngineV1 {
     }
   }
 
-  updateGameSpec(tile_atlas, json_conf, gameCode) {
+  updateGameSpec(tile_atlas, gameJsonConfig, gameCode) {
 
-    let tileSize = defaultTileSize;
-    let areaWidth = defaultNbTileWidth;
-    let areaHeight = defaultNbTileHeight;
-    if ('tile_size' in json_conf) {
-      tileSize = json_conf.tile_size;
-    }
-    // TODO : ce truc a déjà été fait par le gameBoard. Donc faudrait mettre ça en commun quelque part. Pareil pour la V2.
-    if ('game_area' in json_conf) {
-      const jsonConfGameArea = json_conf.game_area;
-      if ('nb_tile_width' in jsonConfGameArea) {
-        areaWidth = jsonConfGameArea.nb_tile_width;
-      }
-      if ('w' in jsonConfGameArea) {
-        areaWidth = jsonConfGameArea.w;
-      }
-      if ('nb_tile_height' in jsonConfGameArea) {
-        areaHeight = jsonConfGameArea.nb_tile_height;
-      }
-      if ('h' in jsonConfGameArea) {
-        areaHeight = jsonConfGameArea.h;
-      }
-    }
-    this.configGameSizes(tileSize, areaWidth, areaHeight);
-    this.img_coords = json_conf.img_coords;
+    this.configGameSizes(
+      gameJsonConfig.tileSizePixel,
+      gameJsonConfig.nbTileWidth,
+      gameJsonConfig.nbTileHeight
+    );
+    this.img_coords = gameJsonConfig.imgCoords;
     this.tile_atlas = tile_atlas;
 
     // On annule toutes les delayed actions du jeu précédent.
@@ -274,16 +251,8 @@ export default class GameEngineV1 {
   }
 
   processGameEventResult(eventResultRaw) {
-    // Exemple d'infos à processer :
-    // {
-    //   "delayed_actions": [
-    //       {"name": "blabla", "delay_ms": 500},
-    //       {"name": "blabla2", "delay_ms": 250}
-    //   ],
-    //   "redraw: 0,"
-    //   "player_locks": ["name1", "name2"],
-    //   "player_unlocks": ["name1", "name2", "*"],
-    // }
+    // Pour le détail des données à processer, voir doc de la V1:
+    // https://squarity.fr/create/main-doc-v1#donn%C3%A9es-renvoy%C3%A9es-par-on_game_event
     let mustRedraw = true;
     const eventResult = JSON.parse(eventResultRaw);
     if ('delayed_actions' in eventResult) {

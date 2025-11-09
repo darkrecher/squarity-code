@@ -180,6 +180,7 @@ import ProgressIndicator from './ProgressIndicator.vue';
 import ProgressImposter from "../classes/ProgressImposter.js";
 import libSquarityCodeV1 from '/squarity_v1.txt?raw'
 import libSquarityCodeV2 from '/squarity_v2.txt?raw'
+import GameJsonConfig from "../classes/GameJsonConfig.js";
 import { Direction, PlayerLockTransi } from '../classes/common/Constants.js';
 import GameEngineV1 from "../classes/GameEngineV1.js";
 import GameEngineV2 from "../classes/GameEngineV2.js";
@@ -303,7 +304,10 @@ export default {
 
     recordGameSpec(gameSpec) {
       this.originLocHash = gameSpec.originLocHash;
+      // TODO : c'est plus ce truc là.
       this.gameConfig = JSON.parse(gameSpec.jsonConf);
+      this.gameJsonConfig = new GameJsonConfig(gameSpec.jsonConf);
+      this.gameJsonConfig.processJsonConf();
       this.gameCode = gameSpec.gameCode;
       if (this.currentUrlTileset !== gameSpec.urlTileset) {
         this.currentUrlTileset = gameSpec.urlTileset;
@@ -455,7 +459,7 @@ export default {
       }
 
       this.showProgress('Compilation de la compote.');
-      this.gameEngine.updateGameSpec(this.tileAtlas, this.gameConfig, this.gameCode);
+      this.gameEngine.updateGameSpec(this.tileAtlas, this.gameJsonConfig, this.gameCode);
     },
 
     startGame() {

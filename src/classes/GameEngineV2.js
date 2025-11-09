@@ -4,11 +4,6 @@ import { imgAnchor, LayerWithTransition, LayerNoTransition } from './gameEngine/
 import GameUpdateResult from './gameEngine/GameUpdateResult.js'
 
 
-const defaultTileSize = 32;
-const defaultNbTileWidth = 20;
-const defaultNbTileHeight = 14;
-
-
 export default class GameEngineV2 {
 
   constructor(
@@ -42,7 +37,6 @@ export default class GameEngineV2 {
     this.showingTransition = false;
     this.plocksCustom = [];
     this.currentPlock = PlayerLockTransi.NoLock;
-    this.configGameSizes(defaultTileSize, defaultNbTileWidth, defaultNbTileHeight);
 
     this.pythonDirFromJsDir = new Map();
     this.pythonDirFromJsDir.set(Direction.Up, 'squarity.dirs.Up');
@@ -95,31 +89,17 @@ export default class GameEngineV2 {
     return this.currentPlock;
   }
 
-  updateGameSpec(tileAtlas, jsonConf, gameCode) {
+  updateGameSpec(tileAtlas, gameJsonConfig, gameCode) {
 
-    let tileSize = defaultTileSize;
-    let areaWidth = defaultNbTileWidth;
-    let areaHeight = defaultNbTileHeight;
-    if ('tile_size' in jsonConf) {
-      tileSize = jsonConf.tile_size;
-    }
-    if ('game_area' in jsonConf) {
-      const jsonConfGameArea = jsonConf.game_area;
-      if ('nb_tile_width' in jsonConfGameArea) {
-        areaWidth = jsonConfGameArea.nb_tile_width;
-      }
-      if ('w' in jsonConfGameArea) {
-        areaWidth = jsonConfGameArea.w;
-      }
-      if ('nb_tile_height' in jsonConfGameArea) {
-        areaHeight = jsonConfGameArea.nb_tile_height;
-      }
-      if ('h' in jsonConfGameArea) {
-        areaHeight = jsonConfGameArea.h;
-      }
-    }
-    this.configGameSizes(tileSize, areaWidth, areaHeight);
-    this.atlasDefinitions = this.computeAtlasDefinitions(jsonConf.img_coords, tileSize);
+    this.configGameSizes(
+      gameJsonConfig.tileSizePixel,
+      gameJsonConfig.nbTileWidth,
+      gameJsonConfig.nbTileHeight
+    );
+    this.atlasDefinitions = this.computeAtlasDefinitions(
+      gameJsonConfig.imgCoords,
+      gameJsonConfig.tileSizePixel
+    );
     this.tileAtlas = tileAtlas;
 
     // On annule toutes les delayed callbacks du jeu précédent.
@@ -134,9 +114,9 @@ export default class GameEngineV2 {
       gameCode,
       'Interprétation du gameCode.',
     );
-    document.json_conf = JSON.stringify(jsonConf);
+    document.json_conf = gameJsonConfig.strJsonConf;
     this.runPython(
-      `game_model = GameModel(${areaWidth}, ${areaHeight}, ${tileSize}, js.document.json_conf)`,
+      `game_model = GameModel(${gameJsonConfig.nbTileWidth}, ${gameJsonConfig.nbTileHeight}, ${gameJsonConfig.tileSizePixel}, js.document.json_conf)`,
       'Instanciation du GameModel',
     );
     // FUTURE: meuh... Y'a pas plus simple pour récupérer ce truc ?
