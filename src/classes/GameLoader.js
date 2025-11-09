@@ -1,12 +1,28 @@
+// Ça marche pas pastebin. Même avec le proxy de cors. On laisse tomber ça pour l'instant.
+const URL_PATTERN_PASTEBIN = 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}'
+const URL_PATTERN_GITHUBGIST = 'https://gist.githubusercontent.com/{externalId}'
+const URL_PATTERN_EXAMPLES = '/gamedata/examples/{externalId}.txt'
+const URL_PATTERN_TUTORIALS = '/gamedata/tutorials/{externalId}.txt'
+
+
+class gameSpec {
+  constructor(urlTileset, jsonConf, gameCode) {
+    this.urlTileset = urlTileset;
+    this.jsonConf = jsonConf;
+    this.gameCode = gameCode;
+    this.originLocHash = "";
+  }
+  setOriginLocHash(originLocHash) {
+    this.originLocHash = originLocHash;
+  }
+}
+
+
 export default Object.freeze({
 
-  // Ça marche pas pastebin. Même avec le proxy de cors. On laisse tomber ça pour l'instant.
-  URL_PATTERN_PASTEBIN: 'https://cors-anywhere.herokuapp.com/http://pastebin.com/raw/{externalId}',
-  URL_PATTERN_GITHUBGIST: 'https://gist.githubusercontent.com/{externalId}',
-  URL_PATTERN_EXAMPLES: '/gamedata/examples/{externalId}.txt',
-  URL_PATTERN_TUTORIALS: '/gamedata/tutorials/{externalId}.txt',
+  gameSpec: gameSpec,
 
-  urlGameSpecFromLocHash(locHash) {
+  urlGameFromLocHash(locHash) {
     // Le paramètre "limit" ne redonne pas toute la fin de la string...
     const locHashSplitted = locHash.split('_');
     if (locHashSplitted.length < 3) {
@@ -21,14 +37,14 @@ export default Object.freeze({
     const externalId = externalIdParts.join("_");
 
     if (locCategory === 'pastebin') {
-      urlPattern = this.URL_PATTERN_PASTEBIN;
+      urlPattern = URL_PATTERN_PASTEBIN;
       regexExternalId = /^[0-9a-zA-Z]+$/;
     } else if (locCategory === 'githubgist') {
-      urlPattern = this.URL_PATTERN_GITHUBGIST;
+      urlPattern = URL_PATTERN_GITHUBGIST;
     } else if (locCategory === 'example') {
-      urlPattern = this.URL_PATTERN_EXAMPLES;
+      urlPattern = URL_PATTERN_EXAMPLES;
     } else if (locCategory === 'tutorial') {
-      urlPattern = this.URL_PATTERN_TUTORIALS;
+      urlPattern = URL_PATTERN_TUTORIALS;
     }
     if (!urlPattern) {
       return null;
@@ -40,7 +56,7 @@ export default Object.freeze({
     return urlPattern.replace('{externalId}', externalId);
   },
 
-  async fetchGameSpec(url) {
+  async fetchGameDetails(url) {
     // https://stackoverflow.com/questions/57411402/using-fetch-to-display-plain-text-in-a-web-page
     let response = '';
     try {
@@ -73,7 +89,7 @@ export default Object.freeze({
     };
   },
 
-  getDefaultGameSpecUrl() {
+  getDefaultGameUrl() {
     return this.URL_PATTERN_EXAMPLES.replace('{externalId}', 'magician');
   },
 

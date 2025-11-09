@@ -24,7 +24,7 @@
 
 <script>
 
-import gameSpecLoader from '../classes/GameSpecLoader';
+import gameLoader from '../classes/GameLoader';
 
 export default {
   name: 'DevZone',
@@ -55,38 +55,43 @@ export default {
     async fetchGameSpecFromLocHash() {
 
       const locHash = window.location.hash;
-      let urlGameSpec;
+      let urlGame;
       if (!locHash) {
-        urlGameSpec = gameSpecLoader.getDefaultGameSpecUrl();
+        urlGame = gameLoader.getDefaultGameUrl();
       } else {
-        urlGameSpec = gameSpecLoader.urlGameSpecFromLocHash(locHash);
+        urlGame = gameLoader.urlGameFromLocHash(locHash);
       }
 
-      if (urlGameSpec === null) {
+      if (urlGame === null) {
         console.log('Le hash de l\'url ne correspond pas à un lien vers une définition de jeu.');
         return null;
       } else {
-        const gameSpec = await gameSpecLoader.fetchGameSpec(urlGameSpec);
-        console.log("gameSpec");
-        console.log(gameSpec);
-        if (gameSpec === null) {
+        const gameDetails = await gameLoader.fetchGameDetails(urlGame);
+        if (gameDetails === null) {
           console.log('Le texte récupéré ne correspond pas à une définition de jeu.');
+          return null;
         } else {
+          const gameSpec = new gameLoader.gameSpec(
+            gameDetails.urlTileset,
+            gameDetails.jsonConf,
+            gameDetails.gameCode,
+          )
+          gameSpec.setOriginLocHash(locHash);
           this.$refs.urlTileset.value = gameSpec.urlTileset;
           this.$refs.jsonConf.value = gameSpec.jsonConf;
           this.$refs.gameCode.value = gameSpec.gameCode;
+          return gameSpec;
         }
-        return gameSpec;
       }
 
     },
 
     fetchGameSpecFromFields() {
-      const gameSpec = {
-        urlTileset: this.$refs.urlTileset.value,
-        jsonConf: this.$refs.jsonConf.value,
-        gameCode: this.$refs.gameCode.value,
-      };
+      const gameSpec = new gameLoader.gameSpec(
+        this.$refs.urlTileset.value,
+        this.$refs.jsonConf.value,
+        this.$refs.gameCode.value,
+      );
       return gameSpec;
     },
 

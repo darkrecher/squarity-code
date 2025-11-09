@@ -45,6 +45,7 @@
                       </div>
                     </div>
                     <div>
+                      TODO: du CSS, parce que là, le texte s'affiche très mochement. <br><br>
                       {{gameDescription}}
                     </div>
                     <div>
@@ -73,6 +74,9 @@
                       <!-- TODO : un espèce d'icône de parchemin. -->
                       A
                     </button>
+                    <!-- TODO : ne pas afficher le tooltip quand le bouton est désactivé.
+                         Ou alors, le bouton fait afficher/masquer la descrip (sans la transition)
+                    -->
                     <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
                   </div>
 
@@ -138,16 +142,19 @@
             </div>
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
-                <!-- TODO : ajouter le bouton pour réafficher la descrip. -->
+                <div v-show="hasDescriptionAbove" @click="showDescClick">
+                  <span class="game-menu-icon">A</span>
+                  <span>Réafficher la description du jeu</span>
+                </div>
+                <div @click="toggleDevZoneDisplay">
+                  <span class="game-menu-icon">( ):</span>
+                  <span>Afficher/masquer le code source</span>
+                </div>
                 <div @click="$router.push('/')">
                   <span class="game-menu-icon">
                     <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
                   </span>
                   <span>Page d'accueil de Squarity</span>
-                </div>
-                <div @click="toggleDevZoneDisplay">
-                  <span class="game-menu-icon">( ):</span>
-                  <span>Afficher/masquer le code source</span>
                 </div>
               </div>
               <div :class="{ activated: !hideGameMenuSmall }" class="game-menu-small-toggle" @click="gameMenuSmallClick">
@@ -188,6 +195,8 @@ function loadImage(src) {
   });
 }
 
+const PREFIX_STORAGE_DESCRIPTION = "has_closed_description_";
+
 export default {
   name: 'GameBoard',
   components: {
@@ -219,6 +228,7 @@ export default {
     this.mustReloadTileset = true;
     this.ratioFromWidthToHeight = 1;
     this.tileAtlas = null;
+    this.originLocHash = "";
     this.gameConfig = null;
     this.gameCode = '';
     this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
@@ -292,12 +302,13 @@ export default {
     },
 
     recordGameSpec(gameSpec) {
+      this.originLocHash = gameSpec.originLocHash;
+      this.gameConfig = JSON.parse(gameSpec.jsonConf);
+      this.gameCode = gameSpec.gameCode;
       if (this.currentUrlTileset !== gameSpec.urlTileset) {
         this.currentUrlTileset = gameSpec.urlTileset;
         this.mustReloadTileset = true
       }
-      this.gameConfig = JSON.parse(gameSpec.jsonConf);
-      this.gameCode = gameSpec.gameCode;
     },
 
     defineInitialUIFromGame() {
@@ -307,16 +318,26 @@ export default {
       if ('texts' in this.gameConfig) {
         const textsConfig = this.gameConfig['texts']
         if ('description' in textsConfig) {
+          // TODO : faut mettre le titre aussi.
           this.gameDescription = textsConfig['description'];
           if (this.gameDescription.length > 0) {
             this.hasDescriptionAbove = true;
           }
         }
         if ('show_desc' in textsConfig) {
-          this.visibleDescriptionAbove = textsConfig['show_desc'];
+          let hasClosedDescription = false;
+          console.log(this.originLocHash);
+          if (this.originLocHash !== "") {
+            const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
+            console.log("local storage : " + localStorage.getItem(storageDescripKey));
+            hasClosedDescription = (localStorage.getItem(storageDescripKey) == "1");
+          }
+          if (textsConfig['show_desc'] && !hasClosedDescription) {
+            this.visibleDescriptionAbove = true;
+          }
         }
       }
-      // TODO : faut gérer les notes (le texte en bas du jeu).
+      // TODO : faut gérer les notes (le texte en bas du jeu). Pas forcément dans cette fonction, d'ailleurs.
     },
 
     defineMainUIFromGame() {
@@ -346,6 +367,8 @@ export default {
       } else {
         document.title = 'Squarity';
       }
+
+      // TODO: faut refresh la description quelque part là dedans.
     },
 
     async getPyodide() {
@@ -480,7 +503,10 @@ export default {
       // nombre magique "96/100", à cause du 96vh que j'ai mis je-sais-plus-où.
       const Hscreen = window.innerHeight * (96 / 100);
       const Hfooter = this.$refs.gameFooter.clientHeight;
-      const Htitle = this.$refs.titleContainer.clientHeight;
+      let Htitle = 0;
+      if (this.showCode) {
+        Htitle = this.$refs.titleContainer.clientHeight;
+      }
       const Hmargin = 10;
 
       let authorizedHeight = Hscreen - Hfooter - Htitle - Hmargin;
@@ -554,6 +580,14 @@ export default {
     closeDescClick() {
       this.shrinking = true;
       this.$refs.descripAbove.addEventListener("transitionend", this.clodeDescEndTransi);
+      if (this.originLocHash !== "") {
+        // On enregistre dans le local storage que la description a été fermée, pour ce jeu.
+        // On ne la réouvrira pas au prochain chargement du jeu, même si la config le demande.
+        // Ainsi, une personne qui jouerait fréquemment au même jeu ne sera pas embêtée
+        // à refermer la description à chaque fois.
+        const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
+        localStorage.setItem(storageDescripKey, "1");
+      }
     },
 
     clodeDescEndTransi(e) {
@@ -563,6 +597,12 @@ export default {
 
     showDescClick() {
       this.visibleDescriptionAbove = true;
+      if (this.originLocHash !== "") {
+        // On enregistre dans le local storage que la description a été réouverte, pour ce jeu.
+        // Ça permet de la ré-ré-ouvrir au prochain chargement du jeu.
+        const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
+        localStorage.setItem(storageDescripKey, "0");
+      }
     },
 
     toggleDevZoneDisplay() {

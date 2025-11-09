@@ -27,41 +27,11 @@
   },
   "show_code": false,
   "texts": {
-    "description": "bla bla blou \n grande ligne  pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet pouet fin grande ligne",
+    "description": "Tiny skweek plays Breakout.\n\nClick on an empty blue square to add a solid square, on which your tiny skweek can bounce.\n\nDestroy all the blocks and score the maximum points. You don't have to destroy all the blocks on the borders to go to the next level, so, you should keep the border blocks as long as possible.\n\nThe tiny skweek grows when you destroy a game block, but not one of your own block. It shrinks a little each time you place a block. So, you better place them wisely, instead of random-clicking everywhere.\n\nOn the first levels, when there are only a few blocks left, they automatically decay, so that you don't have to precisely aim that damned last block.\n\nClick the button 1 or 2 to restart a new game.\n\nI developped this game with the Squarity engine (my personal project). It is supposed to create games based only on 2D grids (like the minesweeper, tic-tac-toe, etc.). But with the engine version 2, we can do more things. So, why not create a game not based on 2D grids, with an engine supposed to manage only 2D grids ?\n\nThis game is a tribute to two 1990's PC games, made by French video game studios:\nSuper Skweek: https://en.wikipedia.org/wiki/Super_Skweek\nPopcorn: https://classicreload.com/popcorn.html#\n\nEnjoy !\n",
     "show_desc": true
   }
 }
 --------
-"""
-Tiny skweek plays Breakout.
-
-Click on an empty blue square to add a solid square, on which your tiny skweek can bounce.
-
-Destroy all the blocks and score the maximum points.
-You don't have to destroy all the blocks on the borders to go to the next level,
-so, you should keep the border blocks as long as possible.
-
-The tiny skweek grows when you destroy a game block, but not one of your own block.
-The tiny skweek shrinks a little each time you place a block. So, you better place them wisely,
-instead of random-clicking everywhere.
-
-On the first levels, when there are only a few blocks left, they automatically decay,
-so that you don't have to precisely aim that damned last block.
-
-Click the button 1 or 2 to restart a new game.
-
-I developped this game with the Squarity engine (my personal project).
-This engine is supposed to create games based only on 2D grids (like the minesweeper, tic-tac-toe, etc.)
-But with the version 2 of the engine, we can do more things.
-So, why not create a game not based on 2D grids, with an engine supposed to manage only 2D grids ?
-
-This game is a tribute to two 1990's PC games, made by French video game studios:
-Super Skweek: https://en.wikipedia.org/wiki/Super_Skweek
-Popcorn: https://classicreload.com/popcorn.html#
-
-Enjoy !
-"""
-
 import math
 import random
 import squarity
