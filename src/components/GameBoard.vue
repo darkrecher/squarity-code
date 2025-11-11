@@ -230,7 +230,7 @@ export default {
     this.ratioFromWidthToHeight = 1;
     this.tileAtlas = null;
     this.originLocHash = "";
-    this.gameConfig = null;
+    this.gameJsonConfig = null;
     this.gameCode = '';
     this.progressImposter = new ProgressImposter(this.$refs.progressIndicator, 6)
     this.$refs.progressIndicator.clearProgress();
@@ -260,10 +260,14 @@ export default {
     this.recordGameSpec(gameSpec);
     this.defineInitialUIFromGame();
     this.defineMainUIFromGame();
+    // TODO : ça déconne. Normalement, j'ai besoin de faire un resize uniquement à ce moment là.
+    // Mais ça resize mal. Et je suis obligé d'en refaire un autre à la fin de la fonction.
+    // C'était prévisible. C'est très mal fait cette histoire de resize. Je sais pas comment régler ça.
     this.handleResize();
     await this.getPyodide();
     await this.refreshGameFromSpec();
     this.startGame();
+    this.handleResize();
 
   },
 
@@ -300,12 +304,11 @@ export default {
       this.handleResize();
       await this.refreshGameFromSpec();
       this.startGame();
+      this.handleResize();
     },
 
     recordGameSpec(gameSpec) {
       this.originLocHash = gameSpec.originLocHash;
-      // TODO : c'est plus ce truc là.
-      this.gameConfig = JSON.parse(gameSpec.jsonConf);
       this.gameJsonConfig = new GameJsonConfig(gameSpec.jsonConf);
       this.gameJsonConfig.processJsonConf();
       this.gameCode = gameSpec.gameCode;
@@ -316,62 +319,25 @@ export default {
     },
 
     defineInitialUIFromGame() {
-      if ('show_code' in this.gameConfig) {
-        this.showCode = this.gameConfig['show_code'];
+      this.showCode = this.gameJsonConfig.showCodeAtStart;
+      this.gameDescription = this.gameJsonConfig.gameDescription;
+      if (this.gameDescription) {
+        this.hasDescriptionAbove = true;
       }
-      if ('texts' in this.gameConfig) {
-        const textsConfig = this.gameConfig['texts']
-        if ('description' in textsConfig) {
-          // TODO : faut mettre le titre aussi.
-          this.gameDescription = textsConfig['description'];
-          if (this.gameDescription.length > 0) {
-            this.hasDescriptionAbove = true;
-          }
-        }
-        if ('show_desc' in textsConfig) {
-          let hasClosedDescription = false;
-          console.log(this.originLocHash);
-          if (this.originLocHash !== "") {
-            const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
-            console.log("local storage : " + localStorage.getItem(storageDescripKey));
-            hasClosedDescription = (localStorage.getItem(storageDescripKey) == "1");
-          }
-          if (textsConfig['show_desc'] && !hasClosedDescription) {
-            this.visibleDescriptionAbove = true;
-          }
+      if (this.gameJsonConfig.showGameDescriptionAtStart) {
+        let hasClosedDescription = false;
+        if (this.originLocHash !== "") {
+          const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
+          hasClosedDescription = (localStorage.getItem(storageDescripKey) == "1");
+          this.visibleDescriptionAbove = !hasClosedDescription;
         }
       }
       // TODO : faut gérer les notes (le texte en bas du jeu). Pas forcément dans cette fonction, d'ailleurs.
     },
 
     defineMainUIFromGame() {
-      // TODO : valeurs par défaut déjà définies à plein d'autres endroits. C'est vilain.
-      let areaWidth = 20;
-      let areaHeight = 14;
-      if ('game_area' in this.gameConfig) {
-        const jsonConfGameArea = this.gameConfig.game_area;
-        if ('nb_tile_width' in jsonConfGameArea) {
-          areaWidth = jsonConfGameArea.nb_tile_width;
-        }
-        if ('w' in jsonConfGameArea) {
-          areaWidth = jsonConfGameArea.w;
-        }
-        if ('nb_tile_height' in jsonConfGameArea) {
-          areaHeight = jsonConfGameArea.nb_tile_height;
-        }
-        if ('h' in jsonConfGameArea) {
-          areaHeight = jsonConfGameArea.h;
-        }
-      }
-      this.ratioFromWidthToHeight = areaHeight / areaWidth;
-
-      // https://caniuse.com/?search=operator%3A%20in - 97%
-      if ('name' in this.gameConfig) {
-        document.title = `Squarity - ${this.gameConfig.name}`;
-      } else {
-        document.title = 'Squarity';
-      }
-
+      this.ratioFromWidthToHeight = this.gameJsonConfig.nbTileHeight / this.gameJsonConfig.nbTileWidth;
+      document.title = this.gameJsonConfig.getDocumentTitle();
       // TODO: faut refresh la description quelque part là dedans.
     },
 
@@ -398,33 +364,28 @@ export default {
     async refreshGameFromSpec() {
 
       this.$refs.pythonConsole.textContent = '';
-      let useV2 = true;
-      if ('version' in this.gameConfig) {
-        const version = this.gameConfig.version;
-        if (version[0] == '1') {
-          useV2 = false;
-        } else if (version[0] == '2') {
-          useV2 = true;
-        } else {
-          useV2 = false;
-          const msg = `Version du moteur inconnue. (${version}). On prend la V1 par défaut.\n`;
-          this.$refs.pythonConsole.textContent += msg;
-        }
+      let useV2 = false;
+      if (this.gameJsonConfig.majorVersionOK) {
+        useV2 = this.gameJsonConfig.majorVersion == 2;
       } else {
-        // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
-        // si la version n'est pas indiquée.
-        const INFER_V1 = 'GameModel()';
-        const INFER_V2 = 'GameModel(squarity.GameModelBase)';
         let msg = "";
-        if (this.gameCode.includes(INFER_V1)) {
-          useV2 = false;
-          msg = 'Warning: ajoutez: "version": "1.0.0" dans la config json.\n';
-        } else if (this.gameCode.includes(INFER_V2)) {
-          useV2 = true;
-          msg = 'Warning: ajoutez: "version": "2.0.0" dans la config json.\n';
+        if (this.gameJsonConfig.strVersion) {
+          msg = `Version du moteur inconnue. (${this.gameJsonConfig.strVersion}). On prend la V1 par défaut.\n`;
         } else {
-          useV2 = false;
-          msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
+          // FUTURE: au bout d'un moment, on enlèvera cette inférence moche et on fera tout planter
+          // si la version n'est pas indiquée.
+          const INFER_V1 = 'GameModel()';
+          const INFER_V2 = 'GameModel(squarity.GameModelBase)';
+          if (this.gameCode.includes(INFER_V1)) {
+            useV2 = false;
+            msg = 'Warning: ajoutez: "version": "1.0.0" dans la config json.\n';
+          } else if (this.gameCode.includes(INFER_V2)) {
+            useV2 = true;
+            msg = 'Warning: ajoutez: "version": "2.0.0" dans la config json.\n';
+          } else {
+            useV2 = false;
+            msg = 'Warning: indiquez le numéro de version dans la config json. On prend la V1 par défaut.\n';
+          }
         }
         this.$refs.pythonConsole.textContent += msg;
       }

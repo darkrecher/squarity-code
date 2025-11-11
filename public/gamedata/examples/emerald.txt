@@ -12,6 +12,10 @@
     "gem_yellow": [0, 0, 40, 40, "center"],
     "gem_green": [58, 0, 40, 40, "center"],
     "background": [0, 40, 640, 400]
+  },
+  "texts": {
+    "description": "blaaa",
+    "show_desc_at_start": true
   }
 }
 --------

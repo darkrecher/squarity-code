@@ -10,7 +10,7 @@ export default class GameJsonConfig {
     this.gameName = "";
     this.strVersion = "";
     this.majorVersion = null;
-    this.mustInferVersion = true;
+    this.majorVersionOK = false;
     this.tileSizePixel = DEFAULT_TILE_SIZE;
     this.nbTileWidth = DEFAULT_NB_TILE_WIDTH;
     this.nbTileHeight = DEFAULT_NB_TILE_HEIGHT;
@@ -30,13 +30,15 @@ export default class GameJsonConfig {
       this.gameName = this.config.name;
     }
     if ('version' in this.config) {
-      this.strVersion = this.config.version;
-      if (this.strVersion[0] == '1') {
+      this.strVersion = String(this.config.version);
+      // https://stackoverflow.com/questions/9133102/how-to-grab-substring-before-a-specified-character-in-javascript
+      let strMajorVersion = this.strVersion.split('.')[0];
+      if (strMajorVersion == '1') {
         this.majorVersion = 1;
-        this.mustInferVersion = false;
-      } else if (this.strVersion[0] == '2') {
+        this.majorVersionOK = true;
+      } else if (strMajorVersion == '2') {
         this.majorVersion = 2;
-        this.mustInferVersion = false;
+        this.majorVersionOK = true;
       }
     }
 
