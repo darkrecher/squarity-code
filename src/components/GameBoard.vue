@@ -56,8 +56,7 @@
                 <div v-show="loadingDone && !visibleDescriptionAbove">
                   <canvas ref="gameCanvas" @click="onGameClick"/>
                 </div>
-                <!-- TODO : v-if au lieu de v-show ? -->
-                <ProgressIndicator v-show="!loadingDone && !visibleDescriptionAbove" ref="progressIndicator" />
+                <ProgressIndicator v-if="!loadingDone && !visibleDescriptionAbove" ref="progressIndicator" />
               </div>
             </div>
           </div>
@@ -70,14 +69,11 @@
                   <div class="flex-grow"></div>
 
                   <div v-show="hasDescriptionAbove" class="button-wrapper">
-                    <button class="my-button game-menu-button-normal" @click="showDescClick" :disabled="visibleDescriptionAbove">
+                    <button class="my-button game-menu-button-normal" @click="toggleDescClick">
                       <!-- TODO : un espèce d'icône de parchemin. -->
                       A
                     </button>
-                    <!-- TODO : ne pas afficher le tooltip quand le bouton est désactivé.
-                         Ou alors, le bouton fait afficher/masquer la descrip (sans la transition)
-                    -->
-                    <span class="tooltip" @click="showDescClick">Réafficher la description du jeu</span>
+                    <span class="tooltip" @click="toggleDescClick">Afficher/masquer la description du jeu</span>
                   </div>
 
                   <div class="button-wrapper">
@@ -142,9 +138,9 @@
             </div>
             <div class="game-menu-small">
               <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
-                <div v-show="hasDescriptionAbove" @click="showDescClick">
+                <div v-show="hasDescriptionAbove" @click="toggleDescClick">
                   <span class="game-menu-icon">A</span>
-                  <span>Réafficher la description du jeu</span>
+                  <span>Afficher/masquer la description du jeu</span>
                 </div>
                 <div @click="toggleDevZoneDisplay">
                   <span class="game-menu-icon">( ):</span>
@@ -165,6 +161,10 @@
       </v-col>
     </v-row>
   </v-container></div>
+  <div class="footnotes" v-if="hasFootNotes">
+    TODO: du CSS ici aussi
+    {{footNotes}}
+  </div>
   <!-- https://stackoverflow.com/questions/62227602/elements-in-iteration-expect-to-have-v-bindkey-directives-in-vueapp -->
   <template v-for="(item, index) in dummytab" :key="index">
     <div class="hidden">{{ item.dummyvar }}</div>
@@ -212,6 +212,8 @@ export default {
     return {
       visibleDescriptionAbove: false,
       hasDescriptionAbove: false,
+      hasFootNotes: false,
+      footNotes: "",
       loadingDone: false,
       showCode: true,
       hideGameMenuSmall: true,
@@ -256,13 +258,18 @@ export default {
 
     this.showProgress('Récupération du jeu.');
     const gameSpec = await this.$refs.devZone.fetchGameSpecFromLocHash();
-    // TODO : check gameSpec is not null.
+    if (gameSpec === null) {
+      // Des messages dans la console du navigateur ont déjà été écrits.
+      // Idéalement, il faudrait afficher un vrai message dans l'interface. On fera ça plus tard.
+      return;
+    }
     this.recordGameSpec(gameSpec);
     this.defineInitialUIFromGame();
     this.defineMainUIFromGame();
-    // TODO : ça déconne. Normalement, j'ai besoin de faire un resize uniquement à ce moment là.
+    // Ça déconne. Normalement, j'ai besoin de faire un resize uniquement à ce moment là.
     // Mais ça resize mal. Et je suis obligé d'en refaire un autre à la fin de la fonction.
     // C'était prévisible. C'est très mal fait cette histoire de resize. Je sais pas comment régler ça.
+    // J'ai une carte trello là-dessus.
     this.handleResize();
     await this.getPyodide();
     await this.refreshGameFromSpec();
@@ -298,7 +305,10 @@ export default {
     async onUpdateGameSpec() {
       this.loadingDone = false;
       const gameSpec = await this.$refs.devZone.fetchGameSpecFromFields();
-      // TODO : check gameSpec is not null.
+      if (gameSpec === null) {
+        // Not supposed to happen, mais bon.
+        return;
+      }
       this.recordGameSpec(gameSpec);
       this.defineMainUIFromGame();
       this.handleResize();
@@ -320,8 +330,7 @@ export default {
 
     defineInitialUIFromGame() {
       this.showCode = this.gameJsonConfig.showCodeAtStart;
-      this.gameDescription = this.gameJsonConfig.gameDescription;
-      if (this.gameDescription) {
+      if (this.gameJsonConfig.gameDescription) {
         this.hasDescriptionAbove = true;
       }
       if (this.gameJsonConfig.showGameDescriptionAtStart) {
@@ -332,13 +341,16 @@ export default {
           this.visibleDescriptionAbove = !hasClosedDescription;
         }
       }
-      // TODO : faut gérer les notes (le texte en bas du jeu). Pas forcément dans cette fonction, d'ailleurs.
     },
 
     defineMainUIFromGame() {
       this.ratioFromWidthToHeight = this.gameJsonConfig.nbTileHeight / this.gameJsonConfig.nbTileWidth;
       document.title = this.gameJsonConfig.getDocumentTitle();
-      // TODO: faut refresh la description quelque part là dedans.
+      this.gameDescription = this.gameJsonConfig.gameDescription;
+      // TODO : faut gérer les notes (le texte en bas du jeu). Pas forcément dans cette fonction, d'ailleurs.
+      // TODO: from the json, of course
+      this.hasFootNotes = true;
+      this.footNotes = "Blablatage de footnotes.\n\nReblablatage.\nPouet pouet.";
     },
 
     async getPyodide() {
@@ -560,13 +572,14 @@ export default {
       this.shrinking = false;
     },
 
-    showDescClick() {
-      this.visibleDescriptionAbove = true;
+    toggleDescClick() {
+      this.visibleDescriptionAbove = !this.visibleDescriptionAbove;
       if (this.originLocHash !== "") {
         // On enregistre dans le local storage que la description a été réouverte, pour ce jeu.
         // Ça permet de la ré-ré-ouvrir au prochain chargement du jeu.
         const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
-        localStorage.setItem(storageDescripKey, "0");
+        const strVisibleDescrip = this.visibleDescriptionAbove ? "0" : "1"
+        localStorage.setItem(storageDescripKey, strVisibleDescrip);
       }
     },
 
@@ -906,6 +919,21 @@ textarea {
 
 .is_shrinking {
   transform: scale(0);
+}
+
+.footnotes {
+  /* Je sais pas pourquoi la margin du bas n'est pas affichée.
+     Il manque une petite bande de 1em de haut tout en bas de la page
+     Eh bien osef.
+  */
+  margin: 2.5em 1em 2em 1em;
+  padding: 0.6em;
+  background-color: #202020;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid gray;
 }
 
 </style>

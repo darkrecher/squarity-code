@@ -18,6 +18,10 @@
 }
 --------
 """
+TODO: c'est la version pour le tuto, on laisse le code source affiché
+Et on met les liens d'origine de niveaux dans les notes en bas.
+On les écrit pas dans la console, ça rajoute du bazar pour rien.
+
 Petite démonstration de la V2 du moteur de Squarity,
 avec un grand classique: Soko-ban.
 
