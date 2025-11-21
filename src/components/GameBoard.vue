@@ -44,10 +44,26 @@
                         <button class="close-desc-cross" @click="closeDescClick">X</button>
                       </div>
                     </div>
-                    <div>
-                      TODO: du CSS, parce que là, le texte s'affiche très mochement. <br><br>
-                      {{gameDescription}}
-                    </div>
+                    <v-container fluid>
+                      <v-row class="no-gutters">
+                        <v-col cols="12" md="6">
+                          <div>
+                            <!--
+                              J'aurais bien mis directement la variable dans l'attribut src,
+                              mais apparemment, faut forcément passer par une fonction.
+                              https://dev.to/kareemsulaimon/how-to-dynamically-import-image-in-vue-vite-4g3a
+                            -->
+                            <img class="descrip" :src="getGameDescripImageUrl()">
+                          </div>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <div>
+                            TODO: du CSS, parce que là, le texte s'affiche très mochement. <br><br>
+                            {{gameDescription}}
+                          </div>
+                        </v-col>
+                      </v-row>
+                    </v-container>
                     <div>
                       <button class="close-desc-play" @click="closeDescClick">Jouer &gt;</button>
                     </div>
@@ -219,6 +235,8 @@ export default {
       hideGameMenuSmall: true,
       isPlayerLocked: false,
       gameDescription: "",
+      gameDescripImageUrl: "",
+      hasDescripImage: false,
       shrinking: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
@@ -330,9 +348,6 @@ export default {
 
     defineInitialUIFromGame() {
       this.showCode = this.gameJsonConfig.showCodeAtStart;
-      if (this.gameJsonConfig.gameDescription) {
-        this.hasDescriptionAbove = true;
-      }
       if (this.gameJsonConfig.showGameDescriptionAtStart) {
         let hasClosedDescription = false;
         if (this.originLocHash !== "") {
@@ -347,7 +362,12 @@ export default {
       this.ratioFromWidthToHeight = this.gameJsonConfig.nbTileHeight / this.gameJsonConfig.nbTileWidth;
       document.title = this.gameJsonConfig.getDocumentTitle();
       this.gameDescription = this.gameJsonConfig.gameDescription;
-      // TODO : faut gérer les notes (le texte en bas du jeu). Pas forcément dans cette fonction, d'ailleurs.
+      // TODO : Il faut 3 boolean: descripText, descripImage, descripBoth.
+      // Double-négation dégueulasse pour convertir une string en boolean. Je t'aime, Javascript.
+      this.hasDescriptionAbove = !!this.gameDescription;
+      this.gameDescripImageUrl = "/public/gamedata/examples/breakskweek_descr.png";
+      this.hasDescripImage = !!this.gameDescripImageUrl
+      // TODO : faut gérer les notes (le texte en bas du jeu).
       // TODO: from the json, of course
       this.hasFootNotes = true;
       this.footNotes = "Blablatage de footnotes.\n\nReblablatage.\nPouet pouet.";
@@ -433,6 +453,10 @@ export default {
 
       this.showProgress('Compilation de la compote.');
       this.gameEngine.updateGameSpec(this.tileAtlas, this.gameJsonConfig, this.gameCode);
+    },
+
+    getGameDescripImageUrl() {
+      return this.gameDescripImageUrl;
     },
 
     startGame() {
@@ -891,6 +915,10 @@ textarea {
   }
 }
 
+img.descrip {
+  max-width: 90%;
+  max-height: 50vh;
+}
 
 .close-desc-cross {
   color: red;
