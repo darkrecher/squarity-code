@@ -34,11 +34,14 @@
           <div class="flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <div v-show="visibleDescriptionAbove">
+                <!-- TODO (ou pas) hasDescription devrait être dans un v-if,
+                     mais je peux pas à cause du retaillage fait en JavaScript à la moche.
+                -->
+                <div v-show="showDescription && hasDescription">
                   <div ref="descripAbove" class="descrip-above" :class="{ is_shrinking: shrinking }">
                     <div class="flex-line">
                       <div class="flex-grow">
-                        <h2 class="desc-title">Bla blabla title</h2>
+                        <h2 class="desc-title">TODO Bla blabla title</h2>
                       </div>
                       <div>
                         <button class="close-desc-cross" @click="closeDescClick">X</button>
@@ -46,7 +49,7 @@
                     </div>
                     <v-container fluid>
                       <v-row class="no-gutters">
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" :md="hasDescriptionBoth ? 6 : 12" v-if="hasDescriptionImage">
                           <div>
                             <!--
                               J'aurais bien mis directement la variable dans l'attribut src,
@@ -56,9 +59,9 @@
                             <img class="descrip" :src="getGameDescripImageUrl()">
                           </div>
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" :md="hasDescriptionBoth ? 6 : 12" v-if="hasDescriptionText">
                           <div>
-                            TODO: du CSS, parce que là, le texte s'affiche très mochement. <br><br>
+                            TODO: du CSS, parce que là, le texte s'affiche très mochement. (texte plus gros, aligné à gauche. éventuellement des marges) <br><br>
                             {{gameDescription}}
                           </div>
                         </v-col>
@@ -69,10 +72,10 @@
                     </div>
                   </div>
                 </div>
-                <div v-show="loadingDone && !visibleDescriptionAbove">
+                <div v-show="loadingDone && !showDescription">
                   <canvas ref="gameCanvas" @click="onGameClick"/>
                 </div>
-                <ProgressIndicator v-if="!loadingDone && !visibleDescriptionAbove" ref="progressIndicator" />
+                <ProgressIndicator v-if="!loadingDone && !showDescription" ref="progressIndicator" />
               </div>
             </div>
           </div>
@@ -84,7 +87,7 @@
 
                   <div class="flex-grow"></div>
 
-                  <div v-show="hasDescriptionAbove" class="button-wrapper">
+                  <div v-show="hasDescription" class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="toggleDescClick">
                       <!-- TODO : un espèce d'icône de parchemin. -->
                       A
@@ -153,8 +156,8 @@
               </div>
             </div>
             <div class="game-menu-small">
-              <div :class="{ hidden: hideGameMenuSmall }" class="game-menu-small-content">
-                <div v-show="hasDescriptionAbove" @click="toggleDescClick">
+              <div :class="{ hidden: !showGameMenuSmall }" class="game-menu-small-content">
+                <div v-show="hasDescription" @click="toggleDescClick">
                   <span class="game-menu-icon">A</span>
                   <span>Afficher/masquer la description du jeu</span>
                 </div>
@@ -169,7 +172,7 @@
                   <span>Page d'accueil de Squarity</span>
                 </div>
               </div>
-              <div :class="{ activated: !hideGameMenuSmall }" class="game-menu-small-toggle" @click="gameMenuSmallClick">
+              <div :class="{ activated: showGameMenuSmall }" class="game-menu-small-toggle" @click="gameMenuSmallClick">
               </div>
             </div>
           </div>
@@ -226,17 +229,19 @@ export default {
 
   data() {
     return {
-      visibleDescriptionAbove: false,
-      hasDescriptionAbove: false,
+      showDescription: false,
+      hasDescriptionText: false,
+      hasDescriptionImage: false,
+      hasDescription: false,
+      hasDescriptionBoth: false,
       hasFootNotes: false,
       footNotes: "",
       loadingDone: false,
       showCode: true,
-      hideGameMenuSmall: true,
+      showGameMenuSmall: false,
       isPlayerLocked: false,
       gameDescription: "",
       gameDescripImageUrl: "",
-      hasDescripImage: false,
       shrinking: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
@@ -353,7 +358,8 @@ export default {
         if (this.originLocHash !== "") {
           const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
           hasClosedDescription = (localStorage.getItem(storageDescripKey) == "1");
-          this.visibleDescriptionAbove = !hasClosedDescription;
+          this.showDescription = !hasClosedDescription;
+          console.log("defineInitialUIFromGame", this.showDescription);
         }
       }
     },
@@ -362,11 +368,12 @@ export default {
       this.ratioFromWidthToHeight = this.gameJsonConfig.nbTileHeight / this.gameJsonConfig.nbTileWidth;
       document.title = this.gameJsonConfig.getDocumentTitle();
       this.gameDescription = this.gameJsonConfig.gameDescription;
-      // TODO : Il faut 3 boolean: descripText, descripImage, descripBoth.
-      // Double-négation dégueulasse pour convertir une string en boolean. Je t'aime, Javascript.
-      this.hasDescriptionAbove = !!this.gameDescription;
       this.gameDescripImageUrl = "/public/gamedata/examples/breakskweek_descr.png";
-      this.hasDescripImage = !!this.gameDescripImageUrl
+      // Double-négation dégueulasse pour convertir une string en boolean. Je t'aime, Javascript.
+      this.hasDescriptionText = !!this.gameDescription;
+      this.hasDescriptionImage = !!this.gameDescripImageUrl;
+      this.hasDescription = this.hasDescriptionText || this.hasDescriptionImage;
+      this.hasDescriptionBoth = this.hasDescriptionText && this.hasDescriptionImage;
       // TODO : faut gérer les notes (le texte en bas du jeu).
       // TODO: from the json, of course
       this.hasFootNotes = true;
@@ -529,7 +536,9 @@ export default {
       }
 
       this.$refs.gameCanvas.style = `width: ${finalWidth}px; height: ${finalHeight}px;`;
-      this.$refs.descripAbove.style = `height: ${authorizedHeight}px;`;
+      if (this.hasDescription) {
+        this.$refs.descripAbove.style = `height: ${authorizedHeight}px;`;
+      }
     },
 
     onKeyDown(e) {
@@ -571,7 +580,7 @@ export default {
     },
 
     gameMenuSmallClick() {
-      this.hideGameMenuSmall = !this.hideGameMenuSmall;
+      this.showGameMenuSmall = !this.showGameMenuSmall;
       // Voir commentaire de la fonction "toggleDevZoneDisplay"
       // pour comprendre la raison de cette ligne de code stupide.
       this.dummytab = [{dummyvar: 'dummy'}];
@@ -592,17 +601,18 @@ export default {
     },
 
     clodeDescEndTransi(e) {
-      this.visibleDescriptionAbove = false;
+      this.showDescription = false;
       this.shrinking = false;
     },
 
     toggleDescClick() {
-      this.visibleDescriptionAbove = !this.visibleDescriptionAbove;
+      this.showDescription = !this.showDescription;
+      console.log("toggleDescClick", this.showDescription);
       if (this.originLocHash !== "") {
         // On enregistre dans le local storage que la description a été réouverte, pour ce jeu.
         // Ça permet de la ré-ré-ouvrir au prochain chargement du jeu.
         const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
-        const strVisibleDescrip = this.visibleDescriptionAbove ? "0" : "1"
+        const strVisibleDescrip = this.showDescription ? "0" : "1"
         localStorage.setItem(storageDescripKey, strVisibleDescrip);
       }
     },

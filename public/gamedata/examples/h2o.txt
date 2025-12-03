@@ -4,6 +4,9 @@
   "name": "H2O",
   "version": "1.0.0",
   "tile_size": 32,
+  "texts": {
+    "show_desc_at_start": true
+  },
   "img_coords": {
 
     "water_right": [0, 0],
