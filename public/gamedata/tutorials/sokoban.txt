@@ -14,14 +14,13 @@
         "crate": [64, 0],
         "avatar": [0, 32],
         "target": [32, 32]
+    },
+    "appendices": {
+        "footnotes": "Origine des niveaux (dans leur ordre d'apparition) :\n\n - http://www.sokobano.de/wiki/index.php?title=Optimizer\n - https://www.mathsisfun.com/games/sokoban.html ; niveau 2 (un peu transformé)\n - https://www.mathsisfun.com/games/sokoban.html ; niveau 1\n - https://alonso-delarte.medium.com/the-basics-of-sokoban-level-formats-for-designing-your-own-sokoban-levels-51882a7a36f0\n - Le dernier niveau est une création personnelle, qui vaut ce qu'elle vaut.\n\n"
     }
 }
 --------
 """
-TODO: c'est la version pour le tuto, on laisse le code source affiché
-Et on met les liens d'origine de niveaux dans les notes en bas.
-On les écrit pas dans la console, ça rajoute du bazar pour rien.
-
 Petite démonstration de la V2 du moteur de Squarity,
 avec un grand classique: Soko-ban.
 
@@ -46,100 +45,84 @@ s = squarity.Sequencer
 #    correspondant au plan du niveau.
 LEVELS_AND_DESCRIPTIONS = (
     (
-        "Origine de ce niveau : http://www.sokobano.de/wiki/index.php?title=Optimizer",
-        (
-            "                    ",
-            "          ####      ",
-            "         ##. ##     ",
-            "     ##### .  #     ",
-            "     #   #  # #     ",
-            "     # $ #  # #     ",
-            "     # $      #     ",
-            "     ######  ##     ",
-            "          # ##      ",
-            "          # #       ",
-            "          # #       ",
-            "         ## ##      ",
-            "         # @ #      ",
-            "         #   #      ",
-        )
+        "                    ",
+        "          ####      ",
+        "         ##. ##     ",
+        "     ##### .  #     ",
+        "     #   #  # #     ",
+        "     # $ #  # #     ",
+        "     # $      #     ",
+        "     ######  ##     ",
+        "          # ##      ",
+        "          # #       ",
+        "          # #       ",
+        "         ## ##      ",
+        "         # @ #      ",
+        "         #   #      ",
     ),
     (
-        "Origine : https://www.mathsisfun.com/games/sokoban.html (un peu transformé)",
-        (
-            "    #####           ",
-            "    #   #      ###  ",
-            "    #$  #      #.#  ",
-            "  ###  $###    # #  ",
-            "  #  $  $ #   ## ###",
-            "### # ### #   #   .#",
-            "#   # ### #####  ###",
-            "# $  $           ..#",
-            "########### ###  ###",
-            "          # # #   .#",
-            "          # # ## ###",
-            "          # #  # #  ",
-            "          # #  #.#  ",
-            "          #@#  ###  ",
-        )
+        "    #####           ",
+        "    #   #      ###  ",
+        "    #$  #      #.#  ",
+        "  ###  $###    # #  ",
+        "  #  $  $ #   ## ###",
+        "### # ### #   #   .#",
+        "#   # ### #####  ###",
+        "# $  $           ..#",
+        "########### ###  ###",
+        "          # # #   .#",
+        "          # # ## ###",
+        "          # #  # #  ",
+        "          # #  #.#  ",
+        "          #@#  ###  ",
     ),
     (
-        "Origine : https://www.mathsisfun.com/games/sokoban.html",
-        (
-            "                    ",
-            "                    ",
-            "                    ",
-            "         #####      ",
-            "##########   #      ",
-            " @      . $  #      ",
-            "########## $.#      ",
-            "       #.##$ #      ",
-            "       # # . ##     ",
-            "       #$ *$$.#     ",
-            "       #   .  #     ",
-            "       ## #####     ",
-            "        # #         ",
-            "        # #         ",
-        )
+        "                    ",
+        "                    ",
+        "                    ",
+        "         #####      ",
+        "##########   #      ",
+        " @      . $  #      ",
+        "########## $.#      ",
+        "       #.##$ #      ",
+        "       # # . ##     ",
+        "       #$ *$$.#     ",
+        "       #   .  #     ",
+        "       ## #####     ",
+        "        # #         ",
+        "        # #         ",
     ),
     (
-        "Origine : https://alonso-delarte.medium.com/the-basics-of-sokoban-level-formats-"
-        "for-designing-your-own-sokoban-levels-51882a7a36f0",
-        (
-            "       #####        ",
-            "   #####   #####    ",
-            "   #           #    ",
-            "   #  ### ###  #    ",
-            " #### #     # ####  ",
-            "##    #  *  #    #  ",
-            "   $  # *+*      #  ",
-            "##    #  *  #    #  ",
-            " #### #     # ####  ",
-            "   #  ### ###  #    ",
-            "   #           #    ",
-            "   #####   #####    ",
-            "       #####        ",
-            "                    ",
-        ),
+        "       #####        ",
+        "   #####   #####    ",
+        "   #           #    ",
+        "   #  ### ###  #    ",
+        " #### #     # ####  ",
+        "##    #  *  #    #  ",
+        "   $  # *+*      #  ",
+        "##    #  *  #    #  ",
+        " #### #     # ####  ",
+        "   #  ### ###  #    ",
+        "   #           #    ",
+        "   #####   #####    ",
+        "       #####        ",
+        "                    ",
     ),
     (
-        "Bravo, vous avez réussi tous les niveaux. Pourquoi ne pas en profiter pour créer les vôtres ?",
-        (
-            "         @          ",
-            "#  #  ### #   #  #  ",
-            "#  #  #    # #   #  ",
-            "####  ##    #    #  ",
-            "#  #  #     #       ",
-            "#  #  ###   #    #  ",
-            "                    ",
-            "        ####        ",
-            "       #    #       ",
-            "      # .  . #      ",
-            "      #      #      ",
-            "      #  ..  #      ",
-            "       #    #       ",
-            "        ####        ",
-        ),
+        "         @          ",
+        "#  #  ### #   #  #  ",
+        "#  #  #    # #   #  ",
+        "####  ##    #    #  ",
+        "#  #  #     #       ",
+        "#  #  ###   #    #  ",
+        "                    ",
+        "        ####        ",
+        "       #    #       ",
+        "      # .  . #      ",
+        "      #      #      ",
+        "      #  ..  #      ",
+        "       #    #       ",
+        "        ####        ",
     ),
 )
 
@@ -201,8 +184,7 @@ class GameModel(squarity.GameModelBase):
         Soit lors d'une réinitialisation du niveau actuel,
         soit lors du passage au niveau suivant.
         """
-        descrip, level_map = LEVELS_AND_DESCRIPTIONS[self.current_level]
-        print(descrip)
+        level_map = LEVELS_AND_DESCRIPTIONS[self.current_level]
         # Correspondance entre le type de game object et le layer où le placer.
         # L'avatar n'est pas mentionné dans ces correspondances, car il est
         # géré spécifiquement.

@@ -18,7 +18,8 @@ export default class GameJsonConfig {
     this.showCodeAtStart = true;
     this.showGameDescriptionAtStart = false;
     this.gameDescription = "";
-    this.gameNotes = "";
+    this.gameDescripImageUrl = "";
+    this.footNotes = "";
   }
 
   processJsonConf() {
@@ -66,13 +67,19 @@ export default class GameJsonConfig {
     if ('show_code_at_start' in this.config) {
       this.showCodeAtStart = this.config['show_code_at_start'];
     }
-    if ('texts' in this.config) {
-      const textsConfig = this.config['texts'];
-      if ('description' in textsConfig) {
-        this.gameDescription = textsConfig['description'];
+    if ('appendices' in this.config) {
+      const appenConfig = this.config['appendices'];
+      if ('descrip_text' in appenConfig) {
+        this.gameDescription = appenConfig['descrip_text'];
       }
-      if ('show_desc_at_start' in textsConfig) {
-        this.showGameDescriptionAtStart = textsConfig['show_desc_at_start'];
+      if ('descrip_img' in appenConfig) {
+        this.gameDescripImageUrl = appenConfig['descrip_img'];
+      }
+      if ('show_descrip_at_start' in appenConfig) {
+        this.showGameDescriptionAtStart = appenConfig['show_descrip_at_start'];
+      }
+      if ('footnotes' in appenConfig) {
+        this.footNotes = appenConfig['footnotes'];
       }
     }
 
@@ -81,6 +88,14 @@ export default class GameJsonConfig {
   getDocumentTitle() {
     if (this.gameName) {
       return `Squarity - ${this.gameName}`;
+    } else {
+      return 'Squarity';
+    }
+  }
+
+  getDescriptionTitle() {
+    if (this.gameName) {
+      return this.gameName;
     } else {
       return 'Squarity';
     }

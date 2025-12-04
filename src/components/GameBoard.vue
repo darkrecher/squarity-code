@@ -41,7 +41,7 @@
                   <div ref="descripAbove" class="descrip-above" :class="{ is_shrinking: shrinking }">
                     <div class="flex-line">
                       <div class="flex-grow">
-                        <h2 class="desc-title">TODO Bla blabla title</h2>
+                        <h2 class="desc-title">{{ gameDescriptionTitle }}</h2>
                       </div>
                       <div>
                         <button class="close-desc-cross" @click="closeDescClick">X</button>
@@ -60,15 +60,14 @@
                           </div>
                         </v-col>
                         <v-col cols="12" :md="hasDescriptionBoth ? 6 : 12" v-if="hasDescriptionText">
-                          <div>
-                            TODO: du CSS, parce que là, le texte s'affiche très mochement. (texte plus gros, aligné à gauche. éventuellement des marges) <br><br>
-                            {{gameDescription}}
+                          <div class="game-descrip-text">
+                            {{ gameDescription }}
                           </div>
                         </v-col>
                       </v-row>
                     </v-container>
                     <div>
-                      <button class="close-desc-play" @click="closeDescClick">Jouer &gt;</button>
+                      <button class="close-desc-play" @click="closeDescClick">Jouer &#9654;</button>
                     </div>
                   </div>
                 </div>
@@ -181,8 +180,7 @@
     </v-row>
   </v-container></div>
   <div class="footnotes" v-if="hasFootNotes">
-    TODO: du CSS ici aussi
-    {{footNotes}}
+    {{ footNotes }}
   </div>
   <!-- https://stackoverflow.com/questions/62227602/elements-in-iteration-expect-to-have-v-bindkey-directives-in-vueapp -->
   <template v-for="(item, index) in dummytab" :key="index">
@@ -242,6 +240,7 @@ export default {
       isPlayerLocked: false,
       gameDescription: "",
       gameDescripImageUrl: "",
+      gameDescriptionTitle: "Squarity",
       shrinking: false,
       dummytab: [{dummyvar: 'dummy'}],
     };
@@ -368,16 +367,15 @@ export default {
       this.ratioFromWidthToHeight = this.gameJsonConfig.nbTileHeight / this.gameJsonConfig.nbTileWidth;
       document.title = this.gameJsonConfig.getDocumentTitle();
       this.gameDescription = this.gameJsonConfig.gameDescription;
-      this.gameDescripImageUrl = "/public/gamedata/examples/breakskweek_descr.png";
+      this.gameDescripImageUrl = this.gameJsonConfig.gameDescripImageUrl;
       // Double-négation dégueulasse pour convertir une string en boolean. Je t'aime, Javascript.
       this.hasDescriptionText = !!this.gameDescription;
       this.hasDescriptionImage = !!this.gameDescripImageUrl;
       this.hasDescription = this.hasDescriptionText || this.hasDescriptionImage;
       this.hasDescriptionBoth = this.hasDescriptionText && this.hasDescriptionImage;
-      // TODO : faut gérer les notes (le texte en bas du jeu).
-      // TODO: from the json, of course
-      this.hasFootNotes = true;
-      this.footNotes = "Blablatage de footnotes.\n\nReblablatage.\nPouet pouet.";
+      this.footNotes = this.gameJsonConfig.footNotes
+      this.hasFootNotes = !!this.footNotes;
+      this.gameDescriptionTitle = this.gameJsonConfig.getDescriptionTitle();
     },
 
     async getPyodide() {
@@ -898,7 +896,7 @@ textarea {
 }
 
 .descrip-above {
-  background-color: #202020;
+  background-color: #181818;
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
   white-space: -o-pre-wrap;
@@ -959,6 +957,11 @@ img.descrip {
   transform: scale(0);
 }
 
+.game-descrip-text {
+  text-align: left;
+  font-size: 1.25em;
+}
+
 .footnotes {
   /* Je sais pas pourquoi la margin du bas n'est pas affichée.
      Il manque une petite bande de 1em de haut tout en bas de la page
@@ -966,12 +969,14 @@ img.descrip {
   */
   margin: 2.5em 1em 2em 1em;
   padding: 0.6em;
-  background-color: #202020;
+  background-color: #181818;
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
   border: 1px solid gray;
+  text-align: left;
+  font-size: 1.25em;
 }
 
 </style>
