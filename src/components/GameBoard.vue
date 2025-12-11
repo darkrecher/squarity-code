@@ -88,8 +88,7 @@
 
                   <div v-show="hasDescription" class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="toggleDescClick">
-                      <!-- TODO : un espèce d'icône de parchemin. -->
-                      A
+                      <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"></img>
                     </button>
                     <span class="tooltip" @click="toggleDescClick">Afficher/masquer la description du jeu</span>
                   </div>
@@ -103,7 +102,7 @@
 
                   <div class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="$router.push('/')">
-                      <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                      <img class="img-icon" src="../assets/home.svg" alt="Home icon"></img>
                     </button>
                     <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
                   </div>
@@ -156,17 +155,19 @@
             </div>
             <div class="game-menu-small">
               <div :class="{ hidden: !showGameMenuSmall }" class="game-menu-small-content">
-                <div v-show="hasDescription" @click="toggleDescClick">
-                  <span class="game-menu-icon">A</span>
+                <div v-show="hasDescription" @click="toggleDescClick" class="game-menu-small-elem">
+                  <span class="game-menu-icon">
+                    <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"></img>
+                  </span>
                   <span>Afficher/masquer la description du jeu</span>
                 </div>
-                <div @click="toggleDevZoneDisplay">
+                <div @click="toggleDevZoneDisplay" class="game-menu-small-elem">
                   <span class="game-menu-icon">( ):</span>
                   <span>Afficher/masquer le code source</span>
                 </div>
-                <div @click="$router.push('/')">
+                <div @click="$router.push('/')" class="game-menu-small-elem">
                   <span class="game-menu-icon">
-                    <img class="home-icon" src="../assets/home.svg" alt="Home icon"></img>
+                    <img class="img-icon" src="../assets/home.svg" alt="Home icon"></img>
                   </span>
                   <span>Page d'accueil de Squarity</span>
                 </div>
@@ -891,8 +892,13 @@ textarea {
   width: 2em;
 }
 
-.home-icon {
-  width: 1.1em;
+.game-menu-small-elem {
+    padding: 0.15em 0 0.15em 0;
+}
+
+.img-icon {
+  width: 1.3em;
+  vertical-align: text-top;
 }
 
 .descrip-above {
