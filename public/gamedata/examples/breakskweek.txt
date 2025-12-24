@@ -332,7 +332,6 @@ class GameModel(squarity.GameModelBase):
 
         self.playing = False
         self.finished_level = True
-        print("Click in the game to start.")
         # return self.game_tick()
 
     def start_level(self):
