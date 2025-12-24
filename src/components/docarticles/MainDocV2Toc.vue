@@ -7,6 +7,7 @@
 <a href="#informations-générales-de-la-config"><h3>Informations générales de la config </h3></a>
 <a href="#définition-des-images"><h3>Définition des images </h3></a>
 <a href="#version-du-moteur-squarity"><h3>Version du moteur Squarity </h3></a>
+<a href="#descriptions-et-notes-de-bas-de-page"><h3>Descriptions et notes de bas de page </h3></a>
 <a href="#notions-de-base-du-game-code"><h2>Notions de base du "game code" </h2></a>
 <a href="#schéma-daffichage-calculs-des-tailles"><h2>Schéma d'affichage, calculs des tailles </h2></a>
 <a href="#class-direction"><h2>class Direction </h2></a>

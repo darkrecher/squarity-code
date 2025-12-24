@@ -34,9 +34,6 @@
           <div class="flex-grow">
             <div class="flex-line h-100">
               <div class="flex-child-center w-100">
-                <!-- TODO (ou pas) hasDescription devrait être dans un v-if,
-                     mais je peux pas à cause du retaillage fait en JavaScript à la moche.
-                -->
                 <div v-show="showDescription && hasDescription">
                   <div ref="descripAbove" class="descrip-above" :class="{ is_shrinking: shrinking }">
                     <div class="flex-line">

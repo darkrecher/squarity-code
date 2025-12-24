@@ -46,6 +46,21 @@
 <p>La seule information utile de la clé <code>version</code> est le premier nombre.</p>
 <p>Si ce nombre est &quot;1&quot;, la version utilisée sera &quot;1.0.0&quot;.</p>
 <p>Si ce nombre est &quot;2&quot;, la version utilisée sera la version 2.x.y la plus récente (actuellement : &quot;2.1.0&quot;). Vous n'avez pas accès aux précédentes versions 2.x.y, mais elles sont censées être rétro-compatibles.</p>
+<h3 id="descriptions-et-notes-de-bas-de-page">Descriptions et notes de bas de page <a class="header-anchor" href="#descriptions-et-notes-de-bas-de-page">&#x1F517;</a></h3>
+<p>Pas encore documenté. Ça viendra bientôt. Mais c'est assez simple à comprendre.</p>
+<p>Il s'agit des clés suivantes :</p>
+<ul>
+<li><code>show_code_at_start</code></li>
+<li><code>appendices</code>
+<ul>
+<li><code>descrip_text</code></li>
+<li><code>descrip_img</code></li>
+<li><code>show_descrip_at_start</code></li>
+<li><code>footnotes</code></li>
+</ul>
+</li>
+</ul>
+<p>Il y a des exemples de ces clés dans le jeu &quot;Tiny Skweek plays breakout&quot; et dans le tutoriel soko-ban.</p>
 <h2 id="notions-de-base-du-game-code">Notions de base du &quot;game code&quot; <a class="header-anchor" href="#notions-de-base-du-game-code">&#x1F517;</a></h2>
 <p>Il s'agit du programme définissant la logique de votre jeu, il est écrit en langage python.</p>
 <p>Dans l'interface, placez ce programme dans la zone de texte intitulée &quot;Le code du jeu&quot;.</p>

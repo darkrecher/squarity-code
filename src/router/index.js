@@ -19,6 +19,11 @@ const router = createRouter({
       component: () => import('../views/GamesListView.vue')
     },
     {
+      path: '/ko-fi',
+      name: 'kofi',
+      component: () => import('../views/KoFiView.vue')
+    },
+    {
       path: '/create',
       name: 'create',
       component: () => import('../views/CreateMainView.vue')

@@ -100,7 +100,6 @@
 <li>&quot;R&quot; (right) : bouton &quot;droit&quot;</li>
 <li>&quot;action_1&quot; : bouton &quot;1&quot;</li>
 <li>&quot;action_2&quot; : bouton &quot;2&quot;</li>
-<!-- TODO : le lien de partager ses jeux est pété !!! Faut le changer dans le markdown !! -->
 </ul>
 <p>Ces événements sont également déclenchés par des appuis de touches sur le clavier (flèches de direction, touches &quot;1&quot; et &quot;2&quot;). Pour cela, le focus doit être sur l'aire de jeu ou sur les boutons (il faut avoir cliqué dessus).</p>
 <p>Le paramètre <code>event_name</code> peut prendre d'autres valeurs, dans le cas des actions différées. Cette fonctionnalité n'est pas documentée pour l'instant.</p>

@@ -50,6 +50,11 @@
           </div>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <a href="ko-fi" class="ko-fi-link">&#129505; Envoyer des sous avec Ko-fi &#129505;</a>
+        </v-col>
+      </v-row>
     </v-container>
 
   </main>
@@ -109,6 +114,11 @@ hr {
   border-top: 5px solid #c0c0c0;
   width: 90%;
   margin: 0 auto;
+}
+
+.ko-fi-link {
+  padding-top: 3em;
+  font-size: 1.5em;
 }
 
 </style>

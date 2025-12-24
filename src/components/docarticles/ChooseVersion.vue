@@ -21,7 +21,7 @@
 <p>Si vous souhaitez créer un seul petit jeu très simple, sans intention de le faire évoluer, vous pouvez également utiliser la V1. L'apprentissage et la création devrait vous prendre moins de temps.</p>
 <p>Dans tous les autres cas, c'est mieux d'utiliser la V2, car elle permet de faire plus de choses et elle est plus pratique pour certaines fonctionnalités.</p>
 <p>Bien entendu, votre choix n'est pas définitif. Vous pouvez commencer à créer quelques jeux avec la V1, puis passer à la V2. L'apprentissage de la V2 ira plus vite si vous connaissez déjà la V1, car les deux versions ont beaucoup d'éléments et de notions en commun.</p>
-<p>Il est possible de partager vos jeux aussi bien en V1 qu'en V2, la méthode est la même. Voir la page expliquant <a href="shareyourgame">comment partager un jeu</a>.</p>
+<p>Il est possible de partager vos jeux aussi bien en V1 qu'en V2, la méthode est la même. Voir la page expliquant <a href="share-your-game">comment partager un jeu</a>.</p>
 <h2 id="fonctionnalités-communes-aux-deux-versions">Fonctionnalités communes aux deux versions <a class="header-anchor" href="#fonctionnalités-communes-aux-deux-versions">&#x1F517;</a></h2>
 <ul>
 <li>Exécuter du code python (version 3.7.4), récupérer les messages d'erreurs et les exceptions de votre code.</li>
