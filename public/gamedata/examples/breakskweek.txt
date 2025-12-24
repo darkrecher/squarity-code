@@ -28,7 +28,7 @@
   "show_code_at_start": false,
   "appendices": {
     "descrip_text": "Click on an empty blue square to add a solid square, on which your tiny skweek (the pink ball) will bounce.\n\nDestroy blocks to earn points. You don't have to destroy the blocks on the borders to go to the next level, so you should keep them as long as possible, they protect you.\n\n - The tiny skweek grows when you destroy a game block, but not one of your own square.\n - It shrinks a little each time you place a square, so you better place them wisely, instead of random-clicking everywhere.\n\nOn the first levels, when only a few blocks are left, they automatically decay. You don't have to precisely aim the damned last block.\n\nClick the button 1 or 2 to restart the game.\n\nThe Squarity engine is supposed to create games based only on 2D grids (like Minesweeper, Tic-Tac-Toe, etc.). With the engine version 2, we can do more things, so, why not create a game not based on 2D grids, with an engine supposed to manage only 2D grids? Ha ha ha!\n\nThis game is a tribute to two 1990's PC games, made by French video game studios:\n - Super Skweek: https://en.wikipedia.org/wiki/Super_Skweek\n - Popcorn: https://classicreload.com/popcorn.html#\n\nClose this description, then click on the game to start.",
-    "descrip_img": "/public/gamedata/examples/breakskweek_descr.png",
+    "descrip_img": "/gamedata/examples/breakskweek_descr.png",
     "show_descrip_at_start": true
   }
 }
