@@ -24,7 +24,7 @@
             <a href="https://ko-fi.com/R6R31GBRW6" target="_blank">Envoyer des choux (à l'arche) avec Ko-fi</a>
 
             <p>
-              Si ça marche ne serait-ce qu’un petit peu, j’ajouterai des bonus ou des créations en avant-première,
+              Hypothétiquement, j’ajouterais des bonus ou des créations en avant-première,
               pour les personnes qui lâchent de la moulaga.
             </p>
 

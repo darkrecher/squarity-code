@@ -85,7 +85,7 @@
 
                   <div v-show="hasDescription" class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="toggleDescClick">
-                      <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"></img>
+                      <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"/>
                     </button>
                     <span class="tooltip" @click="toggleDescClick">Afficher/masquer la description du jeu</span>
                   </div>
@@ -99,7 +99,7 @@
 
                   <div class="button-wrapper">
                     <button class="my-button game-menu-button-normal" @click="$router.push('/')">
-                      <img class="img-icon" src="../assets/home.svg" alt="Home icon"></img>
+                      <img class="img-icon" src="../assets/home.svg" alt="Home icon"/>
                     </button>
                     <span class="tooltip" @click="$router.push('/')">Page d'accueil de Squarity</span>
                   </div>
@@ -154,7 +154,7 @@
               <div :class="{ hidden: !showGameMenuSmall }" class="game-menu-small-content">
                 <div v-show="hasDescription" @click="toggleDescClick" class="game-menu-small-elem">
                   <span class="game-menu-icon">
-                    <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"></img>
+                    <img class="img-icon" src="../assets/parchment.svg" alt="Parchment icon"/>
                   </span>
                   <span>Afficher/masquer la description du jeu</span>
                 </div>
@@ -164,7 +164,7 @@
                 </div>
                 <div @click="$router.push('/')" class="game-menu-small-elem">
                   <span class="game-menu-icon">
-                    <img class="img-icon" src="../assets/home.svg" alt="Home icon"></img>
+                    <img class="img-icon" src="../assets/home.svg" alt="Home icon"/>
                   </span>
                   <span>Page d'accueil de Squarity</span>
                 </div>
@@ -356,7 +356,6 @@ export default {
           const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
           hasClosedDescription = (localStorage.getItem(storageDescripKey) == "1");
           this.showDescription = !hasClosedDescription;
-          console.log("defineInitialUIFromGame", this.showDescription);
         }
       }
     },
@@ -467,8 +466,10 @@ export default {
       this.gameEngine.execStartCode();
       this.$refs.gameInterface.focus();
       this.showProgress('C\'est parti !');
+      if (this.$refs.progressIndicator !== null) {
+        this.$refs.progressIndicator.clearProgress();
+      }
       this.loadingDone = true;
-      this.$refs.progressIndicator.clearProgress();
     },
 
     showProgress(msg, withSubTask, isImposted) {
@@ -596,14 +597,13 @@ export default {
       }
     },
 
-    clodeDescEndTransi(e) {
+    clodeDescEndTransi() {
       this.showDescription = false;
       this.shrinking = false;
     },
 
     toggleDescClick() {
       this.showDescription = !this.showDescription;
-      console.log("toggleDescClick", this.showDescription);
       if (this.originLocHash !== "") {
         // On enregistre dans le local storage que la description a été réouverte, pour ce jeu.
         // Ça permet de la ré-ré-ouvrir au prochain chargement du jeu.
