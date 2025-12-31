@@ -1,58 +1,37 @@
 /gamedata/examples/koballd_tileset.png
 --------
-  {
-    "name": "Koballd Crawler",
-    "version": "1.0.0",
-    "game_area": {
-        "nb_tile_width": 21,
-        "nb_tile_height": 21
-    },
-    "tile_size": 32,
-    "img_coords": {
-        "dark": [0, 0],
-        "kob_right_up": [32, 0],
-        "kob_right_down": [32, 32],
-        "kob_down_left": [64, 0],
-        "kob_down_right": [96, 0],
-        "kob_up_left": [64, 32],
-        "kob_up_right": [96, 32],
-        "kob_left_up": [128, 0],
-        "kob_left_down": [128, 32],
-        "selection": [64, 64],
-        "wall": [0, 64],
-        "ground": [0, 32],
-        "cake": [32, 64],
-
-        "osef": [0, 0]
-    }
+{
+  "name": "Koballd Crawler",
+  "version": "1.0.0",
+  "game_area": {
+      "nb_tile_width": 21,
+      "nb_tile_height": 21
+  },
+  "tile_size": 32,
+  "img_coords": {
+      "dark": [0, 0],
+      "kob_right_up": [32, 0],
+      "kob_right_down": [32, 32],
+      "kob_down_left": [64, 0],
+      "kob_down_right": [96, 0],
+      "kob_up_left": [64, 32],
+      "kob_up_right": [96, 32],
+      "kob_left_up": [128, 0],
+      "kob_left_down": [128, 32],
+      "selection": [64, 64],
+      "wall": [0, 64],
+      "ground": [0, 32],
+      "cake": [32, 64],
+      "osef": [0, 0]
+  },
+  "show_code_at_start": false,
+  "appendices": {
+    "descrip_text": "Select one of the eight green balls, then click on a border of the map to launch it.\n\nThe ball goes to its primary direction, to the opposite border of the map. When blocked by a wall, it goes to its secondary direction, indicated by the yellow arrow. The ball stops when the two directions are blocked.\n\nTo restart a level, click twice on the button 1.\n\nTry to get the cake.\n\nThis game is my contribution to Ludum Dare 55. I knew I would have very little time for this edition, this is why I called my game \"Koballd Crawler\".\n - Without time, the sprites would stay as green balls, like in \"koBALLd\".\n - With more time, I would have drawn kobolds instead, like in \"KOballD\".\n\nLooks like we sticked to green balls.\n\nHappy crawling!",
+    "descrip_img": "/gamedata/examples/koballd_descr.png",
+    "show_descrip_at_start": true
   }
+}
 --------
-"""
-Koballd Crawler
-
-My contribution to Ludum Dare 55.
-
-Select one of the eight green balls, then click on a border of the map to launch it.
-The ball goes to its primary direction, to the opposite border of the map.
-When blocked by a wall, it goes to its secondary direction, indicated by the yellow arrow.
-The ball stops when the two directions are blocked.
-
-To restart a level, click twice on the button 1.
-
-Try to get the cake.
-
-I knew I would have very little time for this Ludum edition, so, it's not that bad.
-
-This is why I called my game “Koballd Crawler”.
-If I don't have time, the sprites would stay as green balls, like in “koBALLd”.
-If I had time, I would have drawn kobolds instead, like in KOballD.
-
-Looks like we sticked to green balls.
-
-Happy crawling!
-"""
-
-
 LEVEL_ONE = (
     "#...............#",
     ".................",

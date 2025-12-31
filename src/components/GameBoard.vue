@@ -595,6 +595,7 @@ export default {
         const storageDescripKey = PREFIX_STORAGE_DESCRIPTION + this.originLocHash;
         localStorage.setItem(storageDescripKey, "1");
       }
+      this.$refs.gameInterface.focus();
     },
 
     clodeDescEndTransi() {
@@ -604,6 +605,9 @@ export default {
 
     toggleDescClick() {
       this.showDescription = !this.showDescription;
+      if (!this.showDescription) {
+        this.$refs.gameInterface.focus();
+      }
       if (this.originLocHash !== "") {
         // On enregistre dans le local storage que la description a été réouverte, pour ce jeu.
         // Ça permet de la ré-ré-ouvrir au prochain chargement du jeu.

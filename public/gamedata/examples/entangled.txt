@@ -129,15 +129,13 @@
     "the_end": [288, 260, 236, 79],
 
     "background": [0, 0]
+  },
+  "show_code_at_start": false,
+  "appendices": {
+    "footnotes": "This game is a Secret Santa made in 2024 for a colleague. Enjoy!"
   }
 }
 --------
-"""
-
-    SECRET SANTA !!
-
-"""
-
 import random
 import squarity
 Coord = squarity.Coord
@@ -1283,7 +1281,6 @@ class GameModel(squarity.GameModelBase):
         self.layer_ui = squarity.Layer(self, self.w, self.h, False)
         for coord_border in squarity.BorderIterator(self.rect):
             self.layer_ui.add_game_object(GameObject(coord_border, "black"))
-            print(coord_border)
         self.gobj_icon_interaction_mode = GameObject(Coord(0, 0), "icon_grab")
         self.layer_ui.add_game_object(self.gobj_icon_interaction_mode)
         self.ui_gobj_swap = GameObject(Coord(0, 0), "icon_swap")

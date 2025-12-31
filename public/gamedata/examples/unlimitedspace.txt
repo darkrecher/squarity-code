@@ -1,73 +1,47 @@
 /gamedata/examples/unlimited_space_tileset.png
 --------
-  {
-    "name": "Unlimited Space",
-    "game_area": {
-        "nb_tile_width": 11,
-        "nb_tile_height": 11
-    },
-    "version": "1.0.0",
-    "tile_size": 32,
-    "img_coords": {
-      "bg": [0, 0],
-      "hero": [32, 0],
-      "scenery_01": [64, 0],
-      "planet_01": [96, 0],
-      "customer_green": [128, 0],
-      "customer_rich": [160, 0],
-      "customer_robot": [160, 32],
-      "customer_fuck_blue_cristal": [96, 64],
-      "customer_octopus": [128, 64],
-      "beacon_customers": [32, 96],
-      "speak_bubble_left": [128, 32],
-      "speak_bubble_right": [96, 32],
+{
+  "name": "Unlimited Space",
+  "game_area": {
+    "nb_tile_width": 11,
+    "nb_tile_height": 11
+  },
+  "version": "1.0.0",
+  "tile_size": 32,
+  "img_coords": {
+    "bg": [0, 0],
+    "hero": [32, 0],
+    "scenery_01": [64, 0],
+    "planet_01": [96, 0],
+    "customer_green": [128, 0],
+    "customer_rich": [160, 0],
+    "customer_robot": [160, 32],
+    "customer_fuck_blue_cristal": [96, 64],
+    "customer_octopus": [128, 64],
+    "beacon_customers": [32, 96],
+    "speak_bubble_left": [128, 32],
+    "speak_bubble_right": [96, 32],
 
-      "win_0_0": [96, 96],
-      "win_1_0": [128, 96],
-      "win_2_0": [160, 96],
-      "win_0_1": [96, 128],
-      "win_1_1": [128, 128],
-      "win_2_1": [160, 128],
-      "win_0_2": [96, 160],
-      "win_1_2": [128, 160],
-      "win_2_2": [160, 160],
+    "win_0_0": [96, 96],
+    "win_1_0": [128, 96],
+    "win_2_0": [160, 96],
+    "win_0_1": [96, 128],
+    "win_1_1": [128, 128],
+    "win_2_1": [160, 128],
+    "win_0_2": [96, 160],
+    "win_1_2": [128, 160],
+    "win_2_2": [160, 160],
 
-      "osef": [0, 0]
-    }
+    "osef": [0, 0]
+  },
+  "show_code_at_start": false,
+  "appendices": {
+    "descrip_text": "You are a galactic taxi-driver. Get customers, drive them to their destination, earn enough money to retire to a beautiful green and blue planet.\n\nYou can use the button or the arrow keys.\n\nUse the key \"1\" or the button \"1\" to display your status in the log, on the lower part of the screen.\n\nThe log displays :\n - your money, next to the wallet emoji \"💼\"\n - your current coordinates, next to your head \"👽\"\n - the coordinates of your objective.\n\nDon't have an objective yet ? Move around and find radars. Some of them will tell you customers coordinates.\n\nUse the button \"2\" to show and cycle through the list of your known customers.\n\nWhen you get a crown in your wallet, you have enough money to retire. Go back to the coordinates (0, 0) and win !\n\nSome customers pay well, some others not. Some customers want to go far, some others not. You can guess it from their name, appearance and dialogues... Or not. Some customers may not exactly corresponds to their supposed stereotypes.\n\nEverybody in this universe use the universal language of emoji. You may not understand everything, try to deal with it as best as you can !\n\nThis game was a contribution to Ludum Dare 54.\nEntry link: https://ldjam.com/events/ludum-dare/54/unlimited-space",
+    "descrip_img": "/gamedata/examples/unlimited_space_descr.png",
+    "show_descrip_at_start": true
   }
+}
 --------
-"""
-Ludum Dare 54 : Unlimited space
-
-You are a galactic taxi-driver. Get customers, drive them to their destination, earn enough money to retire to a beautiful green and blue planet.
-
-You can use the button or the arrow keys.
-
-Use the key "1" or the button "1" to display your status in the log, on the lower part of the screen.
-
-The log displays :
- - your money, next to the wallet emoji "💼"
- - your current coordinates, next to your head "👽"
- - the coordinates of your objective.
-
-Don't have an objective yet ? Move around and find radars. Some of them will tell you customers coordinates.
-
-Use the button "2" to show and cycle through the list of your known customers.
-
-When you get a crown in your wallet, you have enough money to retire. Go back to the coordinates (0, 0) and win !
-
-Some customers pay well, some others not. Some customers want to go far, some others not. You can guess it from their name, appearance and dialogues... Or not. Some customers may not exactly corresponds to their supposed stereotypes.
-
-Everybody in this universe use the universal language of emoji. You may not understand everything, try to deal with it as best as you can !
-
-Link to Ludum Dare entry: https://ldjam.com/events/ludum-dare/54/unlimited-space
-"""
-
-# Lien vers le code actuel du jeu :
-# https://github.com/darkrecher/squarity-doc/blob/master/jeux/unlimited_space/unlimited-space.py
-
-# http://squarity.fr/#fetchez_githubgist_darkrecher/099fdc3c77980e90b3c89d2e26cde792/raw/unlimited-space.txt
-
 import random
 
 OFFSET_FROM_DIR_STR = {

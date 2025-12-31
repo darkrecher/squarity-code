@@ -445,17 +445,13 @@
     "fade_to_black": [304, 835],
 
     "osef": [0, 0]
+  },
+  "show_code_at_start": false,
+  "appendices": {
+    "footnotes": "Ce mini jeu d'aventures est un cadeau pour les 40 ans de mon super-pote.\n\nSuivez les instructions affichées dans la console."
   }
 }
 --------
-"""
-
-Ce jeu était un cadeau pour les 40 ans de mon super-pote.
-
-C'est un mini jeu d'aventures. Suivez les instructions affichées dans la console.
-
-"""
-
 I_WANT_TO_MOVE_EVERYWHERE = False
 
 SCENE_WIDTH = 8

@@ -13,28 +13,14 @@
     "gem_green": [58, 0, 40, 40, "center"],
     "background": [0, 40, 640, 400]
   },
-  "texts": {
-    "description": "blaaa",
-    "show_desc_at_start": true
+  "show_code_at_start": false,
+  "appendices": {
+    "footnotes": "Une émeraude cherche son ami\n\nVous êtes une émeraude verte à la recherche de votre fidèle ami le chrysobéryl jaune.\n\nIl s'agit d'un simple mini-jeu, pour montrer les nouvelles fonctionnalités de la version 2.1.0 du moteur de Squarity.\n\nL'image de background plasma-lava a été créée par 'Downdate'. Elle est disponible ici :\nhttps://opengameart.org/content/centered-around-the-hero\nLicence CC-BY-3.0"
   }
 }
 --------
 """
-
----------------------------
-À la recherche de votre ami
----------------------------
-
-Vous êtes une émeraude verte à la recherche
-de votre fidèle ami le chrysobéryl jaune.
-
-Il s'agit d'un simple mini-jeu, pour montrer les nouvelles fonctionnalités
-de la version 2.1.0 du moteur de Squarity.
-
-Ces fonctionnalités seront documentées très prochainement.
-
 L'image de background plasma-lava a été créée par 'Downdate'.
-Elle est disponible ici :
 https://opengameart.org/content/centered-around-the-hero
 Licence CC-BY-3.0
 """
