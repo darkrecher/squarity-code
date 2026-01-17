@@ -29,6 +29,12 @@
       "background": [160, 32],
 
       "void": [0, 0]
+    },
+    "show_code_at_start": false,
+    "appendices": {
+        "descrip_text": "Aidez Grreeny à ranger sa palette de couleur arc-en-cielo-vomitive.\n\nLes couleurs complexes se décomposent lorsque vous avancez dessus et que toutes les cases adjacentes sont libres.\n\nPoussez les couleurs simples, rassemblez-les (rouge avec rouge, vert avec vert, bleu avec bleu) pour optimiser la place.\n\nGrreeny aime glandouiller. Lorsque vous n'avez rien à faire, appuyez sur le bouton d'action '1' pour générer immédiatement une couleur complexe.\n\nVotre score final dépend du temps de glandouille passé et des couleurs sur l'aire de jeu. Plus une couleur simple est concentrée, plus elle vaut des points.\n\nAppuyez deux fois sur le bouton '2' pour redémarrer une partie.\n",
+        "descrip_img": "/gamedata/examples/greeny_descr.png",
+        "show_descrip_at_start": true
     }
   }
 --------

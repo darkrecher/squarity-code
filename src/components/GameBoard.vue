@@ -917,7 +917,6 @@ textarea {
   transform-origin: left bottom;
   transition: transform 400ms ease;
   will-change: transform;
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -931,8 +930,8 @@ textarea {
 }
 
 img.descrip {
-  max-width: 90%;
-  max-height: 50vh;
+  max-width: 45em;
+  width: 100%;
 }
 
 .close-desc-cross {

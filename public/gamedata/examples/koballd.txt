@@ -26,7 +26,7 @@
   },
   "show_code_at_start": false,
   "appendices": {
-    "descrip_text": "Select one of the eight green balls, then click on a border of the map to launch it.\n\nThe ball goes to its primary direction, to the opposite border of the map. When blocked by a wall, it goes to its secondary direction, indicated by the yellow arrow. The ball stops when the two directions are blocked.\n\nTo restart a level, click twice on the button 1.\n\nTry to get the cake.\n\nThis game is my contribution to Ludum Dare 55. I knew I would have very little time for this edition, this is why I called my game \"Koballd Crawler\".\n - Without time, the sprites would stay as green balls, like in \"koBALLd\".\n - With more time, I would have drawn kobolds instead, like in \"KOballD\".\n\nLooks like we sticked to green balls.\n\nHappy crawling!",
+    "descrip_text": "Select one of the eight green balls, then click on a border of the map to launch it.\n\nThe ball goes to its primary direction, which is the opposite border of the map. When blocked by a wall, it goes to its secondary direction, indicated by the yellow arrow. The ball stops when the two directions are blocked.\n\nTo restart a level, click twice on the button 1.\n\nTry to get the cake.\n\nThis game is my contribution to Ludum Dare 55. I knew I would have very little time for this edition, this is why I called my game \"Koballd Crawler\".\n - Without time, the sprites would stay as green balls, like in \"koBALLd\".\n - With more time, I would have drawn kobolds instead, like in \"KOballD\".\n\nLooks like we sticked to green balls.\n\nHappy crawling!",
     "descrip_img": "/gamedata/examples/koballd_descr.png",
     "show_descrip_at_start": true
   }

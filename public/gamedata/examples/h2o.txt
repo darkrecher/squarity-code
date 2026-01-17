@@ -128,6 +128,11 @@
     "pattern_*.*=+.*I*": [160, 416],
     "pattern_*.*.+=*I*": [192, 416]
 
+  },
+  "show_code_at_start": false,
+  "appendices": {
+      "descrip_img": "/gamedata/examples/h2o_descr.png",
+      "show_descrip_at_start": true
   }
 }
 --------
