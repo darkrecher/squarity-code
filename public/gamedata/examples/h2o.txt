@@ -137,16 +137,10 @@
 }
 --------
 """
-
 H2O la petite goutte d'eau
-
-Essayez d'atteindre la grille de sortie.
-
 
 Le tileset de ce jeu a été dessiné par Tacheul.
 http://pixeljoint.com/p/121104.htm
-
-
 """
 
 LEVELS = (
@@ -222,12 +216,12 @@ LEVELS = (
         "X.C...--...........X",
         "S....XXXX=X.X=+.|..X",
         "X.H...........I.|..X",
-        "X.....--.....++.|..X",
+        "X.....--..O..++.|..X",
         "X..+..XX.....I.....X",
         "X.....II..X=X+X....X",
         "X==++=++..X=X+X..X=X",
         "X..++.....I.III....X",
-        "X..++.....+=+++...OX",
+        "X..++.....+=+++....X",
         "XXXXXXXXXXXXXXXXXXXX",
     ),
     (
@@ -448,6 +442,32 @@ def apply_replacement_patterns(main_pattern, replacement_patterns):
     else:
         return main_pattern
 
+def build_spiral(x_min, y_min, x_max, y_max):
+    dir_offsets = [ (+1, 0), (0, +1), (-1, 0), (0, -1) ]
+    spiral_coords = []
+    line_up_horiz = [ (x, y_min) for x in range(x_min, x_max + 1) ]
+    line_down_vertic = [ (x_max, y) for y in range(y_min + 1, y_max + 1) ]
+    line_left_horiz = [ (x, y_max) for x in range(x_max - 1, x_min - 1, -1) ]
+    spiral_coords = line_up_horiz + line_down_vertic + line_left_horiz
+    current_coord = [x_min, y_max]
+    dir_offset_index = 3
+    dir_offset = dir_offsets[dir_offset_index]
+    nb_dir_change = 0
+    while nb_dir_change < 2:
+        cur_x, cur_y = current_coord
+        ofs_x, ofs_y = dir_offset
+        next_coord = (cur_x + ofs_x, cur_y + ofs_y)
+        if next_coord in spiral_coords:
+            nb_dir_change += 1
+            dir_offset_index += 1
+            dir_offset_index = dir_offset_index % 4
+            dir_offset = dir_offsets[dir_offset_index]
+        else:
+            nb_dir_change = 0
+            spiral_coords.append(next_coord)
+            current_coord = next_coord
+    return tuple(spiral_coords)
+
 
 class GameModel():
 
@@ -455,6 +475,14 @@ class GameModel():
         self.w = width
         self.h = height
         self.current_level_idx = 0
+        spiral_radius = max(self.w, self.h)
+        self.spiral_positions_template = build_spiral(
+            -spiral_radius,
+            -spiral_radius + 1,
+            spiral_radius - 1,
+            spiral_radius - 1
+        )
+        self.spiral_positions_to_clear = []
 
         self.patterns_wall_with_laser = compile_match_patterns(PATTERNS_WALL_WITH_LASER)
         self.patterns_wall_simple = compile_match_patterns(PATTERNS_WALL_SIMPLE)
@@ -464,6 +492,10 @@ class GameModel():
         self.patterns_replacement_tunnels_too_far = compile_replace_patterns(PATTERNS_REPLACEMENT_TUNNELS_TOO_FAR)
         self.patterns_replacement_cross_lasers = compile_replace_patterns(PATTERNS_REPLACEMENT_CROSS_LASERS)
         self.patterns_replacement_perspective_wall_lasers = compile_replace_patterns(PATTERNS_REPLACEMENT_PERSPECTIVE_WALL_LASERS)
+        print()
+        print("Le tileset de ce jeu a été dessiné par Tacheul.")
+        print("http://pixeljoint.com/p/121104.htm")
+        print()
 
         self.init_level()
 
@@ -738,7 +770,23 @@ class GameModel():
             return False
         return True
 
+    def compute_spiral_positions_to_clear(self, x_center, y_center):
+        for x_template_spiral, y_template_spiral in self.spiral_positions_template:
+            x_spiral = x_template_spiral + x_center
+            y_spiral = y_template_spiral + y_center
+            if 0 <= x_spiral < self.w and 0 <= y_spiral < self.h:
+                self.spiral_positions_to_clear.append((x_spiral, y_spiral))
+
     def on_game_event(self, event_name):
+
+        if event_name == "spiral_clear":
+            if self.spiral_positions_to_clear:
+                x_to_clear, y_to_clear = self.spiral_positions_to_clear.pop(0)
+                self.tiles[y_to_clear][x_to_clear][:] = []
+                return """ { "delayed_actions": [ {"name": "spiral_clear", "delay_ms": 7} ] } """
+            else:
+                self.init_level()
+                return """ { "player_unlocks": ["lock_spiral_clear"] } """
 
         if not self.hero_alive:
             self.init_level()
@@ -815,8 +863,9 @@ class GameModel():
                 tile_data_new_pos.append("wet_grid")
                 self.current_level_idx += 1
                 print()
-                print("Bravo ! Vous avez atteint la sortie.")
-                print("Appuyez sur un bouton pour passer au niveau %s" % (self.current_level_idx + 1))
+                print("Bravo ! vous passez au niveau %s" % (self.current_level_idx + 1))
+                self.compute_spiral_positions_to_clear(self.hero_x, self.hero_y)
+                return """ { "delayed_actions": [ {"name": "spiral_clear", "delay_ms": 7} ], "player_locks": ["lock_spiral_clear"] } """
             elif self.current_level_idx == 0:
                 print("Il faut être en état liquide.")
 
