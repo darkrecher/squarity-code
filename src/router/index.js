@@ -89,7 +89,7 @@ const router = createRouter({
       path: '/about/licences',
       name: 'licences',
       component: () => import('../views/DocArticleView.vue'),
-      props: {componentNameDoc: "Licences", headerIsCreate: false},
+      props: {componentNameDoc: "SoftwareLicences", headerIsCreate: false},
     },
   ]
 })
