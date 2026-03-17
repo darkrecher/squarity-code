@@ -31,7 +31,7 @@
             <a href="/game/#fetchez_example_emerald">
               <img src="../assets/game_card_img/emerald.png">
               <br>
-              Une émeraude cherche son ami
+              Une émeraude et son ami
             </a>
           </div>
         </v-col>
@@ -67,7 +67,7 @@
             <a href="/game/#fetchez_example_f40ans">
               <img src="../assets/game_card_img/f40ans.png">
               <br>
-              Les anniversaires de mon pote
+              Les anniv' de mon pote
             </a>
           </div>
         </v-col>
@@ -86,6 +86,15 @@
               <img src="../assets/game_card_img/grreeny.png">
               <br>
               Grreeny le front-ender
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_annivwords">
+              <img src="../assets/game_card_img/annivwords.png">
+              <br>
+              Mots-mêlés d'anniversaire
             </a>
           </div>
         </v-col>
