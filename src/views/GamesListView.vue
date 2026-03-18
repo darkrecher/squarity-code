@@ -91,6 +91,15 @@
         </v-col>
         <v-col cols="12" sm="4">
           <div class="game-example">
+            <a href="/game/#fetchez_example_catfrag">
+              <img src="../assets/game_card_img/catfrag.png">
+              <br>
+              Cat fragmentator
+            </a>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
             <a href="/game/#fetchez_example_annivwords">
               <img src="../assets/game_card_img/annivwords.png">
               <br>
