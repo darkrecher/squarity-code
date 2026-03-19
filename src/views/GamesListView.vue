@@ -107,6 +107,15 @@
             </a>
           </div>
         </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_pacman">
+              <img src="../assets/game_card_img/pacman.png">
+              <br>
+              Pac-Man
+            </a>
+          </div>
+        </v-col>
       </v-row>
     </v-container>
 

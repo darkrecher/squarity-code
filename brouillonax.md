@@ -1,11 +1,11 @@
 
 ## Ordre des jeux à ajouter
 
-cat fragmentator
+X cat fragmentator
 
 X anniversaire avec les lettres
 
-pac man
+X pac man
 
 loops in pools
 

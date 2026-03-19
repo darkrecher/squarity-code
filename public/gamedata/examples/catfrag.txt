@@ -403,8 +403,9 @@ class CatImage:
             self.gamobjs = gamobjs
 
     def _build_gamobj_name(self, x, y):
-        # TODO : C'est un peu bizarre d'avoir foutu le y avant le x
-        # dans les index d'images de chat. On corrigera ça plus tard.
+        # J'ai foutu le y avant le x dans les index d'images de chat.
+        # Parce qu'on veut d'abord les lignes, et ensuite les images
+        # dans chaque ligne.
         return f"{self.image_prefix}_{y:02d}_{x:02d}"
 
     def get_gamobj_name(self, x, y):
