@@ -191,3 +191,7 @@ Longue portée :
             1
 
 
+## truc machin pour faire les annotations d'images
+
+<text style="fill:#ffffff; letter-spacing:0; font-family:Noto Sans; font-size:30; stroke:#0000ff"><tspan x="0">The ball to destroy bricks</tspan></text>
+
