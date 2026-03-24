@@ -7,7 +7,7 @@ X anniversaire avec les lettres
 
 X pac man
 
-loops in pools
+X loops in pools
 
 
 snake match
@@ -195,3 +195,4 @@ Longue portée :
 
 <text style="fill:#ffffff; letter-spacing:0; font-family:Noto Sans; font-size:30; stroke:#0000ff"><tspan x="0">The ball to destroy bricks</tspan></text>
 
+<text text-rendering="auto" fill="#ffffff" stroke="#000000" stroke-width="2.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="2" letter-spacing="0" style="text-align: start;text-align-last: auto;font-family: Sans Serif;font-size: 30;font-weight: 700;"><tspan x="0">Unstable isotopes</tspan></text>

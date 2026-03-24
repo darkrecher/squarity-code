@@ -125,6 +125,15 @@
             </a>
           </div>
         </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_gameofnolife">
+              <img src="../assets/game_card_img/gameofnolife.png">
+              <br>
+              Game of no-life
+            </a>
+          </div>
+        </v-col>
       </v-row>
     </v-container>
 
