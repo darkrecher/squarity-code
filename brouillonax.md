@@ -12,7 +12,7 @@ X loops in pools
 
 snake match
 
-game of no-life
+X game of no-life
 
 soko punk
 

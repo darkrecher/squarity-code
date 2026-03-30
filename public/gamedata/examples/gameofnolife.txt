@@ -1,12 +1,13 @@
 /gamedata/examples/gameofnolife_tileset.png
 --------
 {
+  "name": "Game of no-life",
+  "version": "1.0.0",
   "game_area": {
     "nb_tile_width": 60,
     "nb_tile_height": 38
   },
   "tile_size": 4,
-
   "img_coords": {
     "red_01": [0, 0],
     "red_02": [4, 0],
@@ -407,176 +408,16 @@
     "red_ihm_count_tile_full": [76, 68],
 
     "sandbox_cursor": [56, 24]
+  },
+  "show_code_at_start": false,
+  "appendices": {
+    "descrip_text": "Vid\u00e9o de d\u00e9mo : https://www.youtube.com/watch?v=-I8D6GN44x4\n\nUn mini-jeu de strat\u00e9gie en temps r\u00e9el qui se joue \u00e0 2, avec seulement 4 boutons.\n\nLa personne qui joue les pixels rouges utilise la fl\u00e8che de gauche et la fl\u00e8che de droite.\nLa personne qui joue les bleus utilise les boutons \"1\" et \"2\".\n\nVous pouvez utiliser les chiffres \"1\" et \"2\" du pav\u00e9 num\u00e9rique ou ceux \u00e0 gauche de votre clavier.\n\nCes deux boutons permettent de naviguer dans votre menu de jeu, affich\u00e9 sur le c\u00f4t\u00e9 de la carte. Rouge \u00e0 gauche, bleu \u00e0 droite.\n\nLe premier bouton permet de passer \u00e0 l'option suivante, le deuxi\u00e8me permet de confirmer l'option s\u00e9lectionn\u00e9e.\n\n-- Description des options du menu de jeu --\n\n*) S\u00e9lection de la ville\n   (ic\u00f4ne de carr\u00e9 contenant une ville)\n\nLorsque cette option est activ\u00e9e, le bouton de changement permet de s\u00e9lectionner une autre de vos villes. Le bouton de confirmation valide la s\u00e9lection et vous ram\u00e8ne au menu de jeu.\n\nCe bouton n'a pas d'utilit\u00e9 en d\u00e9but de partie, puisque vous n'avez qu'une seule ville.\n\n*) D\u00e9marrage d'une \"ligne de conqu\u00eate\"\n   (ic\u00f4ne avec une fl\u00e8che horizontale)\n\n - s\u00e9lection de la direction.\n\nUn marqueur appara\u00eet sur la carte, \u00e0 c\u00f4t\u00e9 de la ville s\u00e9lectionn\u00e9e Le bouton de changement d\u00e9place ce marqueur autour de la ville, vous permettant de choisir la direction de votre ligne de conqu\u00eate. Le bouton de confirmation valide la s\u00e9lection et vous am\u00e8ne \u00e0 l'\u00e9tape suivante de la conqu\u00eate.\n\n - s\u00e9lection de la distance.\n\nD'autres marqueurs apparaissent sur la carte. Le bouton de changement permet de d\u00e9finir la longueur de la ligne de conqu\u00eate : 8 cases, 4 cases, ou juste \u00e0 c\u00f4t\u00e9.\n\nLe bouton de confirmation valide la ligne de conqu\u00eate. Vos pixels se d\u00e9placent automatiquement sur cette ligne en construisant une route. Arriv\u00e9s au bout, ils construisent une ville.\n\nIl faut 2 pixels pour une case de route, 16 pixels pour une ville.\n\nSi vous d\u00e9marrez une conqu\u00eate alors que la pr\u00e9c\u00e9dente n'est pas termin\u00e9e, celle-ci est annul\u00e9e.\n\nUn carr\u00e9 de 2x2 villes fusionne automatiquement en une grosse ville. Un carr\u00e9 de 2x2 grosses villes fusionne en une m\u00e9ga-ville.\n\n*) Conqu\u00eate du terrain en arri\u00e8re.\n   (ic\u00f4ne avec une fl\u00e8che diagonale en arri\u00e8re)\n\nLa ville s\u00e9lectionn\u00e9e envoie les pixels environnants sur les cases en diagonale, derri\u00e8re elle, afin de conqu\u00e9rir du terrain.\n\nPlus vous poss\u00e9dez de terrain, plus vous g\u00e9n\u00e9rerez automatiquement des pixels, qui vous permettront de vous \u00e9tendre encore plus.\n\nPour stopper la conqu\u00eate arri\u00e8re, vous pouvez d\u00e9marrer une nouvelle ligne de conqu\u00eate, ou une conqu\u00eate arri\u00e8re dans une autre ville.\n\nLes grosses villes et les m\u00e9ga-villes envoient les pixels plus loin et plus rapidement lors des conqu\u00eates arri\u00e8res.\n\n*) Missile\n   (ic\u00f4ne avec un missile)\n\nLa ville s\u00e9lectionn\u00e9e construit un missile, qui part en diagonale vers la couleur ennemie. Le missile a une port\u00e9e limit\u00e9e, mais il explose d\u00e8s qu'il arrive sur une case de la couleur ennemie.\n\nLorsqu'un missile explose, il g\u00e9n\u00e8re des pixels neutres, de couleur verte. Pour contr\u00f4ler une case, il faut d'abord enlever les pixels des autres couleurs qui sont dessus (ennemis et neutres).\n\nLes grosses villes et les m\u00e9ga-villes envoient plusieurs missiles avec des port\u00e9es plus longues. La construction d'un missile co\u00fbte 10 pixels, son explosion g\u00e9n\u00e8re 20 pixels verts.\n\n*) Sous-menu annulation\n   (ic\u00f4ne avec une croix)\n\nDans ce sous menu, le bouton de changement permet de choisir la sous-option, et le bouton de confirmation permet de la valider.\n\n - annulation de l'ordre en cours (deuxi\u00e8me ic\u00f4ne avec une croix)\n\nAnnule la ligne de conqu\u00eate ou la conqu\u00eate arri\u00e8re en cours, et revient au menu principal.\n\n - passage en mode \"dodo\". (ic\u00f4ne avec les Z)\n\nCe mode peut \u00eatre activ\u00e9 lorsque les deux personnes qui jouent veulent arr\u00eater, mais qu'elles veulent quand m\u00eame voir l'issue de la partie en cours.\n\nLorsqu'une seule personne active le mode dodo, rien ne se passe. Ce mode peut \u00eatre quitt\u00e9 en appuyant sur l'un des deux boutons (il faut parfois appuyer deux fois \u00e0 cause d'un bug, mais c'est pas grave).\n\nLorsque les deux personnes activent leur mode dodo, le jeu se d\u00e9roule en acc\u00e9l\u00e9r\u00e9. Les villes se construisent automatiquement, au hasard, \u00e0 c\u00f4t\u00e9 des villes existantes, jusqu'\u00e0 ce que toute la carte soit remplie de villes.\n\n\n-- Description du fonctionnement, conseils strat\u00e9giques --\n\n\nDes pixels sont g\u00e9n\u00e9r\u00e9s automatiquement en fonction de la quantit\u00e9 de terrain que vous contr\u00f4lez, et aussi de la quantit\u00e9 de ville.\n\nMais il n'y a aucune g\u00e9n\u00e9ration de pixels si vous en poss\u00e9dez trop par rapport \u00e0 la quantit\u00e9 de terrain contr\u00f4l\u00e9. En d\u00e9but de partie, comme vous avez beaucoup de pixels de r\u00e9serve, vous ne g\u00e9n\u00e9rez rien.\n\nIl est conseill\u00e9 de faire des premi\u00e8res conqu\u00eates, ou de construire une premi\u00e8re grosse ville, le plus vite possible.\n\n9 cases de terrain contr\u00f4l\u00e9 g\u00e9n\u00e8reront plus de pixels qu'une ville (qui co\u00fbte 16 \u00e0 construire). N'h\u00e9sitez pas \u00e0 faire des conqu\u00eates arri\u00e8re pour prendre plus de terrain.\n\nUn grosse ville g\u00e9n\u00e8re plus de pixels que 4 villes s\u00e9par\u00e9es, une m\u00e9ga-ville g\u00e9n\u00e8re plus de pixels que 4 grosses villes s\u00e9par\u00e9es.\n\nLes villes ne peuvent pas \u00eatre d\u00e9truites. C'est dommage, mais \u00e7a permet de garantir qu'une partie puisse se terminer.\n\nVous pouvez bloquer momentan\u00e9ment les conqu\u00eates partant de villes adverses en envoyant des missiles dessus pour les entourer de pixels verts.\n\nVous pouvez bloquer d\u00e9finitivement une ville adverse en construisant vos villes autour d'elle.\n\nSi une ville est entour\u00e9e par d'autres villes, elle est d\u00e9sactiv\u00e9e. Elle s'affiche en fonc\u00e9, ne g\u00e9n\u00e8re plus de pixels et vous ne pouvez plus la s\u00e9lectioner. C'est \u00e0 vous de penser correctement vos constructions de mani\u00e8re \u00e0 ne pas d\u00e9sactiver vos propres villes.\n\nCependant, les cases d'une ville d\u00e9sactiv\u00e9e comptent toujours pour la g\u00e9n\u00e9ration de pixels par le nombre de cases contr\u00f4l\u00e9es.\n\nLes pixels se d\u00e9placent automatiquement vers les ordres de conqu\u00eate que vous donnez. Mais ils peuvent se retrouver bloqu\u00e9s car ils ne savent pas faire les d\u00e9tours. Ils ne font pas de recherches de chemin. Ils se d\u00e9placent juste de case en case, sur les routes, vers la conqu\u00eate en cours.\n\nC'est \u00e0 vous d'organiser correctement votre r\u00e9seau routier pour que les pixels puissent se d\u00e9placer d'un point \u00e0 un autre sans \u00eatre bloqu\u00e9s.\n\nLes villes construisent automatiquement des routes autour d'elle, et les pixels se d\u00e9placent plus rapidement sur les routes entourant une ville.\n\nAmusez-vous bien !!\n\nCe jeu est inspir\u00e9 du \"Game of Life\" de John Conway.\n",
+    "descrip_img": "/gamedata/examples/gameofnolife_descr.png",
+    "show_descrip_at_start": true
   }
 }
 --------
 """
-            -------- GAME OF NOLIFE --------
-              Inspiré du "Game of Life" de John Conway.
-
-Lien pour jouer : https://tinyurl.com/thegameofnolife
-Vidéo de démo : https://www.youtube.com/watch?v=-I8D6GN44x4
-
-Un mini-jeu de stratégie en temps réel qui se joue à 2,
-avec seulement 4 boutons (2 pour chaque).
-
-La personne qui joue les pixels rouges utilise la flèche
-de gauche et la flèche de droite.
-La personne qui joue les bleus utilise les boutons "1" et "2".
-
-Vous pouvez utiliser les chiffres "1" et "2" du pavé numérique
-ou ceux à gauche de votre clavier.
-
-Ces deux boutons permettent de naviguer dans votre menu de jeu,
-affiché sur le côté de la carte. Rouge à gauche, bleu à droite.
-Le premier bouton permet de passer à l'option suivante,
-le deuxième permet de confirmer l'option sélectionnée.
-
-v1.1 : correction du bug sur les bare tiles with many units.
-
--- Description des options du menu de jeu --
-
-*) Sélection de la ville
-   (icône de carré contenant une ville)
-
-Lorsque cette option est activée, le bouton de changement permet
-de sélectionner une autre de vos villes. Le bouton de confirmation
-valide la sélection et vous ramène au menu de jeu.
-Ce bouton n'a pas d'utilité en début de partie, puisque vous
-n'avez qu'une seule ville.
-
-*) Démarrage d'une "ligne de conquête"
-   (icône avec une flèche horizontale)
-
-   - sélection de la direction.
-Un marqueur apparaît sur la carte, à côté de la ville sélectionnée
-Le bouton de changement déplace ce marqueur autour de la ville,
-vous permettant de choisir la direction de votre ligne
-de conquête. Le bouton de confirmation valide la sélection
-et vous amène à l'étape suivante de la conquête.
-
-   - sélection de la distance
-D'autres marqueurs apparaissent sur la carte. Le bouton de
-changement permet de définir la longueur de la ligne de conquête :
-8 cases, 4 cases, ou juste à côté.
-Le bouton de confirmation valide la ligne de conquête.
-Vos pixels se déplacent automatiquement sur cette ligne en
-construisant une route. Arrivés au bout, ils construisent une ville.
-
-Il faut 2 pixels pour une case de route, 16 pixels pour une ville.
-Si vous démarrez une conquête alors que la précédente n'est pas
-terminée, celle-ci est annulée.
-
-Un carré de 2x2 villes fusionne automatiquement en une grosse ville.
-Un carré de 2x2 grosses villes fusionne en une méga-ville.
-
-*) Conquête du terrain en arrière.
-   (icône avec une flèche diagonale en arrière)
-
-La ville sélectionnée envoie les pixels environnants sur les cases
-en diagonale, derrière elle, afin de conquérir du terrain.
-Plus vous possédez de terrain, plus vous générerez automatiquement
-des pixels, qui vous permettront de vous étendre encore plus.
-Pour stopper la conquête arrière, vous pouvez démarrer une nouvelle
-ligne de conquête, ou une conquête arrière dans une autre ville.
-
-Les grosses villes et les méga-villes envoient les pixels plus loin
-et plus rapidement lors des conquêtes arrières.
-
-*) Missile
-   (icône avec un missile)
-
-La ville sélectionnée construit un missile, qui part en diagonale
-vers la couleur ennemie. Le missile a une portée limitée, mais il
-explose dès qu'il arrive sur une case de la couleur ennemie.
-
-Lorsqu'un missile explose, il génère des pixels neutres, de couleur
-verte. Pour contrôler une case, il faut d'abord enlever les pixels
-des autres couleurs qui sont dessus (ennemis et neutres).
-
-Les grosses villes et les méga-villes envoient plusieurs missiles
-avec des portées plus longues.
-La construction d'un missile coûte 10 pixels, son explosion génère
-20 pixels verts.
-
-*) Sous-menu annulation
-   (icône avec une croix)
-
-Dans ce sous menu, le bouton de changement permet de choisir la
-sous-option, et le bouton de confirmation permet de la valider.
-
-   - annulation de l'ordre en cours
-     (deuxième icône avec une croix)
-Annule la ligne de conquête ou la conquête arrière en cours,
-et revient au menu principal.
-
-   - passage en mode "dodo".
-     (icône avec les Z)
-Ce mode peut être activé lorsque les deux personnes qui jouent
-veulent arrêter, mais qu'elles veulent quand même voir l'issue
-de la partie en cours.
-Lorsqu'une seule personne active le mode dodo, rien ne se passe.
-Ce mode peut être quitté en appuyant sur l'un des deux boutons
-(il faut parfois appuyer deux fois à cause d'un bug, mais c'est
-pas grave).
-Lorsque les deux personnes activent leur mode dodo, le jeu se
-déroule en accéléré. Les villes se construisent automatiquement,
-au hasard, à côté des villes existantes, jusqu'à ce que
-toute la carte soit remplie de villes.
-
-
--- Description du fonctionnement, conseils stratégiques --
-
-Des pixels sont générés automatiquement en fonction de la quantité
-de terrain que vous contrôlez, et aussi de la quantité de ville.
-
-Mais il n'y a aucune génération de pixels si vous en possédez trop
-par rapport à la quantité de terrain contrôlé. En début de partie,
-comme vous avez beaucoup de pixels de réserve, vous ne générez rien.
-Il est conseillé de faire des premières conquêtes, ou de
-construire une première grosse ville, le plus vite possible.
-
-9 cases de terrain contrôlé génèreront plus de pixels qu'une ville
-(qui coûte 16 à construire). N'hésitez pas à faire des conquêtes
-arrière pour prendre plus de terrain.
-
-Un grosse ville génère plus de pixels que 4 villes séparées,
-une méga-ville génère plus de pixels que 4 grosses villes séparées.
-
-Les villes ne peuvent pas être détruites. C'est dommage, mais ça
-permet de garantir qu'une partie puisse se terminer.
-Vous pouvez bloquer momentanément les conquêtes partant de villes
-adverses en envoyant des missiles dessus pour les entourer de pixels
-verts.
-Vous pouvez bloquer définitivement une ville adverse en construisant
-vos villes autour d'elle.
-
-Si une ville est entourée par d'autres villes, elle est désactivée.
-Elle s'affiche en foncé, ne génère plus de pixels et vous ne pouvez
-plus la sélectioner. C'est à vous de penser correctement vos
-constructions de manière à ne pas désactiver vos propres villes.
-Cependant, les cases d'une ville désactivée comptent toujours pour
-la génération de pixels par le nombre de cases contrôlées.
-
-Les pixels se déplacent automatiquement vers les ordres de conquête
-que vous donnez. Mais ils peuvent se retrouver bloqués car ils
-ne savent pas faire les détours. Ils ne font pas de recherches
-de chemin. Ils se déplacent juste de case en case, sur les routes,
-vers la conquête en cours.
-C'est à vous d'organiser correctement votre réseau routier pour
-que les pixels puissent se déplacer d'un point à un autre sans
-être bloqués.
-
-Les villes construisent automatiquement des routes autour d'elle,
-et les pixels se déplacent plus rapidement sur les routes entourant
-une ville.
-
-Amusez-vous bien !!
-
-La suite de ce texte contient des explications sur le code du jeu,
-la manière dont il est programmé, etc. Vous n'avez pas besoin de le
-lire si vous souhaitez juste jouer.
-
 
 -- Vocabulaire spécifique au jeu --
 
