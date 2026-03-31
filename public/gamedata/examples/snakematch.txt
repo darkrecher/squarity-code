@@ -1,6 +1,8 @@
 /gamedata/examples/snakematch_tileset.png
 --------
 {
+    "name": "Snake Match-3",
+    "version": "1.0.0",
     "game_area": {
         "nb_tile_width": 10,
         "nb_tile_height": 15
@@ -63,26 +65,14 @@
         "won_05": [224, 175],
 
         "bla": [0, 0]
+    },
+    "show_code_at_start": false,
+    "appendices": {
+        "descrip_text": "You are Leon the Python. You have to dig as deep as possible in the fruits. When you align three same fruits, you create a match, the fruits disappear and you earn experience. To align fruits, make them fall by eating fruits below them.\n\nTo destroy a stone block, match some fruits next to it.\n\nThe snake has a limited length, which grows with experience. When you reach the length, end the current run by coming back to the upper line of the game area, then restart a run to get more experience.\n\nWill you be able to save your creator, the Guide on Van-Random, who fell in the fruits while trying to write a language that would formalize the fruitiness of the world? The Guide really lost himself, you have to pass about 8 lines of full blocks to get close to him.\n\nThis game is a contribution to Ludum Dare 47 :\nhttps://ldjam.com/events/ludum-dare/48/snake-match",
+        "show_descrip_at_start": true
     }
 }
 --------
-"""
-
-# https://ldjam.com/events/ludum-dare/48/snake-match
-
-
-Snake-Match
-
-
-You are Leon the Python. You have to dig deep in the fruits and do some Match-3.
-
-Will you be able to save your creator, the Guide on Van-Random, who fell in the fruits while trying to write a language that would formalize the fruitiness of the world ?
-
-One last information : you should try to go quite deep. the Guide really lost himself. You may be close to him when you passed about 8 lines of full blocks.
-
-
-"""
-
 # On approche de la fin. C'est le moment de lister tout ce qu'il reste à faire:
 
 # X Le début du jeu, avec un décor de ciel et de terre.
@@ -231,7 +221,7 @@ class Tile:
 
     def add_match(self, gamobj):
         self.gamobj_matches.append(gamobj)
-        # TODO : c'est moche de gérer avec les gamobj,
+        # C'est moche de gérer avec les gamobj,
         # on essaiera de faire mieux si on a le temps.
         if "right" in gamobj or "left" in gamobj or "horiz" in gamobj:
             self.has_horizontal_match = True
@@ -760,7 +750,7 @@ class GameModel:
         # --- check des matches horizontaux ---
         for line in self.tiles:
             for tile_start in line:
-                # TODO : mettre ça dans une fonction parce que là c'est
+                # Faudrait mettre ça dans une fonction parce que là c'est
                 # trop de code imbriqué.
                 current_matches = []
                 current_fruit_type = tile_start.fruit
@@ -788,15 +778,15 @@ class GameModel:
                         matched_tiles = matched_tiles.union(set(current_matches))
 
         # --- check des matches verticaux. ---
-        # TODO : copié-collé de gros bourrin avec le check horizontal.
+        # Copié-collé de gros bourrin avec le check horizontal.
         # À mon avis y'a moyen de faire mieux.
-        # TODO : et ce serait tellement classe d'avoir les tiles
+        # Et ce serait tellement classe d'avoir les tiles
         # indexées par ligne ET par colonne. Comme ça j'aurais pas besoin
         # d'itérer sur x et y comme un pauvre.
         for x_start in range(self.game_w):
             for y_start in range(self.game_h):
                 tile_start = self.tiles[y_start][x_start]
-                # TODO : mettre ça dans une fonction parce que là c'est
+                # Mettre ça dans une fonction parce que là c'est
                 # trop de code imbriqué.
                 current_matches = []
                 current_fruit_type = tile_start.fruit
@@ -882,7 +872,7 @@ class GameModel:
             )
             return None
         else:
-            # TODO : faudrait factoriser ça, car c'est de la game logic.
+            # Faudrait factoriser ça, car c'est de la game logic.
             # Et là je l'ai mis à deux endroits différents c'est mal.
             total_xp = (
                 self.xp_previous_runs + self.snake.qty_eaten + self.xp_from_matches
@@ -902,7 +892,7 @@ class GameModel:
     def check_next_level(self):
         total_xp = self.xp_previous_runs + self.snake.qty_eaten + self.xp_from_matches
         if total_xp >= self.xp_next_level:
-            # TODO : ligne à factoriser car game logic.
+            # Faudrait factoriser cette ligne, car game logic.
             self.current_level += 1
             self.xp_next_level = 50 + 300 * self.current_level
             self.snake_length_max += 50

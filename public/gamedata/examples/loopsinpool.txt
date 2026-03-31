@@ -2,8 +2,8 @@
 --------
   {
     "name": "Loops in pools",
-    "tile_size": 32,
     "version": "1.0.0",
+    "tile_size": 32,
     "img_coords": {
       "ground": [0, 0],
       "cursor": [32, 0],
@@ -46,7 +46,7 @@
     },
     "show_code_at_start": false,
     "appendices": {
-        "descrip_text": "You are a magigardener. The Countess du Swagging asked you to clean her swimming-pool, which has been invaded by mud and vines.\n\nSelect two tiles with the button \"1\" (numpad or keyboard) to exchange their vines.\n\nMake some closed vine loops to remove the mud inside it. The clear fountain water propagates where there is no mud.\n\nYou can not exchange the vines when the two tiles are not completely covered by mud or by water.\n\nThe button \"2\" is a special power:\n - on a tile covered by water, it spins the vines.\n - on a tile with mud, it adds a single vine.\n\nEach action costs Pool mana (totally unrelated to Mana pool !):\n - exchange: 1\n - spin vines: 4\n - add a vine on mud: 10\n\nUse the button \"1\" on the upper left fountain to know you current Pool mana. You regain some by propagating water.\n\nTry to reach the goal on the lower right.\n\nGood luck, magigardener !\n\nDue to technical restrictions, the swimming-pool is empty at the beginning. It is automatically filled with mud the first time you press a key.\n\nHere is a link to a little demo of the game: https://www.youtube.com/watch?v=_6dP44lTLxA\n\nThis game was a contribution to Ludum Dare 47: https://ldjam.com/events/ludum-dare/47/loops-in-pool\n",
+        "descrip_text": "You are a magigardener. The Countess du Swagging asked you to clean her swimming-pool, which has been invaded by mud and vines.\n\nSelect two tiles with the button \"1\" (numpad or keyboard) to exchange their vines.\n\nMake some closed vine loops to remove the mud inside it. The clear fountain water propagates where there is no mud.\n\nYou can not exchange the vines when the two tiles are not completely covered by mud or by water.\n\nThe button \"2\" is a special power:\n - on a tile covered by water, it spins the vines.\n - on a tile with mud, it adds a single vine.\n\nEach action costs Pool mana (totally unrelated to Mana pool !):\n - exchange: 1\n - spin vines: 4\n - add a vine on mud: 10\n\nUse the button \"1\" on the upper left fountain to know you current Pool mana. You regain some by propagating water.\n\nTry to reach the goal on the lower right.\n\nGood luck, magigardener !\n\nDue to technical restrictions, the swimming-pool is empty at the beginning. It is automatically filled with mud the first time you press a key.\n\nHere is a link to a little demo of the game: https://www.youtube.com/watch?v=_6dP44lTLxA\n\nThis game is a contribution to Ludum Dare 47: https://ldjam.com/events/ludum-dare/47/loops-in-pool\n",
         "descrip_img": "/gamedata/examples/loopsinpool_descr.png",
         "show_descrip_at_start": true
     }
@@ -444,7 +444,8 @@ class GameModel():
             # print("tris out or not", is_pack_out, current_triangle_pack_validated)
             if not is_pack_out:
                 self.tmp_datas_inside.append(tmp_data_cur)
-                # TODO : insides.append(current_triangle_pack_validated)
+                # Pour plus tard, ou pas :
+                # insides.append(current_triangle_pack_validated)
 
         # print("fini big loop")
         # print("self.tmp_datas_inside", self.tmp_datas_inside)

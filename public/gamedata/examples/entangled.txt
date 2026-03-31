@@ -1188,7 +1188,7 @@ class DialogUI():
             for gobj in self.gobjs_text_bubble:
                 self.layer_dialog.remove_game_object(gobj)
             self.layer_dialog_characters.remove_game_object(self.gobj_text_current)
-            # TODO : peut être on peut garder la bubble, au lieu de tout péter et remettre à chaque fois.
+            # Peut être qu'on pourrait garder la bubble, au lieu de tout péter et remettre à chaque fois.
             self.gobjs_text_bubble = []
         elif self.current_step <= 3:
             for gobj in self.gobjs_by_step[3 - self.current_step]:
@@ -1381,7 +1381,7 @@ class GameModel(squarity.GameModelBase):
         self.scroll(direction)
 
     def on_button_action(self, action_name):
-        # TODO : si on a les 2 pouvoirs "EVERYWHERE",
+        # Idée : si on a les 2 pouvoirs "EVERYWHERE",
         # et que l'on clique sur un ruban grabbable, alors ça le grab tout de suite,
         # même si on est en mode swap.
         # C'est un pouvoir supplémentaire: l'auto-grab. "le pouvoir de prescience".
@@ -1406,7 +1406,7 @@ class GameModel(squarity.GameModelBase):
                 self.scroll(direction)
             return
 
-        # TODO : fonctions spécifiques world <-> view. Ou pas...
+        # Faudrait coder des fonctions spécifiques world <-> view. Ou pas...
         world_coord = Coord(
             self.view_rect.x + coord.x,
             self.view_rect.y + coord.y
@@ -1423,7 +1423,8 @@ class GameModel(squarity.GameModelBase):
                 self.render_world()
                 return
 
-        # TODO : specific UI negative feedback if not clicked on a ribbon extremity.
+        # Ce serait bien d'avoir un retour (warning, ou autre), dans l'interface du jeu
+        # lorsqu'on ne clique pas sur une extrémité de rubans.
         if self.interaction_mode == "swap":
             return self.on_click_swap(world_coord)
         elif self.interaction_mode == "grab":

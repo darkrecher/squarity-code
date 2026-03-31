@@ -59,7 +59,8 @@ class BouncePoint:
 
 
 class CollisionHandler:
-    # TODO : les bounce_points indexés par cbr_pos, dans un dict.
+    # Ce serait bien de mettre les bounce_points
+    # indexés par cbr_pos, dans un dict.
 
     def __init__(self):
         self.reset()
@@ -404,7 +405,7 @@ class GameModel(squarity.GameModelBase):
     def put_blocks_on_borders(self):
         sprites = ["block_white", "block_blue"]
         for x_tile in range(self.w):
-            # TODO : duplicate code de gros dégueulasse.
+            # Duplicate code de gros dégueulasse.
             coord = Coord(x_tile, 0)
             block = Block(coord, sprites[(coord.x+coord.y) % 2])
             block.initialize()
@@ -412,7 +413,7 @@ class GameModel(squarity.GameModelBase):
             self.collision_handler.add_bounce_points(block.bounce_points)
 
         for y_tile in range(1, self.h - 1):
-            # TODO : meta-duplicate code de meta-gros dégueulasse.
+            # Meta-duplicate code de meta-gros dégueulasse.
             coord = Coord(0, y_tile)
             block = Block(coord, sprites[(coord.x+coord.y) % 2])
             block.initialize()

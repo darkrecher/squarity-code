@@ -143,18 +143,17 @@
             </a>
           </div>
         </v-col>
+        <v-col cols="12" sm="4">
+          <div class="game-example">
+            <a href="/game/#fetchez_example_sokopunk">
+              <img src="../assets/game_card_img/sokopunk.png">
+              <br>
+              Soko-Punk
+            </a>
+          </div>
+        </v-col>
       </v-row>
     </v-container>
-
-    <div>
-      <p>
-        Les autres jeux existants seront ajoutés très bientôt.
-        <br>
-        <br>
-        <br>
-        <br>
-      </p>
-    </div>
 
   </main>
 </template>

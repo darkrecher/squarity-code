@@ -9,19 +9,21 @@
           <div class="all-content">
 
             <p>
-              Après avoir travaillé pendant plus de 20 ans dans diverses entreprises, organisations et startuffes,
-              je fus lourdé par la dernière en date. Je suis au chômage depuis le 1er décembre 2025.
+              J'ai pas vraiment besoin d'argent. Je travaille comme méta-imposteur dans une quelconque startuffe d'informe-à-tiques. Ça consiste à faire semblant d'être atteint du syndrome de l'imposteur, pour sous-entendre que je serais techniquement valable. La réalité, c'est que je suis un imposteur, mais qui fait semblant de ne pas en être un en montrant aux autres qu'il croit en être un.
             </p>
 
             <p>
-              Je tente différentes manières d’avoir des revenus, avec plus ou moins de sérieux et d’espoir. Ceci en est une parmi d’autres.
+              <br>
+              <b>
+                Si vous aimez Squarity, mon plus beau cadeau serait que vous codiez un jeu avec.
+              </b>
+              <br>
+              <br>
             </p>
-
             <p>
-              Si vous aimez Squarity et que vous avez suffisamment d'argent, vous pouvez me faire un don, en cliquant sur ce lien :
+              Mon deuxième plus beau cadeau serait de me faire un don, en cliquant sur ce lien :
+              <a href="https://ko-fi.com/R6R31GBRW6" target="_blank">Envoyer des choux (à l'arche) avec Ko-fi</a>
             </p>
-
-            <a href="https://ko-fi.com/R6R31GBRW6" target="_blank">Envoyer des choux (à l'arche) avec Ko-fi</a>
 
             <p>
               Hypothétiquement, j’ajouterais des bonus ou des créations en avant-première,
@@ -29,9 +31,7 @@
             </p>
 
             <p>
-              Ce ne serait pas correct de vous apitoyer avec mon chômage si je n’y suis plus.
-              Par conséquent, si je retrouve un CDI ou un CDD, je m’engage à vous le signaler dans cette page et dans la page Ko-fi.
-              Je m’engage à le faire au plus tard le premier jour de mon embauche.
+              Pour les personnes qui connaissent Squarity depuis quelques temps, ce compte Ko-fi est ici car je me suis retrouvé au chômage début 2026. Actuellement, tout va bien, j'ai un CDI. Je laisse cette page de don, au cas où une personne milliardaire passerait dans le coin.
             </p>
 
             <p>
@@ -69,14 +69,15 @@ p {
 a {
   color: #A0A0D0;
   font-weight: bold;
-  font-size: 1.2em;
-  /* https://stackoverflow.com/questions/73074183/how-to-remove-extra-whitespace-on-link-transform */
-  display: inline-flex;
   padding: 0.8em 0.2em 0.8em 0.2em;
 }
 
 a:visited {
   color: #b06edb;
+}
+
+a:hover {
+  color: #C0A0C8;
 }
 
 .all-content {
